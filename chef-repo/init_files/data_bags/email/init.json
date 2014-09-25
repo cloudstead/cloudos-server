@@ -1,0 +1,20 @@
+{
+    "id": "init",
+
+    "smtp_relay": {
+        "username": "sendgrid-username-here",
+        "password": "sendgrid-password-here",
+        "host": "smtp.sendgrid.net",
+        "port": 587
+    },
+
+    "vendor": {
+        "settings": [
+            { "path": "smtp_relay.username", "shasum":"username-sha256-sum" },
+            { "path": "smtp_relay.password", "shasum":"password-sha256-sum" },
+            { "path": "smtp_relay.host", "shasum":"host-sha256-sum" },
+            { "path": "smtp_relay.port", "shasum":"port-sha256-sum" }
+        ]
+    }
+
+}

@@ -1,0 +1,23 @@
+#
+# Cookbook Name:: sso
+# Recipe:: restore
+#
+# Copyright 2014, cloudstead
+#
+# All rights reserved - Do Not Redistribute
+#
+
+bash "restore kerberos config files & database" do
+user "root"
+cwd "<%=@backup_dir%>"
+code <<-EOF
+echo "restoring config files from backup at <%=@backup_dir%>"
+
+cp -rf etc/* /etc
+
+echo "restoring kerberos dump file <%=@dumpfile%>"
+
+kdb5_util load tmp/<%=@dumpfile%>
+
+EOF
+end

@@ -1,0 +1,15 @@
+{
+    "run_list": [
+        // packages
+        "recipe[base::prep-base-image]",
+
+        // we manage our own subdomain
+        "recipe[djbdns]",
+
+        // software shared by multiple apps (switching to docker may change this)
+        "recipe[apache]", "recipe[postgresql]", "recipe[java]", "recipe[java::jdk]",
+
+        // message queue for rooty-tooty
+        "recipe[kestrel]"
+    ]
+}

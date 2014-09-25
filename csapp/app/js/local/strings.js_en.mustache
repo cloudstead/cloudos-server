@@ -1,0 +1,193 @@
+Em.I18n.translations = {
+    app: {
+        title: 'cloudstead.io'
+    },
+    sections: {
+        setup: 'Setup',
+
+        admin: 'Admin',
+
+        login: 'Sign In',
+        logout: 'Sign Out',
+        new_admin_account: 'Create Your Admin Account',
+
+        apps: 'My Cloud Apps',
+        appstore: 'AppStore',
+
+        accounts: 'Accounts',
+        add_account: 'Add a New Account',
+        manage_account: 'Manage Account',
+
+        email: {
+            main: 'Email',
+            domains: 'Domains',
+            aliases: 'Groups',
+            primaryDomain: 'Primary Domain'
+        },
+        add_domain: 'Add a New Email Domain',
+        add_alias: 'Add a New Email Group',
+        edit_alias: 'Update Email Group',
+
+        security: {
+            main: 'Security',
+            certs: 'SSL Certificates'
+        },
+        add_cert: 'Add SSL Certificate',
+        overwrite_cert: 'Overwrite SSL Certificate',
+
+        settings: 'Settings'
+    },
+    apps: {
+        email: 'Email',
+        calendar: 'Calendar',
+        files: 'Files'
+    },
+    forms: {
+        setup: {
+            accountName: 'Your user account name (will be admin)',
+            initialPassword: 'Your password on cloudstead.io',
+            password: 'New Password',
+            password2: 'Confirm Password',
+            setup_button: 'Setup',
+            time_zone: 'Select Time Zone'
+        },
+        login: {
+            username: 'Username',
+            password: 'Password',
+            password2: 'Confirm Password',
+            login_button: 'Sign In',
+            new_admin_account_button: 'Create Admin Account'
+        },
+        account: {
+            account_name: 'Account Name',
+            recovery_email: 'Recovery Email',
+            mobile_phone: 'Mobile Phone',
+            add_account: 'Add New Account',
+            add_button: 'Create Account',
+            update_button: 'Update Account',
+            delete_button: 'Delete Account'
+        },
+        email: {
+            domain_to_add: 'Domain',
+            add_domain: 'Add Domain',
+            remove_domain: 'Remove Domain',
+            alias: {
+                name: 'Email Group Name',
+                recipients: 'Deliver to Accounts',
+                add_button: 'Add Email Group',
+                edit_button: 'Edit Email Group',
+                delete_button: 'Remove Email Group'
+            }
+        },
+        security: {
+            certs: {
+                name: 'Name',
+                description: 'Description',
+                commonName: 'Common Name',
+                pem: 'Certificate PEM Data',
+                key: 'Certificate Key Data',
+                add_button: 'Add Certificate',
+                overwrite_button: 'Overwrite Certificate',
+                delete_button: 'Remove Certificate'
+            }
+        },
+        installApp: {
+            install_button: 'Install Now',
+            install_from_url: 'Install app from URL'
+        },
+        settings: {
+            change_password_header: 'Change Password',
+            current_password: 'Current Password',
+            new_password: 'New Password',
+            new_password2: 'Confirm New Password',
+            change_password_button: 'Change Password'
+        }
+    },
+    alerts: {
+        username_empty: 'Please enter a username',
+        password_too_short: 'Your password must be at least 6 characters long',
+        password_mismatch: 'The passwords did not match'
+    },
+    paragraphs: {
+        new_admin_account: 'Please create a password to protect your configuration.',
+        no_clouds_defined: 'Let\'s set up your cloud accounts. Choose one of the cloud providers listed below to continue.',
+        no_cloud_types_defined: 'No cloud types were defined. Please install the latest version to get more clouds.', // should never happen
+        no_apps_found: 'No apps were found. Try another search.',
+        app_cloud_price_quote: 'Your estimated monthly cost is:',
+        no_accounts_found: 'No accounts found',
+        email: {
+            domains: 'Route email for your custom domain name to this cloudstead:<br><ul><li>Add domain names here that this cloudstead will handle mail for</li><li>Edit your DNS for the domain and set the MX record to the name shown above</li></ul>',
+            aliases: 'Create a group email address. For example, you may want email sent to support@yourdomain.com to be delivered to multiple mailboxes.'
+        }
+    },
+    appNames: {
+        email: 'email',
+        calendar: 'calendar',
+        files: 'files',
+        kanban: 'kanban',
+        phabricator: 'phabricator'
+    },
+    cloudTypes: {
+        VboxCloudType: {
+            name: 'Virtual Box',
+            preamble: 'You must have VirtualBox installed to continue.<br/><br/>If you don\'t have it installed, please <a href="https://www.virtualbox.org/wiki/Downloads">download and install VirtualBox</a> now.',
+            options: {
+                resource_name: 'Name',
+                cloud_user: 'User',
+                initial_ssh_key: 'Initial SSH Key',
+                vbox_template_vm: 'Template VM'
+            }
+        },
+        AwsCloudType: {
+            name: 'Amazon',
+            preamble: 'You must have an Amazon AWS account to continue.<br/><br/>If you don\'t have one, please <a href="https://portal.aws.amazon.com/gp/aws/developer/registration/index.html">setup your Amazon AWS account</a> now.',
+            options: {
+                resource_name: 'Name',
+                cloud_account_id: 'AWS Access Key',
+                cloud_account_secret: 'AWS Secret Key',
+                cloud_user: 'User',
+                initial_ssh_key: 'Initial SSH Key',
+                cloud_region: 'Region',
+                cloud_instance_size: 'Instance Type'
+            }
+        }
+    },
+    task: {
+        '{appInstall.installingPackage}': 'Installing package',
+        '{appInstall.installingApp}': 'Installing app',
+        events: {
+            '{appInstall.downloadingTarball}': 'Downloading package',
+            '{appInstall.error.downloadingTarball}': 'Error downloading package',
+            '{appInstall.unpackingTarball}': 'Unpacking package',
+            '{appInstall.error.unpackingTarball}': 'Error unpacking package',
+            '{appInstall.readingManifest}': 'Reading package manifest',
+            '{appInstall.error.readingManifest}': 'Error reading package manifest',
+            '{appInstall.loadingPlugin}': 'Loading plugin',
+            '{appInstall.error.loadingPlugin}': 'Error loading plugin',
+            '{appInstall.creatingHostname}': 'Creating hostname',
+            '{appInstall.error.creatingHostname}': 'Error creating hostname',
+            '{appInstall.verifyingChefCookbooks}': 'Verifying cookbooks',
+            '{appInstall.error.verifyingChefCookbooks.invalidRecipe}': 'Invalid cookbook recipe',
+            '{appInstall.copyingChefCookbooks}': 'Copying cookbooks',
+            '{appInstall.error.copyingChefCookbooks}': 'Error copying cookbooks',
+            '{appInstall.notifyingChefToRun}': 'Installing app',
+            '{appInstall.error.notifyingChefToRun}': 'Installing app',
+            '{appInstall.waitingForChefToComplete}': 'Waiting for installation to complete',
+            '{appInstall.error.waitingForChefToComplete}': 'Error waiting for installation to complete',
+            '{appInstall.error.waitingForChefToComplete.timeout}': 'Timeout waiting for installation to complete',
+            '{appInstall.recordingInstallation}': 'Finalizing installation',
+            '{appInstall.error.recordingInstallation}': 'Error finalizing installation'
+        }
+    },
+    errors: {
+        field_required: 'This field is required',
+        email_invalid: 'Email is invalid',
+        auth_invalid: 'Invalid username/password',
+        account_name_invalid: 'Invalid account name, only letters and numbers allowed, must begin with a character',
+        password_mismatch: 'Password mismatch',
+        password_short: 'Password must be at least 8 characters long',
+        password_incorrect: 'Incorrect password',
+        cloudosname_short: 'CloudOS name must be at least 4 characters long',
+        cloudos_reserverd : 'Please use different cloudOs name'
+    }
+};

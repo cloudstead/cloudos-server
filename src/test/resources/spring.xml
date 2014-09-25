@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:annotation-config/>
+
+    <!-- DB-related beans (dataSource, sessionFactory, hibernateTemplate, etc) -->
+    <context:component-scan base-package="org.cobbzilla.wizard.spring.config.rdbms"/>
+
+    <!-- jersey resources, DAOs -->
+    <context:component-scan base-package="cloudos.model"/>
+    <context:component-scan base-package="cloudos.dao"/>
+
+    <!-- Use Kerberos and Rooty mocks instead of default implementations -->
+    <context:component-scan base-package="cloudos.service">
+        <context:exclude-filter type="regex" expression="cloudos.service.KerberosService" />
+        <context:exclude-filter type="regex" expression="cloudos.service.TemplatedMailService" />
+    </context:component-scan>
+    <bean class="cloudos.service.MockKerberosService"/>
+    <bean class="cloudos.service.MockTemplatedMailService"/>
+
+    <!-- Mock out filesystem-based SetupSettingsSource with a simple one that tests can control -->
+    <context:component-scan base-package="cloudos.resources">
+        <context:exclude-filter type="regex" expression="cloudos.resources.setup.SetupSettingsSource" />
+    </context:component-scan>
+    <bean class="cloudos.resources.setup.MockSetupSettingsSource"/>
+
+</beans>

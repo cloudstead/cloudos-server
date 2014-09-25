@@ -1,0 +1,91 @@
+# Things in {{CURLIES}} will be read from the process environment when the server starts up.
+# The jrun launcher will typically load these from ~/.cloudos.env
+
+serverName: cloudos-api
+
+#publicUriBase: https://127.0.0.1
+publicUriBase: {{PUBLIC_BASE_URI}}
+
+# Kerberos admin password. For creating and listing accounts with kadmin program.
+kadminPassword: {{KADMIN_PASS}}
+
+# Name of the default admin account. The API assumes this is the organization to auth against (we expect this
+defaultAdmin: admin
+
+bcryptRounds: 16
+springContextPath: classpath:/spring.xml
+
+database:
+  driver: org.postgresql.Driver
+  url: jdbc:postgresql://127.0.0.1:5432/cloudos
+  user: cloudos
+  password: {{CLOUDOS_DB_PASS}}
+
+  hibernate:
+    entityPackages: [ cloudos.model ]
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    showSql: true
+    hbm2ddlAuto: validate
+    validationMode: ddl
+
+staticAssets:
+  baseUri: /
+  assetRoot: static/
+  localOverride: {{ASSETS_DIR}}
+  mustacheCacheEnabled: false
+  mustacheResourceRoot: static/
+  utilPaths:
+    INDEX_PATH: /index.html
+    INDEX_ALIASES: /:/index.php
+    LOCALIZE: /localize
+
+appStore:
+  baseUri: {{APPSTORE_BASE_URI}}
+
+http:
+  port: {{CLOUDOS_SERVER_PORT}}
+  baseUri: /api
+
+jersey:
+  resourcePackages: [ cloudos.resources, org.cobbzilla.wizard.server, org.cobbzilla.wizard.filters ]
+  responseFilters: [ org.cobbzilla.wizard.filters.ScrubbableScrubber ]
+
+cloudConfig:
+  # where configs are stored using cloudos-lib S3StorageEngine
+  engineClass: cloudos.cslib.storage.s3.S3StorageEngine
+  accessKey: {{AWS_ACCESS_KEY_ID}}
+  secretKey: {{AWS_SECRET_ACCESS_KEY}}
+  bucket: {{S3_BUCKET}} # the bucket that all hosted cloudstead storage shares
+  username: {{AWS_IAM_USER}} # the per-user subdir of the bucket where this IAM user can read/write
+  dataKey: {{CLOUD_STORAGE_DATA_KEY}} # stored data is encrypted using this secret
+
+emailTemplateRoot: {{EMAIL_TEMPLATE_ROOT}}
+
+smtpMailConfig:
+  host: 127.0.0.1
+  user: {{SYSTEM_MAILER_USERNAME}}
+  password: {{SYSTEM_MAILER_PASSWORD}}
+  tlsEnabled: true
+
+authy:
+  user: {{AUTHY_KEY}}
+  baseUri: {{AUTHY_URI}}
+
+dns:
+  user: {{CLOUDOS_DNS_USER}}
+  password: {{CLOUDOS_DNS_PASSWORD}}
+  account: {{CLOUDOS_DNS_ACCOUNT}}
+  zone: {{CLOUDOS_DNS_ZONE}}
+  baseUri: {{CLOUDOS_DNS_URI}}
+
+rooty:
+  queueName: {{ROOTY_QUEUE_NAME}} # matches where rooty reads from, defined in /etc/rooty/*.yml (from cloudos chef recipe)
+  secret: {{ROOTY_SECRET}}        # used to generate hashes in request filenames
+  handlers:
+    rooty.toots.postfix.PostfixHandler:
+    rooty.toots.ssl.SslCertHandler:
+    rooty.toots.service.ServiceKeyHandler:
+    rooty.toots.vendor.VendorSettingHandler:
+    rooty.toots.chef.ChefHandler:
+      params:
+        group: rooty

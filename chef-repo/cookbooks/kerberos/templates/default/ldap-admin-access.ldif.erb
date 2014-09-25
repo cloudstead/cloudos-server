@@ -1,0 +1,4 @@
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to * by dn="cn=admin,<%=node[:kerberos][:ldap_root]%>" write

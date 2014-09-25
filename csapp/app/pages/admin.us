@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CloudOS administration</title>
+  <link rel="stylesheet" href="css/app.css">
+  <script src="js/app.js"></script>
+  <script src="js/apps/admin-app.js"></script>
+  <script src="localize?js/local/strings.js"></script>
+</head>
+<body>
+
+<script type="text/x-handlebars">
+
+	<section class="app-bar">
+		<nav class="top-bar" data-top-bar>
+			<ul class="title-area">
+				<li class="name">
+					<h1>
+						<a class="brand" href="#">{{t app.title}} </a>
+					</h1>
+				</li>
+			</ul>
+			<section class="top-bar-section">
+				<ul>
+					{{#if cloudos_account.admin}}
+						<li>{{#link-to 'accounts'}}{{t sections.accounts}}{{/link-to}}</li>
+						<li>{{#link-to 'email'}}{{t sections.email.main}}{{/link-to}}</li>
+						<li>{{#link-to 'security'}}{{t sections.security.main}}{{/link-to}}</li>
+						<li>{{#link-to 'appstore'}}{{t sections.appstore}}{{/link-to}}</li>
+					{{/if}}
+				</ul>
+				<ul class="right">
+					{{#if cloudos_account}}
+						<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
+					{{/if}}
+				</ul>
+			</section>
+		</nav>
+	</section>
+
+	{{outlet}}
+</script>
+
+  <script type="text/x-handlebars" id="login">
+      <div class="container-fluid">
+          <div class="row-fluid">
+              <div class="span3">
+                  {{#if username}}
+                      <table class='table'>
+                          <thead>
+                          <tr><th>{{t sections.login}}</th></tr>
+                          </thead>
+                          <!--<tr>-->
+                              <!--<td>{{t forms.login.username}}</td>-->
+                              <!--<td>{{input type="text" value=username}}</td>-->
+                          <!--</tr>-->
+                          <tr>
+                              <td>{{t forms.login.password}}</td>
+                              <td>{{input type="password" value=password}}</td>
+                          </tr>
+                          <tr>
+                              <td></td><td><button {{action 'doLogin'}}>{{t forms.login.login_button}}</button></td>
+                          </tr>
+                          <tr><td></td><td><button {{action 'clearStorage'}}>clear storage</button></td></tr>
+                      </table>
+                  {{else}}
+                      <table class='table'>
+                          <thead>
+                          <tr><th colspan="2">{{t sections.new_admin_account}}</th></tr>
+                          </thead>
+                          <tr><td colspan="2"><p>{{t paragraphs.new_admin_account}}</p></td></tr>
+                          <!--<tr>-->
+                              <!--<td>{{t forms.login.username}}:</td>-->
+                              <!--<td>{{input type="text" value=username}}</td>-->
+                          <!--</tr>-->
+                          <tr>
+                              <td>{{t forms.login.password}}:</td>
+                              <td>{{input type="password" value=password}}</td>
+                          </tr>
+                          <tr>
+                              <td>{{t forms.login.password2}}:</td>
+                              <td>{{input type="password" value=password2}}</td>
+                          </tr>
+                          <tr>
+                              <td></td><td><button {{action 'doNewAccount'}}>{{t forms.login.new_admin_account_button}}</button></td>
+                          </tr>
+                          <tr><td></td><td><button {{action 'clearStorage'}}>clear storage</button></td></tr>
+                      </table>
+                  {{/if}}
+              </div>
+          </div>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="apps">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <table class='table'>
+            <thead>
+              <tr><th>{{t sections.apps}}</th></tr>
+            </thead>
+            <!--{{#each model}}-->
+            <!--<tr><td>-->
+                <!--{{#link-to 'post' this}}{{title}} <small class='muted'>by {{author.name}}</small>{{/link-to}}-->
+            <!--</td></tr>-->
+            <!--{{/each}}-->
+          </table>
+        </div>
+        <div class="span9">
+          {{outlet}}
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" id="email">
+      <section class="deck">
+          <div class="row">
+              <div class="medium-8 large-8 medium-centered columns">
+                 <fieldset class="wrap-set">
+                      <ul>
+                          <li>{{#link-to 'email.domains'}}{{t sections.email.domains}}{{/link-to}}</li>
+                          <li>{{#link-to 'aliases'}}{{t sections.email.aliases}}{{/link-to}}</li>
+                      </ul>
+                  
+              {{outlet}}
+				</fieldset>
+              </div>
+          </div>
+      </section>
+  </script>
+
+  <script type="text/x-handlebars" id="email/domains">
+      <div class="row">
+			<br /><br />
+          <table class='table'>
+              <thead>
+              <tr><th>{{t sections.email.domains}}</th></tr>
+              </thead>
+              <tr>
+                  <td>
+                      Your cloudstead's MX record: {{model.mxrecord}}
+                      <hr/>
+                      {{t paragraphs.email.domains}}
+                      <hr/>
+                  </td>
+              </tr>
+              {{#each domain in model.domains}}
+              <tr>
+                  <td> {{domain.name}} </td>
+                  <td><button {{action 'doRemoveDomain' domain.name}}>{{t forms.email.remove_domain}}</button></td>
+              </tr>
+              {{/each}}
+          </table>
+          <hr/>
+          <table class='table'>
+              <thead>
+              <tr><th colspan="2">{{t sections.add_domain}}</th></tr>
+              </thead>
+              <tr>
+                  <td>{{t forms.email.domain_to_add}}:</td>
+                  <td>{{input type="text" value=domain}}</td>
+              </tr>
+              <tr>
+                  <td colspan="2"><button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button></td>
+              </tr>
+          </table>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="aliases/index">
+	<br /><br />
+      <div class="row">
+          <table >
+              <thead>
+              <tr><th>{{t sections.email.aliases}}</th></tr>
+              </thead>
+              <tbody>
+              {{#each model}}
+              <tr>
+              <tr>
+                  <td>{{#link-to 'alias' name}}{{name}}{{/link-to}}</td>
+                  <td>{{recipients}}</td>
+                  <td><button {{action 'doRemoveAlias' name}}>{{t forms.email.alias.delete_button}}</button></td>
+              </tr>
+              {{/each}}
+              <tr>
+                  <td>
+                      {{#link-to 'aliases.new'}}{{t forms.email.alias.add_button}}{{/link-to}}
+                  </td>
+              </tr>
+              </tbody>
+          </table>
+          <hr/>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="aliases/new">
+      <div class="row">
+		<br /><br />
+          <table >
+              <thead>
+              <tr><th colspan="2">{{t sections.add_alias}}</th></tr>
+              </thead>
+              <tr>
+                  <td>{{t forms.email.alias.name}}:</td>
+                  <td>{{input type="text" value=aliasName}}</td>
+              </tr>
+              <tr>
+                  <td>{{t forms.email.alias.recipients}}:</td>
+                  <td>{{input type="text" value=recipients}}</td>
+              </tr>
+              <tr>
+                  <td colspan="2"><button {{action 'doAddAlias'}}>{{t forms.email.alias.add_button}}</button></td>
+              </tr>
+          </table>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="alias">
+      <div class="row">
+		<br /><br />
+          <table class='table'>
+              <thead>
+              <tr><th colspan="2">{{t sections.edit_alias}}</th></tr>
+              </thead>
+              <tr>
+                  <td>{{t forms.email.alias.name}}:</td>
+                  <td>{{input type="text" value=aliasName}}</td>
+              </tr>
+              <tr>
+                  <td>{{t forms.email.alias.recipients}}:</td>
+                  <td>{{input type="text" value=recipients}}</td>
+              </tr>
+              <tr>
+                  <td colspan="2"><button {{action 'doEditAlias'}}>{{t forms.email.alias.edit_button}}</button></td>
+              </tr>
+          </table>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="certs/index">
+	<section class="deck">
+      <div class="medium-10 large-10 medium-centered columns">
+          <table>
+              <thead>
+              <tr><th colspan="6">{{t sections.security.certs}}</th></tr>
+              </thead>
+              <tbody>
+              <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Common name</th>
+                  <th>PEM</th>
+                  <th>Key</th>
+				  <th></th>
+              </tr>
+              {{#each model}}
+              <tr>
+                  <td>{{#link-to 'cert' name}}{{name}}{{/link-to}}</td>
+                  <td>{{description}}</td>
+                  <td>{{commonName}}</td>
+                  <td><small>sha256: {{pemSha}}<br/>md5: {{pemMd5}}</small></td>
+                  <td><small>sha256: {{keySha}}<br/>md5: {{keyMd5}}</small></td>
+                  <td><button {{action 'doRemoveCert' name}}>{{t forms.security.certs.delete_button}}</button></td>
+              </tr>
+              {{/each}}
+              <tr>
+                  <td colspan="6">
+                      {{#link-to 'certs.new'}}{{t forms.security.certs.add_button}}{{/link-to}}
+                  </td>
+              </tr>
+              </tbody>
+          </table>
+      </div>
+	</section>
+  </script>
+
+  <script type="text/x-handlebars" id="certs/new">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<form {{action 'doAddCert' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.add_cert}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.name}}</label>
+							{{#if requestMessages.error.cert_name}}
+								{{input type="text" value=certName class="error"}}
+							{{else}}
+								{{input type="text" value=certName}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_name}}
+								<span class="message error">{{requestMessages.error.cert_name}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.description}}</label>
+							{{#if requestMessages.error.cert_description}}
+								{{input type="text" value=description class="error"}}
+							{{else}}
+								{{input type="text" value=description}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_description}}
+								<span class="message error">{{requestMessages.error.cert_description}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.pem}}</label>
+							{{#if requestMessages.error.cert_pem}}
+								{{textarea value=pem class="error"}}
+							{{else}}
+								{{textarea value=pem}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_pem}}
+								<span class="message error">{{requestMessages.error.cert_pem}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.key}}</label>
+							{{#if requestMessages.error.cert_key}}
+								{{textarea value=key class="error"}}
+							{{else}}
+								{{textarea value=key}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_key}}
+								<span class="message error">{{requestMessages.error.cert_key}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label>&nbsp;</label>
+							<p><button type="submit" class="expand" {{action 'doAddCert'}}>{{t forms.security.certs.add_button }}</button></p>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</section>
+  </script>
+
+  <script type="text/x-handlebars" id="cert">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-8 large-8 medium-centered columns">
+				<form {{action 'doAddCert' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.overwrite_cert}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.name}}</label>
+							{{#if requestMessages.error.cert_name}}
+								{{input type="text" value=certName class="error"}}
+							{{else}}
+								{{input type="text" value=certName}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_name}}
+								<span class="message error">{{requestMessages.error.cert_name}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.description}}</label>
+							{{#if requestMessages.error.cert_description}}
+								{{input type="text" value=description class="error"}}
+							{{else}}
+								{{input type="text" value=description}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_description}}
+								<span class="message error">{{requestMessages.error.cert_description}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.pem}}</label>
+							<small>sha256: {{pemSha}}<br/>md5: {{pemMd5}}<br/></small>
+							{{#if requestMessages.error.cert_pem}}
+								{{textarea value=pem class="error"}}
+							{{else}}
+								{{textarea value=pem}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_pem}}
+								<span class="message error">{{requestMessages.error.cert_pem}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.key}}</label>
+							<small>sha256: {{keySha}}<br/>md5: {{keyMd5}}<br/></small>
+							{{#if requestMessages.error.cert_key}}
+								{{textarea value=key class="error"}}
+							{{else}}
+								{{textarea value=key}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_key}}
+								<span class="message error">{{requestMessages.error.cert_key}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label>&nbsp;</label>
+							<p><button type="submit" class="expand" {{action 'doAddCert'}}>{{t forms.security.certs.overwrite_button}}</button></p>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	<section>
+  </script>
+
+  <script type="text/x-handlebars" id="appstore">
+      <section class="deck">
+          <div class="row">
+              <div class="medium-8 large-8 medium-centered columns">
+                  <table>
+                      <thead>
+                      <tr><th>{{t sections.appstore}}</th><th></th><th></th></tr>
+                      </thead>
+                      <tbody>
+                      {{#each app in model.apps}}
+                      <tr>
+                        <td>
+                        {{#link-to 'installApp' app.id}}
+                          <img src="{{unbound app.appVersion.data.largeIconUrl}}" width="100"/>
+                          {{app.appVersion.data.description}}<br/>
+                          {{app.name}}
+                        {{/link-to}}
+                        </td>
+                        <td>
+                          <small class='muted'>{{app.price}}</small><br/>
+                          {{#link-to 'installApp' app.id}}install{{/link-to}}
+                        </td>
+                      </tr>
+                      {{else}}
+                      <tr><td>
+                          {{t paragraphs.no_apps_found}}
+                      </td><td></td><td></td></tr>
+                      {{/each}}
+                      <tr>
+                          <td>{{t forms.installApp.install_from_url}}</td>
+                          <td>{{input type="text" value=appUrl}}</td>
+                          <td><button {{action 'installFromUrl'}}>{{t forms.installApp.install_button}}</button></td>
+                      </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </section>
+  </script>
+
+  <script type="text/x-handlebars" id="tasks">
+      <div class="container-fluid">
+          <div class="row-fluid">
+              <div class="span9">
+                  <table class='table'>
+                      <thead>
+                      <tr><th>{{task-description model.result}}</th></tr>
+                      </thead>
+                      <tbody>
+                      {{#if model.result.success}}
+                      <tr>
+                          <td>success!</td>
+                          <td>{{model.result.success}}</td>
+                      </tr>
+                      {{/if}}
+
+                      {{#if model.result.exception}}
+                      <tr>
+                          <td>exception</td>
+                          <td>{{model.result.exception}}</td>
+                      </tr>
+                      {{/if}}
+
+                      {{#each event in model.result.events}}
+                      <tr>
+                          <td>{{task-event event.messageKey}}</td>
+                          <td>{{event.ctime}}</td>
+                      </tr>
+                      {{/each}}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" id="installApp">
+    {{t paragraphs.app_cloud_price_quote}} {{priceQuote.preferredCloudPrice.monthlyPrice}} {{priceQuote.isoCurrency}}
+    <hr/>
+    <button {{action 'doInstallApp' priceQuote.preferredCloudPrice}}>{{t forms.installApp.install_button}}</button>
+  </script>
+
+<script type="text/x-handlebars" id="accounts">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<fieldset class="wrap-set">
+					<legend>{{t sections.accounts}}</legend>
+					<div class="field-container">
+						{{#link-to 'addAccount' class='button'}}{{t forms.account.add_account}}{{/link-to}}
+					</div>
+					<div class="field-container">
+						<ul>
+						{{#each account in model.accounts}}
+							<li>{{#link-to 'manageAccount' account.name}}{{account.name}}{{/link-to}}</li>
+						{{else}}
+							<li>{{t paragraphs.no_accounts_found}}</li>
+						{{/each}}
+						</ul>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+	</section>
+</script>
+
+  <script type="text/x-handlebars" id="addAccount">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-6 medium-centered columns">
+				<form {{action 'doCreateAccount' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.add_account}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.account.account_name}}</label>
+							{{#if requestMessages.error.accountName}}
+								{{input type="text" value=accountName class="error"}}
+							{{else}}
+								{{input type="text" value=accountName}}
+							{{/if}}
+
+							{{#if requestMessages.error.accountName}}
+								<span class="message error">{{requestMessages.error.accountName}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.account.recovery_email}}</label>
+							{{#if requestMessages.error.recoveryEmail}}
+								{{input type="text" value=recoveryEmail class="error"}}
+							{{else}}
+								{{input type="text" value=recoveryEmail}}
+							{{/if}}
+
+							{{#if requestMessages.error.recoveryEmail}}
+								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.account.mobile_phone}}</label>
+							{{#if requestMessages.error.mobilePhone}}
+								{{input type="text" value=mobilePhone class="error"}}
+							{{else}}
+								{{input type="text" value=mobilePhone}}
+							{{/if}}
+
+							{{#if requestMessages.error.mobilePhone}}
+								<span class="message error">{{requestMessages.error.mobilePhone}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<p><button type="submit" class="expand" {{action 'doCreateAccount'}}>{{t forms.account.add_button}}</button></p>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</section>
+  </script>
+
+<script type="text/x-handlebars" id="manageAccount">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-6 medium-centered columns">
+				<form>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.manage_account}}</legend>
+						<div class="field-container">
+							<label>{{t forms.account.account_name}}</label>
+							{{name}}
+							<br />
+							<br />
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.account.recovery_email}}</label>
+							{{#if requestMessages.error.recoveryEmail}}
+								{{input type="text" value=recoveryEmail class="error"}}
+							{{else}}
+								{{input type="text" value=recoveryEmail}}
+							{{/if}}
+
+							{{#if requestMessages.error.recoveryEmail}}
+								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.account.mobile_phone}}</label>
+							{{#if requestMessages.error.mobilePhone}}
+								{{input type="text" value=mobilePhone class="error"}}
+							{{else}}
+								{{input type="text" value=mobilePhone}}
+							{{/if}}
+
+							{{#if requestMessages.error.mobilePhone}}
+								<span class="message error">{{requestMessages.error.mobilePhone}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<ul class="button-group [radius round]">
+								<li><a href="#" class="button" {{action 'doUpdateAccount'}}>{{t forms.account.update_button}}</a></li>
+								<li class="right"><a href="#" class="button alert" {{action 'doDeleteAccount'}}>{{t forms.account.delete_button}}</a></li>
+							</ul>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>
+
+</body>
+</html>

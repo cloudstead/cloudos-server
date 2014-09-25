@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CloudOS</title>
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/app.js"></script>
+    <script src="js/apps/cloudos-app.js"></script>
+	<script src="localize?js/local/strings.js"></script>
+</head>
+<body>
+
+<script type="text/x-handlebars">
+    <section class="app-bar">
+	<nav class="top-bar" data-top-bar>
+			<ul class="title-area">
+				<li class="name">
+					<h1>
+						<a class="brand" href="#">{{t app.title}} <!--active_account={{active_account.name}}--></a>
+					</h1>
+				</li>
+				<li class="toggle-topbar menu-icon">
+					<a href="#">
+						<span></span>
+					</a>
+				</li>
+			</ul>
+			<section class="top-bar-section">
+            	<ul>
+                	{{#if cloudos_account.admin}}
+                    	<li><a href="/admin.html">{{t sections.admin}}</a></li>
+                	{{/if}}
+
+                	{{#if cloudos_account}}
+                    	{{#each cloudos_account.availableApps}}
+                        	<li><button {{action 'select_app' this.name}}>{{app-name name}}</button></li>
+                    	{{/each}}
+                    	<li>{{#link-to 'settings'}}{{t sections.settings}}{{/link-to}}</li>
+                    	<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
+                	{{/if}}
+            	</ul>
+			</section>
+    </nav>
+	</section>
+
+    {{outlet}}
+</script>
+
+<script type="text/x-handlebars" id="login">
+    <section class="deck">
+        <div class="row">
+            <div class="medium-6 large-5 medium-centered columns">
+				<form {{action 'doLogin' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.login}}</legend>
+				<div class="field-container">
+					<label for="text">{{t forms.login.username}}</label>
+					{{#if requestMessages.error.username}}
+						{{input type="text" value=username class="error"}}
+					{{else}}
+						{{input type="text" value=username}}
+					{{/if}}
+
+					{{#if requestMessages.error.username}}
+						<span class="message error">{{requestMessages.error.username}}</span>
+					{{/if}}
+				</div>
+				<div class="field-container">
+					<label for="password">{{t forms.login.password}}</label>
+					{{#if requestMessages.error.password}}
+						{{input type="password" value=password class="error"}}
+					{{else}}
+						{{input type="password" value=password}}
+					{{/if}}
+
+					{{#if requestMessages.error.password}}
+						<span class="message error">{{requestMessages.error.password}}</span>
+					{{/if}}
+				</div>
+				<div class="field-container">
+					<p><button type="submit" class="expand" {{action 'doLogin'}}>{{t forms.login.login_button}}</button></p>
+				</div>
+			</fieldset>
+				</form>
+            </div>
+        </div>
+    </section>
+</script>
+
+<script type="text/x-handlebars" id="settings">
+    <section class="deck">
+        <div class="row">
+            <div class="medium-6 large-5 medium-centered columns">
+				<h3 class="text-center">{{t sections.settings}}</h3>
+				<form {{action 'changePassword' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t forms.settings.change_password_header}}</legend>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.current_password}}</label>
+									{{#if requestMessages.error.current_password}}
+										{{input type="password" value=current_password class="error"}}
+									{{else}}
+										{{input type="password" value=current_password}}
+									{{/if}}
+
+									{{#if requestMessages.error.current_password}}
+										<span class="message error">{{requestMessages.error.current_password}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.new_password}}</label>
+									{{#if requestMessages.error.new_password}}
+										{{input type="password" value=new_password class="error"}}
+									{{else}}
+										{{input type="password" value=new_password}}
+									{{/if}}
+
+									{{#if requestMessages.error.new_password}}
+										<span class="message error">{{requestMessages.error.new_password}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.new_password2}}</label>
+									{{#if requestMessages.error.new_password2}}
+										{{input type="password" value=new_password2 class="error"}}
+									{{else}}
+										{{input type="password" value=new_password2}}
+									{{/if}}
+
+									{{#if requestMessages.error.new_password2}}
+										<span class="message error">{{requestMessages.error.new_password2}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<p><button type="submit" class="expand" {{action 'changePassword'}}>{{t forms.settings.change_password_button}}</button></p>
+							</div>
+					</fieldset>
+				</form>
+            </div>
+        </div>
+    </section>
+</script>
+
+<script type="text/x-handlebars" id="app">
+	<style>
+		.ember-view{
+			height:100%;
+		}
+	</style>
+    <div style="height: 94% !important;">
+        <iframe id="app_frame" width="100%" height="100%" {{bindAttr src="app_url"}} frameBorder="0"></iframe>
+    </div>
+</script>
+
+</body>
+</html>

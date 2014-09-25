@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:annotation-config/>
+
+    <!-- DB-related beans (dataSource, sessionFactory, hibernateTemplate, etc) -->
+    <context:component-scan base-package="org.cobbzilla.wizard.spring.config.rdbms"/>
+
+    <!-- core domain model -->
+    <context:component-scan base-package="cloudos.appstore.model"/>
+
+    <!-- jersey resources, DAOs -->
+    <context:component-scan base-package="cloudos.appstore.dao"/>
+    <context:component-scan base-package="cloudos.appstore.auth"/>
+    <context:component-scan base-package="cloudos.appstore.resources"/>
+
+    <!-- MQ client -->
+    <!--<context:component-scan base-package="org.cobbzilla.wizard.spring.config.mq"/>-->
+    <!--<context:component-scan base-package="org.cobbzilla.mq"/>-->
+
+    <!-- validator -->
+    <bean id="uniqueValidator" class="org.cobbzilla.wizard.validation.UniqueValidator"/>
+
+</beans>

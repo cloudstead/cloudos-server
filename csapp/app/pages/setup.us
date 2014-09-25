@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CloudOS administration</title>
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/app.js"></script>
+    <script src="js/apps/setup-app.js"></script>
+	<script src="localize?js/local/strings.js"></script>
+</head>
+<body>
+
+<script type="text/x-handlebars">
+	<section class="app-bar">
+		<nav class="top-bar" data-top-bar>
+			<ul class="title-area">
+				<li class="name">
+					<h1>
+						<a class="brand" href="#">{{t app.title}} <!--active_account={{active_account.name}}--></a>
+					</h1>
+				</li>
+			</ul>
+    	</nav>
+	</section>
+
+    {{outlet}}
+</script>
+
+<script type="text/x-handlebars" id="index">
+    <section class="deck">
+        <div class="row-fluid">
+            <div class="medium-6 large-5 medium-centered columns">
+				<form {{action 'doSetup' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.setup}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.setup.accountName}}</label>
+							{{#if requestMessages.error.accountName}}
+								{{input type="text" value=accountName class="error" }}
+							{{else}}
+								{{input type="text" value=accountName}}
+							{{/if}}
+
+							{{#if requestMessages.error.accountName}}
+								<span class="message error">{{requestMessages.error.accountName}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="password">{{t forms.setup.initialPassword}}</label>
+							{{#if requestMessages.error.initialPassword}}
+								{{input type="password" value=initialPassword class="error"}}
+							{{else}}
+								{{input type="password" value=initialPassword}}
+							{{/if}}
+
+							{{#if requestMessages.error.initialPassword}}
+								<span class="message error">{{requestMessages.error.initialPassword}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="password">{{t forms.setup.password}}</label>
+							{{#if requestMessages.error.password}}
+								{{input type="password" value=password class="error"}}
+							{{else}}
+								{{input type="password" value=password}}
+							{{/if}}
+
+							{{#if requestMessages.error.password}}
+								<span class="message error">{{requestMessages.error.password}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="password">{{t forms.setup.password2}}</label>
+							{{#if requestMessages.error.password2}}
+								{{input type="password" value=password2 class="error"}}
+							{{else}}
+								{{input type="password" value=password2}}
+							{{/if}}
+
+							{{#if requestMessages.error.password2}}
+								<span class="message error">{{requestMessages.error.password2}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="select">{{t forms.setup.time_zone}}</label>
+								
+								<select id="setupTZfield">
+									{{#each item in timeZones}}
+										{{#if item.dfault}}
+											<option value="{{item.id}}" selected>{{item.offset}} {{item.lname}}</option>
+										{{else}}
+											<option value="{{item.id}}">{{item.offset}} {{item.lname}}</option>
+										{{/if}}
+									{{/each}}
+								</select>
+							<br /><br />
+						</div>
+						<div class="field-container">
+							<p><button type="submit" class="expand" {{action 'doSetup'}}>{{t forms.setup.setup_button}}</button></p>
+						</div>
+					</fieldset>
+				</form>
+            </div>
+        </div>
+    </section>
+</script>
+
+</body>
+</html>

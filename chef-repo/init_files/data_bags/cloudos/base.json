@@ -1,0 +1,6 @@
+{
+    "id": "base",
+    "hostname": "put-short-hostname-here",
+    "parent_domain": "put-parent-domain-here",
+    "ssl_cert_name": "ssl-https"
+}
