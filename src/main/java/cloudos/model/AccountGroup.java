@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity @Accessors(chain=true)
-public class AccountGroup extends UniquelyNamedEntity<AccountGroup> {
+public class AccountGroup extends UniquelyNamedEntity {
 
     // jackson helper class
     public static final JavaType searchResultType = SearchResults.jsonType(AccountGroup.class);

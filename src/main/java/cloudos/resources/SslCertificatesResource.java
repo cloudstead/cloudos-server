@@ -106,12 +106,12 @@ public class SslCertificatesResource {
             log.warn("{err.cert.pem.invalid}", "The PEM data did not contain a valid Common Name");
         }
 
-        final SslCertificate cert = new SslCertificate()
+        final SslCertificate cert = (SslCertificate) new SslCertificate()
                 .setCommonName(commonName)
                 .setDescription(request.getDescription())
-                .setName(name)
                 .setPem(request.getPem())
-                .setKey(request.getKey());
+                .setKey(request.getKey())
+                .setName(name);
         final SslCertificate dbCert;
         if (found == null) {
             dbCert = certificateDAO.create(cert);

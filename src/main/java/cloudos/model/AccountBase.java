@@ -20,7 +20,7 @@ import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_LENGTH;
 import static org.cobbzilla.util.string.StringUtil.BYTES_PATTERN;
 
 @MappedSuperclass @Accessors(chain=true)
-public class AccountBase extends UniquelyNamedEntity<Account> {
+public class AccountBase extends UniquelyNamedEntity {
 
     public static final String ERR_AUTHID_LENGTH = "{err.authid.length}";
     public static final String ERR_EMAIL_INVALID = "{err.email.invalid}";

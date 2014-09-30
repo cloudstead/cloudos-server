@@ -32,7 +32,7 @@ public class ServiceKeyDAO  {
 
     public ServiceKey findByName (String name) {
         final File keyfile = new File(getHandler().getServiceDir(), ServiceKeyHandler.keyname(name)+".pub");
-        return keyfile.exists() ? new ServiceKey().setName(name).setPublicKey(FileUtil.toStringOrDie(keyfile)) : null;
+        return keyfile.exists() ? (ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(keyfile)).setName(name) : null;
     }
 
     public List<ServiceKey> findAll() {
@@ -40,7 +40,7 @@ public class ServiceKeyDAO  {
         final List<ServiceKey> keys = new ArrayList<>();
         for (File f : keyFiles) {
             final String keyname = f.getName().substring(f.getName().length() - PUB_SUFFIX.length());
-            keys.add(new ServiceKey().setName(keyname).setPublicKey(FileUtil.toStringOrDie(f)));
+            keys.add((ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(f)).setName(keyname));
         }
         return keys;
     }

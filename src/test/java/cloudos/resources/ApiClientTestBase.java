@@ -202,14 +202,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     @Before
     public void createDefaultCertRecord () throws Exception {
         final SslCertificateDAO certDAO = getBean(SslCertificateDAO.class);
-        certDAO.create(new SslCertificate()
+        certDAO.create((SslCertificate) new SslCertificate()
                 .setCommonName("*.cloudstead.io")
                 .setDescription("cloudstead.io wildcard certificate")
-                .setName(ApiConstants.DEFAULT_CERT_NAME)
                 .setKeySha(DEFAULT_KEY_SHA)
                 .setKeyMd5(DEFAULT_KEY_MD5)
                 .setPemSha(DEFAULT_PEM_SHA)
-                .setPemMd5(DEFAULT_PEM_MD5));
+                .setPemMd5(DEFAULT_PEM_MD5)
+                .setName(ApiConstants.DEFAULT_CERT_NAME));
     }
 
     protected String adminToken;

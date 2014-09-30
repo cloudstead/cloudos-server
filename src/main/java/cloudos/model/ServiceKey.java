@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 import org.cobbzilla.wizard.model.UniquelyNamedEntity;
 
 @Accessors(chain=true)
-public class ServiceKey extends UniquelyNamedEntity<ServiceKey> {
+public class ServiceKey extends UniquelyNamedEntity {
 
     @Getter @Setter private String publicKey;
 
