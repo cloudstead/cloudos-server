@@ -33,12 +33,9 @@ import static cloudos.resources.ApiConstants.H_API_KEY;
 @Service @Slf4j
 public class AppAdapter {
 
-    @Autowired
-    private SessionDAO sessionDAO;
-    @Autowired
-    private AppDAO appDAO;
-    @Autowired
-    private InstalledAppLoader installedAppLoader;
+    @Autowired private SessionDAO sessionDAO;
+    @Autowired private AppDAO appDAO;
+    @Autowired private InstalledAppLoader installedAppLoader;
 
     private final Jedis redis;
 
