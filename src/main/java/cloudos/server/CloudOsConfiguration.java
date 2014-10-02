@@ -4,6 +4,7 @@ import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.dns.DnsClient;
 import cloudos.dns.server.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
+import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class CloudOsConfiguration extends RestServerConfiguration implements Has
     private AppStoreApiClient initAppStoreApiClient() { return new AppStoreApiClient(appStore); }
 
     @Getter @Setter private ApiConnectionInfo authy;
+    @Bean public TwoFactorAuthService getTwoFactorAuthService () { return new TwoFactorAuthService(authy); }
 
     @Getter @Setter private String kadminPassword;
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;

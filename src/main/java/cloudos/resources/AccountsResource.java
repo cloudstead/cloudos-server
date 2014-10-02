@@ -66,7 +66,7 @@ public class AccountsResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         if (request.isTwoFactor()) {
-            request.setAuthIdInt(twoFactorAuthService.addUser(request.getRecoveryEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
+            request.setAuthIdInt(twoFactorAuthService.addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
         }
 
         final Account created;
@@ -90,7 +90,7 @@ public class AccountsResource {
                 .setTemplateName(TemplatedMailService.T_WELCOME)
                 .setLocale("en_US") // todo: set this at first-time-setup
                 .setFromEmail(admin.getName() + "@" + hostname)
-                .setToEmail(created.getRecoveryEmail())
+                .setToEmail(created.getEmail())
                 .setToName(created.getName())
                 .setParameter(TemplatedMailService.PARAM_ACCOUNT, created)
                 .setParameter(TemplatedMailService.PARAM_ADMIN, admin)

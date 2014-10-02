@@ -235,7 +235,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
 
         for (Account a : found.getResults()) {
             assertNull(a.getUuid());
-            assertNull(a.getRecoveryEmail());
+            assertNull(a.getEmail());
             assertNull(a.getAuthId());
             assertFalse(a.isAdmin());
             assertFalse(a.isTwoFactor());

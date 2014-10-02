@@ -38,7 +38,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
         assertEquals(200, response.status);
         final Account account = fromJson(response.json, Account.class);
         assertNotNull(account);
-        assertEquals(request.getRecoveryEmail(), account.getRecoveryEmail());
+        assertEquals(request.getEmail(), account.getEmail());
 
         // grab password from email
         final MockTemplatedMailSender sender = getTemplatedMailSender();

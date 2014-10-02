@@ -76,7 +76,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
                 .setAccountName(accountName)
                 .setMobilePhone(randomNumeric(10))
                 .setMobilePhoneCountryCode(1)
-                .setRecoveryEmail(randomEmail())
+                .setEmail(randomEmail())
                 .setFirstName(randomAlphanumeric(10))
                 .setLastName(randomAlphanumeric(10))
                 .setAdmin(isAdmin);

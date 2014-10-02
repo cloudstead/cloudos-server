@@ -14,11 +14,18 @@ import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.filters.Scrubbable;
 import org.cobbzilla.wizard.filters.ScrubbableField;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_INVALID;
+import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_LENGTH;
+import static org.cobbzilla.util.string.StringUtil.BYTES_PATTERN;
 
 @Entity @NoArgsConstructor @Accessors(chain=true)
 public class Account extends AccountBase implements CloudOsAccount, Scrubbable {
@@ -50,6 +57,13 @@ public class Account extends AccountBase implements CloudOsAccount, Scrubbable {
     // validated at login (against kerberos) and placed into the session. Not stored in DB.
     @Transient
     @Getter @Setter private String password;
+
+    @Pattern(regexp=BYTES_PATTERN, message=ERR_STORAGE_QUOTA_INVALID)
+    @Column(length=10) @Size(max=10, message=ERR_STORAGE_QUOTA_LENGTH)
+    @Getter @Setter private String storageQuota;
+
+    @Size(max=PRIMARY_GROUP_MAXLEN, message=ERR_PRIMARY_GROUP_LENGTH)
+    @Getter @Setter private String primaryGroup;
 
     // filled out by SessionDAO when it returns lookups
     @Transient
