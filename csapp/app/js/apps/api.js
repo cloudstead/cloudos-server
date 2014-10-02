@@ -74,7 +74,7 @@ Api = {
             'name': name,
             'initialPassword': initial_password,
             'newPassword': new_password,
-            'timeZone': time_zone
+            'systemTimeZone': time_zone
         };
         return Api._post('/api/setup', setupData);
     },
