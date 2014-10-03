@@ -42,7 +42,7 @@ public class CloudOsConfiguration extends RestServerConfiguration implements Has
     private AppStoreApiClient initAppStoreApiClient() { return new AppStoreApiClient(appStore); }
 
     @Getter @Setter private ApiConnectionInfo authy;
-    @Bean public TwoFactorAuthService getTwoFactorAuthService () { return new TwoFactorAuthService(authy); }
+    public TwoFactorAuthService getTwoFactorAuthService () { return new TwoFactorAuthService(authy); }
 
     @Getter @Setter private String kadminPassword;
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;

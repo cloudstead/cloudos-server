@@ -39,7 +39,8 @@ public class AccountsResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private TemplatedMailService templatedMailService;
     @Autowired private CloudOsConfiguration configuration;
-    @Autowired private TwoFactorAuthService twoFactorAuthService;
+
+    private TwoFactorAuthService getTwoFactorAuthService() { return configuration.getTwoFactorAuthService(); }
 
     @GET
     public Response findAll (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
@@ -66,7 +67,7 @@ public class AccountsResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         if (request.isTwoFactor()) {
-            request.setAuthIdInt(twoFactorAuthService.addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
+            request.setAuthIdInt(getTwoFactorAuthService().addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
         }
 
         final Account created;
@@ -113,7 +114,7 @@ public class AccountsResource {
                 account = accountDAO.findByName(login.getName());
                 if (account == null) return ResourceUtil.notFound();
                 try {
-                    twoFactorAuthService.verify(account.getAuthIdInt(), login.getSecondFactor());
+                    getTwoFactorAuthService().verify(account.getAuthIdInt(), login.getSecondFactor());
                 } catch (Exception e) {
                     return ResourceUtil.invalid();
                 }
@@ -326,7 +327,7 @@ public class AccountsResource {
         Account toDelete = accountDAO.findByName(name);
         if (toDelete == null) return ResourceUtil.notFound(name);
         if (toDelete.hasAuthId()) {
-            twoFactorAuthService.deleteUser(toDelete.getAuthIdInt());
+            getTwoFactorAuthService().deleteUser(toDelete.getAuthIdInt());
         }
 
         try {
