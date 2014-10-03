@@ -42,7 +42,7 @@ certs/cloudos/ssl-https.pem \
 
 COOKBOOK_SOURCES=" \
 ${CLOUDOS_BASE}/cloudos-lib/chef-repo/cookbooks \
-${CLOUDOS_BASE}/cloudos-apps/chef-repo/cookbooks \
+$(find ${CLOUDOS_BASE}/cloudos-apps/apps -type d -name cookbooks) \
 "
 
 ${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}"
