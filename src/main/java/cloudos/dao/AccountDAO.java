@@ -1,7 +1,7 @@
 package cloudos.dao;
 
 import cloudos.model.Account;
-import cloudos.model.support.AccountLoginRequest;
+import cloudos.model.AccountLoginRequest;
 import cloudos.model.support.AccountRequest;
 import cloudos.model.support.AuthenticationException;
 import cloudos.resources.ApiConstants;

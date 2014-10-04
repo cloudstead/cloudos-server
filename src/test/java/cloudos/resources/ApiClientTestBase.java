@@ -2,6 +2,7 @@ package cloudos.resources;
 
 import cloudos.dao.SslCertificateDAO;
 import cloudos.model.Account;
+import cloudos.model.AccountLoginRequest;
 import cloudos.model.SslCertificate;
 import cloudos.model.support.*;
 import cloudos.resources.setup.MockSetupSettingsSource;

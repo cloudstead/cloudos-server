@@ -2,7 +2,7 @@ package cloudos.resources;
 
 import cloudos.dao.AccountDAO;
 import cloudos.model.Account;
-import cloudos.model.support.AccountLoginRequest;
+import cloudos.model.AccountLoginRequest;
 import cloudos.model.support.AccountRequest;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.NamedEntity;
