@@ -1,16 +1,15 @@
 package cloudos.dao;
 
 import cloudos.model.Account;
-import cloudos.model.AccountLoginRequest;
+import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.AuthenticationException;
+import cloudos.model.auth.AuthenticationException;
 import cloudos.resources.ApiConstants;
 import cloudos.service.KerberosService;
 import cloudos.service.RootyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.system.CommandResult;
-import org.cobbzilla.wizard.dao.UniquelyNamedEntityDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import rooty.events.account.AccountEvent;
@@ -22,12 +21,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Repository  @Slf4j
-public class AccountDAO extends UniquelyNamedEntityDAO<Account> {
+public class AccountDAO extends AccountBaseDAO<Account> {
 
     @Autowired private KerberosService kerberos;
     @Autowired private RootyService rooty;
 
-    public Account authenticate(AccountLoginRequest loginRequest) throws AuthenticationException {
+    @Override public Account authenticate(LoginRequest loginRequest) throws AuthenticationException {
 
         final String accountName = loginRequest.getName();
         final String password = loginRequest.getPassword();

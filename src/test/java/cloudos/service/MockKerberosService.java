@@ -1,7 +1,7 @@
 package cloudos.service;
 
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.AuthenticationException;
+import cloudos.model.auth.AuthenticationException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.system.CommandResult;
@@ -9,7 +9,7 @@ import org.cobbzilla.util.system.CommandResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cloudos.model.support.AuthenticationException.Problem.NOT_FOUND;
+import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
 
 @Slf4j
 public class MockKerberosService extends KerberosService {

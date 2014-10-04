@@ -1,12 +1,13 @@
 package cloudos.resources;
 
 import cloudos.model.Account;
-import cloudos.model.AccountLoginRequest;
+import cloudos.model.auth.AuthResponse;
+import cloudos.model.auth.CloudOsAuthResponse;
+import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.AuthResponse;
 import cloudos.model.support.PasswordChangeRequest;
-import cloudos.service.MockTemplatedMailSender;
-import cloudos.service.TemplatedMailService;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
+import org.cobbzilla.mail.service.TemplatedMailService;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,13 +57,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
         response = login(accountName, password, deviceId);
         assertEquals(200, response.status);
 
-        AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+        AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
         assertNotNull(authResponse.getSessionId());
 
         if (authResponse.isTwoFactor()) {
             final RestResponse secondFactorResponse = secondFactor(accountName, "0000000", deviceId);
             assertEquals(200, secondFactorResponse.status);
-            authResponse = fromJson(secondFactorResponse.json, AuthResponse.class);
+            authResponse = fromJson(secondFactorResponse.json, CloudOsAuthResponse.class);
             assertNotNull(authResponse.getSessionId());
         }
 
@@ -70,13 +71,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
     }
 
     public RestResponse login(String accountName, String password) throws Exception {
-        final AccountLoginRequest loginRequest = new AccountLoginRequest().setName(accountName).setPassword(password);
+        final LoginRequest loginRequest = new LoginRequest().setName(accountName).setPassword(password);
         apiDocs.appendNote("login account " + accountName);
         return login(loginRequest);
     }
 
     public RestResponse login(String accountName, String password, String deviceId) throws Exception {
-        final AccountLoginRequest loginRequest = new AccountLoginRequest()
+        final LoginRequest loginRequest = new LoginRequest()
                 .setName(accountName)
                 .setPassword(password)
                 .setDeviceId(deviceId)
@@ -90,7 +91,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
         apiDocs.appendNote("account requires 2-factor auth. verify that a request to view profile should fail, since login has not been completed");
         assertEquals(404, doGet(ACCOUNTS_ENDPOINT + "/" + accountName).status);
 
-        final AccountLoginRequest loginRequest = new AccountLoginRequest()
+        final LoginRequest loginRequest = new LoginRequest()
                 .setName(accountName)
                 .setSecondFactor(secondFactor)
                 .setDeviceId(deviceId)
@@ -159,7 +160,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
         final AccountRequest request = newAccountRequest(accountName, password, false);
         request.setTwoFactor(true);
         final AuthResponse authResponse = assertAccount(request, device1);
-        assertNotEquals(AuthResponse.TWO_FACTOR.getSessionId(), authResponse.getSessionId());
+        assertNotEquals(AuthResponse.TWO_FACTOR_SID, authResponse.getSessionId());
 
         apiDocs.addNote("request to view profile should now succeed");
         assertEquals(200, get(ACCOUNTS_ENDPOINT + "/" + accountName).status);
@@ -170,13 +171,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
         apiDocs.addNote("login again, should not require 2-factor auth since we just supplied it");
         login = login(accountName, password, device1);
         assertEquals(200, login.status);
-        assertNotEquals(AuthResponse.TWO_FACTOR.getSessionId(), fromJson(login.json, AuthResponse.class).getSessionId());
+        assertNotEquals(AuthResponse.TWO_FACTOR_SID, fromJson(login.json, CloudOsAuthResponse.class).getSessionId());
 
         flushTokens();
         apiDocs.addNote("login from a different device, should require 2-factor auth for new device");
         login = login(accountName, password, device1+"_different");
         assertEquals(200, login.status);
-        assertEquals(AuthResponse.TWO_FACTOR.getSessionId(), fromJson(login.json, AuthResponse.class).getSessionId());
+        assertEquals(AuthResponse.TWO_FACTOR_SID, fromJson(login.json, CloudOsAuthResponse.class).getSessionId());
     }
 
     @Test

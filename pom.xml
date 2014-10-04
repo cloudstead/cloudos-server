@@ -33,7 +33,7 @@ For commercial use, please contact cloudstead.io
         </dependency>
         <dependency>
             <groupId>cloudstead</groupId>
-            <artifactId>cloudos-dns</artifactId>
+            <artifactId>dns-client</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

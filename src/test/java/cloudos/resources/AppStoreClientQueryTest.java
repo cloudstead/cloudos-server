@@ -2,7 +2,6 @@ package cloudos.resources;
 
 import cloudos.appstore.test.AppStoreSeedData;
 import org.junit.Before;
-import org.junit.Test;
 
 public class AppStoreClientQueryTest extends AppStoreClientTestBase {
 
@@ -19,7 +18,7 @@ public class AppStoreClientQueryTest extends AppStoreClientTestBase {
         seedData = new AppStoreSeedData(appStoreClient, adminToken, NUM_ACCOUNTS, NUM_APPS, NUM_VERSIONS);
     }
 
-    @Test
+//    @Test
     public void testAppStoreDefaultQuery () throws Exception {
 // fixme: disabled until we can mock out the app store server
 //        apiDocs.startRecording(DOC_TARGET, "default app store query (check "+appStoreApiDocs.getBaseDir()+" for calls)");

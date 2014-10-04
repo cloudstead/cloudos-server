@@ -2,16 +2,18 @@ package cloudos.resources;
 
 import cloudos.dao.SslCertificateDAO;
 import cloudos.model.Account;
-import cloudos.model.AccountLoginRequest;
+import cloudos.model.auth.LoginRequest;
+import cloudos.model.auth.AuthResponse;
 import cloudos.model.SslCertificate;
+import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.support.*;
 import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import cloudos.service.MockKerberosService;
 import cloudos.service.MockRootySender;
-import cloudos.service.MockTemplatedMailSender;
-import cloudos.service.MockTemplatedMailService;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
@@ -232,15 +234,17 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         final int timezoneId = 4;
         final String accountName = randomAlphanumeric(10);
         final String password = randomAlphanumeric(10);
-        final SetupRequest request = new SetupRequest()
+        final SetupRequest request = (SetupRequest) new SetupRequest()
                 .setSetupKey(setupSource.getMockSettings().getSecret())
                 .setSystemTimeZone(timezoneId)
-                .setInitialPassword(setupSource.getPassword());
+                .setInitialPassword(setupSource.getPassword())
+                .setLastName(accountName).setFirstName(accountName)
+                .setEmail(randomEmail()).setMobilePhoneCountryCode(1).setMobilePhone(randomNumeric(10));
         ReflectionUtil.copy(request, newAccountRequest(accountName, password, true));
 
         // Do first-time setup, create cloudOs admin
         final RestResponse response = post(ApiConstants.SETUP_ENDPOINT, toJson(request));
-        final AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+        final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
 
         // ensure kerberos got the message
         assertEquals(request.getPassword(), getKerberos().getPassword(request.getAccountName()));
@@ -251,15 +255,15 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         assertEquals(ImprovedTimezone.getTimeZoneById(request.getSystemTimeZone()).getLinuxName(), tzMessage.getTimezone());
 
         adminToken = authResponse.getSessionId();
-        admin = authResponse.getAccount();
+        admin = (Account) authResponse.getAccount();
         setToken(adminToken);
     }
 
-    public RestResponse login(AccountLoginRequest loginRequest) throws Exception {
+    public RestResponse login(LoginRequest loginRequest) throws Exception {
         apiDocs.appendNote("login: " + loginRequest);
         final RestResponse response = doPost(ACCOUNTS_ENDPOINT, toJson(loginRequest));
         if (response.status == 200) {
-            final AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+            final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
             if (authResponse.hasSessionId()) pushToken(authResponse.getSessionId());
         }
         return response;

@@ -18,10 +18,11 @@
     <!-- Use Kerberos and Rooty mocks instead of default implementations -->
     <context:component-scan base-package="cloudos.service">
         <context:exclude-filter type="regex" expression="cloudos.service.KerberosService" />
-        <context:exclude-filter type="regex" expression="cloudos.service.TemplatedMailService" />
     </context:component-scan>
     <bean class="cloudos.service.MockKerberosService"/>
-    <bean class="cloudos.service.MockTemplatedMailService"/>
+
+    <!-- Mock templated mail sender -->
+    <bean class="org.cobbzilla.mail.sender.mock.MockTemplatedMailService"/>
 
     <!-- Mock out filesystem-based SetupSettingsSource with a simple one that tests can control -->
     <context:component-scan base-package="cloudos.resources">

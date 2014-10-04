@@ -1,19 +1,18 @@
 package cloudos.resources;
 
 import cloudos.dao.AccountDAO;
-import cloudos.dao.AccountDeviceDAO;
 import cloudos.dao.AppDAO;
-import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
-import cloudos.model.AccountDevice;
-import cloudos.model.AccountLoginRequest;
-import cloudos.model.support.*;
+import cloudos.model.AccountBase;
+import cloudos.model.auth.AuthenticationException;
+import cloudos.model.auth.CloudOsAuthResponse;
+import cloudos.model.auth.LoginRequest;
+import cloudos.model.support.AccountRequest;
+import cloudos.model.support.PasswordChangeRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.TemplatedMailService;
-import cloudos.service.TwoFactorAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.TemplatedMail;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.mail.service.TemplatedMailService;
 import org.cobbzilla.util.time.TimeUtil;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,24 +23,32 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.ACCOUNTS_ENDPOINT)
 @Service @Slf4j
-public class AccountsResource {
+public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthResponse> {
+
+    @Override protected void afterSuccessfulLogin(LoginRequest login, Account account) throws Exception {
+        // keep the password in the session, it'll be scrubbed from the json response
+        account.setPassword(login.getPassword());
+
+        // set apps
+        account.setAvailableApps(new ArrayList<>(appDAO.getAvailableAppDetails().values()));
+    }
+
+    @Override
+    protected CloudOsAuthResponse buildAuthResponse(String sessionId, Account account) {
+        return new CloudOsAuthResponse(sessionId, account);
+    }
 
     private Response serverError() { return Response.serverError().build(); }
 
     @Autowired private AccountDAO accountDAO;
-    @Autowired private AccountDeviceDAO deviceDAO;
     @Autowired private AppDAO appDAO;
-    @Autowired private SessionDAO sessionDAO;
-    @Autowired private TemplatedMailService templatedMailService;
+    @Autowired private TemplatedMailService mailService;
     @Autowired private CloudOsConfiguration configuration;
-
-    private TwoFactorAuthService getTwoFactorAuthService() { return configuration.getTwoFactorAuthService(); }
 
     @GET
     public Response findAll (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
@@ -67,9 +74,7 @@ public class AccountsResource {
         // only admins can create new accounts
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
-        if (request.isTwoFactor()) {
-            request.setAuthIdInt(getTwoFactorAuthService().addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
-        }
+        if (request.isTwoFactor()) set2factor(request);
 
         final Account created;
         try {
@@ -99,104 +104,10 @@ public class AccountsResource {
                 .setParameter(TemplatedMailService.PARAM_HOSTNAME, hostname)
                 .setParameter(TemplatedMailService.PARAM_PASSWORD, password);
         try {
-            templatedMailService.getMailSender().deliverMessage(mail);
+            mailService.getMailSender().deliverMessage(mail);
         } catch (Exception e) {
             log.error("addAccount: error sending welcome email: "+e, e);
         }
-    }
-
-    @POST
-    public Response login(@Valid AccountLoginRequest login) {
-
-        long start = System.currentTimeMillis();
-        try {
-            final Account account;
-            if (login.isSecondFactor()) {
-                account = accountDAO.findByName(login.getName());
-                if (account == null) return ResourceUtil.notFound();
-                try {
-                    getTwoFactorAuthService().verify(account.getAuthIdInt(), login.getSecondFactor());
-                } catch (Exception e) {
-                    return ResourceUtil.invalid();
-                }
-
-            } else {
-                try {
-                    account = accountDAO.authenticate(login);
-                } catch (AuthenticationException e) {
-                    log.warn("Error authenticating: " + e);
-                    switch (e.getProblem()) {
-                        case NOT_FOUND:
-                            return ResourceUtil.notFound();
-                        case INVALID:
-                            return ResourceUtil.forbidden();
-                        case BOOTCONFIG_ERROR:
-                        default:
-                            return serverError();
-                    }
-                }
-
-                // check for 2-factor
-                if (account.isTwoFactor()) {
-                    // if a device was supplied, check to see that most recent auth-time for that device
-                    if (!deviceIsAuthorized(account, login.getDeviceId())) {
-                        return Response.ok(AuthResponse.TWO_FACTOR).build();
-                    }
-                }
-            }
-
-            // authenticate above should have returned 403 when the password didn't match, since
-            // when an account is suspended its kerberos password is changed to a long random string.
-            // ...but just in case...
-            if (account.isSuspended()) return ResourceUtil.forbidden();
-
-            // update last login
-            account.setLastLogin();
-            accountDAO.update(account);
-
-            // if this was a 2-factor success and a deviceId was given, update the device auth time
-            if (login.isSecondFactor() && login.hasDevice()) {
-                updateDeviceAuth(account, login.getDeviceId(), login.getDeviceName());
-            }
-
-            account.setPassword(login.getPassword()); // keep the password in the session
-            final String sessionId = sessionDAO.create(account);
-
-            // set apps
-            account.setAvailableApps(new ArrayList<>(appDAO.getAvailableAppDetails().values()));
-
-            // the password will be scrubbed from the json response
-            return Response.ok(new AuthResponse(sessionId, account)).build();
-
-        } catch (Exception e) {
-            log.error("Error logging in account: "+e, e);
-            return Response.serverError().build();
-
-        } finally {
-            log.info("login executed in "+ TimeUtil.formatDurationFrom(start));
-        }
-    }
-
-    private void updateDeviceAuth(Account account, String deviceId, String deviceName) {
-        if (StringUtil.empty(deviceId)) return;
-        final AccountDevice accountDevice = deviceDAO.findByAccountAndDevice(account.getAccountName(), deviceId);
-        if (accountDevice == null) {
-            deviceDAO.create(new AccountDevice()
-                    .setAccount(account.getAccountName())
-                    .setDeviceId(deviceId)
-                    .setDeviceName(deviceName)
-                    .setAuthTime());
-        } else {
-            deviceDAO.update(accountDevice.setDeviceName(deviceName).setAuthTime());
-        }
-    }
-
-    public static final long DEVICE_TIMEOUT = TimeUnit.DAYS.toMillis(30);
-
-    private boolean deviceIsAuthorized(Account account, String deviceId) {
-        if (StringUtil.empty(deviceId)) return false;
-        final AccountDevice accountDevice = deviceDAO.findByAccountAndDevice(account.getAccountName(), deviceId);
-        return accountDevice != null && accountDevice.isAuthYoungerThan(DEVICE_TIMEOUT);
     }
 
     @POST
@@ -221,6 +132,21 @@ public class AccountsResource {
             return ResourceUtil.invalid("err.admin.cannotSuspendSelf");
         }
 
+        final Account found = accountDAO.findByName(name);
+        if (found == null) return ResourceUtil.notFound(name);
+
+        if (!request.isTwoFactor() && found.isTwoFactor()) {
+            // they are turning off two-factor auth
+            remove2factor(found);
+        } else if (request.isTwoFactor() && !found.isTwoFactor()) {
+            // they are turning on two-factor auth
+            set2factor(request);
+        } else if (!request.getMobilePhone().equals(found.getMobilePhone())) {
+            // they changed their phone number, remove old auth id and add a new one
+            remove2factor(found);
+            set2factor(request);
+        }
+
         Account toUpdate = new Account(request);
         toUpdate.setName(name); // force account name that was in path
         try {
@@ -237,6 +163,14 @@ public class AccountsResource {
         }
 
         return Response.ok(account).build();
+    }
+
+    private AccountBase set2factor(AccountRequest request) {
+        return request.setAuthIdInt(getTwoFactorAuthService().addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
+    }
+
+    private void remove2factor(Account account) {
+        getTwoFactorAuthService().deleteUser(account.getAuthIdInt());
     }
 
     @POST
@@ -327,9 +261,7 @@ public class AccountsResource {
 
         Account toDelete = accountDAO.findByName(name);
         if (toDelete == null) return ResourceUtil.notFound(name);
-        if (toDelete.hasAuthId()) {
-            getTwoFactorAuthService().deleteUser(toDelete.getAuthIdInt());
-        }
+        if (toDelete.hasAuthId()) remove2factor(toDelete);
 
         try {
             accountDAO.delete(name);
