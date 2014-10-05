@@ -2,22 +2,25 @@ package cloudos.resources;
 
 import cloudos.dao.SslCertificateDAO;
 import cloudos.model.Account;
-import cloudos.model.auth.LoginRequest;
-import cloudos.model.auth.AuthResponse;
 import cloudos.model.SslCertificate;
+import cloudos.model.auth.AuthResponse;
 import cloudos.model.auth.CloudOsAuthResponse;
-import cloudos.model.support.*;
+import cloudos.model.auth.LoginRequest;
+import cloudos.model.support.AccountGroupView;
+import cloudos.model.support.AccountRequest;
+import cloudos.model.support.SetupRequest;
 import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import cloudos.service.MockKerberosService;
 import cloudos.service.MockRootySender;
-import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
-import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
@@ -41,7 +44,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,19 +100,11 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public MockRootySender getRootySender() { return (MockRootySender) getConfiguration().getRooty().getSender(); }
     public MockDnsManager getDnsManager() { return ((MockDnsManager) getConfiguration().getDnsManager()); }
 
-    @Override
-    protected Map<String, String> getServerEnvironment() throws Exception {
-
-        Map<String, String> exports = null;
-        try {
-            exports = CommandShell.loadShellExports(".cloudos-test.env");
-        } catch (Exception e) {
-            log.warn("Error loading shell exports from .cloudos-test.env (proceeding with no shared env): "+e, e);
-        }
-
-        final Map<String, String> env = new HashMap<>();
+    public static final String TEST_ENV_FILE = ".cloudos-test.env";
+    @Getter private final Map<String, String> serverEnvironment = initServerEnvironment();
+    protected Map<String, String> initServerEnvironment () {
+        final Map<String, String> env = CommandShell.loadShellExportsOrDie(TEST_ENV_FILE);
         env.put("CLOUD_STORAGE_DATA_KEY", randomAlphanumeric(20));
-        if (exports != null) env.put("AUTHY_KEY", exports.get("AUTHY_KEY"));
         return env;
     }
 
