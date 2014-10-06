@@ -29,6 +29,7 @@ import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
+import org.cobbzilla.wizard.server.RestServer;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
@@ -132,9 +133,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     protected VendorSettingHandler vendorSettingHandler;
     protected File chefHome;
 
-    @Override
-    public void beforeServerStart() throws Exception {
+    @Override public void beforeStart(RestServer server) {
+        try { _beforeStart(); } catch (Exception e) {
+            throw new IllegalStateException("Error in beforeStart: "+e, e);
+        }
+        super.beforeStart(server);
+    }
 
+    protected void _beforeStart() throws Exception {
         // Write default ssl cert to disk and to DB
         sslKeysDir = Files.createTempDir();
         final String sslKeysPath = sslKeysDir.getAbsolutePath();
@@ -193,9 +199,6 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // setup mock DNS manager
         dnsManager = new MockDnsManager();
         configuration.setDnsManager(dnsManager);
-
-        // set base uri
-        configuration.setPublicUriBase("http://127.0.0.1:"+server.getConfiguration().getHttp().getPort());
     }
 
     @Before
