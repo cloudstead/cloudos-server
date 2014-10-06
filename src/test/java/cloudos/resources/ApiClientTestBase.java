@@ -29,7 +29,6 @@ import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
-import org.cobbzilla.wizard.server.RestServer;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
@@ -133,11 +132,11 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     protected VendorSettingHandler vendorSettingHandler;
     protected File chefHome;
 
-    @Override public void beforeStart(RestServer server) {
+    @Override public void beforeStart() {
         try { _beforeStart(); } catch (Exception e) {
             throw new IllegalStateException("Error in beforeStart: "+e, e);
         }
-        super.beforeStart(server);
+        super.beforeStart();
     }
 
     protected void _beforeStart() throws Exception {
