@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.AUTH_ENDPOINT)
 @Service @Slf4j
-public class AuthResource extends AccountAuthResource<Account> {
+public class AuthResource extends AuthResourceBase<Account> {
 
     @Autowired @Getter(value= AccessLevel.PROTECTED) protected AccountBaseDAO<Account> accountBaseDAO;
     @Autowired @Getter(value=AccessLevel.PROTECTED) protected TemplatedMailService templatedMailService;
@@ -27,5 +27,9 @@ public class AuthResource extends AccountAuthResource<Account> {
     @Autowired private CloudOsConfiguration configuration;
 
     @Override protected String getResetPasswordUrl(String token) { return configuration.getResetPasswordUrl(token); }
+
+    // todo: load these from a localized string table, and use cloudos's email domain (which might differ from hostname)
+    @Override protected String getFromName(String templateName) { return "System Mailer for Cloudstead " + configuration.getHostname(); }
+    @Override protected String getFromEmail(String templateName) { return "no-reply@" + configuration.getHostname(); }
 
 }

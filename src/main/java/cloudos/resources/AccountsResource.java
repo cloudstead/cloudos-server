@@ -103,6 +103,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                 .setTemplateName(TemplatedMailService.T_WELCOME)
                 .setLocale("en_US") // todo: set this at first-time-setup
                 .setFromEmail(admin.getName() + "@" + hostname)
+                .setFromName(admin.getFullName())
                 .setToEmail(created.getEmail())
                 .setToName(created.getName())
                 .setParameter(TemplatedMailService.PARAM_ACCOUNT, created)
