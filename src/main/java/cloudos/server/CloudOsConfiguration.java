@@ -90,4 +90,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
         }
     }
 
+    public String getResetPasswordUrl(String token) {
+        return new StringBuilder().append(getPublicUriBase()).append("/reset_password.html?key=").append(token).toString();
+    }
 }

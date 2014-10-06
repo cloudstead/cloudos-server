@@ -8,6 +8,7 @@ public class ApiConstants {
 
     public static final String APPSTORE_ASSETS_ENDPOINT = "/appstore_assets";
 
+    public static final String AUTH_ENDPOINT = "/auth";
     public static final String SETUP_ENDPOINT = "/setup";
     public static final String SESSIONS_ENDPOINT = "/sessions";
     public static final String ACCOUNTS_ENDPOINT = "/accounts";

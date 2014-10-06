@@ -5,10 +5,10 @@ import cloudos.dao.AppDAO;
 import cloudos.model.Account;
 import cloudos.model.AccountBase;
 import cloudos.model.auth.AuthenticationException;
+import cloudos.model.auth.ChangePasswordRequest;
 import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.PasswordChangeRequest;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.TemplatedMail;
@@ -24,11 +24,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 
+import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
+
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path(ApiConstants.ACCOUNTS_ENDPOINT)
+@Path(ACCOUNTS_ENDPOINT)
 @Service @Slf4j
 public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthResponse> {
+
+    public static final String PARAM_NAME = "name";
+    public static final String EP_CHANGE_PASSWORD = "/{"+PARAM_NAME+"}/password";
+    public static String getChangePasswordPath(String name) { return ACCOUNTS_ENDPOINT + EP_CHANGE_PASSWORD.replace("{"+PARAM_NAME+"}", name); }
 
     @Override protected void afterSuccessfulLogin(LoginRequest login, Account account) throws Exception {
         // keep the password in the session, it'll be scrubbed from the json response
@@ -174,10 +180,10 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
     }
 
     @POST
-    @Path("/{name}/password")
+    @Path(EP_CHANGE_PASSWORD)
     public Response changePassword(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
-                                   @PathParam("name") String name,
-                                   @Valid PasswordChangeRequest request) {
+                                   @PathParam(PARAM_NAME) String name,
+                                   @Valid ChangePasswordRequest request) {
 
         final Account account = sessionDAO.find(apiKey);
         if (account == null) return ResourceUtil.notFound(apiKey);
@@ -186,16 +192,16 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         final boolean targetIsSelf = account.getName().equals(name);
         if ( !( account.isAdmin() || targetIsSelf) ) return ResourceUtil.forbidden();
 
-        final Account target = targetIsSelf ? account : accountDAO.findByName(name);
+        final Account target = accountDAO.findByName(name);
 
         try {
             if (account.isAdmin()) {
-                accountDAO.adminChangePassword(name, request.getNewPassword());
+                accountDAO.setPassword(target, request.getNewPassword());
                 if (request.isSendInvite()) {
                     sendInvitation(account, target, request.getNewPassword());
                 }
             } else {
-                accountDAO.changePassword(account.getName(), request.getOldPassword(), request.getNewPassword());
+                accountDAO.changePassword(target, request.getOldPassword(), request.getNewPassword());
             }
 
         } catch (AuthenticationException e) {
@@ -272,4 +278,5 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
 
         return Response.ok(Boolean.TRUE).build();
     }
+
 }

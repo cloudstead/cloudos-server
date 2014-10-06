@@ -10,6 +10,7 @@ import cloudos.service.RootyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.system.CommandResult;
+import org.cobbzilla.wizard.model.HashedPassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import rooty.events.account.AccountEvent;
@@ -39,12 +40,17 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         return account;
     }
 
-    public void changePassword(String accountName, String oldPassword, String newPassword) throws AuthenticationException {
-        kerberos.changePassword(accountName, oldPassword, newPassword);
+    public void changePassword(Account account, String oldPassword, String newPassword) throws AuthenticationException {
+        kerberos.changePassword(account.getAccountName(), oldPassword, newPassword);
+        account.getHashedPassword().setResetToken(null);
+        update(account);
     }
 
-    public void adminChangePassword(String accountName, String newPassword) throws AuthenticationException {
-        kerberos.adminChangePassword(accountName, newPassword);
+    @Override
+    public void setPassword(Account account, String newPassword) {
+        kerberos.adminChangePassword(account.getAccountName(), newPassword);
+        account.getHashedPassword().setResetToken(null);
+        update(account);
     }
 
     public List<Account> findAccounts() {
@@ -57,7 +63,14 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
         if (!request.hasPassword()) request.setPassword(ApiConstants.randomPassword());
 
-        final Account account = new Account(request);
+        final Account account = new Account().populate(request);
+
+        // ignored for cloudos since kerberos is used, but must not be null
+        account.setHashedPassword(new HashedPassword(RandomStringUtils.randomAlphanumeric(20)));
+
+        // generate an email verification code for new accounts
+        account.initEmailVerificationCode();
+
         final CommandResult result = kerberos.createPrincipal(request);
 
         // Create account in DB
@@ -84,7 +97,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
         final Account existing = findByName(account.getName());
         boolean isSuspending = !existing.isSuspended() && account.isSuspended();
-        existing.setAll(account);
+        existing.populate(account);
         if (isSuspending) {
             kerberos.adminChangePassword(account.getName(), RandomStringUtils.randomAlphanumeric(20));
         }

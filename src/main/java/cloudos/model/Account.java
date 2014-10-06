@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.reflect.ReflectionUtil;
+import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.filters.Scrubbable;
 import org.cobbzilla.wizard.filters.ScrubbableField;
@@ -48,15 +48,20 @@ public class Account extends AccountBase implements CloudOsAccount, Scrubbable {
         }
     };
 
-    public Account(AccountRequest request) { setAll(request); }
-    public Account (Account other) { setAll(other); }
+    public Account (AccountRequest request) { populate(request); }
+    public Account (Account other) { populate(other); }
     public Account (String accountName) { setName(accountName); }
 
-    public void setAll(Object thing) { ReflectionUtil.copy(this, thing); }
+    public Account populate(Account account) {
+        super.populate(account);
+        setPrimaryGroup(account.getPrimaryGroup());
+        setStorageQuota(account.getStorageQuota());
+        return this;
+    }
 
     // validated at login (against kerberos) and placed into the session. Not stored in DB.
-    @Transient
-    @Getter @Setter private String password;
+    @Transient @Getter @Setter private String password;
+    @JsonIgnore public boolean hasPassword() { return !StringUtil.empty(password); }
 
     @Pattern(regexp=BYTES_PATTERN, message=ERR_STORAGE_QUOTA_INVALID)
     @Column(length=10) @Size(max=10, message=ERR_STORAGE_QUOTA_LENGTH)

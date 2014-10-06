@@ -24,7 +24,6 @@ import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.security.ShaUtil;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.ImprovedTimezone;
@@ -194,6 +193,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // setup mock DNS manager
         dnsManager = new MockDnsManager();
         configuration.setDnsManager(dnsManager);
+
+        // set base uri
+        configuration.setPublicUriBase("http://127.0.0.1:"+server.getConfiguration().getHttp().getPort());
     }
 
     @Before
@@ -232,9 +234,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
                 .setSetupKey(setupSource.getMockSettings().getSecret())
                 .setSystemTimeZone(timezoneId)
                 .setInitialPassword(setupSource.getPassword())
-                .setLastName(accountName).setFirstName(accountName)
-                .setEmail(randomEmail()).setMobilePhoneCountryCode(1).setMobilePhone(randomNumeric(10));
-        ReflectionUtil.copy(request, newAccountRequest(accountName, password, true));
+                .setPassword(password)
+                .setAccountName(accountName)
+                .setMobilePhone(randomNumeric(10))
+                .setMobilePhoneCountryCode(1)
+                .setEmail(randomEmail())
+                .setFirstName(randomAlphanumeric(10))
+                .setLastName(randomAlphanumeric(10))
+                .setAdmin(true);
 
         // Do first-time setup, create cloudOs admin
         final RestResponse response = post(ApiConstants.SETUP_ENDPOINT, toJson(request));
