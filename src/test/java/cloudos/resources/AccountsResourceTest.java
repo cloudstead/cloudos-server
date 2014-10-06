@@ -34,7 +34,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
         // be admin for this part
         pushToken(adminToken);
-        apiDocs.appendNote("creating a regular account: " + accountName);
+        apiDocs.addNote("creating a regular account: " + accountName);
         RestResponse response = put(ACCOUNTS_ENDPOINT + "/" + accountName, toJson(request));
         assertEquals(200, response.status);
         final Account account = fromJson(response.json, Account.class);
@@ -72,7 +72,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
     public RestResponse login(String accountName, String password) throws Exception {
         final LoginRequest loginRequest = new LoginRequest().setName(accountName).setPassword(password);
-        apiDocs.appendNote("login account " + accountName);
+        apiDocs.addNote("login account " + accountName);
         return login(loginRequest);
     }
 
@@ -82,13 +82,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
                 .setPassword(password)
                 .setDeviceId(deviceId)
                 .setDeviceName(deviceId);
-        apiDocs.appendNote("login account " + accountName + " with device "+deviceId);
+        apiDocs.addNote("login account " + accountName + " with device "+deviceId);
         return login(loginRequest);
     }
 
     public RestResponse secondFactor(String accountName, String secondFactor, String deviceId) throws Exception {
 
-        apiDocs.appendNote("account requires 2-factor auth. verify that a request to view profile should fail, since login has not been completed");
+        apiDocs.addNote("account requires 2-factor auth. verify that a request to view profile should fail, since login has not been completed");
         assertEquals(404, doGet(ACCOUNTS_ENDPOINT + "/" + accountName).status);
 
         final LoginRequest loginRequest = new LoginRequest()
@@ -96,7 +96,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
                 .setSecondFactor(secondFactor)
                 .setDeviceId(deviceId)
                 .setDeviceName(deviceId);
-        apiDocs.appendNote("send 2-factor verification token for account " + accountName);
+        apiDocs.addNote("send 2-factor verification token for account " + accountName);
         return login(loginRequest);
     }
 

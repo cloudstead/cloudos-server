@@ -254,7 +254,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     public RestResponse login(LoginRequest loginRequest) throws Exception {
-        apiDocs.appendNote("login: " + loginRequest);
+        apiDocs.addNote("login: " + loginRequest);
         final RestResponse response = doPost(ACCOUNTS_ENDPOINT, toJson(loginRequest));
         if (response.status == 200) {
             final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
@@ -264,7 +264,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     public void suspend(AccountRequest request) throws Exception {
-        apiDocs.appendNote("suspending account: "+request.getAccountName());
+        apiDocs.addNote("suspending account: "+request.getAccountName());
         request.setSuspended(true);
         update(request);
     }
@@ -285,7 +285,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     public <T> SearchResults<T> search(ResultPage page, String type, JavaType resultType) throws Exception {
-        apiDocs.appendNote("search " + type + " with query: " + page);
+        apiDocs.addNote("search " + type + " with query: " + page);
         final RestResponse response = doPost(ApiConstants.SEARCH_ENDPOINT + "/" + type, toJson(page));
         return JsonUtil.PUBLIC_MAPPER.readValue(response.json, resultType);
     }
@@ -299,7 +299,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     private String download(ResultPage page, String type, JavaType resultType) throws Exception {
-        apiDocs.appendNote("downloading CSV of " + type + " with query: " + page);
+        apiDocs.addNote("downloading CSV of " + type + " with query: " + page);
         final RestResponse response = doGet(ApiConstants.SEARCH_ENDPOINT + "/" + type + "/download.csv?page=" + urlEncode(toJson(page)));
         return response.json;
     }
