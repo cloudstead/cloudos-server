@@ -69,8 +69,8 @@ authy:
   baseUri: http://sandbox-api.authy.com
 
 dns:
-  user: {{CLOUDOS_DNS_USER}}
-  password: {{CLOUDOS_DNS_PASSWORD}}
+  user: dummy
+  password: dummy
   baseUri: {{CLOUDOS_DNS_URI}}
 
 # tests can setup their own mock handlers using Mock

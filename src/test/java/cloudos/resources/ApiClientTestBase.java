@@ -1,6 +1,7 @@
 package cloudos.resources;
 
 import cloudos.dao.SslCertificateDAO;
+import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
 import cloudos.model.SslCertificate;
 import cloudos.model.auth.AuthResponse;
