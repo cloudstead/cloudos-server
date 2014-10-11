@@ -82,7 +82,7 @@ public class AccountGroupsResource {
         }
 
         // create group, add members
-        final AccountGroup created = groupDAO.create(new AccountGroup().setName(groupName));
+        final AccountGroup created = groupDAO.create((AccountGroup) new AccountGroup().setName(groupName));
         final List<AccountGroupMember> members = buildGroupMemberList(created, recipients);
         for (AccountGroupMember m : members) memberDAO.create(m.setGroupUuid(created.getUuid()));
 

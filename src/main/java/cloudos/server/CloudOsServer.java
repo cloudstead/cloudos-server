@@ -15,11 +15,8 @@ public class CloudOsServer extends RestServerBase<CloudOsConfiguration> {
 
     // args are ignored, config is loaded from the classpath
     public static void main(String[] args) throws Exception {
-
         final List<ConfigurationSource> configSources = getStreamConfigurationSources(CloudOsServer.class, API_CONFIG_YML);
-
-        main(CloudOsServer.class, new CloudOsServerListener(), configSources);
-
+        main(CloudOsServer.class, configSources);
     }
 
 }

@@ -30,7 +30,7 @@ public class DefaultSearchScrubber implements SearchScrubber {
         a.setAuthId(null);
         a.setLastLogin(null);
         a.setPassword(null);
-        a.setRecoveryEmail(null);
+        a.setEmail(null);
         a.setTwoFactor(false);
         a.setAdmin(false);
     }

@@ -40,7 +40,7 @@ public class SearchResource {
     private static final String[] ACCOUNT_FIELDS
             = {"name", "firstName", "lastName", "admin", "suspended", "storageQuota",
                 DATE_PREFIX+"ctime", DATE_PREFIX+"lastLogin",
-                "recoveryEmail", "mobilePhone", "mobilePhoneCountryCode"};
+                "email", "mobilePhone", "mobilePhoneCountryCode"};
 
     private static final String[] GROUP_FIELDS
             = {"name", "info.description", "info.storageQuota", "memberCount", DATE_PREFIX+"ctime" };

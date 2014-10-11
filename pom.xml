@@ -33,7 +33,7 @@ For commercial use, please contact cloudstead.io
         </dependency>
         <dependency>
             <groupId>cloudstead</groupId>
-            <artifactId>cloudos-dns</artifactId>
+            <artifactId>dns-client</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -126,13 +126,6 @@ For commercial use, please contact cloudstead.io
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>${jedis.version}</version>
-        </dependency>
-
-        <!-- 2-factor authentication -->
-        <dependency>
-            <groupId>com.authy</groupId>
-            <artifactId>authy-java</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- download reports -->

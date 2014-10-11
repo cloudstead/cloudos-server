@@ -1,15 +1,18 @@
 package cloudos.resources;
 
 import cloudos.model.Account;
-import cloudos.model.support.AccountLoginRequest;
+import cloudos.model.AccountBase;
+import cloudos.model.auth.*;
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.AuthResponse;
-import cloudos.model.support.PasswordChangeRequest;
-import cloudos.service.MockTemplatedMailSender;
-import cloudos.service.TemplatedMailService;
+import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
+import org.cobbzilla.mail.service.TemplatedMailService;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
@@ -17,6 +20,7 @@ import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.*;
 
+@Slf4j
 public class AccountsResourceTest extends ApiClientTestBase {
 
     private static final String DOC_TARGET = "Account Management";
@@ -33,12 +37,12 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
         // be admin for this part
         pushToken(adminToken);
-        apiDocs.appendNote("creating a regular account: " + accountName);
+        apiDocs.addNote("creating a regular account: " + accountName);
         RestResponse response = put(ACCOUNTS_ENDPOINT + "/" + accountName, toJson(request));
         assertEquals(200, response.status);
         final Account account = fromJson(response.json, Account.class);
         assertNotNull(account);
-        assertEquals(request.getRecoveryEmail(), account.getRecoveryEmail());
+        assertEquals(request.getEmail(), account.getEmail());
 
         // grab password from email
         final MockTemplatedMailSender sender = getTemplatedMailSender();
@@ -56,13 +60,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
         response = login(accountName, password, deviceId);
         assertEquals(200, response.status);
 
-        AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+        AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
         assertNotNull(authResponse.getSessionId());
 
         if (authResponse.isTwoFactor()) {
             final RestResponse secondFactorResponse = secondFactor(accountName, "0000000", deviceId);
             assertEquals(200, secondFactorResponse.status);
-            authResponse = fromJson(secondFactorResponse.json, AuthResponse.class);
+            authResponse = fromJson(secondFactorResponse.json, CloudOsAuthResponse.class);
             assertNotNull(authResponse.getSessionId());
         }
 
@@ -70,32 +74,32 @@ public class AccountsResourceTest extends ApiClientTestBase {
     }
 
     public RestResponse login(String accountName, String password) throws Exception {
-        final AccountLoginRequest loginRequest = new AccountLoginRequest().setName(accountName).setPassword(password);
-        apiDocs.appendNote("login account " + accountName);
+        final LoginRequest loginRequest = new LoginRequest().setName(accountName).setPassword(password);
+        apiDocs.addNote("login account " + accountName);
         return login(loginRequest);
     }
 
     public RestResponse login(String accountName, String password, String deviceId) throws Exception {
-        final AccountLoginRequest loginRequest = new AccountLoginRequest()
+        final LoginRequest loginRequest = new LoginRequest()
                 .setName(accountName)
                 .setPassword(password)
                 .setDeviceId(deviceId)
                 .setDeviceName(deviceId);
-        apiDocs.appendNote("login account " + accountName + " with device "+deviceId);
+        apiDocs.addNote("login account " + accountName + " with device " + deviceId);
         return login(loginRequest);
     }
 
     public RestResponse secondFactor(String accountName, String secondFactor, String deviceId) throws Exception {
 
-        apiDocs.appendNote("account requires 2-factor auth. verify that a request to view profile should fail, since login has not been completed");
+        apiDocs.addNote("account requires 2-factor auth. verify that a request to view profile should fail, since login has not been completed");
         assertEquals(404, doGet(ACCOUNTS_ENDPOINT + "/" + accountName).status);
 
-        final AccountLoginRequest loginRequest = new AccountLoginRequest()
+        final LoginRequest loginRequest = new LoginRequest()
                 .setName(accountName)
                 .setSecondFactor(secondFactor)
                 .setDeviceId(deviceId)
                 .setDeviceName(deviceId);
-        apiDocs.appendNote("send 2-factor verification token for account " + accountName);
+        apiDocs.addNote("send 2-factor verification token for account " + accountName);
         return login(loginRequest);
     }
 
@@ -159,7 +163,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
         final AccountRequest request = newAccountRequest(accountName, password, false);
         request.setTwoFactor(true);
         final AuthResponse authResponse = assertAccount(request, device1);
-        assertNotEquals(AuthResponse.TWO_FACTOR.getSessionId(), authResponse.getSessionId());
+        assertNotEquals(AuthResponse.TWO_FACTOR_SID, authResponse.getSessionId());
 
         apiDocs.addNote("request to view profile should now succeed");
         assertEquals(200, get(ACCOUNTS_ENDPOINT + "/" + accountName).status);
@@ -170,13 +174,13 @@ public class AccountsResourceTest extends ApiClientTestBase {
         apiDocs.addNote("login again, should not require 2-factor auth since we just supplied it");
         login = login(accountName, password, device1);
         assertEquals(200, login.status);
-        assertNotEquals(AuthResponse.TWO_FACTOR.getSessionId(), fromJson(login.json, AuthResponse.class).getSessionId());
+        assertNotEquals(AuthResponse.TWO_FACTOR_SID, fromJson(login.json, CloudOsAuthResponse.class).getSessionId());
 
         flushTokens();
         apiDocs.addNote("login from a different device, should require 2-factor auth for new device");
         login = login(accountName, password, device1+"_different");
         assertEquals(200, login.status);
-        assertEquals(AuthResponse.TWO_FACTOR.getSessionId(), fromJson(login.json, AuthResponse.class).getSessionId());
+        assertEquals(AuthResponse.TWO_FACTOR_SID, fromJson(login.json, CloudOsAuthResponse.class).getSessionId());
     }
 
     @Test
@@ -198,7 +202,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
         apiDocs.addNote("as second account, try to change first account's password using admin endpoint, this will fail");
         final String newPassword = randomAlphanumeric(10);
-        final PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest("-", newPassword);
+        final ChangePasswordRequest passwordChangeRequest = new ChangePasswordRequest("-", newPassword);
         flushTokens(); pushToken(secondAuth.getSessionId());
         response = doPost(ACCOUNTS_ENDPOINT + "/" + accountName + "/password", toJson(passwordChangeRequest));
         assertEquals(403, response.status);
@@ -218,5 +222,99 @@ public class AccountsResourceTest extends ApiClientTestBase {
         apiDocs.addNote("ensure first account can now login with new password");
         flushTokens();
         assertEquals(200, login(accountName, newPassword).status);
+    }
+
+    @Test
+    public void testChangePassword () throws Exception {
+        apiDocs.startRecording(DOC_TARGET, "exercise the change-password workflow");
+
+        final String accountName = randomAlphanumeric(10).toLowerCase();
+        final String password = randomAlphanumeric(10);
+
+        apiDocs.addNote("add a regular account");
+        final AccountRequest request = newAccountRequest(accountName, password, false);
+        final AuthResponse authResponse = assertAccount(request);
+        final AccountBase account = authResponse.getAccount();
+        pushToken(authResponse.getSessionId());
+
+        apiDocs.addNote("login with current password, should work");
+        fullLogin(accountName, password, null);
+
+        apiDocs.addNote("change password");
+        final String newPassword = password + "_changed";
+        final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest()
+                .setUuid(account.getUuid())
+                .setOldPassword(password)
+                .setNewPassword(newPassword);
+        post(AccountsResource.getChangePasswordPath(account.getAccountName()), toJson(changePasswordRequest));
+
+        expectFailedLogin(accountName, password);
+
+        apiDocs.addNote("login with new password, should work");
+        fullLogin(accountName, newPassword, null);
+    }
+
+    @Test
+    public void testForgotPassword () throws Exception {
+        apiDocs.startRecording(DOC_TARGET, "exercise the forgot-password workflow");
+
+        final String accountName = randomAlphanumeric(10).toLowerCase();
+        final String password = randomAlphanumeric(10);
+
+        apiDocs.addNote("add a regular account");
+        final AccountRequest request = newAccountRequest(accountName, password, false);
+        final AuthResponse authResponse = assertAccount(request);
+        pushToken(authResponse.getSessionId());
+
+        final MockTemplatedMailSender sender = getTemplatedMailSender();
+        sender.reset();
+        apiDocs.addNote("hit forgot password link");
+        post(ApiConstants.AUTH_ENDPOINT + AuthResource.EP_FORGOT_PASSWORD, accountName);
+
+        assertEquals(1, sender.getMessages().size());
+        final String url = sender.getFirstMessage().getParameters().get(AuthResource.PARAM_RESETPASSWORD_URL).toString();
+        assertNotNull(url);
+        final Matcher matcher = Pattern.compile("^http://[^\\?]+\\?key=(\\w+)").matcher(url);
+        assertTrue(matcher.find());
+        final String token = matcher.group(1);
+
+        apiDocs.addNote("hit reset password link");
+        final String newPassword = password+"_changed";
+        final ResetPasswordRequest resetRequest = new ResetPasswordRequest().setToken(token).setPassword(newPassword);
+        post(ApiConstants.AUTH_ENDPOINT + AuthResource.EP_RESET_PASSWORD, toJson(resetRequest));
+
+        expectFailedLogin(accountName, password);
+
+        apiDocs.addNote("login with new password - should succeed but should still require 2-factor auth");
+        fullLogin(accountName, newPassword, null);
+        log.info("Success!");
+    }
+
+    protected AuthResponse fullLogin(String accountName, String password, String deviceId) throws Exception {
+        RestResponse response;
+        response = login(accountName, password, deviceId);
+        assertEquals(200, response.status);
+
+        AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
+        assertNotNull(authResponse.getSessionId());
+
+        if (authResponse.isTwoFactor()) {
+            final RestResponse secondFactorResponse = secondFactor(accountName, "0000000", deviceId);
+            assertEquals(200, secondFactorResponse.status);
+            authResponse = fromJson(secondFactorResponse.json, CloudOsAuthResponse.class);
+            assertNotNull(authResponse.getSessionId());
+        }
+        return authResponse;
+    }
+
+    protected void expectFailedLogin(String accountName, String password) throws Exception {
+        try {
+            apiDocs.addNote("login with old password - should fail");
+            fullLogin(accountName, password, null);
+            fail("expected login with old password to fail");
+        } catch (AssertionError ignored) {
+            // expected
+            log.info("OK, expected this: " + ignored);
+        }
     }
 }

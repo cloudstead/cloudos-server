@@ -2,7 +2,7 @@ package cloudos.resources;
 
 import cloudos.dao.AccountDAO;
 import cloudos.model.Account;
-import cloudos.model.support.AccountLoginRequest;
+import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.NamedEntity;
@@ -96,7 +96,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
         for (int i=0; i<NUM_ACCOUNTS; i++) {
             final String accountName = accounts.get(i).getName();
             if (i < numActivated) {
-                final AccountLoginRequest loginRequest = new AccountLoginRequest()
+                final LoginRequest loginRequest = new LoginRequest()
                         .setName(accountName)
                         .setPassword(accountRequests.get(accountName).getPassword());
                 assertEquals(200, login(loginRequest).status);
@@ -141,7 +141,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
         // login every account we created
         apiDocs.addNote("login all accounts, so that all accounts are active");
         for (AccountRequest request : accountRequests.values()) {
-            login(new AccountLoginRequest().setName(request.getAccountName()).setPassword(request.getPassword()));
+            login(new LoginRequest().setName(request.getAccountName()).setPassword(request.getPassword()));
         }
         flushTokens(); pushToken(adminToken);
 
@@ -224,7 +224,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
 
         apiDocs.addNote("login as a non-admin user");
         final String accountName = accounts.get(0).getName();
-        login(new AccountLoginRequest().setName(accountName).setPassword(accountRequests.get(accountName).getPassword()));
+        login(new LoginRequest().setName(accountName).setPassword(accountRequests.get(accountName).getPassword()));
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup. " +
                 "\nVerify that the results do not include uuids, recovery emails, or authids");
@@ -235,7 +235,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
 
         for (Account a : found.getResults()) {
             assertNull(a.getUuid());
-            assertNull(a.getRecoveryEmail());
+            assertNull(a.getEmail());
             assertNull(a.getAuthId());
             assertFalse(a.isAdmin());
             assertFalse(a.isTwoFactor());

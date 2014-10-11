@@ -11,6 +11,9 @@
     <!-- DB-related beans (dataSource, sessionFactory, hibernateTemplate, etc) -->
     <context:component-scan base-package="org.cobbzilla.wizard.spring.config.rdbms"/>
 
+    <!-- Templated mail sender -->
+    <context:component-scan base-package="org.cobbzilla.mail.service"/>
+
     <!-- jersey resources, DAOs -->
     <context:component-scan base-package="cloudos.model"/>
     <context:component-scan base-package="cloudos.dao"/>

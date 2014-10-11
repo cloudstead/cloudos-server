@@ -38,7 +38,7 @@ public class SearchAccountGroupsTest extends SearchAccountsTest {
         final String groupNameBase = RandomStringUtils.randomAlphanumeric(10).toLowerCase();
         for (int i=0; i<NUM_GROUPS; i++) {
             final String groupName = groupNameBase + "_" + i;
-            final AccountGroup group = new AccountGroup().setName(groupName);
+            final AccountGroup group = (AccountGroup) new AccountGroup().setName(groupName);
             groups.add(groupDAO.create(group));
 
             for (int j=0; j<NUM_ACCOUNTS/2; j++) {

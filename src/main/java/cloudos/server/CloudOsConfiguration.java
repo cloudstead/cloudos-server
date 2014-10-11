@@ -2,12 +2,14 @@ package cloudos.server;
 
 import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.dns.DnsClient;
-import cloudos.dns.server.DynDnsConfiguration;
+import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
+import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.sender.SmtpMailConfig;
+import org.cobbzilla.mail.service.TemplatedMailSenderConfiguration;
 import org.cobbzilla.util.dns.DnsManager;
 import org.cobbzilla.util.http.ApiConnectionInfo;
 import org.cobbzilla.util.system.CommandShell;
@@ -24,11 +26,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 @Configuration @Slf4j
-public class CloudOsConfiguration extends RestServerConfiguration implements HasDatabaseConfiguration {
+public class CloudOsConfiguration extends RestServerConfiguration
+        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration {
 
     public static final String DEFAULT_ADMIN = "admin";
 
     @Setter private DatabaseConfiguration database;
+
     @Bean public DatabaseConfiguration getDatabase() { return database; }
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
@@ -41,6 +45,12 @@ public class CloudOsConfiguration extends RestServerConfiguration implements Has
     private AppStoreApiClient initAppStoreApiClient() { return new AppStoreApiClient(appStore); }
 
     @Getter @Setter private ApiConnectionInfo authy;
+
+    private TwoFactorAuthService twoFactorAuthService = null;
+    @Override public TwoFactorAuthService getTwoFactorAuthService () {
+        if (twoFactorAuthService == null) twoFactorAuthService = new TwoFactorAuthService(authy);
+        return twoFactorAuthService;
+    }
 
     @Getter @Setter private String kadminPassword;
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;
@@ -80,4 +90,7 @@ public class CloudOsConfiguration extends RestServerConfiguration implements Has
         }
     }
 
+    public String getResetPasswordUrl(String token) {
+        return new StringBuilder().append(getPublicUriBase()).append("/reset_password.html?key=").append(token).toString();
+    }
 }

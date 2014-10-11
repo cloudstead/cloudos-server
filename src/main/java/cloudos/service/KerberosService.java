@@ -1,7 +1,7 @@
 package cloudos.service;
 
 import cloudos.model.support.AccountRequest;
-import cloudos.model.support.AuthenticationException;
+import cloudos.model.auth.AuthenticationException;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
@@ -12,9 +12,9 @@ import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static cloudos.model.support.AuthenticationException.Problem.BOOTCONFIG_ERROR;
-import static cloudos.model.support.AuthenticationException.Problem.INVALID;
-import static cloudos.model.support.AuthenticationException.Problem.NOT_FOUND;
+import static cloudos.model.auth.AuthenticationException.Problem.BOOTCONFIG_ERROR;
+import static cloudos.model.auth.AuthenticationException.Problem.INVALID;
+import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
 
 @Service @Slf4j
 public class KerberosService {

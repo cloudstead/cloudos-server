@@ -11,7 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity @Accessors(chain=true)
-public class SslCertificate extends UniquelyNamedEntity<SslCertificate> {
+public class SslCertificate extends UniquelyNamedEntity {
 
     @Transient
     public String getCertName () { return getName(); }

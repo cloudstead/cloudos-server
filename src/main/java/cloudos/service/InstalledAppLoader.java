@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service @Slf4j
 public class InstalledAppLoader {
@@ -166,7 +167,7 @@ public class InstalledAppLoader {
         final AuthTransition auth = new AuthTransition(location, cookieJar.getCookiesList());
         final String uuid = auth.getUuid();
         try {
-            redis.set(uuid, JsonUtil.toJson(auth), "NX", "EX", 60L);
+            redis.set(uuid, JsonUtil.toJson(auth), "NX", "EX", TimeUnit.HOURS.toSeconds(24));
         } catch (Exception e) {
             log.error("sendToApp: Error writing to redis: "+e, e);
             return Response.serverError().build();

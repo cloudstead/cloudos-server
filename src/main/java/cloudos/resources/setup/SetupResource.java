@@ -3,7 +3,7 @@ package cloudos.resources.setup;
 import cloudos.dao.AccountDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
-import cloudos.model.support.AuthResponse;
+import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.support.SetupRequest;
 import cloudos.resources.ApiConstants;
 import cloudos.service.RootyService;
@@ -59,6 +59,6 @@ public class SetupResource {
 
         setupSettingsSource.firstTimeSetupCompleted();
 
-        return Response.ok(new AuthResponse(sessionId, account)).build();
+        return Response.ok(new CloudOsAuthResponse(sessionId, account)).build();
     }
 }

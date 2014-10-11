@@ -1,24 +1,30 @@
 package cloudos.resources;
 
 import cloudos.dao.SslCertificateDAO;
+import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
 import cloudos.model.SslCertificate;
-import cloudos.model.support.*;
+import cloudos.model.auth.AuthResponse;
+import cloudos.model.auth.CloudOsAuthResponse;
+import cloudos.model.auth.LoginRequest;
+import cloudos.model.support.AccountGroupView;
+import cloudos.model.support.AccountRequest;
+import cloudos.model.support.SetupRequest;
 import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import cloudos.service.MockKerberosService;
 import cloudos.service.MockRootySender;
-import cloudos.service.MockTemplatedMailSender;
-import cloudos.service.MockTemplatedMailService;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
+import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.security.ShaUtil;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.ImprovedTimezone;
@@ -38,7 +44,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +81,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
                 .setAccountName(accountName)
                 .setMobilePhone(randomNumeric(10))
                 .setMobilePhoneCountryCode(1)
-                .setRecoveryEmail(randomEmail())
+                .setEmail(randomEmail())
                 .setFirstName(randomAlphanumeric(10))
                 .setLastName(randomAlphanumeric(10))
                 .setAdmin(isAdmin);
@@ -95,19 +100,11 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public MockRootySender getRootySender() { return (MockRootySender) getConfiguration().getRooty().getSender(); }
     public MockDnsManager getDnsManager() { return ((MockDnsManager) getConfiguration().getDnsManager()); }
 
-    @Override
-    protected Map<String, String> getServerEnvironment() throws Exception {
-
-        Map<String, String> exports = null;
-        try {
-            exports = CommandShell.loadShellExports(".cloudos-test.env");
-        } catch (Exception e) {
-            log.warn("Error loading shell exports from .cloudos-test.env (proceeding with no shared env): "+e, e);
-        }
-
-        final Map<String, String> env = new HashMap<>();
+    public static final String TEST_ENV_FILE = ".cloudos-test.env";
+    @Getter private final Map<String, String> serverEnvironment = initServerEnvironment();
+    protected Map<String, String> initServerEnvironment () {
+        final Map<String, String> env = CommandShell.loadShellExportsOrDie(TEST_ENV_FILE);
         env.put("CLOUD_STORAGE_DATA_KEY", randomAlphanumeric(20));
-        if (exports != null) env.put("AUTHY_KEY", exports.get("AUTHY_KEY"));
         return env;
     }
 
@@ -136,9 +133,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     protected VendorSettingHandler vendorSettingHandler;
     protected File chefHome;
 
-    @Override
-    public void beforeServerStart() throws Exception {
+    @Override public void beforeStart() {
+        try { _beforeStart(); } catch (Exception e) {
+            throw new IllegalStateException("Error in beforeStart: "+e, e);
+        }
+        super.beforeStart();
+    }
 
+    protected void _beforeStart() throws Exception {
         // Write default ssl cert to disk and to DB
         sslKeysDir = Files.createTempDir();
         final String sslKeysPath = sslKeysDir.getAbsolutePath();
@@ -202,14 +204,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     @Before
     public void createDefaultCertRecord () throws Exception {
         final SslCertificateDAO certDAO = getBean(SslCertificateDAO.class);
-        certDAO.create(new SslCertificate()
+        certDAO.create((SslCertificate) new SslCertificate()
                 .setCommonName("*.cloudstead.io")
                 .setDescription("cloudstead.io wildcard certificate")
-                .setName(ApiConstants.DEFAULT_CERT_NAME)
                 .setKeySha(DEFAULT_KEY_SHA)
                 .setKeyMd5(DEFAULT_KEY_MD5)
                 .setPemSha(DEFAULT_PEM_SHA)
-                .setPemMd5(DEFAULT_PEM_MD5));
+                .setPemMd5(DEFAULT_PEM_MD5)
+                .setName(ApiConstants.DEFAULT_CERT_NAME));
     }
 
     protected String adminToken;
@@ -231,15 +233,22 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         final int timezoneId = 4;
         final String accountName = randomAlphanumeric(10);
         final String password = randomAlphanumeric(10);
-        final SetupRequest request = new SetupRequest()
+        final SetupRequest request = (SetupRequest) new SetupRequest()
                 .setSetupKey(setupSource.getMockSettings().getSecret())
                 .setSystemTimeZone(timezoneId)
-                .setInitialPassword(setupSource.getPassword());
-        ReflectionUtil.copy(request, newAccountRequest(accountName, password, true));
+                .setInitialPassword(setupSource.getPassword())
+                .setPassword(password)
+                .setAccountName(accountName)
+                .setMobilePhone(randomNumeric(10))
+                .setMobilePhoneCountryCode(1)
+                .setEmail(randomEmail())
+                .setFirstName(randomAlphanumeric(10))
+                .setLastName(randomAlphanumeric(10))
+                .setAdmin(true);
 
         // Do first-time setup, create cloudOs admin
         final RestResponse response = post(ApiConstants.SETUP_ENDPOINT, toJson(request));
-        final AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+        final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
 
         // ensure kerberos got the message
         assertEquals(request.getPassword(), getKerberos().getPassword(request.getAccountName()));
@@ -250,22 +259,22 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         assertEquals(ImprovedTimezone.getTimeZoneById(request.getSystemTimeZone()).getLinuxName(), tzMessage.getTimezone());
 
         adminToken = authResponse.getSessionId();
-        admin = authResponse.getAccount();
+        admin = (Account) authResponse.getAccount();
         setToken(adminToken);
     }
 
-    public RestResponse login(AccountLoginRequest loginRequest) throws Exception {
-        apiDocs.appendNote("login: " + loginRequest);
+    public RestResponse login(LoginRequest loginRequest) throws Exception {
+        apiDocs.addNote("login: " + loginRequest);
         final RestResponse response = doPost(ACCOUNTS_ENDPOINT, toJson(loginRequest));
         if (response.status == 200) {
-            final AuthResponse authResponse = fromJson(response.json, AuthResponse.class);
+            final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
             if (authResponse.hasSessionId()) pushToken(authResponse.getSessionId());
         }
         return response;
     }
 
     public void suspend(AccountRequest request) throws Exception {
-        apiDocs.appendNote("suspending account: "+request.getAccountName());
+        apiDocs.addNote("suspending account: "+request.getAccountName());
         request.setSuspended(true);
         update(request);
     }
@@ -286,7 +295,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     public <T> SearchResults<T> search(ResultPage page, String type, JavaType resultType) throws Exception {
-        apiDocs.appendNote("search " + type + " with query: " + page);
+        apiDocs.addNote("search " + type + " with query: " + page);
         final RestResponse response = doPost(ApiConstants.SEARCH_ENDPOINT + "/" + type, toJson(page));
         return JsonUtil.PUBLIC_MAPPER.readValue(response.json, resultType);
     }
@@ -300,7 +309,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     private String download(ResultPage page, String type, JavaType resultType) throws Exception {
-        apiDocs.appendNote("downloading CSV of " + type + " with query: " + page);
+        apiDocs.addNote("downloading CSV of " + type + " with query: " + page);
         final RestResponse response = doGet(ApiConstants.SEARCH_ENDPOINT + "/" + type + "/download.csv?page=" + urlEncode(toJson(page)));
         return response.json;
     }

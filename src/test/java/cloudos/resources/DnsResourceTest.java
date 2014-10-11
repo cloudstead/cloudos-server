@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import cloudos.dns.service.mock.MockDnsManager;
 import org.cobbzilla.util.dns.DnsRecord;
 import org.cobbzilla.util.dns.DnsRecordBase;
 import org.cobbzilla.util.dns.DnsRecordMatch;
