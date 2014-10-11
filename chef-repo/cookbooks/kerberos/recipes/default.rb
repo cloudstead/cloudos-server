@@ -18,7 +18,7 @@ realm = base_bag['parent_domain'].upcase
 bash 'temporarily override /etc/hosts for ldap setup' do
   user 'root'
   code <<-EOF
-mv /etc/hosts > /etc/hosts.bak
+mv /etc/hosts /etc/hosts.bak
 echo "127.0.0.1 localhost
 127.0.1.1 `hostname`" > /etc/hosts
 EOF
