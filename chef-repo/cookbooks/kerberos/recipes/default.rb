@@ -18,37 +18,7 @@ parent_domain = base_bag['parent_domain']
 
 realm = parent_domain.upcase
 ldap_domain_string = "dc=" + parent_domain.gsub(/\./, ",dc=")
-
-bash 'temporarily override /etc/hosts for ldap setup' do
-  user 'root'
-  code <<-EOF
-mv /etc/hosts /etc/hosts.bak
-echo "127.0.0.1 localhost
-127.0.1.1 `hostname`" > /etc/hosts
-EOF
-end
-
-%w( slapd ldap-utils krb5-kdc krb5-kdc-ldap krb5-admin-server).each do |pkg|
-  package pkg do
-    action :install
-  end
-end
-
-bash 'restore /etc/hosts' do
-  user 'root'
-  code <<-EOF
-mv /etc/hosts.bak /etc/hosts
-  EOF
-end
-
-bash 'set ldap root password' do
-  user 'root'
-  code <<-EOF
-echo "dn: olcDatabase={1}hdb,cn=config
-replace: olcRootPW
-olcRootPW: `slappasswd -s "#{ldap_master_password}"`" | ldapmodify -Y EXTERNAL -H ldapi:///
-  EOF
-end
+repeat_run = File.exists? '/var/log/kerberos'
 
 %w( /tmp/schema_convert.conf ).each do |conf|
   template conf do
@@ -59,9 +29,41 @@ end
   end
 end
 
-bash 'extract & install kerberos schema, set up ACLs' do
-  user 'root'
-  code <<-EOF
+unless repeat_run
+  bash 'temporarily override /etc/hosts for ldap setup' do
+    user 'root'
+    code <<-EOF
+mv /etc/hosts /etc/hosts.bak
+echo "127.0.0.1 localhost
+127.0.1.1 `hostname`" > /etc/hosts
+EOF
+  end
+
+  %w( slapd ldap-utils krb5-kdc krb5-kdc-ldap krb5-admin-server).each do |pkg|
+    package pkg do
+      action :install
+    end
+  end
+
+  bash 'restore /etc/hosts' do
+    user 'root'
+    code <<-EOF
+mv /etc/hosts.bak /etc/hosts
+EOF
+  end
+
+  bash 'set ldap root password' do
+    user 'root'
+    code <<-EOF
+echo "dn: olcDatabase={1}hdb,cn=config
+replace: olcRootPW
+olcRootPW: `slappasswd -s "#{ldap_master_password}"`" | ldapmodify -Y EXTERNAL -H ldapi:///
+EOF
+  end
+
+  bash 'extract & install kerberos schema, set up ACLs' do
+    user 'root'
+    code <<-EOF
 gzip -d /usr/share/doc/krb5-kdc-ldap/kerberos.schema.gz
 cp /usr/share/doc/krb5-kdc-ldap/kerberos.schema /etc/ldap/schema/
 mkdir /tmp/ldif_output
@@ -85,15 +87,16 @@ olcAccess: to dn.base="" by * read
 add: olcAccess
 olcAccess: to * by dn="cn=admin,#{ldap_domain_string}" write by * read" | ldapmodify -Y EXTERNAL -H ldapi:///  -D cn=admin,cn=config
 EOF
-end
+  end
 
-bash 'init kerberos logging files' do
-  user 'root'
-  code <<-EOF
-mkdir /var/log/kerberos
+  bash 'init kerberos logging files' do
+    user 'root'
+    code <<-EOF
+mkdir -p /var/log/kerberos
 touch /var/log/kerberos/{krb5kdc,kadmin,krb5lib}.log
 chmod -R 750  /var/log/kerberos
 EOF
+  end
 end
 
 %w( /etc/krb5.conf /etc/krb5kdc/kadm5.acl /etc/ldap/ldap.conf).each do |conf|
@@ -110,9 +113,10 @@ end
   end
 end
 
-bash 'setup kerberos realm' do
-  user 'root'
-  code <<-EOF
+unless repeat_run
+  bash 'setup kerberos realm' do
+    user 'root'
+    code <<-EOF
 
 # start random seeding with hostname, fixed 'random' value, and ifconfig
 hostname > /dev/urandom
@@ -139,7 +143,13 @@ echo "#{ldap_master_password}
 # stop random seeding
 kill %1 %2 %3
 
+# force krb_master_password (for some reason it doesn't seem to get set correctly by now)
+echo "change_password kadmin/admin
+#{krb_master_password}
+#{krb_master_password}" | kadmin.local
+
 EOF
+  end
 end
 
 service "krb5-kdc" do
