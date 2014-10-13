@@ -1,1 +1,0 @@
-default[:kerberos][:realm] = 'cloudos'
