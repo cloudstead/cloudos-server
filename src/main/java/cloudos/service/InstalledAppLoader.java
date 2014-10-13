@@ -5,7 +5,6 @@ import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.ConfigurableAppRuntime;
 import cloudos.appstore.model.app.AppAuthConfig;
-import cloudos.model.app_impl.RoundcubeAppRuntime;
 import cloudos.server.CloudOsConfiguration;
 import com.sun.jersey.api.core.HttpContext;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +37,29 @@ public class InstalledAppLoader {
     public static final AppRuntimeDetails ROUNDCUBE_CAL_DETAILS = new AppRuntimeDetails(APP_CALENDAR, "/roundcube/?_task=calendar", null);
     public static final AppRuntimeDetails OWNCLOUD_DETAILS = new AppRuntimeDetails(APP_FILES, "/owncloud/", null);
 
-    public static final RoundcubeAppRuntime ROUNDCUBE = new RoundcubeAppRuntime(ROUNDCUBE_DETAILS);
-    public static final RoundcubeAppRuntime ROUNDCUBE_CAL = new RoundcubeAppRuntime(ROUNDCUBE_CAL_DETAILS);
-//    public static final OwncloudAppRuntime OWNCLOUD = new OwncloudAppRuntime(OWNCLOUD_DETAILS);
+    public static final AppAuthConfig ROUNDCUBE_APP_AUTH = JsonUtil.fromJsonOrDie("{\n" +
+            "        \"login_fields\": {\n" +
+            "            \"email\": \"{{account.name}}@{{email_domain}}\",\n" +
+            "            \"password\": \"{{account.password}}\",\n" +
+            "            \"authenticity_token\": \"pass\"\n" +
+            "        },\n" +
+            "        \"login_path\": \"/session\",\n" +
+            "        \"login_page_markers\": [\n" +
+            "            \"user_email\",\n" +
+            "            \"authenticity_token\",\n" +
+            "            \"type=\\\"password\\\"\",\n" +
+            "            \"value=\\\"Login\\\"\"\n" +
+            "        ]" +
+            "    }", AppAuthConfig.class);
+
+    public static final ConfigurableAppRuntime ROUNDCUBE = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
+            .setDetails(ROUNDCUBE_DETAILS)
+            .setAuthentication(ROUNDCUBE_APP_AUTH);
+
+    public static final ConfigurableAppRuntime ROUNDCUBE_CAL = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
+            .setDetails(ROUNDCUBE_CAL_DETAILS)
+            .setAuthentication(ROUNDCUBE_APP_AUTH);
+
     public static final ConfigurableAppRuntime OWNCLOUD = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
         .setDetails(OWNCLOUD_DETAILS)
         .setAuthentication(JsonUtil.fromJsonOrDie("{\n" +
