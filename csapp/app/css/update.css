@@ -1,0 +1,95 @@
+
+.update-dropdown {
+	top: 6px !important;
+}
+
+.f-dropdown li.divider {
+	border-top: solid 1px #E4E2E2;
+	-webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	-moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	height: 10px;
+	padding: 0;
+	width: 100%;
+}
+
+.f-dropdown li label {
+	color: #6f6f6f;
+	font-size: 10px;
+	font-weight: bold;
+	margin: 0;
+	padding-left: 15px;
+	text-transform: uppercase;
+	cursor: default;
+}
+
+.f-dropdown li label:hover {
+	background-color : #ffffff !important;
+}
+
+.f-dropdown li a {
+	font-size: 12px;
+}
+
+.admin-row{
+	max-width : 90rem !important;
+}
+
+.accounts-list {
+	padding-left: 25px;
+	padding-top: 7px;
+}
+
+.select-small{
+	height: 36px;
+	padding: 0px;
+	padding-left: 5px;
+	font-size: 13px;
+}
+
+.no-padd{
+	padding-left:0px !important;
+	padding-right:0px !important;
+}
+
+.table-icon{
+	margin-left: 5px;
+}
+
+.table-icon-upper{
+	position: relative;
+	margin-left: -0.85em;
+}
+
+table thead tr th{
+	font-size : 11px;
+	cursor: pointer;
+}
+
+table tr th, table tr td {
+	padding : 5px !important;
+}
+
+div.switch label {
+	margin-bottom: 0px;
+}
+
+table tr th, table tr td input[type=file], input[type=checkbox], input[type=radio], select{
+	margin: 0 0 0 0 !important;
+}
+
+.account-deck{
+	padding-top: 25px;
+}
+
+.form-select-mt{
+	height: 200px;
+}
+
+.form-addacct-btn button{
+	margin: 5px;
+}
+
+.label-pass{
+	position: relative; left: -30px; padding-left: 25px;
+}

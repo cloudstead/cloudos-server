@@ -15,7 +15,9 @@ CloudOs = {
     },
 
     account: function () {
-        return CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+    	var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+    	cs_acct = add_icon_data(cs_acct);
+        return cs_acct;
     },
 
     set_account: function (account) {
@@ -23,6 +25,52 @@ CloudOs = {
     }
 
 };
+
+function locate(obj, path) {
+    if (!path) return null;
+    if (path[0] == '{' && path[path.length-1] == '}') {
+        // strip leading/trailing curlies, if present
+        path = path.substring(1, path.length-1);
+    }
+    path = path.split('.');
+    var arrayPattern = /(.+)\[(\d+)\]/;
+    for (var i = 0; i < path.length; i++) {
+        var match = arrayPattern.exec(path[i]);
+        if (match) {
+            obj = obj[match[1]][parseInt(match[2])];
+        } else {
+            obj = obj[path[i]];
+        }
+    }
+
+    return obj;
+}
+
+function add_icon_data(acct){
+	var curr_acct = acct;
+	if (curr_acct){
+		var arrayLength = curr_acct.availableApps.length;
+		for (var i = 0; i < arrayLength; i++) {
+			if (curr_acct.availableApps[i].name == 'email'){
+				curr_acct.availableApps[i].icon_name = 'icon-envelope';
+			}
+			
+			if (curr_acct.availableApps[i].name == 'calendar'){
+				curr_acct.availableApps[i].icon_name = 'icon-calendar';
+			}
+			
+			if (curr_acct.availableApps[i].name == 'files'){
+				curr_acct.availableApps[i].icon_name = 'icon-folder';
+			}
+			
+			if (curr_acct.availableApps[i].name == 'kanban'){
+				curr_acct.availableApps[i].icon_name = 'icon-tasks';
+			}
+			
+		}
+	}
+	return curr_acct;
+}
 
 // Temporary TZ list, will be delivered via API in the future
 

@@ -14,7 +14,7 @@ module.exports = function(lineman) {
         "vendor/js/foundation.min.js",
         "vendor/js/handlebars-v1.3.0.js",
         "vendor/js/ember-1.5.1.js",
-        "vendor/js/modernizer.js",
+        "vendor/js/modernizr.js",
         "vendor/js/purl.js",
         "vendor/js/i18n.js",
         "vendor/js/all.js"
@@ -26,6 +26,9 @@ module.exports = function(lineman) {
     },
     img: {
       root: "images"
-    }
+    },
+    webfonts: {
+        root: "fonts"
+      }
   };
 };

@@ -66,6 +66,13 @@ App.ApplicationRoute = Ember.Route.extend({
     }
 });
 
+App.RequestMessagesObject = Ember.Object.extend({
+	_doInitialization: function() {
+		var self = this;
+		self.set("error", this.get('json')["errors"]);
+	}.on('init')
+});
+
 App.IndexRoute = App.ApplicationRoute;
 
 App.LogoutRoute = Ember.Route.extend({
@@ -84,7 +91,12 @@ App.ApplicationController = Ember.ObjectController.extend({
 
     cloudos_account: function () {
         return CloudOs.account();
-    }.property('cloudos_account')
+    }.property('cloudos_account'),
+    actions: {
+        'select_app': function (app_name) {
+        	window.location.replace('/#/app/' + app_name);
+        }
+    }
 
 });
 
@@ -124,6 +136,20 @@ App.AccountsRoute = Ember.Route.extend({
 });
 
 App.AccountsController = Ember.ObjectController.extend({
+	actions:{
+		sortBy: function(property){
+			var sacc = this.get('sortedAccounts');
+			sacc.set('sortProperties',property);
+			sacc.set('sortAscending', !sacc.get('sortAscending'));
+		}
+	},
+	sortedAccounts:function(){
+		return Ember.ArrayProxy.createWithMixins(Ember.SortableMixin, {
+			  content: this.get('accounts').toArray(),
+			  sortProperties: 'name',
+			  sortAscending: false
+			}) 
+		}.property()
 });
 
 App.newAccountModel = function () {
@@ -142,17 +168,119 @@ App.AddAccountRoute = Ember.Route.extend({
 App.AddAccountController = Ember.ObjectController.extend({
     actions: {
         doCreateAccount: function () {
-            // API uses camelcase, ember uses snake case
-            account = {
-                name: this.get('accountName'),
-                recoveryEmail: this.get('recoveryEmail'),
-                mobilePhone: this.get('mobilePhone'),
-                admin: this.get('admin')
-            };
+
+        	// this is minimum data for the account
+			account = {
+				name: this.get('accountName'),
+				lastName: this.get('lastName'),
+				firstName: this.get('firstName'),
+				recoveryEmail: this.get('recoveryEmail'),
+				mobilePhone: this.get('mobilePhone'),
+				regularEmail: this.get('regularEmail')
+			}
+			
+			// first check if password is system based, if not, add the passwords for checkup
+			if (this.get('generateSysPassword') === false){
+				account["password"] = this.get('password');
+				account["passwordConfirm"] = this.get('passwordConfirm');
+			}
+			
+			// validate data
+			var validate = this.validate(account);
+			var validate_res = true;
+			for (var key in validate) {
+    			value = validate[key];
+    			if (value != null){
+    				this.set('requestMessages',
+    						App.RequestMessagesObject.create({
+    							json: {"status": 'error', "api_token" : null, 
+    								"errors": validate}
+    					  })
+    					);
+    				validate_res =  false;
+    				}
+    			}
+			if (validate_res === false) { return false; }
+			// if validation is success, first remove passConfirm key if exists
+			// also, remove regular Email until the api is ready for that
+			try{
+				delete account.passwordConfirm;
+				delete account.regularEmail;
+			}catch(e){
+				//
+			}
+
+			// check if admin, set appropriate key
+			if (this.get('selectedGroup') == 'Admin'){
+				account["admin"] = true;
+			}else{
+				account["admin"] = false;
+			}
+			
+			// check if two-factor, set appropriate key
+			if (this.get('twoFactorAuth')){
+				account["twoFactor"] = true;
+			}else{
+				account["twoFactor"] = false;
+			}
+			
+			// account is not suspended, hc mobile code, accountName is name
+			account["suspended"] = false;
+			account["mobilePhoneCountryCode"] = 1;
+			account["accountName"] = account["name"];
+
             if (Api.add_account(account)) {
                 this.transitionTo('accounts');
             }
+        },
+        cancelCreate: function() {
+        	if (confirm("Cancel changes ?") == true) {
+        		this.transitionTo('accounts');
+            } else {
+                // nada
+            }
         }
+    },
+    validate: function(data){
+    	var error_msg = locate(Em.I18n.translations, 'errors');
+    	var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+		var response = {};
+
+		for (var key in data) {
+			value = data[key];
+			if ((String(value).trim() == '') || (!value)) {
+				response[key] = error_msg.field_required;
+			}
+		}
+		
+		try{
+			if (data["password"] != data["passwordConfirm"]){
+				response["password"] = error_msg.password_mismatch;
+				response["passwordConfirm"] = error_msg.password_mismatch;
+			}
+		}catch(e){
+			//
+		}
+		
+		if (!pattern.test(data["recoveryEmail"])){
+			response["recoveryEmail"] = error_msg.email_invalid;
+		}
+		
+		if (!pattern.test(data["regularEmail"])){
+			response["regularEmail"] = error_msg.email_invalid;
+		}
+    	return response;
+    },
+    toggleSysPassword: function(){
+    	this.set('generateSysPassword', !this.get('generateSysPassword'));
+    },
+    generateSysPassword:true,
+    primaryGroups:["Admin","User"],
+    selectedGroup:"User",
+    twoFactorAuth:true,
+    toggleTwoFactorAuth: function(){
+    	this.set('twoFactorAuth',!this.get('twoFactorAuth'));
     }
 });
 
@@ -178,6 +306,13 @@ App.ManageAccountController = Ember.ObjectController.extend({
         'doDeleteAccount': function (name) {
             if (Api.delete_account(name)) {
                 this.transitionTo('accounts');
+            }
+        },
+        cancelCreate: function() {
+        	if (confirm("Cancel changes ?") == true) {
+        		this.transitionTo('accounts');
+            } else {
+                // nada
             }
         }
     }
@@ -359,4 +494,29 @@ Ember.Handlebars.helper('task-event', function(key) {
     var value = Em.I18n.translations['task']['events'][key];
     if (!value) return '??undefined translation: task.events.'+key;
     return value;
+});
+
+Ember.Handlebars.helper('app-name', function(name) {
+    var appName = Em.I18n.translations['appNames'][name];
+    if (!appName) return '??undefined translation: appNames.'+name;
+    return appName;
+});
+
+Ember.Handlebars.helper('fromUTC', function(timeUTC) {
+	var convertedDate = new Date(0);
+	convertedDate.setUTCSeconds(Math.round(timeUTC/1000));
+	return convertedDate.toLocaleString();
+});
+
+Ember.Handlebars.helper('getStatus', function(account) {
+	var stat_name = Em.I18n.translations['sections'].acct.status;
+	if (account.suspended === true){return stat_name.suspended;}
+	if (account.admin === true) {return stat_name.admin;}
+	return stat_name.active;
+});
+
+App.ApplicationView = Ember.View.extend({
+    initFoundation: function () {
+        Ember.$(document).foundation();  
+    }.on('didInsertElement')
 });
