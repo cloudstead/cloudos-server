@@ -9,11 +9,15 @@
 
 require 'digest'
 
-krb_master_password = Digest::SHA256.hexdigest("kerberos_#{Chef::Recipe::Base.secret}")
-ldap_master_password = Digest::SHA256.hexdigest("ldap_#{Chef::Recipe::Base.secret}")
+base = Chef::Recipe::Base
+krb_master_password = base.password('kerberos')
+ldap_master_password = base.password('ldap')
+
 base_bag = data_bag_item('cloudos', 'base')
-ldap_domain_string = "dc=" + base_bag['parent_domain'].gsub(/\./, ",dc=")
-realm = base_bag['parent_domain'].upcase
+parent_domain = base_bag['parent_domain']
+
+realm = parent_domain.upcase
+ldap_domain_string = "dc=" + parent_domain.gsub(/\./, ",dc=")
 
 bash 'temporarily override /etc/hosts for ldap setup' do
   user 'root'
@@ -99,7 +103,7 @@ end
     mode '0644'
     action :create
     variables ({
-        :domain => base_bag['parent_domain'],
+        :domain => parent_domain,
         :realm => realm,
         :ldap_domain => ldap_domain_string
     })
@@ -118,10 +122,9 @@ echo 'lajfl;knf2@#g23vASDqnqw$%1' > /dev/urandom
 ROOT_DEVICE=$(mount | head -1 | awk '{print $1}')
 
 # further seed randomness with disk image, ping to www. parent domain, and top via background jobs
-parent_domain=$(hostname | awk -F '.' '{print $(NF-1)"."$NF}')
 set -m
 cat ${ROOT_DEVICE} > /dev/urandom &
-ping www.${parent_domain} > /dev/urandom &
+ping www.#{parent_domain} > /dev/urandom &
 top > /dev/urandom &
 
 echo "#{krb_master_password}
