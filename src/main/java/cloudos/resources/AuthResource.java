@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 @Service @Slf4j
 public class AuthResource extends AuthResourceBase<Account> {
 
-    @Autowired @Getter(value= AccessLevel.PROTECTED) protected AccountBaseDAO<Account> accountBaseDAO;
+    @Autowired @Getter(value=AccessLevel.PROTECTED) protected AccountBaseDAO<Account> accountBaseDAO;
     @Autowired @Getter(value=AccessLevel.PROTECTED) protected TemplatedMailService templatedMailService;
 
     @Autowired private CloudOsConfiguration configuration;
