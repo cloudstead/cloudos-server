@@ -472,6 +472,22 @@
 	<section>
   </script>
   
+<script type="text/x-handlebars" id="selectedapp">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs">
+				<dd class="active">{{#link-to 'appstore'}}<span class="icon-mail-reply"></span>{{/link-to}}</dd>
+				<dd>{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					{{name}}
+				</div>
+			</div>
+		</div>
+	</section>
+</script>
+  
 <script type="text/x-handlebars" id="installedapps">
 	<section class="deck">
 		<div class="row">
@@ -536,34 +552,34 @@
 			<div class="content active">
 				<div class="circles row text-center">
 					<div class="large-3 columns">
-						<a href="">
+						{{#link-to 'selectedapp'}}
 							<div class="circle"><img src="images/image1.png"></div>
 							<h3 class="gamma light">Mail</h3>
-						</a>
+						{{/link-to}}
 							<p>Spam protection, powerful search and integrated calendars help you get more done, no ads and plenty of storage.</p>
 					</div>
 			
 					<div class="large-3 columns">
-						<a href="#">
+						{{#link-to 'selectedapp'}}
 							<div class="circle secondary"><img src="images/image2.png"></div>
 							<h3 class="gamma light">Files</h3>
-						</a>
+						{{/link-to}}
 						<p>Save files, access them from any device and share them instantly with teammates. No more sending attachments or merging different versions.</p>
 					</div>
 			
 					<div class="large-3 columns">
-						<a href="#">
+						{{#link-to 'selectedapp'}}
 							<div class="circle warning"><img src="images/image3.png"></div>
 							<h3 class="gamma light">Calendar</h3>
-						</a>
+						{{/link-to}}
 						<p>Spend less time planning and more time doing with shareable calendars that integrate seamlessly so you always know what's next.</p>
 					</div>
 					
 					<div class="large-3 columns">
-						<a href="#">
+						{{#link-to 'selectedapp'}}
 							<div class="circle secondary"><img src="images/image4.png"></div>
 							<h3 class="gamma light">Kanban</h3>
-						</a>
+						{{/link-to}}
 						<p>Organize and track your project activities.</p>
 					</div>
 				</div>
