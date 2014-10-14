@@ -700,7 +700,7 @@
 									<td>{{getStatus account}}</td>
 									<td>
 										<div class="switch" title="Toggle Status">
-											<input type="checkbox" {{bindAttr id="account.accountName"}}>
+											<input type="checkbox" {{bindAttr id="account.accountName"}} checked='checked'>
 											<label {{bindAttr for="account.accountName"}}></label>
 										</div> 
 									</td>
