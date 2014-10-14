@@ -93,3 +93,12 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .label-pass{
 	position: relative; left: -30px; padding-left: 25px;
 }
+
+.tabs dd, .tabs .tab-title {
+	width: 32.6%;
+}
+
+.tabs dd.active a, .tabs .tab-title.active a {
+	background: #03a2cc;
+	color: #FFF;
+}
