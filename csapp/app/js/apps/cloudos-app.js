@@ -33,6 +33,11 @@ App.ApplicationRoute = Ember.Route.extend({
         }
 
         CloudOs.set_account(account);
+        pathArray = window.location.href.split( '/' );
+        if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'index.html')) && (!pathArray[4]))
+        {
+        	this.transitionTo('app', 'email');
+        }	
 
 //        this.transitionTo('app', 'files');
 //        this.transitionTo('app', AppRuntime.app_model('email'));
@@ -253,3 +258,10 @@ Ember.Handlebars.helper('app-name', function(name) {
     if (!appName) return '??undefined translation: appNames.'+name;
     return appName;
 });
+
+App.ApplicationView = Ember.View.extend({
+    initFoundation: function () {
+        Ember.$(document).foundation();  
+    }.on('didInsertElement')
+});
+
