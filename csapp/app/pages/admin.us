@@ -863,11 +863,7 @@
 								Last Login <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
-							<th {{action 'sortBy' 'recoveryEmail'}}>
-								Email Address <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'recoveryEmail'}}>
+							<th {{action 'sortBy' 'email'}}>
 								Recovery Email <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
@@ -890,8 +886,7 @@
 									<td>{{input type="checkbox"}}</td>
 									<td>{{#link-to 'manageAccount' account.name}}{{account.firstName}} {{account.lastName}}{{/link-to}}</td>
 									<td>{{fromUTC account.lastLogin}}</td>
-									<td>{{account.recoveryEmail}}</td>
-									<td>{{account.recoveryEmail}}</td>
+									<td>{{account.email}}</td>
 									<td>{{account.mobilePhone}}</td>
 									<td>{{getStatus account}}</td>
 									<td>
