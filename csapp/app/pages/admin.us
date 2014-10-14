@@ -59,7 +59,7 @@
 					<div class="large-12 columns">
 						<div class="row collapse">
 							<div class="small-10 columns">
-								<input type="text" placeholder="Hex Value">
+								<input type="text" placeholder="">
 							</div>
 							<div class="small-2 columns">
 								<a href="#" class="button tiny" style="top:0px;"><span class="icon-search"></span> <span class="show-for-xxlarge-up">Search</span></a>
@@ -471,9 +471,150 @@
 		</div>
 	<section>
   </script>
+  
+<script type="text/x-handlebars" id="selectedapp">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs">
+				<dd class="active">{{#link-to 'appstore'}}<span class="icon-mail-reply"></span>{{/link-to}}</dd>
+				<dd>{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					<div class="row event-single">
+						<div class="large-2 columns">
+							<h4>Email App</h4>
+						</div>
+						<div class="large-4 columns">
+							<p>by <a href="">http://emailapp.com</a></p>
+						</div>
+						<div class="large-4 columns rating">
+							<p><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span></p>
+							<p>12,340 Cloudstead Users</p>
+						</div>
+						<div class="large-2 columns">
+							<button class="tiny primary expand">Install App</button>
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row">
+						<div class="large-4 columns">
+							<div class="circle"><img src="images/image1.png"></div>
+						</div>
+						<div class="large-8 columns small-only-text-center">
+							<div class="large-12 columns">
+								<p>Overview : </p>
+								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
+								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row event-single">
+						<div class="large-12 columns text-center rating">
+							<h4>RATE THIS APP</h4>
+							<p><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"></p>
+							<p>Install and Provide an App Rating</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</script>
+  
+<script type="text/x-handlebars" id="installedapps">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs">
+				<dd>{{#link-to 'appstore'}}Available Apps{{/link-to}}</dd>
+				<dd class="active">{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					<div class="large-12 columns no-padd">
+					<table style="width: 100%">
+						<thead>
+							<th>
+								App Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Description <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Date Installed <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Application Group Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Number of Users <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+						</thead>
+						<tbody>
+								<tr>
+									<td>Email</td>
+									<td>Email Application</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>General Group</td>
+									<td>4</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+								<tr>
+									<td>Redmine</td>
+									<td>Project Management</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>Management Group</td>
+									<td>4</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+								<tr>
+									<td>Calendar</td>
+									<td>Calendar Application</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>General Group</td>
+									<td>2</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+						</tbody>
+					</table>
+				</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</script>
 
   <script type="text/x-handlebars" id="appstore">
-      <section class="deck">
+      <!--<section class="deck">
           <div class="row">
               <div class="medium-8 large-8 medium-centered columns">
                   <table>
@@ -509,7 +650,62 @@
                   </table>
               </div>
           </div>
-      </section>
+      </section>-->
+      <section class="deck">
+	<div class="row">
+		<dl class="tabs">
+			<dd class="active">{{#link-to 'appstore'}}Available Apps{{/link-to}}</dd>
+			<dd>{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+		</dl>
+		<div class="tabs-content">
+			<div class="content active">
+				<div class="circles row text-center">
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/image1.png"></div>
+							<h3 class="gamma light">Mail</h3>
+						{{/link-to}}
+							<p>Spam protection, powerful search and integrated calendars help you get more done, no ads and plenty of storage.</p>
+					</div>
+			
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle secondary"><img src="images/image2.png"></div>
+							<h3 class="gamma light">Files</h3>
+						{{/link-to}}
+						<p>Save files, access them from any device and share them instantly with teammates. No more sending attachments or merging different versions.</p>
+					</div>
+			
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle warning"><img src="images/image3.png"></div>
+							<h3 class="gamma light">Calendar</h3>
+						{{/link-to}}
+						<p>Spend less time planning and more time doing with shareable calendars that integrate seamlessly so you always know what's next.</p>
+					</div>
+					
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle secondary"><img src="images/image4.png"></div>
+							<h3 class="gamma light">Kanban</h3>
+						{{/link-to}}
+						<p>Organize and track your project activities.</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="pattern large-2 large-centered columns rhythm-up">
+						<a href="admin.html">
+							<article class="event-single">
+								<div class="event-guests text-center"><span class="icon-chevron-down"></span></div>
+							</article>
+						</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</section>
   </script>
 
   <script type="text/x-handlebars" id="tasks">
@@ -667,11 +863,7 @@
 								Last Login <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
-							<th {{action 'sortBy' 'recoveryEmail'}}>
-								Email Address <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'recoveryEmail'}}>
+							<th {{action 'sortBy' 'email'}}>
 								Recovery Email <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
@@ -694,13 +886,12 @@
 									<td>{{input type="checkbox"}}</td>
 									<td>{{#link-to 'manageAccount' account.name}}{{account.firstName}} {{account.lastName}}{{/link-to}}</td>
 									<td>{{fromUTC account.lastLogin}}</td>
-									<td>{{account.recoveryEmail}}</td>
-									<td>{{account.recoveryEmail}}</td>
+									<td>{{account.email}}</td>
 									<td>{{account.mobilePhone}}</td>
 									<td>{{getStatus account}}</td>
 									<td>
 										<div class="switch" title="Toggle Status">
-											<input type="checkbox" {{bindAttr id="account.accountName"}}>
+											<input type="checkbox" {{bindAttr id="account.accountName"}} checked='checked'>
 											<label {{bindAttr for="account.accountName"}}></label>
 										</div> 
 									</td>
@@ -776,29 +967,6 @@
 				</div>
 				<div class="row">
 					<div class="large-4 columns">
-						<label>{{t forms.account.email }}
-							{{#if requestMessages.error.regularEmail}}
-								{{input type="text" value=regularEmail class="error"}}
-							{{else}}
-								{{input type="text" value=regularEmail}}
-							{{/if}}
-	
-							{{#if requestMessages.error.regularEmail}}
-								<span class="message error">{{requestMessages.error.regularEmail}}</span>
-							{{/if}}
-						</label>
-					</div>
-					<div class="large-8 columns">
-						<label>{{t forms.account.primary_group}}
-							{{view Ember.Select
-								content=primaryGroups
-								selectionBinding="selectedGroup"
-								}}
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="large-4 columns">
 						<label>{{ t forms.account.first_name}}
 							{{#if requestMessages.error.firstName}}
 								{{input type="text" value=firstName class="error"}}
@@ -809,6 +977,14 @@
 							{{#if requestMessages.error.firstName}}
 								<span class="message error">{{requestMessages.error.firstName}}</span>
 							{{/if}}
+						</label>
+					</div>
+					<div class="large-8 columns">
+						<label>{{t forms.account.primary_group}}
+							{{view Ember.Select
+								content=primaryGroups
+								selectionBinding="selectedGroup"
+								}}
 						</label>
 					</div>
 				</div>
@@ -830,14 +1006,14 @@
 				<div class="row">
 					<div class="large-4 columns">
 						<label>{{t forms.account.recovery_email}}
-							{{#if requestMessages.error.recoveryEmail}}
-								{{input type="text" value=recoveryEmail class="error"}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
 							{{else}}
-								{{input type="text" value=recoveryEmail}}
+								{{input type="text" value=email}}
 							{{/if}}
 	
-							{{#if requestMessages.error.recoveryEmail}}
-								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
+							{{#if requestMessages.error.email}}
+								<span class="message error">{{requestMessages.error.email}}</span>
 							{{/if}}
 						</label>
 					</div>
@@ -1018,21 +1194,6 @@
 				</div>
 				<div class="row">
 					<div class="large-4 columns">
-						<label>{{t forms.account.email }}
-							<input type="text" />
-						</label>
-					</div>
-					<div class="large-8 columns">
-						<label>{{t forms.account.primary_group}}
-							{{view Ember.Select
-								content=primaryGroups
-								selectionBinding="selectedGroup"
-								}}
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="large-4 columns">
 						<label>{{ t forms.account.first_name}}
 							{{#if requestMessages.error.firstName}}
 								{{input type="text" value=firstName class="error"}}
@@ -1043,6 +1204,14 @@
 							{{#if requestMessages.error.firstName}}
 								<span class="message error">{{requestMessages.error.firstName}}</span>
 							{{/if}}
+						</label>
+					</div>
+					<div class="large-8 columns">
+						<label>{{t forms.account.primary_group}}
+							{{view Ember.Select
+								content=primaryGroups
+								selectionBinding="selectedGroup"
+								}}
 						</label>
 					</div>
 				</div>
@@ -1064,14 +1233,14 @@
 				<div class="row">
 					<div class="large-4 columns">
 						<label>{{t forms.account.recovery_email}}
-							{{#if requestMessages.error.recoveryEmail}}
-								{{input type="text" value=recoveryEmail class="error"}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
 							{{else}}
-								{{input type="text" value=recoveryEmail}}
+								{{input type="text" value=email}}
 							{{/if}}
 	
-							{{#if requestMessages.error.recoveryEmail}}
-								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
+							{{#if requestMessages.error.email}}
+								<span class="message error">{{requestMessages.error.email}}</span>
 							{{/if}}
 						</label>
 					</div>

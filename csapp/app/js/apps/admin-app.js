@@ -8,6 +8,8 @@ App.Router.map(function() {
     this.resource('logout');
 //  this.resource('apps');
     this.resource('appstore');
+    this.resource('installedapps');
+    this.resource('selectedapp');
     this.resource('tasks', { path: '/task/:task_id' });
     this.resource('email', function () {
         this.route('domains');
@@ -61,8 +63,12 @@ App.ApplicationRoute = Ember.Route.extend({
         }
 
         CloudOs.set_account(account);
-
-        this.transitionTo('accounts');
+        pathArray = window.location.href.split( '/' );
+        if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'admin.html')) && (!pathArray[4]))
+        {
+        	this.transitionTo('accounts');
+        }	
+        
     }
 });
 
@@ -98,6 +104,22 @@ App.ApplicationController = Ember.ObjectController.extend({
         }
     }
 
+});
+
+App.SelectedappRoute = Ember.Route.extend({
+	
+});
+
+App.SelectedappController = Ember.ObjectController.extend({
+	
+});
+
+App.InstalledappsRoute = Ember.Route.extend({
+	
+});
+
+App.InstalledappsController = Ember.ObjectController.extend({
+	
 });
 
 App.AppstoreRoute = Ember.Route.extend({
@@ -155,7 +177,7 @@ App.AccountsController = Ember.ObjectController.extend({
 App.newAccountModel = function () {
     return {
         accountName: '',
-        recoveryEmail: '',
+        email: '',
         mobilePhone: '',
         admin: false
     };
@@ -174,9 +196,8 @@ App.AddAccountController = Ember.ObjectController.extend({
 				name: this.get('accountName'),
 				lastName: this.get('lastName'),
 				firstName: this.get('firstName'),
-				recoveryEmail: this.get('recoveryEmail'),
+				email: this.get('email'),
 				mobilePhone: this.get('mobilePhone'),
-				regularEmail: this.get('regularEmail')
 			}
 			
 			// first check if password is system based, if not, add the passwords for checkup
@@ -205,7 +226,6 @@ App.AddAccountController = Ember.ObjectController.extend({
 			// also, remove regular Email until the api is ready for that
 			try{
 				delete account.passwordConfirm;
-				delete account.regularEmail;
 			}catch(e){
 				//
 			}
@@ -262,13 +282,9 @@ App.AddAccountController = Ember.ObjectController.extend({
 		}catch(e){
 			//
 		}
-		
-		if (!pattern.test(data["recoveryEmail"])){
-			response["recoveryEmail"] = error_msg.email_invalid;
-		}
-		
-		if (!pattern.test(data["regularEmail"])){
-			response["regularEmail"] = error_msg.email_invalid;
+
+		if (!pattern.test(data["email"])){
+			response["email"] = error_msg.email_invalid;
 		}
     	return response;
     },
@@ -295,7 +311,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
         'doUpdateAccount': function () {
             account = {
                 name: this.get('accountName'),
-                recoveryEmail: this.get('recoveryEmail'),
+                email: this.get('email'),
                 mobilePhone: this.get('mobilePhone'),
                 admin: this.get('admin')
             };

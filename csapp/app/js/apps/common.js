@@ -72,6 +72,13 @@ function add_icon_data(acct){
 	return curr_acct;
 }
 
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 // Temporary TZ list, will be delivered via API in the future
 
 var timeZoneList = [{ id:0,  dfault:false, ioffset:-720, offset:"GMT-12:00", dname:"Etc/GMT+12", lname:"International Date Line West"},

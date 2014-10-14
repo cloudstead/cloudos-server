@@ -68,13 +68,19 @@ Api = {
     },
 
 // first-time setup
-    setup: function (setup_key, name, initial_password, new_password, time_zone) {
+    setup: function (setup_key, name, initial_password, new_password, time_zone, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName) {
         var setupData = {
             'setupKey': setup_key,
             'name': name,
             'initialPassword': initial_password,
-            'newPassword': new_password,
-            'systemTimeZone': time_zone
+            'password': new_password,
+            'systemTimeZone': time_zone,
+            'mobilePhoneCountryCode': mobilePhoneCountryCode,
+            'mobilePhone': mobilePhone,
+            'email': email,
+            'firstName': firstName,
+            'lastName' : lastName,
+            'admin':true
         };
         return Api._post('/api/setup', setupData);
     },
