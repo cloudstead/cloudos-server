@@ -102,3 +102,7 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 	background: #03a2cc;
 	color: #FFF;
 }
+
+.rating p{
+	margin-bottom:1px;
+}

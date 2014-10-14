@@ -488,7 +488,8 @@
 						<div class="large-4 columns">
 							<p>by <a href="">http://emailapp.com</a></p>
 						</div>
-						<div class="large-4 columns">
+						<div class="large-4 columns rating">
+							<p><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span></p>
 							<p>12,340 Cloudstead Users</p>
 						</div>
 						<div class="large-2 columns">
@@ -508,6 +509,16 @@
 								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
 								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
 							</div>
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row event-single">
+						<div class="large-12 columns text-center rating">
+							<h4>RATE THIS APP</h4>
+							<p><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"></p>
+							<p>Install and Provide an App Rating</p>
 						</div>
 					</div>
 				</div>
