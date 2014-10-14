@@ -8,6 +8,7 @@ App.Router.map(function() {
     this.resource('logout');
 //  this.resource('apps');
     this.resource('appstore');
+    this.resource('installedapps');
     this.resource('tasks', { path: '/task/:task_id' });
     this.resource('email', function () {
         this.route('domains');
@@ -102,6 +103,14 @@ App.ApplicationController = Ember.ObjectController.extend({
         }
     }
 
+});
+
+App.InstalledappsRoute = Ember.Route.extend({
+	
+});
+
+App.InstalledappsController = Ember.ObjectController.extend({
+	
 });
 
 App.AppstoreRoute = Ember.Route.extend({
