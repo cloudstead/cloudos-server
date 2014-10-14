@@ -311,7 +311,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
         'doUpdateAccount': function () {
             account = {
                 name: this.get('accountName'),
-                recoveryEmail: this.get('recoveryEmail'),
+                email: this.get('email'),
                 mobilePhone: this.get('mobilePhone'),
                 admin: this.get('admin')
             };
