@@ -61,8 +61,12 @@ App.ApplicationRoute = Ember.Route.extend({
         }
 
         CloudOs.set_account(account);
-
-        this.transitionTo('accounts');
+        pathArray = window.location.href.split( '/' );
+        if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'admin.html')) && (!pathArray[4]))
+        {
+        	this.transitionTo('accounts');
+        }	
+        
     }
 });
 
