@@ -29,62 +29,124 @@
 <script type="text/x-handlebars" id="index">
     <section class="deck">
         <div class="row-fluid">
-            <div class="medium-6 large-5 medium-centered columns">
+            <div class="medium-7 large-7 medium-centered columns">
 				<form {{action 'doSetup' on="submit"}}>
 					<fieldset class="wrap-set">
 						<legend>{{t sections.setup}}</legend>
 						<div class="field-container">
-							<label for="text">{{t forms.setup.accountName}}</label>
-							{{#if requestMessages.error.accountName}}
-								{{input type="text" value=accountName class="error" }}
-							{{else}}
-								{{input type="text" value=accountName}}
-							{{/if}}
-
-							{{#if requestMessages.error.accountName}}
-								<span class="message error">{{requestMessages.error.accountName}}</span>
-							{{/if}}
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.accountName}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=accountName}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.accountName}}
+										<span class="message error right">{{requestMessages.error.accountName}}</span>
+									{{/if}}
+								</div>
+							</div>
 						</div>
 						<div class="field-container">
-							<label for="password">{{t forms.setup.initialPassword}}</label>
-							{{#if requestMessages.error.initialPassword}}
-								{{input type="password" value=initialPassword class="error"}}
-							{{else}}
-								{{input type="password" value=initialPassword}}
-							{{/if}}
-
-							{{#if requestMessages.error.initialPassword}}
-								<span class="message error">{{requestMessages.error.initialPassword}}</span>
-							{{/if}}
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.mobilePhoneCountryCode}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=mobilePhoneCountryCode}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.mobilePhoneCountryCode}}
+										<span class="message error right">{{requestMessages.error.mobilePhoneCountryCode}}</span>
+									{{/if}}
+								</div>
+							</div>
 						</div>
 						<div class="field-container">
-							<label for="password">{{t forms.setup.password}}</label>
-							{{#if requestMessages.error.password}}
-								{{input type="password" value=password class="error"}}
-							{{else}}
-								{{input type="password" value=password}}
-							{{/if}}
-
-							{{#if requestMessages.error.password}}
-								<span class="message error">{{requestMessages.error.password}}</span>
-							{{/if}}
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.mobilePhone}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=mobilePhone}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.mobilePhone}}
+										<span class="message error right">{{requestMessages.error.mobilePhone}}</span>
+									{{/if}}
+								</div>
+							</div>
 						</div>
 						<div class="field-container">
-							<label for="password">{{t forms.setup.password2}}</label>
-							{{#if requestMessages.error.password2}}
-								{{input type="password" value=password2 class="error"}}
-							{{else}}
-								{{input type="password" value=password2}}
-							{{/if}}
-
-							{{#if requestMessages.error.password2}}
-								<span class="message error">{{requestMessages.error.password2}}</span>
-							{{/if}}
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.recoveryEmail}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=recoveryEmail}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.recoveryEmail}}
+										<span class="message error right">{{requestMessages.error.recoveryEmail}}</span>
+									{{/if}}
+								</div>
+							</div>
 						</div>
 						<div class="field-container">
-							<label for="select">{{t forms.setup.time_zone}}</label>
-								
-								<select id="setupTZfield">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.initialPassword}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="password" value=initialPassword}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.initialPassword}}
+										<span class="message error right">{{requestMessages.error.initialPassword}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.password}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="password" value=password}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.password}}
+										<span class="message error right">{{requestMessages.error.password}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.password2}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="password" value=password2}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.password2}}
+										<span class="message error right">{{requestMessages.error.password2}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.time_zone}}</label>
+								</div>
+								<div class="small-5 columns">
+									<label for="select"></label>
+
+									<select id="setupTZfield">
 									{{#each item in timeZones}}
 										{{#if item.dfault}}
 											<option value="{{item.id}}" selected>{{item.offset}} {{item.lname}}</option>
@@ -92,11 +154,23 @@
 											<option value="{{item.id}}">{{item.offset}} {{item.lname}}</option>
 										{{/if}}
 									{{/each}}
-								</select>
-							<br /><br />
+									</select>
+									<br /><br />
+								</div>
+								<div class="small-2 columns">
+									&nbsp;
+								</div>
+							</div>
 						</div>
 						<div class="field-container">
-							<p><button type="submit" class="expand" {{action 'doSetup'}}>{{t forms.setup.setup_button}}</button></p>
+							<div class="large-5 columns hide-for-small">
+								&nbsp;
+							</div>
+							<div class="large-5 small-10 columns">
+								<button type="submit" class="expand" {{action 'doSetup'}}>{{t forms.setup.setup_button}}</button>
+							</div>
+							<div class="large-2 columns hide-for-small">
+							</div>
 						</div>
 					</fieldset>
 				</form>
