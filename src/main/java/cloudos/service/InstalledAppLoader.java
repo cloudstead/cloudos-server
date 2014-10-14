@@ -114,7 +114,10 @@ public class InstalledAppLoader {
         return appDetailsMap;
     }
 
-    protected String getAuthKey(CloudOsAccount account, String appPath) { return account.getName()+"::"+appPath; }
+    protected String getAuthKey(CloudOsAccount account, String appPath) {
+        int qPos = appPath.indexOf("?");
+        return account.getName()+"::"+(qPos == -1 ? appPath : appPath.substring(0, qPos));
+    }
 
     public Response loadApp(CloudOsAccount account, AppRuntime app, HttpContext context) throws IOException {
 
@@ -125,7 +128,10 @@ public class InstalledAppLoader {
         final HttpRequestBean<String> requestBean = new HttpRequestBean<>(HttpMethods.GET, appPath);
 
         // If already logged in once, verify the auth works and then send them on their way
+        log.info("loadApp: looking for pre-existing AuthTransition...");
         AuthTransition authTransition = null;
+        BufferedResponse response;
+        CookieJar cookieJar;
         try {
             final String json = redis.get(getAuthKey(account, appPath));
             if (json != null) authTransition = fromJson(json, AuthTransition.class);
@@ -133,21 +139,29 @@ public class InstalledAppLoader {
             log.error("Error looking up authTransition in redis: "+e, e);
         }
         if (authTransition != null) {
-            final CookieJar cookieJar = new CookieJar(authTransition.getCookies());
-            BufferedResponse response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
+            log.info("loadApp: found pre-existing AuthTransition, verifying...");
+            cookieJar = new CookieJar(authTransition.getCookies());
+            response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
+            log.info("loadApp: found pre-existing AuthTransition, following (possible) redirects...");
             response = followRedirects(context, appPath, response, cookieJar);
+            log.info("loadApp: AuthTransition verification returned response "+response.getStatus()+", ensuring this is not a login page");
             if (response.isSuccess() && !app.isLoginPage(response.getDocument())) {
                 // success, and user appears to be logged in: redirect to app page
-                return sendToApp(appPath, authTransition.getUuid());
+                log.info("loadApp: pre-existing AuthTransition is OK, sending to app...");
+                return sendToApp(account, appPath, appHome, new CookieJar(authTransition.getCookies()));
                 // return Response.temporaryRedirect(URIUtil.toUri(authTransition.getRedirectUri())).build();
+            } else {
+                // this thing doesn't work, nuke it to save space
+                redis.del(authTransition.getUuid());
             }
         }
 
-        // Not logged in. Start with a fresh cookie jar
-        final CookieJar cookieJar = new CookieJar();
+        // Not logged in, start with a fresh request and fresh cookie jar
+        log.info("loadApp: pre-existing AuthTransition NOT found, starting fresh request...");
+        cookieJar = new CookieJar();
 
         // request the app home page, will load or will redirect us to a login page // this step often used to set cookies and other tokens
-        BufferedResponse response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
+        response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
         response = followRedirects(context, appPath, response, cookieJar);
         if (!response.isSuccess() || !app.isLoginPage(response.getDocument())) {
             // error, or user appears to be logged in, simply redirect to app page
@@ -155,11 +169,11 @@ public class InstalledAppLoader {
         }
 
         // attempt login and see what the app sends back
-        log.info("attempting login for " + appPath + " account " + account.getName());
+        log.info("loadApp: attempting login for " + appPath + " account " + account.getName());
         final HttpRequestBean<String> authRequest = app.buildLoginRequest(account, response, context, appPath);
         response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
         if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
-            log.warn("login failed, sending to main app page");
+            log.warn("loadApp: login failed, sending to main app page");
             return sendToApp(account, appPath, appHome, cookieJar);
         }
 
