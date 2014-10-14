@@ -16,7 +16,7 @@ ldap_master_password = base.password('ldap')
 base_bag = data_bag_item('cloudos', 'base')
 parent_domain = base_bag['parent_domain']
 
-realm = parent_domain.upcase
+realm = parent_domain
 ldap_domain_string = "dc=" + parent_domain.gsub(/\./, ",dc=")
 repeat_run = File.exists? '/var/log/kerberos'
 
