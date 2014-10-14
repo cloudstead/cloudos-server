@@ -39,11 +39,41 @@
 									<label for="right-label" class="right msg-mod">{{t forms.setup.accountName}}</label>
 								</div>
 								<div class="small-5 columns">
-									{{input type="text" value=accountName}}
+									{{input type="text" value=name}}
 								</div>
 								<div class="small-2 columns">
-									{{#if requestMessages.error.accountName}}
-										<span class="message error right">{{requestMessages.error.accountName}}</span>
+									{{#if requestMessages.error.name}}
+										<span class="message error right">{{requestMessages.error.name}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.firstName}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=firstName}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.firstName}}
+										<span class="message error right">{{requestMessages.error.firstName}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-5 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.setup.lastName}}</label>
+								</div>
+								<div class="small-5 columns">
+									{{input type="text" value=lastName}}
+								</div>
+								<div class="small-2 columns">
+									{{#if requestMessages.error.lastName}}
+										<span class="message error right">{{requestMessages.error.lastName}}</span>
 									{{/if}}
 								</div>
 							</div>
@@ -84,11 +114,11 @@
 									<label for="right-label" class="right msg-mod">{{t forms.setup.recoveryEmail}}</label>
 								</div>
 								<div class="small-5 columns">
-									{{input type="text" value=recoveryEmail}}
+									{{input type="text" value=email}}
 								</div>
 								<div class="small-2 columns">
-									{{#if requestMessages.error.recoveryEmail}}
-										<span class="message error right">{{requestMessages.error.recoveryEmail}}</span>
+									{{#if requestMessages.error.email}}
+										<span class="message error right">{{requestMessages.error.email}}</span>
 									{{/if}}
 								</div>
 							</div>

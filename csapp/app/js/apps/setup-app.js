@@ -21,19 +21,21 @@ App.IndexController = Ember.ObjectController.extend({
 
     setup_key: function() {
     	try{
-    		return $.url().param('key');
+    		return getParameterByName('key');
     	}catch(err){
     		//
     	}
-    },
-    accountName: '',
+    }.property(),
+    name: '',
     initialPassword: '',
     password: '',
     password2: '',
     content: {},
     mobilePhoneCountryCode:'',
     mobilePhone:'',
-    recoveryEmail:'',
+    email:'',
+    firstName:'',
+    lastName:'',
     timeZones: function() {
 		var time = new Date();
 		var tzoffset = time.getTimezoneOffset();
@@ -48,7 +50,7 @@ App.IndexController = Ember.ObjectController.extend({
     actions: {
         doSetup: function () {
             var setupKey = this.get('setup_key');
-            var name = this.get('accountName');
+            var name = this.get('name');
             var initial_password = this.get('initialPassword');
             var password = this.get('password');
             var password2 = this.get('password2');
@@ -56,29 +58,34 @@ App.IndexController = Ember.ObjectController.extend({
             var tzone = $('#setupTZfield').find(":selected")[0].index;
             var mobilePhoneCountryCode = this.get('mobilePhoneCountryCode');
             var mobilePhone = this.get('mobilePhone');
-            var recoveryEmail = this.get('recoveryEmail');
+            var email = this.get('email');
+            var firstName = this.get('firstName');
+            var lastName = this.get('lastName');
 
-            var validate = this.validateSetup(name, initial_password, password, password2, mobilePhoneCountryCode, mobilePhone, recoveryEmail);
+            var validate = this.validateSetup(
+            	name, initial_password, password, password2, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName);
             if ( (validate.account_name) || (validate.cs_password) || (validate.password) || (validate.confirm_password)
-            		|| validate.mobilePhoneCountryCode || validate.mobilePhone || validate.recoveryEmail){
+            		|| validate.mobilePhoneCountryCode || validate.mobilePhone || validate.email || validate.firstName || validate.lastName){
             	
 				this.set('requestMessages',
 						App.RequestMessagesObject.create({
 							json: {"status": 'error', "api_token" : null, 
 								"errors": 
-									{"accountName": validate.account_name,
+									{"name": validate.account_name,
 									"initialPassword": validate.cs_password,
 									"password": validate.password,
 									"password2": validate.confirm_password,
 									"mobilePhoneCountryCode": validate.mobilePhoneCountryCode,
 									"mobilePhone": validate.mobilePhone,
-									"recoveryEmail": validate.recoveryEmail}}
+									"email": validate.email,
+									"firstName": validate.firstName,
+									"lastName": validate.lastName}}
 					  })
 					);
 				return false;
 			}
 
-            var auth_response = Api.setup(setupKey, name, initial_password, password, tzone, mobilePhoneCountryCode, mobilePhone, recoveryEmail);
+            var auth_response = Api.setup(setupKey, name, initial_password, password, tzone, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName);
             if (auth_response) {
                 CloudOs.login(auth_response);
                 window.location.replace('/admin.html');
@@ -87,14 +94,16 @@ App.IndexController = Ember.ObjectController.extend({
             }
         }
     },
-    validateSetup: function(account_name, cs_password, password, confirm_password, mobilePhoneCountryCode, mobilePhone, recoveryEmail) {
+    validateSetup: function(account_name, cs_password, password, confirm_password, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName) {
     	var response = {"account_name":null,
     					"cs_password":null,
     					"password":null,
     					"confirm_password":null,
     					"mobilePhoneCountryCode":null,
     					"mobilePhone":null,
-    					"recoveryEmail":null};
+    					"email":null,
+    					"firstName":null,
+    					"lastName":null};
 
     	var error_msg = locate(Em.I18n.translations, 'errors');
     	var pattern = /^[a-z][a-z0-9]+$/i;
@@ -124,9 +133,16 @@ App.IndexController = Ember.ObjectController.extend({
     	if ((mobilePhone.trim() == '') || (!mobilePhone)){
     		response.mobilePhone = error_msg.field_required;
     	}
-    	if ((recoveryEmail.trim() == '') || (!recoveryEmail)){
-    		response.recoveryEmail = error_msg.field_required;
+    	if ((email.trim() == '') || (!email)){
+    		response.email = error_msg.field_required;
     	}
+    	if ((firstName.trim() == '') || (!firstName)){
+    		response.firstName = error_msg.field_required;
+    	}
+    	if ((lastName.trim() == '') || (!lastName)){
+    		response.lastName = error_msg.field_required;
+    	}
+    	
     	return response;
     }
 });
