@@ -536,7 +536,77 @@
 			</dl>
 			<div class="tabs-content">
 				<div class="content active">
-					asdf
+					<div class="large-12 columns no-padd">
+					<table style="width: 100%">
+						<thead>
+							<th>
+								App Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Description <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Date Installed <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Application Group Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								Number of Users <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+						</thead>
+						<tbody>
+								<tr>
+									<td>Email</td>
+									<td>Email Application</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>General Group</td>
+									<td>4</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+								<tr>
+									<td>Redmine</td>
+									<td>Project Management</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>Management Group</td>
+									<td>4</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+								<tr>
+									<td>Calendar</td>
+									<td>Calendar Application</td>
+									<td>01/27/14 - 08:30 PDT</td>
+									<td>General Group</td>
+									<td>2</td>
+									<td>
+										<div class="switch" title="Toggle Status">
+											<input type="checkbox" checked='checked'>
+											<label></label>
+										</div> 
+									</td>
+								</tr>
+						</tbody>
+					</table>
+				</div>
 				</div>
 			</div>
 		</div>
