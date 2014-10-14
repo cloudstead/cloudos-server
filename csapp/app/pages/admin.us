@@ -481,7 +481,35 @@
 			</dl>
 			<div class="tabs-content">
 				<div class="content active">
-					{{name}}
+					<div class="row event-single">
+						<div class="large-2 columns">
+							<h4>Email App</h4>
+						</div>
+						<div class="large-4 columns">
+							<p>by <a href="">http://emailapp.com</a></p>
+						</div>
+						<div class="large-4 columns">
+							<p>12,340 Cloudstead Users</p>
+						</div>
+						<div class="large-2 columns">
+							<button class="tiny primary expand">Install App</button>
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row">
+						<div class="large-4 columns">
+							<div class="circle"><img src="images/image1.png"></div>
+						</div>
+						<div class="large-8 columns small-only-text-center">
+							<div class="large-12 columns">
+								<p>Overview : </p>
+								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
+								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
