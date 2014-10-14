@@ -967,29 +967,6 @@
 				</div>
 				<div class="row">
 					<div class="large-4 columns">
-						<label>{{t forms.account.email }}
-							{{#if requestMessages.error.regularEmail}}
-								{{input type="text" value=regularEmail class="error"}}
-							{{else}}
-								{{input type="text" value=regularEmail}}
-							{{/if}}
-	
-							{{#if requestMessages.error.regularEmail}}
-								<span class="message error">{{requestMessages.error.regularEmail}}</span>
-							{{/if}}
-						</label>
-					</div>
-					<div class="large-8 columns">
-						<label>{{t forms.account.primary_group}}
-							{{view Ember.Select
-								content=primaryGroups
-								selectionBinding="selectedGroup"
-								}}
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="large-4 columns">
 						<label>{{ t forms.account.first_name}}
 							{{#if requestMessages.error.firstName}}
 								{{input type="text" value=firstName class="error"}}
@@ -1000,6 +977,14 @@
 							{{#if requestMessages.error.firstName}}
 								<span class="message error">{{requestMessages.error.firstName}}</span>
 							{{/if}}
+						</label>
+					</div>
+					<div class="large-8 columns">
+						<label>{{t forms.account.primary_group}}
+							{{view Ember.Select
+								content=primaryGroups
+								selectionBinding="selectedGroup"
+								}}
 						</label>
 					</div>
 				</div>
@@ -1021,14 +1006,14 @@
 				<div class="row">
 					<div class="large-4 columns">
 						<label>{{t forms.account.recovery_email}}
-							{{#if requestMessages.error.recoveryEmail}}
-								{{input type="text" value=recoveryEmail class="error"}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
 							{{else}}
-								{{input type="text" value=recoveryEmail}}
+								{{input type="text" value=email}}
 							{{/if}}
 	
-							{{#if requestMessages.error.recoveryEmail}}
-								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
+							{{#if requestMessages.error.email}}
+								<span class="message error">{{requestMessages.error.email}}</span>
 							{{/if}}
 						</label>
 					</div>

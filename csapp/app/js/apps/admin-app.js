@@ -177,7 +177,7 @@ App.AccountsController = Ember.ObjectController.extend({
 App.newAccountModel = function () {
     return {
         accountName: '',
-        recoveryEmail: '',
+        email: '',
         mobilePhone: '',
         admin: false
     };
@@ -196,9 +196,8 @@ App.AddAccountController = Ember.ObjectController.extend({
 				name: this.get('accountName'),
 				lastName: this.get('lastName'),
 				firstName: this.get('firstName'),
-				recoveryEmail: this.get('recoveryEmail'),
+				email: this.get('email'),
 				mobilePhone: this.get('mobilePhone'),
-				regularEmail: this.get('regularEmail')
 			}
 			
 			// first check if password is system based, if not, add the passwords for checkup
@@ -227,7 +226,6 @@ App.AddAccountController = Ember.ObjectController.extend({
 			// also, remove regular Email until the api is ready for that
 			try{
 				delete account.passwordConfirm;
-				delete account.regularEmail;
 			}catch(e){
 				//
 			}
@@ -284,13 +282,9 @@ App.AddAccountController = Ember.ObjectController.extend({
 		}catch(e){
 			//
 		}
-		
-		if (!pattern.test(data["recoveryEmail"])){
-			response["recoveryEmail"] = error_msg.email_invalid;
-		}
-		
-		if (!pattern.test(data["regularEmail"])){
-			response["regularEmail"] = error_msg.email_invalid;
+
+		if (!pattern.test(data["email"])){
+			response["email"] = error_msg.email_invalid;
 		}
     	return response;
     },
