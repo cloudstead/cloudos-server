@@ -661,7 +661,7 @@
 			<div class="content active">
 				<div class="circles row text-center">
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'email'}}
 							<div class="circle"><img src="images/image1.png"></div>
 							<h3 class="gamma light">Mail</h3>
 						{{/link-to}}
@@ -669,7 +669,7 @@
 					</div>
 			
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'files'}}
 							<div class="circle"><img src="images/image2.png"></div>
 							<h3 class="gamma light">Files</h3>
 						{{/link-to}}
@@ -677,7 +677,7 @@
 					</div>
 			
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'calendar'}}
 							<div class="circle"><img src="images/image3.png"></div>
 							<h3 class="gamma light">Calendar</h3>
 						{{/link-to}}
@@ -685,7 +685,7 @@
 					</div>
 					
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'kanban'}}
 							<div class="circle"><img src="images/image4.png"></div>
 							<h3 class="gamma light">Kanban</h3>
 						{{/link-to}}
@@ -694,7 +694,7 @@
 				</div>
 				<div class="circles row text-center">
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'phplist'}}
 							<div class="circle"><img src="images/phplist.png" class="appspec"></div>
 							<h3 class="gamma light">PHPList</h3>
 						{{/link-to}}
@@ -702,7 +702,7 @@
 					</div>
 			
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'phabricator'}}
 							<div class="circle"><img src="images/phabricator-logo.png"  class="appspec"></div>
 							<h3 class="gamma light">Phabricator</h3>
 						{{/link-to}}
@@ -710,7 +710,7 @@
 					</div>
 			
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'jira'}}
 							<div class="circle"><img src="images/jira.png"></div>
 							<h3 class="gamma light">JIRA</h3>
 						{{/link-to}}
@@ -718,7 +718,7 @@
 					</div>
 					
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'gitlab'}}
 							<div class="circle"><img src="images/gitlab.png" class="appspec"></div>
 							<h3 class="gamma light">Gitlab</h3>
 						{{/link-to}}
@@ -727,7 +727,7 @@
 				</div>
 				<div class="circles row text-center">
 					<div class="large-3 columns">
-						{{#link-to 'selectedapp'}}
+						{{#link-to 'selectedapp' 'kandan'}}
 							<div class="circle"><img src="images/kandan.png"></div>
 							<h3 class="gamma light">Kandan</h3>
 						{{/link-to}}
