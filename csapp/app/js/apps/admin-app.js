@@ -111,7 +111,11 @@ App.SelectedappRoute = Ember.Route.extend({
 });
 
 App.SelectedappController = Ember.ObjectController.extend({
-
+	actions: {
+		select_app: function (app_name) {
+			window.location.replace('/#/app/' + app_name);
+		}
+	}
 });
 
 App.InstalledappsRoute = Ember.Route.extend({
