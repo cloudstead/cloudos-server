@@ -579,8 +579,8 @@
 									</td>
 								</tr>
 								<tr>
-									<td>Redmine</td>
-									<td>Project Management</td>
+									<td>Files</td>
+									<td>File Sharing Application</td>
 									<td>01/27/14 - 08:30 PDT</td>
 									<td>Management Group</td>
 									<td>4</td>
@@ -670,7 +670,7 @@
 			
 					<div class="large-3 columns">
 						{{#link-to 'selectedapp'}}
-							<div class="circle secondary"><img src="images/image2.png"></div>
+							<div class="circle"><img src="images/image2.png"></div>
 							<h3 class="gamma light">Files</h3>
 						{{/link-to}}
 						<p>Save files, access them from any device and share them instantly with teammates. No more sending attachments or merging different versions.</p>
@@ -678,7 +678,7 @@
 			
 					<div class="large-3 columns">
 						{{#link-to 'selectedapp'}}
-							<div class="circle warning"><img src="images/image3.png"></div>
+							<div class="circle"><img src="images/image3.png"></div>
 							<h3 class="gamma light">Calendar</h3>
 						{{/link-to}}
 						<p>Spend less time planning and more time doing with shareable calendars that integrate seamlessly so you always know what's next.</p>
@@ -686,23 +686,55 @@
 					
 					<div class="large-3 columns">
 						{{#link-to 'selectedapp'}}
-							<div class="circle secondary"><img src="images/image4.png"></div>
+							<div class="circle"><img src="images/image4.png"></div>
 							<h3 class="gamma light">Kanban</h3>
 						{{/link-to}}
 						<p>Organize and track your project activities.</p>
 					</div>
 				</div>
-				<div class="row">
-					<div class="pattern large-2 large-centered columns rhythm-up">
-						<a href="admin.html">
-							<article class="event-single">
-								<div class="event-guests text-center"><span class="icon-chevron-down"></span></div>
-							</article>
-						</a>
+				<div class="circles row text-center">
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/phplist.png" class="appspec"></div>
+							<h3 class="gamma light">PHPList</h3>
+						{{/link-to}}
+							<p>Open Source software for managing mailing lists</p>
+					</div>
+			
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/phabricator-logo.png"  class="appspec"></div>
+							<h3 class="gamma light">Phabricator</h3>
+						{{/link-to}}
+						<p>An Open Source collection of web applications which help software companies build better software</p>
+					</div>
+			
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/jira.png"></div>
+							<h3 class="gamma light">JIRA</h3>
+						{{/link-to}}
+						<p>Issue & project tracking software from Atlassian</p>
+					</div>
+					
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/gitlab.png" class="appspec"></div>
+							<h3 class="gamma light">Gitlab</h3>
+						{{/link-to}}
+						<p>Open Source code collaboration software</p>
+					</div>
+				</div>
+				<div class="circles row text-center">
+					<div class="large-3 columns">
+						{{#link-to 'selectedapp'}}
+							<div class="circle"><img src="images/kandan.png"></div>
+							<h3 class="gamma light">Kandan</h3>
+						{{/link-to}}
+							<p>A private Chat server that is an Open Source alternative to HipChat</p>
 					</div>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </section>
