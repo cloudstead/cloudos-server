@@ -660,7 +660,7 @@
 		<div class="tabs-content">
 			<div class="content active">
 				<div class="circles row text-center">
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'email'}}
 							<div class="circle"><img src="images/image1.png"></div>
 							<h3 class="gamma light">Mail</h3>
@@ -668,7 +668,7 @@
 							<p>Spam protection, powerful search and integrated calendars help you get more done, no ads and plenty of storage.</p>
 					</div>
 			
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'files'}}
 							<div class="circle"><img src="images/image2.png"></div>
 							<h3 class="gamma light">Files</h3>
@@ -676,57 +676,54 @@
 						<p>Save files, access them from any device and share them instantly with teammates. No more sending attachments or merging different versions.</p>
 					</div>
 			
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'calendar'}}
 							<div class="circle"><img src="images/image3.png"></div>
 							<h3 class="gamma light">Calendar</h3>
 						{{/link-to}}
 						<p>Spend less time planning and more time doing with shareable calendars that integrate seamlessly so you always know what's next.</p>
 					</div>
-					
-					<div class="large-3 columns">
+				</div>
+				<div class="circles row text-center">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'kanban'}}
 							<div class="circle"><img src="images/image4.png"></div>
 							<h3 class="gamma light">Kanban</h3>
 						{{/link-to}}
 						<p>Organize and track your project activities.</p>
 					</div>
-				</div>
-				<div class="circles row text-center">
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'phplist'}}
 							<div class="circle"><img src="images/phplist.png" class="appspec"></div>
 							<h3 class="gamma light">PHPList</h3>
 						{{/link-to}}
 							<p>Open Source software for managing mailing lists</p>
 					</div>
-			
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'phabricator'}}
 							<div class="circle"><img src="images/phabricator-logo.png"  class="appspec"></div>
 							<h3 class="gamma light">Phabricator</h3>
 						{{/link-to}}
 						<p>An Open Source collection of web applications which help software companies build better software</p>
 					</div>
-			
-					<div class="large-3 columns">
+				</div>
+				<div class="circles row text-center">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'jira'}}
-							<div class="circle"><img src="images/jira.png"></div>
+							<div class="circle"><img src="images/jira.png" style="padding-top: 55px;"></div>
 							<h3 class="gamma light">JIRA</h3>
 						{{/link-to}}
 						<p>Issue & project tracking software from Atlassian</p>
 					</div>
 					
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'gitlab'}}
 							<div class="circle"><img src="images/gitlab.png" class="appspec"></div>
 							<h3 class="gamma light">Gitlab</h3>
 						{{/link-to}}
 						<p>Open Source code collaboration software</p>
 					</div>
-				</div>
-				<div class="circles row text-center">
-					<div class="large-3 columns">
+					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'kandan'}}
 							<div class="circle"><img src="images/kandan.png"></div>
 							<h3 class="gamma light">Kandan</h3>
