@@ -1,0 +1,55 @@
+Roundcube skin by Tecorama (http://roundcubeskins.net)
+======================================================
+
+This Roundcube skin works on both desktop and mobile browsers. In order to enable the automatic skin mode switching
+depending on the device being used to browse the mail and to make the skin compatible with some third party
+plugins that don't support skining, you should enable the included rcs_skins plugin.
+
+Roundcube compatibility
+-----------------------
+
+The skin is compatible with Roundcube 0.9 and 1.0. It will not work with earlier versions of Roundcube.
+
+Browser compatibility
+---------------------
+
+The skin is compatible with all modern browsers.
+
+Installation
+------------
+
+1. Install the skin:
+
+Copy the skin directory to the "skins" folder of your Roundcube installation.
+
+2. Install the rcs_skins plugin and some additional plugin files:
+
+Copy the contents of the "plugins" directory from the installation package to the "plugins" directory of your Roundcube.
+
+3. Set the skin as default:
+
+Edit the file "config/config.inc.php" and set the 'skin' variable this way:
+
+$config['skin'] = 'skin_name';
+
+(Replace 'skin_name' with the name of the skin you're installing.)
+
+4. Enable the rcs_skins plugin:
+
+Find the variable 'plugins' in the file "config/config.inc.php" and add rcs_skins to the array, like this:
+
+$config['plugins'] = array("rcs_skins");
+
+(If you're using Roundcube 0.9, the config file will be called "config/main.inc.php" and the plugins variable will be
+called "$rcmail_config['plugins']".)
+
+License
+-------
+
+The skin is covered by a commercial license agreement (see the file LICENSE for details). In order to use the skin you 
+must purchase a license from Tecorama, England (http://roundcubeskins.net).
+
+Copyright and credits
+---------------------
+
+Copyright (c) 2011-2014, Tecorama, England (http://roundcubeskins.net)

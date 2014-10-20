@@ -1,0 +1,112 @@
+@font-face {
+    font-family: 'NotoSans';
+    font-style: normal;
+    src: url(fonts/JLrcxvhkM17op1c4raL9Fg.woff) format('woff');
+}
+
+* {
+    border-radius: 0!important;
+}
+
+body {
+    font: 12px NotoSans,sans-serif;
+}
+
+.uibox {
+    border: none;
+}​.login-page #header {
+    display: none;
+}
+
+#login-form {
+    width: 750px;
+    height: 420px;
+    overflow: visible;
+    margin: 70px auto 0 auto;
+    background: #0075c8 url(login.jpg) no-repeat top left;
+    color: #333;
+}
+
+#login-form .box-inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 0 0 40px;
+    background: #fff;
+    border: none;
+    width: 310px;
+    margin: 0;
+    min-height: 420px;
+    border-radius: 0;
+    box-sizing: content-box;
+}
+
+#login-form #logo {
+    display: none;
+}
+
+#login-form table td {
+    display: block;
+    float: left;
+    clear: both;
+    padding: 0;
+}
+
+#login-form table td.title,#login-form table td.input {
+    display: block;
+    text-align: left;
+    padding: 0;
+    width: 90%;
+}
+
+#login-form td select {
+    margin: 0;
+    width: 100%;
+    padding: 5px;
+    box-sizing: content-box;
+}
+
+#login-form table td.title {
+    padding-bottom: 8px;
+}
+
+#login-form p,#login-form p.formbuttons,#login-form div {
+    text-align: left;
+}
+
+#login-form h1 {
+    margin: 0;
+    padding: 0 0 20px 0;
+    color: #0075c8;
+}
+
+#login-form #company-name {
+    position: absolute;
+    left: 0;
+    bottom: 40px;
+    width: 400px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.8em;
+    text-align: center;
+}
+
+#login-form .formbuttons input {
+    background-color: #0075C8;
+    padding: 8px 20px;
+}
+
+#login-form .formbuttons input:hover {
+    background-color: #138be1;
+}
+
+#login-form #bottomline a {
+    color: #aaa;
+}
+
+#login-form .box-bottom {
+    position: absolute;
+    top: 420px;
+    left: 0;
+    width: 400px;
+}

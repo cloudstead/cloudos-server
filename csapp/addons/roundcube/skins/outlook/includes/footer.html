@@ -1,0 +1,31 @@
+<roundcube:include file="/includes/footer.html" skinPath="skins/larry" />
+
+<script type="text/javascript">
+    if (typeof rcs_common != "undefined") {
+        rcs_common.runBeforeReady();
+        $(document).ready(function() { rcs_common.runOnReady(); });
+    }
+
+    <roundcube:if condition="!empty(env:rcs_device) && env:rcs_device != 'desktop'" />
+        if (typeof rcs_mobile != "undefined") {
+            rcs_mobile.label_welcome = "<roundcube:label name='welcome' />";
+            rcs_mobile.label_back = "<roundcube:label name='back' />";
+            rcs_mobile.label_folders = "<roundcube:label name='mailboxlist' />";
+            rcs_mobile.label_search = "<roundcube:label name='quicksearch' />";
+            rcs_mobile.label_options = "<roundcube:label name='options' />";
+            rcs_mobile.label_attachment = "<roundcube:label name='attachment' />";
+            rcs_mobile.label_folders = "<roundcube:label name='folders' />";
+            rcs_mobile.label_section = "<roundcube:label name='section' />";
+            rcs_mobile.runBeforeReady();
+            $(document).ready(function() { rcs_mobile.runOnReady(); });
+        }
+    <roundcube:endif />    
+
+    if (typeof rcs_skin != "undefined") {
+        rcs_skin.label_skin = "<roundcube:label name='skin' />";
+        rcs_skin.runBeforeReady();
+        $(document).ready(function() { rcs_skin.runOnReady(); });
+    }
+    
+    rcs_skin.changeColor("03a2cc");
+</script>

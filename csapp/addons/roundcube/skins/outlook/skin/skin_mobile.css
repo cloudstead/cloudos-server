@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'NotoSans';
+    font-style: normal;
+    src: url(fonts/JLrcxvhkM17op1c4raL9Fg.woff) format('woff');
+}
+
+* {
+    border-radius: 0!important;
+}
+
+body {
+    font: 12px NotoSans,sans-serif;
+}
+
+#login-form input.button {
+    background: #0075c8;
+    border: none;
+}

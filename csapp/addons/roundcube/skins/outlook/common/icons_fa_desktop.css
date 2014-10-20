@@ -1,0 +1,419 @@
+#taskbar a,.minmodetoggle,a.menuselector:after,.toolbar a.button:before,.dropbutton .dropbuttontip:before,.treetoggle.expanded:before,.treetoggle.collapsed:before,.boxfooter .listbutton.groupactions:before,.boxfooter .listbutton.add:before,.boxfooter .listbutton.delete:before,.boxfooter .listbutton.removegroup:before,.messagelist tr td.threads div.listmenu:before,.messagelist thead tr td.status span.status:before,.messagelist thead tr td.flag span.flagged:before,.messagelist thead tr td.attachment span.attachment:before,.messagelist thead tr td.priority span.priority:before,.messagelist thead tr td.sortedASC a:after,.messagelist thead tr td.sortedDESC a:after,.boxpagenav a.icon.firstpage:before,.boxpagenav a.icon.prevpage:before,.boxpagenav a.icon.nextpage:before,.boxpagenav a.icon.lastpage:before,#messagestack div:after,#topnav a.button-skin-options:before,#planner_controls #new:after,#planner_controls #tomorrow:after,#planner_controls #all:after,#planner_controls #help:after,#planner_controls #filter:after,#rss a {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#taskbar a span.button-inner {
+    font-family: NotoSans,sans-serif;
+}
+
+a.menuselector:after {
+    content: "\f0d7";
+    padding-right: 5px;
+}
+
+a.menuselector span.handle {
+    background: none;
+}
+
+#taskbar .minmodetoggle {
+    background-image: none;
+    padding: 15px 10px 10px 5px;
+    width: auto;
+    height: auto;
+}
+
+#taskbar a,#taskbar a span,#taskbar .minmodetoggle {
+    color: #fff!important;
+}
+
+#taskbar a.button-mail,#taskbar a.button-addressbook,#taskbar a.button-help,#taskbar a.button-nabble,#taskbar a.button-jappix4roundcube,#taskbar a.button-calendar,#taskbar a.button-planner,#taskbar a.button-sticky_notes,#taskbar a.button-settings,#taskbar a.button-logout,#taskbar a.button-skin-options {
+    padding-left: 10px;
+    padding-right: 10px;
+    background-image: none!important;
+}
+
+#taskbar a.button-mail:before,#taskbar a.button-addressbook:before,#taskbar a.button-help:before,#taskbar a.button-nabble:before,#taskbar a.button-jappix4roundcube:before,#taskbar a.button-calendar:before,#taskbar a.button-planner:before,#taskbar a.button-sticky_notes:before,#taskbar a.button-settings:before,#taskbar a.button-logout:before,#taskbar a.button-skin-options:before {
+    position: relative;
+    top: 2px;
+    font-size: 1.5em;
+    color: #fff;
+}
+
+#taskbar a.button-mail span.button-inner,#taskbar a.button-addressbook span.button-inner,#taskbar a.button-help span.button-inner,#taskbar a.button-nabble span.button-inner,#taskbar a.button-jappix4roundcube span.button-inner,#taskbar a.button-calendar span.button-inner,#taskbar a.button-planner span.button-inner,#taskbar a.button-sticky_notes span.button-inner,#taskbar a.button-settings span.button-inner,#taskbar a.button-logout span.button-inner,#taskbar a.button-skin-options span.button-inner {
+    background: none!important;
+    padding-left: 8px;
+}
+
+.minimal #taskbar a.button-mail span.button-inner,.minimal #taskbar a.button-addressbook span.button-inner,.minimal #taskbar a.button-help span.button-inner,.minimal #taskbar a.button-nabble span.button-inner,.minimal #taskbar a.button-jappix4roundcube span.button-inner,.minimal #taskbar a.button-calendar span.button-inner,.minimal #taskbar a.button-planner span.button-inner,.minimal #taskbar a.button-sticky_notes span.button-inner,.minimal #taskbar a.button-settings span.button-inner,.minimal #taskbar a.button-logout span.button-inner {
+    display: none;
+}
+
+#taskbar a.button-mail:before {
+    content: "\f0e0";
+}
+
+#taskbar a.button-addressbook:before {
+    content: "\f007";
+}
+
+#taskbar a.button-help:before {
+    content: "\f1cd";
+}
+
+#taskbar a.button-nabble:before {
+    content: "\f0e6";
+}
+
+#taskbar a.button-jappix4roundcube:before {
+    content: "\f075";
+}
+
+#taskbar a.button-calendar:before {
+    content: "\f073";
+}
+
+#taskbar a.button-planner:before {
+    content: "\f02d";
+}
+
+#taskbar a.button-sticky_notes:before {
+    content: "\f15c";
+}
+
+#taskbar a.button-settings:before {
+    content: "\f0ad";
+}
+
+#taskbar a.button-logout:before {
+    content: "\f011";
+}
+
+#taskbar .minmodetoggle:before {
+    content: "\f0d8";
+}
+
+.minimal #taskbar .minmodetoggle:before {
+    content: "\f0d7";
+}
+
+#topnav a.button-skin-options:before {
+    content: "\f013";
+}
+
+.toolbar .spacer {
+    display: none;
+}
+
+.toolbar a.button:hover {
+    background-color: transparent!important;
+    color: #555;
+}
+
+.toolbar a.button.checkmail,.toolbar a.button.compose,.toolbar a.button.reply,.toolbar a.button.reply-all,.toolbar a.button.forward,.toolbar a.button.delete,.toolbar a.button.archive,.toolbar a.button.junk,.toolbar a.button.markmessage,.toolbar a.button.more,.toolbar a.button.back,.toolbar a.button.move,.toolbar a.button.print,.toolbar a.button.send,.toolbar a.button.savedraft,.toolbar a.button.spellcheck,.toolbar a.button.attach,.toolbar a.button.insertsig,.toolbar a.button.responses,.toolbar a.button.vcard_send,.toolbar a.button.import,.toolbar a.button.export,.toolbar a.button.search,.toolbar a.button.calneweventbut,.toolbar a.button.calswitchbut,.toolbar a.button.calexportbut,.toolbar a.button.calimportbut,.toolbar a.button.calprintprevbut {
+    height: 40px;
+    background-image: none!important;
+    padding-top: 0;
+}
+
+.toolbar a.button:before {
+    display: block;
+    font-size: 2.1em;
+    padding-bottom: 4px;
+    text-align: center;
+}
+
+.toolbar a.button.checkmail:before {
+    content: "\f021";
+}
+
+.toolbar a.button.compose:before {
+    content: "\f044";
+}
+
+.toolbar a.button.reply:before {
+    content: "\f112";
+}
+
+.toolbar a.button.reply-all:before {
+    content: "\f122";
+}
+
+.toolbar a.button.forward:before {
+    content: "\f064";
+}
+
+.toolbar a.button.delete:before {
+    content: "\f00d";
+}
+
+.toolbar a.button.archive:before {
+    content: "\f187";
+}
+
+.toolbar a.button.junk:before {
+    content: "\f1b8";
+}
+
+.toolbar a.button.markmessage:before {
+    content: "\f02b";
+}
+
+.toolbar a.button.more:before {
+    content: "\f141";
+}
+
+.toolbar a.button.back:before {
+    content: "\f060";
+}
+
+.toolbar a.button.move:before {
+    content: "\f07b";
+}
+
+.toolbar a.button.print:before {
+    content: "\f02f";
+}
+
+.toolbar a.button.send:before {
+    content: "\f1d9";
+}
+
+.toolbar a.button.savedraft:before {
+    content: "\f0c7";
+}
+
+.toolbar a.button.spellcheck:before {
+    content: "\f046";
+}
+
+.toolbar a.button.attach:before {
+    content: "\f0c6";
+}
+
+.toolbar a.button.insertsig:before {
+    content: "\f040";
+}
+
+.toolbar a.button.responses:before {
+    content: "\f097";
+}
+
+.toolbar a.button.vcard_send:before {
+    content: "\f022";
+}
+
+.toolbar a.button.import:before {
+    content: "\f019";
+}
+
+.toolbar a.button.export:before {
+    content: "\f093";
+}
+
+.toolbar a.button.search:before {
+    content: "\f002";
+}
+
+.toolbar a.button.calneweventbut:before {
+    content: "\f196";
+}
+
+.toolbar a.button.calswitchbut:before {
+    content: "\f0c0";
+}
+
+.toolbar a.button.calexportbut:before {
+    content: "\f093";
+}
+
+.toolbar a.button.calimportbut:before {
+    content: "\f019";
+}
+
+.toolbar a.button.calprintprevbut:before {
+    content: "\f02f";
+}
+
+.dropbutton .dropbuttontip {
+    background: none!important;
+    padding: 6px 4px;
+    height: auto;
+    width: auto;
+}
+
+.dropbutton .dropbuttontip:before {
+    content: "\f0d7";
+}
+
+div.treetoggle {
+    left: 5px!important;
+    top: 6px!important;
+}
+
+ul.treelist li div.treetoggle {
+    background: none;
+    left: 0;
+}
+
+.treetoggle.expanded:before {
+    content: "\f068";
+}
+
+.treetoggle.collapsed:before {
+    content: "\f067";
+}
+
+.boxfooter .listbutton.groupactions .inner,.boxfooter .listbutton.add .inner,.boxfooter .listbutton.delete .inner,.boxfooter .listbutton.removegroup .inner {
+    display: none;
+}
+
+.boxfooter .listbutton.groupactions,.boxfooter .listbutton.add,.boxfooter .listbutton.delete,.boxfooter .listbutton.removegroup {
+    padding: 3px 8px;
+    height: auto;
+    width: auto;
+    font-size: 2em;
+    color: #777;
+    float: left;
+    border: none;
+}
+
+.boxfooter .listbutton.groupactions:before {
+    content: "\f013";
+}
+
+.boxfooter .listbutton.add:before {
+    content: "\f067";
+}
+
+.boxfooter .listbutton.delete:before {
+    content: "\f014";
+}
+
+.boxfooter .listbutton.removegroup:before {
+    content: "\f127";
+}
+
+.boxpagenav {
+    top: 3px;
+}
+
+.boxpagenav a.icon {
+    background: none;
+    color: #fff;
+    text-indent: 0;
+    visibility: hidden;
+    font-size: 1.2em;
+}
+
+.boxpagenav a.icon:before {
+    visibility: visible;
+}
+
+.boxpagenav a.icon.firstpage:before {
+    content: "\f100";
+}
+
+.boxpagenav a.icon.prevpage:before {
+    content: "\f104";
+}
+
+.boxpagenav a.icon.nextpage:before {
+    content: "\f105";
+}
+
+.boxpagenav a.icon.lastpage:before {
+    content: "\f101";
+}
+
+.messagelist tr td.threads div.listmenu,.messagelist thead tr td.status span.status,.messagelist thead tr td.flag span.flagged,.messagelist thead tr td.attachment span.attachment,.messagelist thead tr td.priority span.priority {
+    background: none;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.messagelist tr td.threads div.listmenu:before {
+    content: "\f013";
+}
+
+.messagelist thead tr td.status span.status:before {
+    content: "\f005";
+}
+
+.messagelist thead tr td.flag span.flagged:before {
+    content: "\f024";
+}
+
+.messagelist thead tr td.attachment span.attachment:before {
+    content: "\f0c6";
+}
+
+.messagelist thead tr td.priority span.priority:before {
+    content: "\f06a";
+}
+
+.messagelist thead tr td.sortedASC a:after,.messagelist thead tr td.sortedDESC a:after {
+    float: right;
+    content: "\f0dc";
+    font-size: 1.2em;
+    padding-top: 2px;
+}
+
+#messagestack div:after {
+    background-image: none!important;
+    content: "\f06a";
+    padding-top: 10px;
+    padding-left: 4px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+#messagestack div.error:after {
+    content: "\f00d";
+}
+
+#messagestack div.warning:after {
+    content: "\f071";
+}
+
+#messagestack div.confirmation:after {
+    content: "\f00c";
+}
+
+#messagestack div.loading:after {
+    background-image: url(../skin/loader.gif)!important;
+    content: "";
+}
+
+#planner_controls #new:after {
+    content: "\f067";
+}
+
+#planner_controls #tomorrow:after {
+    content: "\f054";
+}
+
+#planner_controls #all:after {
+    content: "\f141";
+}
+
+#planner_controls #help:after {
+    content: "\f05a";
+}
+
+#planner_controls #filter:after {
+    content: "\f0b0";
+}
+
+#rss a {
+    background: none;
+    padding: 0;
+}
+
+#rss a:after {
+    content: "\f09e";
+}

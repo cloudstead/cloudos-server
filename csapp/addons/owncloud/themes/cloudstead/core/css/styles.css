@@ -1,0 +1,15 @@
+@CHARSET "UTF-8";
+
+#app-navigation+#app-content #controls {
+	left: 230px;
+}
+
+#content {
+	margin-top:10px;
+	height: 97%;
+}
+
+#controls {
+	top : 55px;
+	width: 70%;
+}
