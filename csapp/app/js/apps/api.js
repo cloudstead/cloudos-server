@@ -100,7 +100,9 @@ Api = {
     update_account: function (account) { return Api._post('/api/accounts/' + account.name, account); },
     delete_account: function (account_name) { return Api._delete('/api/accounts/' + account_name); },
 
-    cloudos_configuration: function () { return Api._get('/api/configs'); },
+    cloudos_configuration_groups: function () { return Api._get('/api/configs'); },
+    cloudos_configuration: function (group) { return Api._get('/api/configs/'+group); },
+    cloudos_configuration_value: function (group, name) { return Api._get('/api/configs/'+group+'/'+name).value; },
 
     install_app_from_url: function (url) { return Api._post('/api/apps', {url: url}); },
 

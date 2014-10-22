@@ -341,7 +341,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
 App.EmailDomainsRoute = Ember.Route.extend({
     model: function () {
         return {
-            'mxrecord': Api.cloudos_configuration().mxrecord,
+            'mxrecord': Api.cloudos_configuration_value('system', 'mxrecord'),
             'domains': Api.list_email_domains()
         }
     }
