@@ -4,6 +4,7 @@ import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
+import cloudos.databag.PortsDatabag;
 import cloudos.model.support.AppInstallUrlRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
@@ -24,7 +25,6 @@ import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
 
 import java.io.File;
-import java.io.IOException;
 
 @Accessors(chain=true) @Slf4j
 public class AppInstallTask extends TaskBase {
@@ -116,7 +116,9 @@ public class AppInstallTask extends TaskBase {
         }
 
         // pick a port to listen on and write data bag
-        final int port = PortPicker.pickOrDie();
+        final PortsDatabag ports = new PortsDatabag()
+                .setPrimary(PortPicker.pickOrDie())
+                .setAdmin(PortPicker.pickOrDie());
         final File chefDir = new File(tempDir, "chef");
         final File databagDir = new File(chefDir.getAbsolutePath() + "/data_bags/" + name);
         if (!databagDir.mkdirs()) {
@@ -124,8 +126,8 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
         try {
-            FileUtil.toFile(new File(databagDir, "ports.json"), "{\"id\": \"ports\", \"primary\": "+port+"}");
-        } catch (IOException e) {
+            FileUtil.toFile(new File(databagDir, "ports.json"), JsonUtil.toJson(ports));
+        } catch (Exception e) {
             error("{appInstall.error.writingPortsDataBag}", e);
             return null;
         }
@@ -145,7 +147,7 @@ public class AppInstallTask extends TaskBase {
 
         addEvent("{appInstall.recordingInstallation}");
         try {
-            appDAO.install(account, manifest, pluginJar, tarball, port);
+            appDAO.install(account, manifest, pluginJar, tarball, ports.getPrimary());
         } catch (Exception e) {
             error("{appInstall.error.recordingInstallation}", e);
             return null;
