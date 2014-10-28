@@ -175,7 +175,7 @@ App.AccountsController = Ember.ObjectController.extend({
 			  sortProperties: 'name',
 			  sortAscending: false
 			})
-		}.property()
+		}.property("content")
 });
 
 App.newAccountModel = function () {
@@ -360,7 +360,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
 App.EmailDomainsRoute = Ember.Route.extend({
     model: function () {
         return {
-            'mxrecord': Api.cloudos_configuration_value('system', 'mxrecord'),
+            'mxrecord': Api.cloudos_configuration().mxrecord,
             'domains': Api.list_email_domains()
         }
     }
