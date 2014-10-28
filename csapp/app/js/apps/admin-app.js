@@ -67,8 +67,8 @@ App.ApplicationRoute = Ember.Route.extend({
         if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'admin.html')) && (!pathArray[4]))
         {
         	this.transitionTo('accounts');
-        }	
-        
+        }
+
     }
 });
 
@@ -174,7 +174,7 @@ App.AccountsController = Ember.ObjectController.extend({
 			  content: this.get('accounts').toArray(),
 			  sortProperties: 'name',
 			  sortAscending: false
-			}) 
+			})
 		}.property()
 });
 
@@ -203,13 +203,13 @@ App.AddAccountController = Ember.ObjectController.extend({
 				email: this.get('email'),
 				mobilePhone: this.get('mobilePhone'),
 			}
-			
+
 			// first check if password is system based, if not, add the passwords for checkup
 			if (this.get('generateSysPassword') === false){
 				account["password"] = this.get('password');
 				account["passwordConfirm"] = this.get('passwordConfirm');
 			}
-			
+
 			// validate data
 			var validate = this.validate(account);
 			var validate_res = true;
@@ -218,7 +218,7 @@ App.AddAccountController = Ember.ObjectController.extend({
     			if (value != null){
     				this.set('requestMessages',
     						App.RequestMessagesObject.create({
-    							json: {"status": 'error', "api_token" : null, 
+    							json: {"status": 'error', "api_token" : null,
     								"errors": validate}
     					  })
     					);
@@ -240,14 +240,14 @@ App.AddAccountController = Ember.ObjectController.extend({
 			}else{
 				account["admin"] = false;
 			}
-			
+
 			// check if two-factor, set appropriate key
 			if (this.get('twoFactorAuth')){
 				account["twoFactor"] = true;
 			}else{
 				account["twoFactor"] = false;
 			}
-			
+
 			// account is not suspended, hc mobile code, accountName is name
 			account["suspended"] = false;
 			account["mobilePhoneCountryCode"] = 1;
@@ -277,7 +277,7 @@ App.AddAccountController = Ember.ObjectController.extend({
 				response[key] = error_msg.field_required;
 			}
 		}
-		
+
 		try{
 			if (data["password"] != data["passwordConfirm"]){
 				response["password"] = error_msg.password_mismatch;
@@ -315,10 +315,24 @@ App.ManageAccountController = Ember.ObjectController.extend({
         'doUpdateAccount': function () {
             account = {
                 name: this.get('accountName'),
+                firstName: this.get('firstName'),
+                lastName: this.get('lastName'),
                 email: this.get('email'),
                 mobilePhone: this.get('mobilePhone'),
                 admin: this.get('admin')
             };
+
+            // check if admin, set appropriate key
+            account["admin"] = this.get('selectedGroup') == 'Admin' ? true : false;
+
+            // check if two-factor, set appropriate key
+            account["twoFactor"] = this.get('twoFactorAuth') ? true : false;
+
+            // account is not suspended, hc mobile code, accountName is name
+            account["suspended"] = false;
+            account["mobilePhoneCountryCode"] = 1;
+            account["accountName"] = account["name"];
+
             if (Api.update_account(account)) {
                 this.transitionTo('accounts');
             }
@@ -335,7 +349,12 @@ App.ManageAccountController = Ember.ObjectController.extend({
                 // nada
             }
         }
-    }
+    },
+    primaryGroups: ["Admin","User"],
+    selectedGroup: function() {
+        Ember.Logger.info(this.get('model'));
+        return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
+    }.property("selectedGroup", "model")
 });
 
 App.EmailDomainsRoute = Ember.Route.extend({
@@ -537,6 +556,6 @@ Ember.Handlebars.helper('getStatus', function(account) {
 
 App.ApplicationView = Ember.View.extend({
     initFoundation: function () {
-        Ember.$(document).foundation();  
+        Ember.$(document).foundation();
     }.on('didInsertElement')
 });
