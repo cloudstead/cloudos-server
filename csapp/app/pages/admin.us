@@ -1119,51 +1119,6 @@
 
 <script type="text/x-handlebars" id="manageAccount">
 	<section class="deck">
-		<!--<div class="row">
-			<div class="medium-6 large-6 medium-centered columns">
-				<form>
-					<fieldset class="wrap-set">
-						<legend>{{t sections.manage_account}}</legend>
-						<div class="field-container">
-							<label>{{t forms.account.account_name}}</label>
-							{{name}}
-							<br />
-							<br />
-						</div>
-						<div class="field-container">
-							<label for="text">{{t forms.account.recovery_email}}</label>
-							{{#if requestMessages.error.recoveryEmail}}
-								{{input type="text" value=recoveryEmail class="error"}}
-							{{else}}
-								{{input type="text" value=recoveryEmail}}
-							{{/if}}
-
-							{{#if requestMessages.error.recoveryEmail}}
-								<span class="message error">{{requestMessages.error.recoveryEmail}}</span>
-							{{/if}}
-						</div>
-						<div class="field-container">
-							<label for="text">{{t forms.account.mobile_phone}}</label>
-							{{#if requestMessages.error.mobilePhone}}
-								{{input type="text" value=mobilePhone class="error"}}
-							{{else}}
-								{{input type="text" value=mobilePhone}}
-							{{/if}}
-
-							{{#if requestMessages.error.mobilePhone}}
-								<span class="message error">{{requestMessages.error.mobilePhone}}</span>
-							{{/if}}
-						</div>
-						<div class="field-container">
-							<ul class="button-group [radius round]">
-								<li><a href="#" class="button" {{action 'doUpdateAccount'}}>{{t forms.account.update_button}}</a></li>
-								<li class="right"><a href="#" class="button alert" {{action 'doDeleteAccount'}}>{{t forms.account.delete_button}}</a></li>
-							</ul>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>-->
 		<div class="row">
 			<form {{action 'doUpdateAccount' on="submit"}}>
 			<fieldset class="wrap-set">
