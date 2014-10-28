@@ -4,25 +4,20 @@ import cloudos.appstore.model.app.AppManifest;
 import lombok.Getter;
 import lombok.Setter;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.wizard.model.IdentifiableBase;
+import org.cobbzilla.wizard.model.UniquelyNamedEntity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Entity
-public class InstalledApp extends IdentifiableBase {
+public class InstalledApp extends UniquelyNamedEntity {
 
     // uuid references Account
     @Getter @Setter private String account;
 
     @Getter @Setter private boolean active;
-
-    // from manifest
-    @Column(unique=true, nullable=false)
-    @Getter @Setter private String name;
 
     @Getter @Setter private String path;
 

@@ -33,6 +33,10 @@ public class AppsResource {
     @GET
     @Path("/installed")
     public Response listInstalledApps (@HeaderParam(H_API_KEY) String apiKey) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return ResourceUtil.notFound(apiKey);
+
         try {
             return Response.ok(appDAO.findActive()).build();
         } catch (Exception e) {

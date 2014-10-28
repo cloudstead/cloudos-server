@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.cobbzilla.util.security.ShaUtil;
 import org.cobbzilla.wizard.dao.AbstractCRUDDAO;
+import org.cobbzilla.wizard.dao.UniquelyNamedEntityDAO;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,13 +27,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Repository @Slf4j
-public class AppDAO extends AbstractCRUDDAO<InstalledApp> {
+public class AppDAO extends UniquelyNamedEntityDAO<InstalledApp> {
 
     @Autowired private CloudOsConfiguration configuration;
 
-    public List<InstalledApp> findActive() throws Exception {
-        return findByField("active", true);
-    }
+    public List<InstalledApp> findActive() throws Exception { return findByField("active", true); }
 
     private final AtomicReference<Map<String, AppRuntimeDetails>> appDetails = new AtomicReference<>();
 

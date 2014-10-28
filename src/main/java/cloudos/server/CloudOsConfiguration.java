@@ -41,8 +41,11 @@ public class CloudOsConfiguration extends RestServerConfiguration
     @Getter @Setter private String emailTemplateRoot;
 
     @Getter @Setter private ApiConnectionInfo appStore;
-    @Getter(lazy=true) private final AppStoreApiClient appStoreApiClient = initAppStoreApiClient();
-    private AppStoreApiClient initAppStoreApiClient() { return new AppStoreApiClient(appStore); }
+    @Setter private AppStoreApiClient appStoreClient;
+    public AppStoreApiClient getAppStoreClient () {
+        if (appStoreClient == null) appStoreClient = new AppStoreApiClient(appStore);
+        return appStoreClient;
+    }
 
     @Getter @Setter private ApiConnectionInfo authy;
 
