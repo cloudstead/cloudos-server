@@ -25,6 +25,7 @@ public class InstalledApp extends UniquelyNamedEntity {
 
     // set upon first install
     @Getter @Setter private int port;
+    @Getter @Setter private int adminPort; // always generated, not always used
 
     @Size(max=4096, message="err.installedApp.manifestJson.tooLong")
     @Getter private String manifestJson;

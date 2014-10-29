@@ -12,7 +12,6 @@ import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.cobbzilla.util.security.ShaUtil;
-import org.cobbzilla.wizard.dao.AbstractCRUDDAO;
 import org.cobbzilla.wizard.dao.UniquelyNamedEntityDAO;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,12 +109,14 @@ public class AppDAO extends UniquelyNamedEntityDAO<InstalledApp> {
         // plugin may not exist if they are using a built-in plugin (like ConfigurableAppRuntime)
         if (pluginJar.exists()) writePluginJar(manifest, pluginJar);
 
-        InstalledApp app = new InstalledApp();
+        InstalledApp app = findByName(manifest.getName());
+        if (app == null) app = new InstalledApp();
+
+        app.setPort(port);
         app.setManifest(manifest);
         app.setAccount(account.getName());
         app.setActive(true);
-        app.setPort(port);
-        app = create(app);
+        app = createOrUpdate(app);
 
         resetAvailableApps();
         return app;

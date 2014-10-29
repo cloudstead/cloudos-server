@@ -5,6 +5,7 @@ import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
 import cloudos.databag.PortsDatabag;
+import cloudos.model.InstalledApp;
 import cloudos.model.support.AppInstallUrlRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
@@ -115,15 +116,26 @@ public class AppInstallTask extends TaskBase {
             chefMessage.addRecipe(recipe.trim());
         }
 
-        // pick a port to listen on and write data bag
-        final PortsDatabag ports = new PortsDatabag()
-                .setPrimary(PortPicker.pickOrDie())
-                .setAdmin(PortPicker.pickOrDie());
         final File chefDir = new File(tempDir, "chef");
         final File databagDir = new File(chefDir.getAbsolutePath() + "/data_bags/" + name);
         if (!databagDir.mkdirs()) {
-            error("{appInstall.error.creatingDatabagDir}", new IllegalStateException("error creating "+databagDir.getAbsolutePath()));
+            error("{appInstall.error.creatingDatabagDir}", new IllegalStateException("error creating " + databagDir.getAbsolutePath()));
             return null;
+        }
+
+        final PortsDatabag ports;
+
+        InstalledApp existing = appDAO.findByName(name);
+        final int port;
+        if (existing == null) {
+            // pick a port to listen on and write data bag
+            ports = new PortsDatabag()
+                    .setPrimary(PortPicker.pickOrDie())
+                    .setAdmin(PortPicker.pickOrDie());
+        } else {
+            ports = new PortsDatabag()
+                    .setPrimary(existing.getPort())
+                    .setAdmin(existing.getAdminPort());
         }
         try {
             FileUtil.toFile(new File(databagDir, "ports.json"), JsonUtil.toJson(ports));
@@ -131,6 +143,8 @@ public class AppInstallTask extends TaskBase {
             error("{appInstall.error.writingPortsDataBag}", e);
             return null;
         }
+        port = ports.getPrimary();
+
 
         // notify the chef-user that we have some new recipes to add to the run list
         addEvent("{appInstall.notifyingChefToRun}");
@@ -147,7 +161,7 @@ public class AppInstallTask extends TaskBase {
 
         addEvent("{appInstall.recordingInstallation}");
         try {
-            appDAO.install(account, manifest, pluginJar, tarball, ports.getPrimary());
+            appDAO.install(account, manifest, pluginJar, tarball, port);
         } catch (Exception e) {
             error("{appInstall.error.recordingInstallation}", e);
             return null;
