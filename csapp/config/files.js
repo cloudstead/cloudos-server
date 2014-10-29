@@ -17,6 +17,7 @@ module.exports = function(lineman) {
         "vendor/js/modernizr.js",
         "vendor/js/purl.js",
         "vendor/js/i18n.js",
+        "vendor/js/countries.js",
         "vendor/js/all.js"
       ],
       app: [
