@@ -361,7 +361,9 @@ App.ManageAccountController = Ember.ObjectController.extend({
 
     countryList: Countries.list,
 
-    twoFactorAuth: false,
+    twoFactorAuth: function(){
+        return this.get('model').twoFactor;
+    }.property('model'),
 
     selectedGroup: function() {
         return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
