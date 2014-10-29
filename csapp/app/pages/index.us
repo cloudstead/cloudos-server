@@ -43,7 +43,7 @@
                     	{{/each}}
                 	{{/if}}
 				</ul>
-				
+
 			</section>
 			{{#if cloudos_account}}
 			<section class="top-bar-section show-for-medium-up right">
@@ -52,7 +52,7 @@
 					<li><a href="#" data-dropdown="settings-submenu" data-options="align:left"><span class="icon-gear"></span> <span class="show-for-xxlarge-up">Settings</span></a></li>
 					<li><a href="#" data-dropdown="user-submenu" data-options="align:left"><span class="icon-user"></span> <span class="show-for-xxlarge-up">User</span></a></li>
 				</ul>
-			</section>	
+			</section>
 			<section class="top-bar-section show-for-medium-up right">
 				<div class="row">
 					<div class="large-12 columns">
@@ -100,6 +100,7 @@
 	</ul>
 
     {{outlet}}
+		{{outlet modal}}
 </script>
 
 <script type="text/x-handlebars" id="login">
@@ -206,6 +207,14 @@
     <div style="height: 94% !important;">
         <iframe id="app_frame" width="100%" height="100%" {{bindAttr src="app_url"}} frameBorder="0"></iframe>
     </div>
+</script>
+
+<script type="text/x-handlebars" id="components/modal-dialog">
+	<div class="overlay" {{action "close"}}>
+	</div>
+	<div class="modal">
+		{{yield}}
+	</div>
 </script>
 
 </body>
