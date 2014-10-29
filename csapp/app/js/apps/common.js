@@ -1,5 +1,52 @@
 String.prototype.trim = String.prototype.trim || function trim() { return this.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); };
 
+function setCookie(cname, cvalue, exdays){
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires="expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)===' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) !== -1) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie(cname) {
+    var cookie = getCookie(cname);
+    if (cookie !== "") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+function generateDeviceId()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for( var i=0; i < 20; i++ ){
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+
+function getDeviceName(){
+    return navigator.userAgent;
+}
+
+
 CloudOs = {
     json_safe_parse: function (j) {
         return j ? JSON.parse(j) : null;
@@ -54,19 +101,19 @@ function add_icon_data(acct){
 			if (curr_acct.availableApps[i].name == 'email'){
 				curr_acct.availableApps[i].icon_name = 'icon-envelope';
 			}
-			
+
 			if (curr_acct.availableApps[i].name == 'calendar'){
 				curr_acct.availableApps[i].icon_name = 'icon-calendar';
 			}
-			
+
 			if (curr_acct.availableApps[i].name == 'files'){
 				curr_acct.availableApps[i].icon_name = 'icon-folder';
 			}
-			
+
 			if (curr_acct.availableApps[i].name == 'kanban'){
 				curr_acct.availableApps[i].icon_name = 'icon-tasks';
 			}
-			
+
 		}
 	}
 	return curr_acct;

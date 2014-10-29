@@ -114,3 +114,42 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 	padding-left: 5px !important;
 	padding-right: 5px !important;
 }
+
+.modal {
+
+	width: 70%;
+	background-color: #fff;
+	left: 0;
+	margin: auto;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-top: 100px;
+	margin-bottom: 100px;
+	z-index:2;
+
+}
+
+.overlay {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.modal-filler{
+	background-color: #03a2cc !important;
+	color: #FFFFFF;
+	font-size: 14px;
+	margin-left: 0px !important;
+	margin-right: 0px !important;
+	max-width: 100%;
+	padding: 15px;
+}
+
+.modal-content{
+	padding-top : 10px;
+	padding-bottom : 10px;
+}
