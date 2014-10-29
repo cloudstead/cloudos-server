@@ -139,3 +139,17 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
+.modal-filler{
+	background-color: #03a2cc !important;
+	color: #FFFFFF;
+	font-size: 14px;
+	margin-left: 0px !important;
+	margin-right: 0px !important;
+	max-width: 100%;
+	padding: 15px;
+}
+
+.modal-content{
+	padding-top : 10px;
+	padding-bottom : 10px;
+}
