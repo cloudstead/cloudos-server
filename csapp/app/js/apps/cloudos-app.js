@@ -2,6 +2,7 @@ App = Ember.Application.create({
     LOG_TRANSITIONS: true // for debugging, disable in prod
 });
 
+
 App.ApplicationRoute = Ember.Route.extend({
     model: function() {
         return {
@@ -35,7 +36,7 @@ App.ApplicationRoute = Ember.Route.extend({
         pathArray = window.location.href.split( '/' );
         if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'index.html')) && (!pathArray[4]))
         {
-        	this.transitionTo('app', 'email');
+            this.transitionTo('app', 'email');
         }
 //        this.transitionTo('app', 'files');
 //        this.transitionTo('app', AppRuntime.app_model('email'));
@@ -155,8 +156,7 @@ App.LoginController = Ember.ObjectController.extend({
 
             if (auth_response && auth_response.account) {
                 CloudOs.login(auth_response);
-                this.transitionToRoute('app', 'email');
-                // window.location.replace('/index.html');
+                window.location.replace('/index.html');
             }
             else if (auth_response && auth_response.sessionId){
                 this.send('openModal','twoFactorVerification', creds );
@@ -312,11 +312,9 @@ App.TwoFactorVerificationController = Ember.ObjectController.extend({
             // TODO validate data
 
             var result = Api.login_account(data);
-            if (result.status === 'success'){
-                if (result.account) {
-                    CloudOs.login(auth_response);
-                    this.transitionToRoute('app', 'email');
-                }
+            if (result.account !== "undefined" && result.sessionId !== "undefined") {
+                CloudOs.login(result);
+                window.location.replace('/index.html');
             }else{
                 // TODO display error messages
             }
