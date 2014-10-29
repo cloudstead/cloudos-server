@@ -301,6 +301,7 @@ App.AddAccountController = Ember.ObjectController.extend({
     twoFactorAuth:true,
     toggleTwoFactorAuth: function(){
     	this.set('twoFactorAuth',!this.get('twoFactorAuth'));
+        return false;
     }
 });
 
@@ -328,9 +329,10 @@ App.ManageAccountController = Ember.ObjectController.extend({
             // check if two-factor, set appropriate key
             account["twoFactor"] = this.get('twoFactorAuth') ? true : false;
 
+            account["mobilePhoneCountryCode"] = this.get("selectedCountry")["code"];
+
             // account is not suspended, hc mobile code, accountName is name
             account["suspended"] = false;
-            account["mobilePhoneCountryCode"] = 1;
             account["accountName"] = account["name"];
 
             if (Api.update_account(account)) {
@@ -348,13 +350,28 @@ App.ManageAccountController = Ember.ObjectController.extend({
             } else {
                 // nada
             }
-        }
+        },
+        toggleTwoFactorAuth: function() {
+            this.set('twoFactorAuth',!this.get('twoFactorAuth'));
+            return false;
+        },
     },
+
     primaryGroups: ["Admin","User"],
+
+    countryList: Countries.list,
+
+    twoFactorAuth: false,
+
     selectedGroup: function() {
-        Ember.Logger.info(this.get('model'));
         return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
-    }.property("selectedGroup", "model")
+    }.property("selectedGroup", "model"),
+
+    selectedCountry: function() {
+        var countryCode = this.get('model').mobilePhoneCountryCode;
+
+        return Countries.findByCode(countryCode);
+    }.property("selectedCountryCode", "model"),
 });
 
 App.EmailDomainsRoute = Ember.Route.extend({
