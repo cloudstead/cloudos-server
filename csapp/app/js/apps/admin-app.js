@@ -250,7 +250,7 @@ App.AddAccountController = Ember.ObjectController.extend({
 
 			// account is not suspended, hc mobile code, accountName is name
 			account["suspended"] = false;
-			account["mobilePhoneCountryCode"] = 1;
+            account["mobilePhoneCountryCode"] = this.get("selectedCountry") ? this.get("selectedCountry")["code"] : 1;
 			account["accountName"] = account["name"];
 
             if (Api.add_account(account)) {
@@ -298,6 +298,7 @@ App.AddAccountController = Ember.ObjectController.extend({
     generateSysPassword:true,
     primaryGroups:["Admin","User"],
     selectedGroup:"User",
+    countryList: Countries.list,
     twoFactorAuth:true,
     toggleTwoFactorAuth: function(){
     	this.set('twoFactorAuth',!this.get('twoFactorAuth'));
