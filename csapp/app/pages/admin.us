@@ -935,7 +935,7 @@
 				</div>
 			</div>
 		</div>
-	</section>
+	</section>'
 </script>
 
 <script type="text/x-handlebars" id="addAccount">
@@ -1363,80 +1363,90 @@
 </script>
 
 <script type="text/x-handlebars" id="groups/new">
-  <div class="overlay" {{action "doCancel"}}>
-  </div>
-  <div class="modal">
-    <div class="row">
-        <table >
-            <thead>
-            <tr><th colspan="2">{{t sections.add_group}}</th></tr>
-            </thead>
-            <tr>
-                <td>{{t forms.group.name}}:</td>
-                <td>{{input type="text" value=name}}</td>
-            </tr>
-            <tr>
-                <td>{{t forms.group.recipients}}:</td>
-                <td>{{input type="text" value=recipients}}</td>
-            </tr>
-            <tr>
-                <td>{{t forms.group.quota}}:</td>
-                <td>{{input type="text" value=storageQuota}}</td>
-            </tr>
-            <tr>
-                <td>{{t forms.group.description}}:</td>
-                <td>{{input type="text" value=description}}</td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                  <button {{action 'doCancel'}}>
-                    {{t forms.group.cancel}}
-                  </button>
-                </td>
-                <td colspan="2">
-                  <button {{action 'doAddGroup'}}>
-                    {{t forms.group.add_button}}
-                  </button>
-                </td>
-            </tr>
-        </table>
+  {{#modal-dialog}}
+    <div class="row modal-filler">
+      <legend>{{t sections.add_group}}</legend>
     </div>
-  </div>
+    <div class="row modal-content">
+      <section class="deck">
+        <div class="row">
+          <label>{{t forms.group.name}}
+            {{input type="text" value=name}}
+          </label>
+        </div>
+        <div class="row">
+          <label>{{t forms.group.recipients}}
+            {{input type="text" value=recipients}}
+          </label>
+        </div>
+        <div class="row">
+          <label>{{t forms.group.quota}}
+            {{input type="text" value=storageQuota}}
+          </label>
+        </div>
+        <div class="row">
+          <label>{{t forms.group.description}}
+            {{input type="text" value=description}}
+          </label>
+        </div>
+        <div class="row">
+          <div class="large-6 columns">
+            <button {{action 'doCancel'}}>
+              {{t forms.group.cancel}}
+            </button>
+          </div>
+          <div class="large-6 columns">
+            <button {{action 'doAddGroup'}}>
+              {{t forms.group.add_button}}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  {{/modal-dialog}}
 </script>
 
-  <script type="text/x-handlebars" id="group">
+<script type="text/x-handlebars" id="group">
+  {{#modal-dialog}}
+    <div class="row modal-filler">
+      <legend>{{t sections.add_group}}</legend>
+    </div>
+    <div class="row modal-content">
+      <section class="deck">
+        <div class="row">
+          <label>{{t forms.group.name}}
+            {{input type="text" value=name}}
+          </label>
+        </div>
+        <div class="row">
+          <label>{{t forms.group.recipients}}
+            {{input type="text" value=recipients}}
+          </label>
+        </div>
+        <div class="row">
+          <div class="large-6 columns">
+            <button {{action 'doCancel'}}>
+              {{t forms.group.cancel}}
+            </button>
+          </div>
+          <div class="large-6 columns">
+            <button {{action 'doEditGroup'}}>
+              {{t forms.group.edit_button}}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  {{/modal-dialog}}
+</script>
+
+<script type="text/x-handlebars" id="components/modal-dialog">
   <div class="overlay" {{action "doCancel"}}>
   </div>
   <div class="modal">
-      <div class="row">
-          <table class='table'>
-              <thead>
-              <tr><th colspan="2">{{t sections.edit_group}}</th></tr>
-              </thead>
-              <tr>
-                  <td>{{t forms.group.name}}:</td>
-                  <td>{{input type="text" value=name}}</td>
-              </tr>
-              <tr>
-                  <td>{{t forms.group.recipients}}:</td>
-                  <td>{{input type="text" value=recipients}}</td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <button {{action 'doCancel'}}>
-                    {{t forms.group.cancel}}
-                  </button>
-                </td>
-                  <td colspan="2">
-                    <button {{action 'doEditGroup'}}>
-                      {{t forms.group.edit_button}}
-                    </button>
-                  </td>
-              </tr>
-          </table>
-      </div>
-    </div>
-  </script>
+    {{yield}}
+  </div>
+</script>
 
 </body>
 </html>
