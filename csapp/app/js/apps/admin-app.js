@@ -28,6 +28,10 @@ App.Router.map(function() {
         });
         this.resource('cert', { path: '/cert/:cert_name' });
     });
+
+    this.resource('groups', function () {
+        this.route('new');
+    });
 //  this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
 //  this.resource('configCloud', { path: '/cloud/:cloud_name' });
 });
@@ -515,6 +519,50 @@ App.CertRoute = Ember.Route.extend({
 
 App.CertController = App.CertsNewController;
 
+
+App.GroupsRoute = Ember.Route.extend({
+    model: function () {
+        return Api.get_all_groups();
+    }
+});
+
+App.GroupsController = Ember.ArrayController.extend({
+    sortedGroups: function(){
+        return this.get('arrangedContent');
+    }.property('arrangedContent.@each')
+});
+
+App.GroupsNewRoute = Ember.Route.extend({
+  renderTemplate: function() {
+    this.render('groups/new', { outlet: 'group_outlet', controller: this.controller });
+  }
+});
+
+App.GroupsNewController = Ember.Controller.extend({
+    actions: {
+        doAddGroup: function () {
+            var name = this.get('name');
+            var recipients = [];
+            var recipient_names = this.get('recipients').split(",");
+            var info = {
+                storageQuota: this.get('storageQuota'),
+                description: this.get('description')
+            };
+            for (var i=0; i<recipient_names.length; i++) {
+                recipients.push(recipient_names[i].trim());
+            }
+            if (!Api.add_group({ 'name': name, 'recipients': recipients, 'info': info })) {
+                alert('error adding group: '+name);
+            }
+            else{
+                this.transitionToRoute('groups');
+            }
+        },
+        doCancel: function () {
+            this.transitionToRoute('groups');
+        }
+    }
+});
 Ember.Handlebars.helper('cloud-type-field', function(cloudType, field) {
 
     var cloudTypeTranslations = Em.I18n.translations['cloudTypes'][cloudType];
