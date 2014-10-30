@@ -119,7 +119,9 @@ Api = {
     remove_email_alias: function (alias_name) { return Api._delete('/api/email/aliases/' + alias_name); },
 
     get_all_groups: function () { return Api._get('/api/groups'); },
+    find_group: function (group_name) { return Api._get('/api/groups/' + group_name); },
     add_group: function (group) { return Api._put('/api/groups/' + group.name, group); },
+    edit_group: function (group) { return Api._post('/api/groups/' + group.name, group); },
     find_ssl_certs: function () {
         var certs = Api._get('/api/security/certs');
         return certs == null ? [] : certs;

@@ -1341,7 +1341,7 @@
               {{#each sortedGroups}}
                 <tr>
                   <td>{{input type="checkbox"}}</td>
-                  <td>{{name}}</td>
+                  <td>{{#link-to "group" name}}{{name}}{{/link-to}}</td>
                   <td></td>
                   <td></td>
                   <td></td>
@@ -1403,5 +1403,40 @@
     </div>
   </div>
 </script>
+
+  <script type="text/x-handlebars" id="group">
+  <div class="overlay" {{action "doCancel"}}>
+  </div>
+  <div class="modal">
+      <div class="row">
+          <table class='table'>
+              <thead>
+              <tr><th colspan="2">{{t sections.edit_group}}</th></tr>
+              </thead>
+              <tr>
+                  <td>{{t forms.group.name}}:</td>
+                  <td>{{input type="text" value=name}}</td>
+              </tr>
+              <tr>
+                  <td>{{t forms.group.recipients}}:</td>
+                  <td>{{input type="text" value=recipients}}</td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <button {{action 'doCancel'}}>
+                    {{t forms.group.cancel}}
+                  </button>
+                </td>
+                  <td colspan="2">
+                    <button {{action 'doEditGroup'}}>
+                      {{t forms.group.edit_button}}
+                    </button>
+                  </td>
+              </tr>
+          </table>
+      </div>
+    </div>
+  </script>
+
 </body>
 </html>
