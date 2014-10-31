@@ -122,6 +122,8 @@ Api = {
     find_group: function (group_name) { return Api._get('/api/groups/' + group_name); },
     add_group: function (group) { return Api._put('/api/groups/' + group.name, group); },
     edit_group: function (group) { return Api._post('/api/groups/' + group.name, group); },
+    delete_group: function (group_name) { return Api._delete('/api/groups/' + group_name); },
+
     find_ssl_certs: function () {
         var certs = Api._get('/api/security/certs');
         return certs == null ? [] : certs;

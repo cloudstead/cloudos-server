@@ -32,6 +32,7 @@ App.Router.map(function() {
     this.resource('groups', function () {
         this.route('new');
         this.resource('group', { path: '/group/:group_name' });
+        this.resource('delete', { path: '/group/delete/:group_name' });
     });
 
 //  this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
@@ -522,60 +523,209 @@ App.CertRoute = Ember.Route.extend({
 App.CertController = App.CertsNewController;
 
 
+App.GroupMembers = Ember.Object.extend({});
+
+App.GroupMembers.reopenClass({
+    toArrayFromString: function(string){
+        var recipient_names = string.split(",");
+        return recipient_names.map(function(name){
+            return name.trim();
+        });
+    },
+
+    toStringFromArray: function(memberArray){
+        return memberArray.map(function(member) {
+            return member.name;
+        }).join(", ");
+    },
+});
+
+App.Group = Ember.Object.extend({
+    save: function() {
+        var group_commited = this._commit_add();
+
+        if (group_commited){
+            App.Group.addGroup(this);
+        }
+
+        return group_commited;
+    },
+
+    updateWith: function(data) {
+        var group_commited = this._commit_edit(data);
+
+        if (group_commited){
+            this.modifyWith(data);
+        }
+
+        return group_commited;
+    },
+
+    destroy: function() {
+        var group_commited = this._commit_delete();
+
+        if (group_commited){
+            App.Group.removeGroup(this);
+        }
+
+        return group_commited;
+    },
+
+    modifyWith: function(data){
+        this.set('name', data.name);
+        this.set('recipients', data.recipients);
+    },
+
+    _commit_add: function() {
+        var group_commited = Api.add_group(
+            {
+                name: this.name,
+                recipients: this.recipients,
+                info: this.info
+            }
+        );
+
+        return group_commited;
+    },
+
+    _commit_edit: function(data) {
+        var group_commited = Api.edit_group(
+            {
+                name: data.name,
+                recipients: data.recipients
+            }
+        );
+
+        return group_commited;
+    },
+
+    _commit_delete: function() {
+        var group_commited = Api.delete_group(this.name);
+
+        return group_commited;
+    }
+});
+
+App.Group.reopenClass({
+    all: Ember.ArrayProxy.create({content: []}),
+
+    findAll: function() {
+        var data = Api.get_all_groups();
+        App.Group.all.clear();
+        data.forEach(function(datum) {
+            App.Group.all.pushObject(App.Group.create(datum));
+        });
+        return App.Group.all;
+    },
+
+    findByName: function(group_name) {
+        var group_data = Api.find_group(group_name);
+
+        return App.Group.create(
+            {
+                name: group_data.name,
+                recipients: group_data.members
+            }
+        );
+    },
+
+    getByName: function(group_name){
+        return App.Group.all.findBy('name', group_name)
+    },
+
+    addGroup: function(group) {
+        App.Group.all.pushObject(group);
+    },
+
+    removeGroup: function(group) {
+        App.Group.all.removeObject(group);
+    }
+});
+
+
 App.GroupsRoute = Ember.Route.extend({
     model: function () {
-        return Api.get_all_groups();
+        return App.Group.findAll();
     }
 });
 
 App.GroupsController = Ember.ArrayController.extend({
     sortedGroups: function(){
         return this.get('arrangedContent');
-    }.property('arrangedContent.@each')
+    }.property('arrangedContent.@each'),
+
+    actions: {
+        doDeleteGroup: function (group_name) {
+            var group = App.Group.getByName(group_name);
+            if (!group.destroy()){
+                this._handleGroupDeleteFailed(group);
+            }
+        }
+    },
+
+    _handleGroupDeleteFailed: function(group) {
+        alert('error deleting group: ' + group.name);
+    }
 });
 
+
 App.GroupsNewRoute = Ember.Route.extend({
-  renderTemplate: function() {
-    this.render('groups/new', { outlet: 'group_outlet', controller: this.controller });
-  }
+    model: function() {
+        return this.modelFor('groups');
+    },
+    renderTemplate: function() {
+        this.render('groups/new', { outlet: 'group_outlet', controller: this.controller });
+    }
 });
 
 App.GroupsNewController = Ember.Controller.extend({
     actions: {
         doAddGroup: function () {
-            var name = this.get('name');
-            var recipients = [];
-            var recipient_names = this.get('recipients').split(",");
-            var info = {
+            var new_group = App.Group.create(this._formData());
+
+            new_group.save() ?
+                this.send('doReturnToGroups') :
+                this._handleGroupSaveFailed(new_group);
+        },
+
+        doCancel: function () {
+            this.send('doReturnToGroups');
+        },
+
+        doReturnToGroups: function() {
+            this.transitionToRoute('groups');
+        },
+
+        _handleGroupSaveFailed: function(group) {
+            alert('error adding group: ' + group.name);
+        }
+    },
+
+    _formData: function() {
+        return {
+            name: this.get('name'),
+            recipients: App.GroupMembers.toArrayFromString(this.get('recipients')),
+            info: {
                 storageQuota: this.get('storageQuota'),
                 description: this.get('description')
-            };
-            for (var i=0; i<recipient_names.length; i++) {
-                recipients.push(recipient_names[i].trim());
             }
-            if (!Api.add_group({ 'name': name, 'recipients': recipients, 'info': info })) {
-                alert('error adding group: '+name);
-            }
-            else{
-                this.transitionToRoute('groups');
-            }
-        },
-        doCancel: function () {
-            this.transitionToRoute('groups');
-        }
+        };
     }
 });
 
+
 App.GroupRoute = Ember.Route.extend({
     model: function (params) {
-        var group_data = Api.find_group(params['group_name']);
-        return {
-            name: group_data.name,
-            recipients: group_data.members.map(function(member) {
-                return member.name;
-            }).join(", ")
-        };
+        var group_data = App.Group.findByName(params['group_name']);
+
+        return App.Group.create(
+            {
+                name: group_data.get('name'),
+                recipients: App.GroupMembers.toStringFromArray(group_data.get('recipients'))
+            }
+        );
     },
+
     renderTemplate: function() {
         this.render('group', { outlet: 'group_outlet', controller: this.controller });
     }
@@ -584,24 +734,29 @@ App.GroupRoute = Ember.Route.extend({
 App.GroupController = Ember.ObjectController.extend({
     actions: {
         doEditGroup: function () {
-            var name = this.get('name');
-            console.log(this.get('recipients'));
-            var recipient_names = this.get('recipients').split(",").map(function(recipient) {
-                return recipient.trim();
-            });
-            if (!Api.edit_group({ 'name': name, 'recipients': recipient_names })) {
-                alert('error updating group: '+name);
-            }
-            else{
-                this.transitionToRoute('groups');
-            }
+            var group = this.get('model');
+
+            group.updateWith(this._formData()) ?
+                this.transitionToRoute('groups') :
+                this._handleGroupUpdateFailed(group);
         },
+
         doCancel: function () {
             this.transitionToRoute('groups');
         }
+    },
+
+    _formData: function() {
+        return {
+            name: this.get('name'),
+            recipients: App.GroupMembers.toArrayFromString(this.get('recipients'))
+        };
+    },
+
+    _handleGroupUpdateFailed: function(group) {
+        alert('error updatin group: ' + group.name)
     }
 });
-
 
 
 Ember.Handlebars.helper('cloud-type-field', function(cloudType, field) {
