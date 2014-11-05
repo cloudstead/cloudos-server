@@ -13,6 +13,7 @@ import org.cobbzilla.mail.service.TemplatedMailSenderConfiguration;
 import org.cobbzilla.util.dns.DnsManager;
 import org.cobbzilla.util.http.ApiConnectionInfo;
 import org.cobbzilla.util.system.CommandShell;
+import org.cobbzilla.wizard.cache.redis.HasRedisConfiguration;
 import org.cobbzilla.wizard.server.config.DatabaseConfiguration;
 import org.cobbzilla.wizard.server.config.HasDatabaseConfiguration;
 import org.cobbzilla.wizard.server.config.RestServerConfiguration;
@@ -27,13 +28,15 @@ import java.net.UnknownHostException;
 
 @Configuration @Slf4j
 public class CloudOsConfiguration extends RestServerConfiguration
-        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration {
+        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration, HasRedisConfiguration {
 
     public static final String DEFAULT_ADMIN = "admin";
 
     @Setter private DatabaseConfiguration database;
 
     @Bean public DatabaseConfiguration getDatabase() { return database; }
+
+    @Getter @Setter private CloudOsRedisConfiguration redis = new CloudOsRedisConfiguration(this);
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 

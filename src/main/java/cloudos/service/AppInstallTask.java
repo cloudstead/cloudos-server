@@ -96,7 +96,6 @@ public class AppInstallTask extends TaskBase {
         }
 
         // does it want its own hostname?
-        // todo: maintain a registry of hostnames to avoid conflicts (or could we just peek at /etc/tinydns/root/data ?)
         if (manifest.hasHostname()) {
             addEvent("{appInstall.creatingHostname}");
             try {
@@ -144,7 +143,6 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
         port = ports.getPrimary();
-
 
         // notify the chef-user that we have some new recipes to add to the run list
         addEvent("{appInstall.notifyingChefToRun}");

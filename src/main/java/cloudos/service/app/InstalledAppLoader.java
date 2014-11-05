@@ -1,11 +1,13 @@
-package cloudos.service;
+package cloudos.service.app;
 
 import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.ConfigurableAppRuntime;
 import cloudos.appstore.model.app.AppAuthConfig;
+import cloudos.dao.AppDAO;
 import cloudos.server.CloudOsConfiguration;
+import cloudos.service.RootyService;
 import com.sun.jersey.api.core.HttpContext;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.CookieJar;
@@ -13,11 +15,13 @@ import org.cobbzilla.util.http.HttpMethods;
 import org.cobbzilla.util.http.HttpRequestBean;
 import org.cobbzilla.util.http.URIUtil;
 import org.cobbzilla.util.json.JsonUtil;
+import org.cobbzilla.wizard.cache.redis.RedisService;
 import org.cobbzilla.wizard.util.BufferedResponse;
 import org.cobbzilla.wizard.util.ProxyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
+import rooty.toots.app.AppScriptMessage;
+import rooty.toots.app.AppScriptMessageType;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -68,19 +72,19 @@ public class InstalledAppLoader {
             .setAuthentication(ROUNDCUBE_APP_AUTH);
 
     public static final ConfigurableAppRuntime OWNCLOUD = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
-        .setDetails(OWNCLOUD_DETAILS)
-        .setAuthentication(JsonUtil.fromJsonOrDie("{\n" +
-                "        \"login_fields\": {\n" +
-                "            \"user\": \"{{account.name}}\",\n" +
-                "            \"password\": \"{{account.password}}\",\n" +
-                "            \"remember_login\": \"1\",\n" +
-                "            \"timezone-offset\": \"{{timezone-offset}}\",\n" +
-                "            \"requesttoken\": \"pass\"\n" +
-                "        },\n" +
-                "        \"home_path\": \"index.php\",\n" +
-                "        \"login_path\": \"index.php\",\n" +
-                "        \"login_page_markers\": [ \"<form method=\\\"post\\\" name=\\\"login\\\">\", \"class=\\\"login primary\\\"\" ]\n" +
-                "    }", AppAuthConfig.class));
+            .setDetails(OWNCLOUD_DETAILS)
+            .setAuthentication(JsonUtil.fromJsonOrDie("{\n" +
+                    "        \"login_fields\": {\n" +
+                    "            \"user\": \"{{account.name}}\",\n" +
+                    "            \"password\": \"{{account.password}}\",\n" +
+                    "            \"remember_login\": \"1\",\n" +
+                    "            \"timezone-offset\": \"{{timezone-offset}}\",\n" +
+                    "            \"requesttoken\": \"pass\"\n" +
+                    "        },\n" +
+                    "        \"home_path\": \"index.php\",\n" +
+                    "        \"login_path\": \"index.php\",\n" +
+                    "        \"login_page_markers\": [ \"<form method=\\\"post\\\" name=\\\"login\\\">\", \"class=\\\"login primary\\\"\" ]\n" +
+                    "    }", AppAuthConfig.class));
 
     public static final Map<String, AppRuntime> APPS_BY_NAME = initAppMap();
 
@@ -95,14 +99,9 @@ public class InstalledAppLoader {
     }
 
     @Autowired private CloudOsConfiguration configuration;
-
-    private final Jedis redis;
-
-    public InstalledAppLoader () { redis = new Jedis(getRedisHost(), getRedisPort()); }
-
-    // override these if necessary
-    protected int getRedisPort() { return 6379; }
-    protected String getRedisHost () { return "127.0.0.1"; }
+    @Autowired private AppDAO appDAO;
+    @Autowired private RootyService rooty;
+    @Autowired private RedisService redis;
 
     public static final Map<String, AppRuntimeDetails> APP_DETAILS_BY_NAME = initAppDetailsMap();
 
@@ -114,26 +113,39 @@ public class InstalledAppLoader {
         return appDetailsMap;
     }
 
-    protected String getAuthKey(CloudOsAccount account, String appPath) {
-        int qPos = appPath.indexOf("?");
-        return account.getName()+"::"+(qPos == -1 ? appPath : appPath.substring(0, qPos));
-    }
+    public Response loadApp(String apiKey, CloudOsAccount account, AppRuntime app, HttpContext context) throws IOException {
 
-    public Response loadApp(CloudOsAccount account, AppRuntime app, HttpContext context) throws IOException {
+        if (app.hasUserManagement()) {
+            try {
+                if (!userExists(account, app) && !createUser(account, app)) {
+                    log.error("error registering user " + account.getName() + " with app " + app.getDetails().getName());
+                }
+            } catch (Exception e) {
+                log.warn("Error registering user "+account.getName()+" with app "+app.getDetails().getName());
+            }
+        }
 
-        final String publicUriBase = configuration.getPublicUriBase();
-        final String appPath = getAppPath(publicUriBase, app.getDetails());
-        final AppAuthConfig appAuth = app.getAuthentication();
-        final String appHome = (appAuth == null) ? appPath : appAuth.getHome_path();
+        final AppProxyContext pctx = new AppProxyContext()
+                .setApiKey(apiKey)
+                .setConfiguration(configuration)
+                .setAccount(account)
+                .setApp(app);
+        final String appPath = pctx.getAppPath();
+        final String appHome = pctx.getAppHome();
         final HttpRequestBean<String> requestBean = new HttpRequestBean<>(HttpMethods.GET, appPath);
+
+        // Supports HTTP auth... store authHeaderValue in AuthTransition and send directly to app
+        // Proxy will use authHeaderValue to populate Authorization header
+        if (app.getAuthentication().hasHttp_auth()) return sendToApp(pctx);
+
+        BufferedResponse response;
+        CookieJar cookieJar;
+        AuthTransition authTransition = null;
 
         // If already logged in once, verify the auth works and then send them on their way
         log.info("loadApp: looking for pre-existing AuthTransition...");
-        AuthTransition authTransition = null;
-        BufferedResponse response;
-        CookieJar cookieJar;
         try {
-            final String json = redis.get(getAuthKey(account, appPath));
+            final String json = redis.get(pctx.getAuthKey());
             if (json != null) authTransition = fromJson(json, AuthTransition.class);
         } catch (Exception e) {
             log.error("Error looking up authTransition in redis: "+e, e);
@@ -142,30 +154,32 @@ public class InstalledAppLoader {
             log.info("loadApp: found pre-existing AuthTransition, verifying...");
             cookieJar = new CookieJar(authTransition.getCookies());
             response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
-            log.info("loadApp: found pre-existing AuthTransition, following (possible) redirects...");
             response = followRedirects(context, appPath, response, cookieJar);
+
             log.info("loadApp: AuthTransition verification returned response "+response.getStatus()+", ensuring this is not a login page");
             if (response.isSuccess() && !app.isLoginPage(response.getDocument())) {
                 // success, and user appears to be logged in: redirect to app page
                 log.info("loadApp: pre-existing AuthTransition is OK, sending to app...");
-                return sendToApp(account, appPath, appHome, new CookieJar(authTransition.getCookies()));
-                // return Response.temporaryRedirect(URIUtil.toUri(authTransition.getRedirectUri())).build();
+                pctx.setCookieJar(cookieJar);
+                return sendToApp(pctx);
             } else {
                 // this thing doesn't work, nuke it to save space
                 redis.del(authTransition.getUuid());
+                redis.del(pctx.getAuthKey());
             }
         }
 
         // Not logged in, start with a fresh request and fresh cookie jar
         log.info("loadApp: pre-existing AuthTransition NOT found, starting fresh request...");
-        cookieJar = new CookieJar();
+        cookieJar = pctx.getCookieJar();
 
-        // request the app home page, will load or will redirect us to a login page // this step often used to set cookies and other tokens
+        // request the app home page, will load or will redirect us to a login page
+        // this step is often used to set cookies and other tokens
         response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
         response = followRedirects(context, appPath, response, cookieJar);
         if (!response.isSuccess() || !app.isLoginPage(response.getDocument())) {
             // error, or user appears to be logged in, simply redirect to app page
-            return sendToApp(account, appPath, appHome, cookieJar);
+            return sendToApp(pctx);
         }
 
         // attempt login and see what the app sends back
@@ -174,10 +188,11 @@ public class InstalledAppLoader {
         response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
         if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
             log.warn("loadApp: login failed, sending to main app page");
-            return sendToApp(account, appPath, appHome, cookieJar);
+            return sendToApp(pctx);
         }
 
         String location;
+        AppAuthConfig appAuth = pctx.getAppAuth();
         if (appAuth != null) {
             // follow a redirect if the Location matches the registration_redirect or login_redirect regex (if either are set)
             if (appAuth.hasRegistration_redirect() && response.is3xx()) {
@@ -187,7 +202,7 @@ public class InstalledAppLoader {
                     final BufferedResponse resolved = followRedirects(context, appPath, response, cookieJar);
                     if (resolved == null) {
                         log.warn("Too many redirects, sending to main app page");
-                        return sendToApp(account, appPath, appHome, cookieJar);
+                        return sendToApp(pctx);
                     }
 
                     // if this is a registration page, register ourselves...
@@ -198,7 +213,7 @@ public class InstalledAppLoader {
                         if (!response.isSuccess() || app.isRegistrationPage(response.getDocument())) {
                             log.warn("registration failed, sending to main app page");
                         }
-                        return sendToApp(account, appPath, appHome, cookieJar);
+                        return sendToApp(pctx);
                     }
 
                 } else if (appAuth.getLoginRedirectPattern().matcher(location).matches()) {
@@ -206,33 +221,69 @@ public class InstalledAppLoader {
                     final BufferedResponse resolved = followRedirects(context, appPath, response, cookieJar);
                     if (resolved == null) {
                         log.warn("Too many redirects, sending to main app page");
-                        return sendToApp(account, appPath, appHome, cookieJar);
+                        return sendToApp(pctx);
                     }
 
                     if (resolved.isSuccess() && !app.isLoginPage(resolved.getDocument())) {
-                        return sendToApp(account, appHome, resolved.getRequestUri(), cookieJar);
+                        pctx.setLocation(resolved.getRequestUri());
+                        return sendToApp(pctx);
                     }
                 } else {
                     // relay the redirect to the end user
-                    return sendToApp(account, appPath, location, cookieJar);
+                    pctx.setLocation(location);
+                    return sendToApp(pctx);
                 }
             }
         }
 
-        return sendToApp(account, appPath, appHome, cookieJar);
+        return sendToApp(pctx);
     }
 
-    public Response sendToApp(CloudOsAccount account, String appPath, String location, CookieJar cookieJar) {
+    private boolean userExists(CloudOsAccount account, AppRuntime app) {
+        final AppScriptMessage message = new AppScriptMessage()
+                .setApp(app.getDetails().getName())
+                .setType(AppScriptMessageType.user_exists)
+                .addArg(account.getName());
+        return Boolean.valueOf(rooty.request(message).getResults());
+    }
+
+    private boolean createUser(CloudOsAccount account, AppRuntime app) {
+        final AppScriptMessage message = new AppScriptMessage()
+                .setApp(app.getDetails().getName())
+                .setType(AppScriptMessageType.user_create)
+                .addArg(account.getName())
+                .addArg(account.getPassword())
+                .addArg(String.valueOf(account.isAdmin()));
+        return Boolean.valueOf(rooty.request(message).getResults());
+    }
+
+    public Response sendToApp(AppProxyContext pctx) {
+
+        String appPath = pctx.getAppPath();
+        String location = pctx.getLocation();
+        final CookieJar cookieJar = pctx.getCookieJar();
 
         if (!appPath.endsWith("/")) appPath += "/";
         if (!(location.startsWith("http://") || location.startsWith("https://"))) location = appPath + location;
 
-        final AuthTransition auth = new AuthTransition(location, cookieJar.getCookiesList());
+        final AuthTransition auth = new AuthTransition(location);
+        if (pctx.hasHttpAuth()) {
+            // If the app proxies via Apache, mod_session_header will use this cookie to populate the Authorization header
+            auth.setAuthHeaderValue(pctx.getAuthHeaderValue());
+            cookieJar.add(auth.getAuthCookie());
+
+            // If the app proxies via CloudOs, the AppProxy will identify the user from this session
+            auth.setSessionId(pctx.getApiKey());
+            cookieJar.add(auth.getSessionCookie());
+        }
+        auth.setCookies(cookieJar.getCookiesList());
+
         final String uuid = auth.getUuid();
         try {
             final String authJson = toJson(auth);
-            final String authKey = getAuthKey(account, appPath);
+            final String authKey = pctx.getAuthKey();
 
+            redis.del(uuid);
             redis.set(uuid, authJson, "NX", "EX", TimeUnit.HOURS.toSeconds(24));
             redis.del(authKey);
             redis.set(authKey, authJson, "NX", "EX", TimeUnit.HOURS.toSeconds(24));
@@ -270,21 +321,6 @@ public class InstalledAppLoader {
             if (++redirCount > MAX_REDIRECTS) response = null;
         }
         return response;
-    }
-
-    private String getAppPath(String publicUriBase, AppRuntimeDetails details) {
-        StringBuilder sb = new StringBuilder();
-        if (details.hasHostname()) {
-            sb.append(publicUriBase.replace("://", "://"+details.getHostname()+"-"));
-        } else {
-            sb.append(publicUriBase);
-        }
-        if (details.hasPath()) {
-            // ensure a slash exists between the hostname and the path
-            if (!publicUriBase.endsWith("/") && !details.getPath().startsWith("/")) sb.append("/");
-            sb.append(details.getPath());
-        }
-        return sb.toString();
     }
 
 }

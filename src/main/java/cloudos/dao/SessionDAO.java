@@ -20,13 +20,16 @@ public class SessionDAO extends AbstractSessionDAO<Account> {
 
     @Override protected String getPassphrase() { return configuration.getCloudConfig().getDataKey(); }
 
-    @Override
-    protected String toJson(Account account) throws Exception {
-        return JsonUtil.FULL_MAPPER.writeValueAsString(account);
+    @Override protected String toJson(Account account) {
+        try {
+            return JsonUtil.FULL_MAPPER.writeValueAsString(account);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("toJson: "+e, e);
+        }
     }
 
     @Override
-    protected Account fromJson(String json) throws Exception {
+    protected Account fromJson(String json) {
         final Account account = super.fromJson(json);
 
         // todo: sort these by the user's preference. this is the order they will be displayed.

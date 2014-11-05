@@ -59,7 +59,7 @@ public class KerberosService {
         try {
             result = CommandShell.exec("kdestroy");
             if (!result.isZeroExitStatus()) {
-                log.warn("kdestroy returned non-zero: "+result.getExitStatusString());
+                log.warn("kdestroy returned non-zero: "+result.getExitStatus());
             }
         } catch (Exception e) {
             log.error("error running kdestroy: " + e, e);
@@ -79,7 +79,7 @@ public class KerberosService {
         }
 
         if (!result.isZeroExitStatus()) {
-            log.error("changePassword: kpasswd returned non-zero: "+result.getExitStatusString());
+            log.error("changePassword: kpasswd returned non-zero: "+result.getExitStatus());
             throw new IllegalArgumentException(result.getStderr());
         }
     }
@@ -103,7 +103,7 @@ public class KerberosService {
         }
 
         if (!result.isZeroExitStatus()) {
-            log.error(method + ": kadmin returned non-zero: "+result.getExitStatusString());
+            log.error(method + ": kadmin returned non-zero: "+result.getExitStatus());
             throw new IllegalArgumentException(result.getStderr());
         }
 

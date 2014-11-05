@@ -11,6 +11,9 @@
     <!-- DB-related beans (dataSource, sessionFactory, hibernateTemplate, etc) -->
     <context:component-scan base-package="org.cobbzilla.wizard.spring.config.rdbms"/>
 
+    <!-- RedisService -->
+    <context:component-scan base-package="org.cobbzilla.wizard.cache.redis"/>
+
     <!-- Templated mail sender -->
     <context:component-scan base-package="org.cobbzilla.mail.service"/>
 

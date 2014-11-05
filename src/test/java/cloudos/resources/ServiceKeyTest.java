@@ -91,7 +91,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         assertEquals(HttpStatusCodes.OK, response.status);
 
         // assert response contains private key
-        assertEquals(readPrivateKeyFromDisk(keyName2), fromJson(response.json, ServiceKeyVendorMessage.class).getKey());
+        assertEquals(readPrivateKeyFromDisk(keyName2).trim(), fromJson(response.json, ServiceKeyVendorMessage.class).getKey().trim());
     }
 
     public String readPrivateKeyFromDisk(String keyName) {

@@ -61,4 +61,9 @@ public class InstalledApp extends UniquelyNamedEntity {
         hostname = manifest.getHostname();
     }
 
+    public String getLocalBaseUri() {
+        final AppManifest m = getManifest();
+        if (!m.hasWeb()) return null;
+        return "http://127.0.0.1:"+getPort();
+    }
 }

@@ -7,7 +7,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.cslib.storage.CsStorageEngine;
 import cloudos.model.InstalledApp;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.InstalledAppLoader;
+import cloudos.service.app.InstalledAppLoader;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -30,11 +30,11 @@ public class AppDAO extends UniquelyNamedEntityDAO<InstalledApp> {
 
     @Autowired private CloudOsConfiguration configuration;
 
-    public List<InstalledApp> findActive() throws Exception { return findByField("active", true); }
+    public List<InstalledApp> findActive() { return findByField("active", true); }
 
     private final AtomicReference<Map<String, AppRuntimeDetails>> appDetails = new AtomicReference<>();
 
-    public Map<String, AppRuntimeDetails> getAvailableAppDetails() throws Exception {
+    public Map<String, AppRuntimeDetails> getAvailableAppDetails() {
         // todo: periodically expire the list anyway (every 15 minutes?) and refetch freshly from S3
         if (this.appDetails.get() == null) {
             synchronized (this.appDetails) {
@@ -56,43 +56,52 @@ public class AppDAO extends UniquelyNamedEntityDAO<InstalledApp> {
 
     private final AtomicReference<Map<String, AppRuntime>> apps = new AtomicReference<>();
 
-    public Map<String, AppRuntime> getAvailableRuntimes() throws Exception {
+    public Map<String, AppRuntime> getAvailableRuntimes() {
         if (this.apps.get() == null) {
             synchronized (this.apps) {
                 if (this.apps.get() == null) {
-
-                    final Map<String, AppRuntime> apps = new LinkedHashMap<>();
-                    // todo: package builtin apps and treat them like any other
-                    for (Map.Entry<String, AppRuntime> entry : InstalledAppLoader.APPS_BY_NAME.entrySet()) {
-                        apps.put(entry.getKey(), entry.getValue());
+                    try {
+                        this.apps.set(initAvailableRuntimes());
+                    } catch (Exception e) {
+                        final String msg = "getAvailableRuntimes: error intializing: " + e;
+                        log.error(msg, e);
+                        throw new IllegalStateException(msg, e);
                     }
-
-                    for (InstalledApp app : findActive()) {
-                        final AppManifest manifest = app.getManifest();
-                        final String pluginJarPath = getPluginJarPath(manifest.getName(), manifest.getVersion());
-                        final byte[] jarBytes = getStorageEngine().read(pluginJarPath);
-
-                        final Class<? extends AppRuntime> appClass;
-                        if (jarBytes == null) {
-                            appClass = (Class<? extends AppRuntime>) getClass().getClassLoader().loadClass(manifest.getPlugin());
-                        } else {
-                            final File jar = File.createTempFile("AppDAO.getAvailableRuntimes", ".jar");
-                            try (OutputStream out = new FileOutputStream(jar)) {
-                                IOUtils.copy(new ByteArrayInputStream(jarBytes), out);
-                            }
-                            appClass = loadPluginClass(jar, manifest.getPlugin());
-                        }
-                        final AppRuntime appRuntime = appClass.newInstance();
-
-                        appRuntime.setDetails(manifest.getInstalledAppDetails());
-                        appRuntime.setAuthentication(manifest.getAuth());
-                        apps.put(manifest.getName(), appRuntime);
-                    }
-                    this.apps.set(apps);
                 }
             }
         }
         return this.apps.get();
+    }
+
+    private Map<String, AppRuntime> initAvailableRuntimes() throws Exception {
+        final Map<String, AppRuntime> apps = new LinkedHashMap<>();
+        // todo: package builtin apps and treat them like any other
+        for (Map.Entry<String, AppRuntime> entry : InstalledAppLoader.APPS_BY_NAME.entrySet()) {
+            apps.put(entry.getKey(), entry.getValue());
+        }
+
+        for (InstalledApp app : findActive()) {
+            final AppManifest manifest = app.getManifest();
+            final String pluginJarPath = getPluginJarPath(manifest.getName(), manifest.getVersion());
+            final byte[] jarBytes = getStorageEngine().read(pluginJarPath);
+
+            final Class<? extends AppRuntime> appClass;
+            if (jarBytes == null) {
+                appClass = (Class<? extends AppRuntime>) getClass().getClassLoader().loadClass(manifest.getPlugin());
+            } else {
+                final File jar = File.createTempFile("AppDAO.getAvailableRuntimes", ".jar");
+                try (OutputStream out = new FileOutputStream(jar)) {
+                    IOUtils.copy(new ByteArrayInputStream(jarBytes), out);
+                }
+                appClass = loadPluginClass(jar, manifest.getPlugin());
+            }
+            final AppRuntime appRuntime = appClass.newInstance();
+
+            appRuntime.setDetails(manifest.getInstalledAppDetails());
+            appRuntime.setAuthentication(manifest.getAuth());
+            apps.put(manifest.getName(), appRuntime);
+        }
+        return apps;
     }
 
     public void resetAvailableApps() throws Exception {
@@ -148,7 +157,7 @@ public class AppDAO extends UniquelyNamedEntityDAO<InstalledApp> {
         return ShaUtil.sha256_filename(name+"_"+version+"_pluginJar"+configuration.getCloudConfig().getDataKey());
     }
 
-    public AppRuntime findAppRuntime(String appName) throws Exception { return getAvailableRuntimes().get(appName); }
+    public AppRuntime findAppRuntime(String appName) { return getAvailableRuntimes().get(appName); }
 
     private CsStorageEngine getStorageEngine() { return configuration.getCloudConfig().getStorageEngine(); }
 
