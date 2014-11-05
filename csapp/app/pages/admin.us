@@ -72,20 +72,20 @@
 		</nav>
 	</section>
 	<ul id="help-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">Online Help</a></li>
-		<li><a href="#">What's new</a></li>
-		<li><a href="#">Service status</a></li>
+		<li><a href="#">{{t menu.help.online}}</a></li>
+		<li><a href="#">{{t menu.help.news}}</a></li>
+		<li><a href="#">{{t menu.help.status}}</a></li>
 		<li class="divider"></li>
-		<li><a href="#">Open support ticket</a></li>
+		<li><a href="#">{{t menu.help.ticket}}</a></li>
 	</ul>
 	<ul id="user-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">Profile</a></li>
+		<li><a href="#">{{t menu.profile}}</a></li>
 		<li><a href="/#/settings">{{t menu.settings}}</a></li>
 		<li class="divider"></li>
 		<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
 	</ul>
 	<ul id="settings-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><label>CLOUDSTEAD SETTINGS</label></li>
+		<li><label>{{t menu.cloudstead.label}}</label></li>
 		{{#if cloudos_account.admin}}
 			<li>{{#link-to 'accounts'}}{{t menu.accounts}}{{/link-to}}</li>
 			<li>{{#link-to 'email'}}{{t menu.emaildom}}{{/link-to}}</li>
@@ -94,10 +94,10 @@
 		<li>{{#link-to ''}}{{t menu.defaultapps}}{{/link-to}}</li>
 		<li>{{#link-to 'appstore'}}{{t menu.appstore}}{{/link-to}}</li>
 		<li class="divider"></li>
-		<li><label>OTHER APPLICATIONS</label></li>
-		<li><a href="#">Confluence Administration</a></li>
-		<li><a href="#">Jira Administration</a></li>
-		<li><a href="#">Phabricator Admninistration</a></li>
+		<li><label>{{t menu.cloudstead.other_label}}</label></li>
+		<li><a href="#">{{t menu.cloudstead.confluence}}</a></li>
+		<li><a href="#">{{t menu.cloudstead.jira}}</a></li>
+		<li><a href="#">{{t menu.cloudstead.phabricator}}</a></li>
 	</ul>
 	{{outlet}}
 </script>
@@ -201,7 +201,7 @@
 							</thead>
 							<tr>
 									<td>
-											Your cloudstead's MX record: {{model.mxrecord}}
+											{{t sections.email.mxrecord}}: {{model.mxrecord}}
 											<hr/>
 											{{t paragraphs.email.domains}}
 											<hr/>
@@ -654,8 +654,8 @@
 			<section class="deck">
 	<div class="row">
 		<dl class="tabs">
-			<dd class="active">{{#link-to 'appstore'}}Available Apps{{/link-to}}</dd>
-			<dd>{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+			<dd class="active">{{#link-to 'appstore'}}{{t sections.appstr.available_apps}}{{/link-to}}</dd>
+			<dd>{{#link-to 'installedapps'}}{{t sections.appstr.installed_apps}}{{/link-to}}</dd>
 		</dl>
 		<div class="tabs-content">
 			<div class="content active">
@@ -663,72 +663,72 @@
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'email'}}
 							<div class="circle"><img src="images/image1.png"></div>
-							<h3 class="gamma light">Mail</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.mail.caption}}</h3>
 						{{/link-to}}
-							<p>Spam protection, powerful search and integrated calendars help you get more done, no ads and plenty of storage.</p>
+							<p>{{t sections.appstr.apps.mail.description}}</p>
 					</div>
 
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'files'}}
 							<div class="circle"><img src="images/image2.png"></div>
-							<h3 class="gamma light">Files</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.files.caption}}</h3>
 						{{/link-to}}
-						<p>Save files, access them from any device and share them instantly with teammates. No more sending attachments or merging different versions.</p>
+						<p>{{t sections.appstr.apps.files.description}}</p>
 					</div>
 
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'calendar'}}
 							<div class="circle"><img src="images/image3.png"></div>
-							<h3 class="gamma light">Calendar</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.calendar.caption}}</h3>
 						{{/link-to}}
-						<p>Spend less time planning and more time doing with shareable calendars that integrate seamlessly so you always know what's next.</p>
+						<p>{{t sections.appstr.apps.calendar.description}}</p>
 					</div>
 				</div>
 				<div class="circles row text-center">
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'kanban'}}
 							<div class="circle"><img src="images/image4.png"></div>
-							<h3 class="gamma light">Kanban</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.kanban.caption}}</h3>
 						{{/link-to}}
-						<p>Organize and track your project activities.</p>
+						<p>{{t sections.appstr.apps.kanban.description}}</p>
 					</div>
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'phplist'}}
 							<div class="circle"><img src="images/phplist.png" class="appspec"></div>
-							<h3 class="gamma light">PHPList</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.phplist.caption}}</h3>
 						{{/link-to}}
-							<p>Open Source software for managing mailing lists</p>
+							<p>{{t sections.appstr.apps.phplist.description}}</p>
 					</div>
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'phabricator'}}
 							<div class="circle"><img src="images/phabricator-logo.png"  class="appspec"></div>
-							<h3 class="gamma light">Phabricator</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.phabricator.caption}}</h3>
 						{{/link-to}}
-						<p>An Open Source collection of web applications which help software companies build better software</p>
+						<p>{{t sections.appstr.apps.phabricator.description}}</p>
 					</div>
 				</div>
 				<div class="circles row text-center">
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'jira'}}
 							<div class="circle"><img src="images/jira.png" style="padding-top: 55px;"></div>
-							<h3 class="gamma light">JIRA</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.jira.caption}}</h3>
 						{{/link-to}}
-						<p>Issue & project tracking software from Atlassian</p>
+						<p>{{t sections.appstr.apps.jira.description}}</p>
 					</div>
 
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'gitlab'}}
 							<div class="circle"><img src="images/gitlab.png" class="appspec"></div>
-							<h3 class="gamma light">Gitlab</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.gitlab.caption}}</h3>
 						{{/link-to}}
-						<p>Open Source code collaboration software</p>
+						<p>{{t sections.appstr.apps.gitlab.description}}</p>
 					</div>
 					<div class="large-4 columns">
 						{{#link-to 'selectedapp' 'kandan'}}
 							<div class="circle"><img src="images/kandan.png"></div>
-							<h3 class="gamma light">Kandan</h3>
+							<h3 class="gamma light">{{t sections.appstr.apps.kandan.caption}}</h3>
 						{{/link-to}}
-							<p>A private Chat server that is an Open Source alternative to HipChat</p>
+							<p>{{t sections.appstr.apps.kandan.description}}</p>
 					</div>
 				</div>
 			</div>
