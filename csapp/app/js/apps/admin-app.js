@@ -160,29 +160,159 @@ App.TasksRoute = Ember.Route.extend({
 	}
 });
 
-App.AccountsRoute = Ember.Route.extend({
-	model: function () {
-		return {
-			'accounts': Api.list_accounts()
-		};
+App.Account = Ember.Object.extend({
+
+	isSelected: false,
+
+	isActive: function(){
+		return this.get("suspended") ? false : true;
+	}.property("suspended"),
+
+	accountDOMId: function(){
+		return this.get("accountName").trim().replace(" ", "_");
+	}.property("accountName"),
+
+	updateWith: function(data) {
+		var group_commited = this._commit_edit(data);
+
+		if (group_commited){
+			this.modifyWith(data);
+		}
+
+		return group_commited;
+	},
+
+	changeCheckboxSelect: function(){
+		// 'this' here refers to the checkbox object.
+		// it's context is acctually this object.
+		account = this.get("context");
+		account.get("isSelected");
+	},
+
+	destroy: function() {
+		var account_destroyed = Api.delete_account(this.get("accountName"));
+
+		if (account_destroyed){
+			App.Account.removeAccount(this);
+		}
+
+		return account_destroyed;
+	},
+
+	toggleStatus: function(){
+		this._toggle_suspend();
+		var success = this._commit_status_change();
+		if (!success){
+			this._toggle_suspend();
+		}
+		return success;
+	},
+
+	changeCheckboxStatus: function(){
+		// 'this' here refers to the checkbox object.
+		// it's context is acctually this object.
+		var account = this.get("context");
+		console.log(account.get("suspended"));
+		return account.toggleStatus();
+	},
+
+	_commit_status_change: function(){
+		return Api.update_account(
+			{
+				name: this.get("name"),
+				firstName: this.get("firstName"),
+				lastName: this.get("lastName"),
+				email: this.get("email"),
+				emailVerified: false,
+				password: "qwe123",
+				mobilePhone: ""+this.get("mobilePhone"),
+				admin: this.get("admin"),
+				twoFactor: this.get("twoFactor"),
+				mobilePhoneCountryCode: ""+this.get("mobilePhoneCountryCode"),
+				suspended: this.get("suspended"),
+				accountName: this.get("accountName")
+			}
+		);
+	},
+
+	_toggle_suspend: function() {
+		this.set('suspended', !this.get("suspended"));
 	}
 });
 
-App.AccountsController = Ember.ObjectController.extend({
+App.Account.reopenClass({
+	all: Ember.ArrayProxy.create({content: []}),
+
+	findAll: function() {
+		var data = Api.list_accounts();
+		App.Account.all.clear();
+		data.forEach(function(datum) {
+			App.Account.all.pushObject(App.Account.create(datum));
+		});
+		return App.Account.all;
+	},
+
+	bulkToggleStatus: function(accounts){
+		var success = true;
+		accounts.forEach(function(account){
+			success = success && account.toggleStatus();
+		});
+		return success;
+	},
+
+	removeAccount: function(account) {
+		App.Account.all.removeObject(account);
+	}
+});
+
+App.newAccountModel = function () {
+	return {
+		accountName: '',
+		email: '',
+		mobilePhone: '',
+		admin: false
+	};
+};
+
+App.AccountsRoute = Ember.Route.extend({
+	model: function () {
+		return App.Account.findAll();
+	}
+});
+
+App.AccountFilter = Ember.Object.reopenClass({
+	filterSelected: function(accounts) {
+		return accounts.filter(function(account){
+				return account.get('isSelected');
+			});
+	}
+});
+
+App.AccountsController = Ember.ArrayController.extend({
 	actions:{
 		sortBy: function(property){
 			var sacc = this.get('sortedAccounts');
 			sacc.set('sortProperties',property);
 			sacc.set('sortAscending', !sacc.get('sortAscending'));
+		},
+		doBulkAction: function(selectorId){
+			var bulk_action = $("#" + selectorId).val();
+			var selectedAccounts = App.AccountFilter.filterSelected(this.get('arrangedContent'));
+
+			if (bulk_action === "bulk_toggle_status"){
+				App.Account.bulkToggleStatus(selectedAccounts);
+			}
+			else if (bulk_action === "bulk_delete"){
+				selectedAccounts.forEach(function(account){
+					account.destroy();
+				});
+			}
+			console.log(bulk_action);
 		}
 	},
 	sortedAccounts:function(){
-		return Ember.ArrayProxy.createWithMixins(Ember.SortableMixin, {
-			  content: this.get('accounts').toArray(),
-			  sortProperties: 'name',
-			  sortAscending: false
-			})
-		}.property("content")
+		return this.get('arrangedContent');
+	}.property("content")
 });
 
 App.newAccountModel = function () {
@@ -227,7 +357,7 @@ App.AddAccountController = Ember.ObjectController.extend({
 							App.RequestMessagesObject.create({
 								json: {"status": 'error', "api_token" : null,
 									"errors": validate}
-						  })
+							})
 						);
 					validate_res =  false;
 					}

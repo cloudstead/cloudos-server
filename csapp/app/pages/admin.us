@@ -872,14 +872,13 @@
 				</div>
 				<div class="large-12 columns no-padd">
 					<div class="large-2 columns no-padd">
-						<select class="select-small">
-							<option value="edit">{{t sections.acct.bulk.edit}}</option>
-							<option value="toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
-							<option value="delete">{{t sections.acct.bulk.delete}}</option>
+						<select id="account_bulk_action" class="select-small">
+							<option value="bulk_toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
+							<option value="bulk_delete">{{t sections.acct.bulk.delete}}</option>
 						</select>
 					</div>
 					<div class="large-2 columns no-padd">
-						<a href="#" class="button tiny">Apply</a>
+						<a href="#" class="button tiny" {{action "doBulkAction" "account_bulk_action"}}>Apply</a>
 					</div>
 					<div class="large-8 columns no-padd">
 					</div>
@@ -914,18 +913,18 @@
 							</th>
 						</thead>
 						<tbody>
-							{{#each account in sortedAccounts}}
+							{{#each sortedAccounts}}
 								<tr>
-									<td>{{input type="checkbox"}}</td>
-									<td>{{#link-to 'manageAccount' account.name}}{{account.firstName}} {{account.lastName}}{{/link-to}}</td>
-									<td>{{fromUTC account.lastLogin}}</td>
-									<td>{{account.email}}</td>
-									<td>{{account.mobilePhone}}</td>
-									<td>{{getStatus account}}</td>
+									<td>{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}</td>
+									<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
+									<td>{{fromUTC lastLogin}}</td>
+									<td>{{email}}</td>
+									<td>{{mobilePhone}}</td>
+									<td>{{getStatus this}}</td>
 									<td>
 										<div class="switch" title="Toggle Status">
-											<input type="checkbox" {{bindAttr id="account.accountName"}} checked='checked'>
-											<label {{bindAttr for="account.accountName"}}></label>
+											{{input id=accountDOMId type='checkbox' checked=isActive change=changeCheckboxStatus}}
+											<label {{bindAttr for="accountDOMId"}}></label>
 										</div>
 									</td>
 								</tr>
@@ -935,7 +934,7 @@
 				</div>
 			</div>
 		</div>
-	</section>'
+	</section>
 </script>
 
 <script type="text/x-handlebars" id="addAccount">
@@ -1349,7 +1348,7 @@
 									<td></td>
 									<td></td>
 									<td></td>
-									<td><a {{action "doDeleteGroup" name}}>{{t delete_button}}</a></td>
+									<td><a {{action "doDeleteGroup" name}}>{{t forms.group.delete_button}}</a></td>
 								</tr>
 							{{/each}}
 						</tbody>
