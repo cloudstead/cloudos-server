@@ -1267,7 +1267,7 @@
 					</ul>
 					<ul class="inline-list accounts-list">
 						<li>
-							{{#link-to 'groups.new' data-dropdown="" data-options=""}}
+							{{#link-to 'groupsNew' data-dropdown="" data-options=""}}
 								<span class="icon-plus" title="Add Group" ></span> <span class="show-for-xxlarge-up"></span>
 							{{/link-to}}
 						</li>
@@ -1357,17 +1357,17 @@
 			</div>
 		</div>
 		</div>
+		{{outlet}}
 		{{outlet group_outlet}}
 	</section>
 </script>
 
-<script type="text/x-handlebars" id="groups/new">
-	{{#modal-dialog}}
-		<div class="row modal-filler">
-			<legend>{{t sections.add_group}}</legend>
-		</div>
-		<div class="row modal-content">
-			<section class="deck">
+<script type="text/x-handlebars" id="groupsNew">
+		<div class="row">
+			<div class="large-6 columns large-centered">
+				<div class="row">
+					<h3>{{t sections.add_group}}</h3>
+				</div>
 				<div class="row">
 					<label>{{t forms.group.name}}
 						{{input type="text" value=name}}
@@ -1388,21 +1388,18 @@
 						{{input type="text" value=description}}
 					</label>
 				</div>
-				<div class="row">
-					<div class="large-6 columns">
+				<div class="row right">
+					<div class="large-12 columns large-right">
 						<button {{action 'doCancel'}}>
 							{{t forms.group.cancel}}
 						</button>
-					</div>
-					<div class="large-6 columns">
 						<button {{action 'doAddGroup'}}>
 							{{t forms.group.add_button}}
 						</button>
 					</div>
 				</div>
-			</section>
+			</div>
 		</div>
-	{{/modal-dialog}}
 </script>
 
 <script type="text/x-handlebars" id="group">
