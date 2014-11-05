@@ -172,16 +172,6 @@ App.Account = Ember.Object.extend({
 		return this.get("accountName").trim().replace(" ", "_");
 	}.property("accountName"),
 
-	updateWith: function(data) {
-		var group_commited = this._commit_edit(data);
-
-		if (group_commited){
-			this.modifyWith(data);
-		}
-
-		return group_commited;
-	},
-
 	changeCheckboxSelect: function(){
 		// 'this' here refers to the checkbox object.
 		// it's context is acctually this object.
