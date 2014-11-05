@@ -30,11 +30,11 @@ App.Router.map(function() {
 	});
 
 	this.resource('groups', function () {
-		this.resource('group', { path: '/group/:group_name' });
 		this.resource('delete', { path: '/group/delete/:group_name' });
 	});
 
 	this.route('groupsNew', { path: "/groups/new/" });
+	this.route('group', { path: '/group/:group_name' });
 
 //  this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
 //  this.resource('configCloud', { path: '/cloud/:cloud_name' });
@@ -842,10 +842,6 @@ App.GroupRoute = Ember.Route.extend({
 				recipients: App.GroupMembers.toStringFromArray(group_data.get('recipients'))
 			}
 		);
-	},
-
-	renderTemplate: function() {
-		this.render('group', { outlet: 'group_outlet', controller: this.controller });
 	}
 });
 
