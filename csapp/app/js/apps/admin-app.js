@@ -243,6 +243,10 @@ App.Account.reopenClass({
 		return App.Account.all;
 	},
 
+	findByName: function(account_name){
+		return App.Account.create(Api.find_account(account_name));
+	},
+
 	bulkToggleStatus: function(accounts){
 		var success = true;
 		accounts.forEach(function(account){
@@ -436,7 +440,8 @@ App.AddAccountController = Ember.ObjectController.extend({
 
 App.ManageAccountRoute = Ember.Route.extend({
 	model: function (params) {
-		return Api.find_account(params.name) || App.newAccountModel();
+		return App.Account.findByName(params.name);
+		// return Api.find_account(params.name) || App.newAccountModel();
 	}
 });
 
@@ -456,7 +461,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
 			account["admin"] = this.get('selectedGroup') == 'Admin' ? true : false;
 
 			// check if two-factor, set appropriate key
-			account["twoFactor"] = this.get('twoFactorAuth') ? true : false;
+			account["twoFactor"] = this.get('twoFactor');
 
 			account["mobilePhoneCountryCode"] = this.get("selectedCountry")["code"];
 
@@ -479,20 +484,12 @@ App.ManageAccountController = Ember.ObjectController.extend({
 			} else {
 				// nada
 			}
-		},
-		toggleTwoFactorAuth: function() {
-			this.set('twoFactorAuth',!this.get('twoFactorAuth'));
-			return false;
-		},
+		}
 	},
 
 	primaryGroups: ["Admin","User"],
 
 	countryList: Countries.list,
-
-	twoFactorAuth: function(){
-		return this.get('model').twoFactor;
-	}.property('model'),
 
 	selectedGroup: function() {
 		return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
