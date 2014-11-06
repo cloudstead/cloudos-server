@@ -913,7 +913,7 @@
 							</th>
 						</thead>
 						<tbody>
-							{{#each sortedAccounts}}
+							{{#each}}
 								<tr>
 									<td>{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}</td>
 									<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>

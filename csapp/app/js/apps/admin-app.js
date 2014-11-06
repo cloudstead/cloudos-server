@@ -286,9 +286,8 @@ App.AccountFilter = Ember.Object.reopenClass({
 App.AccountsController = Ember.ArrayController.extend({
 	actions:{
 		sortBy: function(property){
-			var sacc = this.get('sortedAccounts');
-			sacc.set('sortProperties',property);
-			sacc.set('sortAscending', !sacc.get('sortAscending'));
+			this.set('sortProperties',property);
+			this.set('sortAscending', !this.get('sortAscending'));
 		},
 		doBulkAction: function(selectorId){
 			var bulk_action = $("#" + selectorId).val();
@@ -304,10 +303,7 @@ App.AccountsController = Ember.ArrayController.extend({
 			}
 			console.log(bulk_action);
 		}
-	},
-	sortedAccounts:function(){
-		return this.get('arrangedContent');
-	}.property("content")
+	}
 });
 
 App.newAccountModel = function () {
