@@ -309,15 +309,35 @@ App.TwoFactorVerificationController = Ember.ObjectController.extend({
                 deviceName: this.get('model')["deviceName"]
             };
 
-            // TODO validate data
+            var validationError = Validator.validateTwoFactorVerificationCode(data.secondFactor);
 
-            var result = Api.login_account(data);
-            if (result.account !== "undefined" && result.sessionId !== "undefined") {
-                CloudOs.login(result);
+            if (validationError.verificationCode){
+                this._handleVerificationCodeError(validationError);
+            }
+            else{
+                this.send('_validateLoginResponse', Api.login_account(data));
+            }
+        },
+        _validateLoginResponse: function(response) {
+            if (response.account !== "undefined" && response.sessionId !== "undefined") {
+                CloudOs.login(response);
                 window.location.replace('/index.html');
             }else{
-                // TODO display error messages
+                // TODO display error messages, requires errors from API.
             }
         }
+    },
+    _handleVerificationCodeError: function(validationError) {
+      this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": {
+                        "verifyCode": validationError.verificationCode
+                    }
+                }
+            })
+        );
     }
 });
