@@ -1402,33 +1402,30 @@
 </script>
 
 <script type="text/x-handlebars" id="group">
-	<div class="row">
-		<div class="large-6 columns large-centered">
-			<div class="row">
-				<h3>{{t sections.edit_group}}</h3>
-			</div>
-			<div class="row">
-				<label>{{t forms.group.name}}
-					{{input type="text" value=name}}
-				</label>
-			</div>
-			<div class="row">
-				<label>{{t forms.group.recipients}}
-					{{input type="text" value=recipients}}
-				</label>
-			</div>
-			<div class="row right">
-				<div class="large-12 columns large-right no-padding">
-					<button {{action 'doCancel'}}>
-						{{t forms.group.cancel}}
-					</button>
-					<button {{action 'doEditGroup'}}>
-						{{t forms.group.edit_button}}
-					</button>
-				</div>
-			</div>
+	<section class="deck">
+		<div class="row large-4">
+			<form {{action 'doEditGroup' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.edit_group}}</legend>
+					<div class="row">
+						<label>{{t forms.group.name}}
+							{{input type="text" value=name}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.group.recipients}}
+							{{input type="text" value=recipients}}
+						</label>
+					</div>
+					<div class="row right">
+						<div class="large-12 columns large-right no-padding">
+							<button type="submit" class="small right left-margin-small">{{t forms.group.edit_button}}</button>
+							<button type="submit" class="small right left-margin-small" {{action 'doCancel'}}>{{t forms.group.cancel}}</button>
+						</div>
+					</div>
+			</fieldset>
 		</div>
-	</div>
+	</section>
 </script>
 
 <script type="text/x-handlebars" id="components/modal-dialog">

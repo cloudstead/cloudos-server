@@ -157,3 +157,7 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .no-padding{
 	padding: 0px;
 }
+
+.left-margin-small{
+	margin-left: 5px;
+}
