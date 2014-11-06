@@ -301,7 +301,6 @@ App.AccountsController = Ember.ArrayController.extend({
 					account.destroy();
 				});
 			}
-			console.log(bulk_action);
 		}
 	}
 });
