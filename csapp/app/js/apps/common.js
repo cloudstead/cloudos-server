@@ -195,3 +195,18 @@ var timeZoneList = [{ id:0,  dfault:false, ioffset:-720, offset:"GMT-12:00", dna
                     { id:64, dfault:false, ioffset:720, offset:"GMT+12:00", dname:"Asia/Kamchatka", lname:"Kamchatka"},
                     { id:65, dfault:false, ioffset:720, offset:"GMT+12:00", dname:"Pacific/Fiji", lname:"Fiji"}];
 
+Validator = {
+    validateTwoFactorVerificationCode: function(code){
+        var errors = {"verificationCode": null};
+        var error_msg = locate(Em.I18n.translations, 'errors');
+        var codeRegexp = /^(\d){7}$/;
+
+        if ((!code) || (code.trim() == '')){
+            errors.verificationCode = error_msg.field_required;
+        }
+        else if (!codeRegexp.test(code)){
+            errors.verificationCode = error_msg.two_factor_code_invalid;
+        }
+        return errors;
+    }
+}
