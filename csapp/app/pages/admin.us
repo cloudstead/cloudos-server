@@ -1362,6 +1362,45 @@
 </script>
 
 <script type="text/x-handlebars" id="groupsNew">
+	<section class="deck">
+		<div class="row large-4">
+			<form {{action 'doAddGroup' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.add_group}}</legend>
+				<div class="row">
+					<label>{{t forms.group.name}}
+						{{input type="text" value=name}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.recipients}}
+						{{input type="text" value=recipients}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.quota}}
+						{{input type="text" value=storageQuota}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.description}}
+						{{input type="text" value=description}}
+					</label>
+				</div>
+				<div class="row right">
+					<div class="large-12 columns large-right no-padding">
+						<button type="submit" class="small right left-margin-small">
+							{{t forms.group.add_button}}
+						</button>
+						<button type="submit" class="small right left-margin-small" {{action 'doCancel'}}>
+							{{t forms.group.cancel}}
+						</button>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</section>
+
 		<div class="row">
 			<div class="large-6 columns large-centered">
 				<div class="row">
