@@ -226,7 +226,64 @@ Validator = {
     },
 
     is_empty: function(value) {
-        console.log("is_empty: "+value);
-        return (value === undefined || value.length === 0) ? true : false;
+        return (value === undefined || String(value).trim().length === 0) ? true : false;
     }
-}
+};
+
+AccountValidator = {
+    getValidationErrorsFor: function(account) {
+        var error_msg = locate(Em.I18n.translations, 'errors');
+
+        var errors = {is_not_empty: false};
+
+        errors = this._validatePresenceOf(
+            errors,
+            error_msg,
+            account,
+            ["name", "firstName", "lastName", "email", "mobilePhone"]);
+
+        errors = account.generateSysPassword ?
+            errors :
+            this._validatePresenceOf(errors, error_msg, account, ["password", "passwordConfirm"]);
+
+        errors = this._validatePassword(
+            errors, error_msg, account.get("password"), account.get("passwordConfirm"));
+
+        errors = this._validateEmail(errors, error_msg, account.get("email"));
+
+        return errors;
+    },
+
+    _is_empty: function(value) {
+        return (value === undefined || String(value).trim().length === 0) ? true : false;
+    },
+
+    _validatePresenceOf: function(errors, error_msg, data, fields) {
+        fields.forEach(function(property){
+            if(AccountValidator._is_empty(data.get(property))){
+                errors[property] = error_msg.field_required;
+                errors["is_not_empty"] = true;
+            }
+        });
+        return errors;
+    },
+
+    _validateEmail: function(errors, error_msg, email) {
+        var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!pattern.test(email)){
+            errors["email"] = error_msg.email_invalid;
+            errors["is_not_empty"] = true;
+        }
+        return errors;
+    },
+
+    _validatePassword: function(errors, error_msg, password, confirm) {
+        if (password != confirm){
+            errors["password"] = error_msg.password_mismatch;
+            errors["passwordConfirm"] = error_msg.password_mismatch;
+            errors["is_not_empty"] = true;
+        }
+        return errors;
+    }
+};
+

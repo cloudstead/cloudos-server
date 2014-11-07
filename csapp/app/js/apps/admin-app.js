@@ -323,13 +323,14 @@ App.AddAccountController = Ember.ObjectController.extend({
 		doCreateAccount: function () {
 
 			// this is minimum data for the account
-			account = {
+			account = App.Account.create({
 				name: this.get('accountName'),
 				lastName: this.get('lastName'),
 				firstName: this.get('firstName'),
 				email: this.get('email'),
 				mobilePhone: this.get('mobilePhone'),
-			}
+				generateSysPassword: this.get('generateSysPassword')
+			});
 
 			// first check if password is system based, if not, add the passwords for checkup
 			if (this.get('generateSysPassword') === false){
@@ -338,8 +339,10 @@ App.AddAccountController = Ember.ObjectController.extend({
 			}
 
 			// validate data
-			var validate = this.validate(account);
+			var validate = AccountValidator.getValidationErrorsFor(account);
+			delete validate.is_not_empty;
 			var validate_res = true;
+
 			for (var key in validate) {
 				value = validate[key];
 				if (value != null){
@@ -353,10 +356,12 @@ App.AddAccountController = Ember.ObjectController.extend({
 					}
 				}
 			if (validate_res === false) { return false; }
+
 			// if validation is success, first remove passConfirm key if exists
 			// also, remove regular Email until the api is ready for that
 			try{
 				delete account.passwordConfirm;
+				delete account.generateSysPassword;
 			}catch(e){
 				//
 			}
@@ -391,33 +396,6 @@ App.AddAccountController = Ember.ObjectController.extend({
 				// nada
 			}
 		}
-	},
-	validate: function(data){
-		var error_msg = locate(Em.I18n.translations, 'errors');
-		var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-		var response = {};
-
-		for (var key in data) {
-			value = data[key];
-			if ((String(value).trim() == '') || (!value)) {
-				response[key] = error_msg.field_required;
-			}
-		}
-
-		try{
-			if (data["password"] != data["passwordConfirm"]){
-				response["password"] = error_msg.password_mismatch;
-				response["passwordConfirm"] = error_msg.password_mismatch;
-			}
-		}catch(e){
-			//
-		}
-
-		if (!pattern.test(data["email"])){
-			response["email"] = error_msg.email_invalid;
-		}
-		return response;
 	},
 	toggleSysPassword: function(){
 		this.set('generateSysPassword', !this.get('generateSysPassword'));
