@@ -868,9 +868,17 @@ App.GroupController = Ember.ObjectController.extend({
 		doEditGroup: function () {
 			var group = this.get('model');
 
-			group.updateWith(this._formData()) ?
-				this.transitionToRoute('groups') :
-				this._handleGroupUpdateFailed(group);
+			// validate data
+			var groupErrors = Validator.validateGroup(group);
+
+			if (groupErrors.is_not_empty){
+				this._handleGroupValidationError(groupErrors);
+			}
+			else{
+				group.updateWith(this._formData()) ?
+					this.transitionToRoute('groups') :
+					this._handleGroupUpdateFailed(group);
+			}
 		},
 
 		doCancel: function () {
@@ -885,8 +893,20 @@ App.GroupController = Ember.ObjectController.extend({
 		};
 	},
 
+	_handleGroupValidationError: function(error) {
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": error
+				}
+			})
+		);
+	},
+
 	_handleGroupUpdateFailed: function(group) {
-		alert('error updatin group: ' + group.name)
+		alert('error updating group: ' + group.name)
 	}
 });
 

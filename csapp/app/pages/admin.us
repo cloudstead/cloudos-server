@@ -1425,12 +1425,22 @@
 				<legend>{{t sections.edit_group}}</legend>
 					<div class="row">
 						<label>{{t forms.group.name}}
+						{{#if requestMessages.error.name}}
+							{{input type="text" value=name class="error"}}
+							<span class="message error">{{requestMessages.error.name}}</span>
+						{{else}}
 							{{input type="text" value=name}}
+						{{/if}}
 						</label>
 					</div>
 					<div class="row">
 						<label>{{t forms.group.recipients}}
+						{{#if requestMessages.error.recipients}}
+							{{input type="text" value=recipients class="error"}}
+							<span class="message error">{{requestMessages.error.recipients}}</span>
+						{{else}}
 							{{input type="text" value=recipients}}
+						{{/if}}
 						</label>
 					</div>
 					<div class="row right">
