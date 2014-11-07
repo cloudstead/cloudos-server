@@ -199,6 +199,22 @@ App.Account = Ember.Object.extend({
 		return success;
 	},
 
+	save: function() {
+		return Api.add_account({
+			name: this.get('accountName'),
+			accountName: this.get('accountName'),
+			firstName: this.get('firstName'),
+			lastName: this.get('lastName'),
+			email: this.get('email'),
+			mobilePhone: this.get('mobilePhone'),
+			mobilePhoneCountryCode: this.get("mobilePhoneCountryCode"),
+			admin: this.get('admin'),
+			twoFactor: this.get('twoFactor'),
+			suspended: this.get('suspended'),
+			password: this.get('password'),
+		});
+	},
+
 	updateWith: function(data) {
 		return Api.update_account(data);
 	},
@@ -317,111 +333,101 @@ App.newAccountModel = function () {
 	};
 }
 
-App.AddAccountRoute = Ember.Route.extend({
-	model: App.newAccountModel
+App.BaseAccountController = Ember.ObjectController.extend({
+	transitionToAccounts: function(){
+		this.transitionToRoute('accounts');
+	}
 });
 
-App.AddAccountController = Ember.ObjectController.extend({
+App.AddAccountController = App.BaseAccountController.extend({
+	content: {},
+
 	actions: {
 		doCreateAccount: function () {
 
-			// this is minimum data for the account
-			account = App.Account.create({
-				name: this.get('accountName'),
-				lastName: this.get('lastName'),
-				firstName: this.get('firstName'),
-				email: this.get('email'),
-				mobilePhone: this.get('mobilePhone'),
-				generateSysPassword: this.get('generateSysPassword')
-			});
+			var account = App.Account.create(this._formData());
 
-			// first check if password is system based, if not, add the passwords for checkup
-			if (this.get('generateSysPassword') === false){
-				account["password"] = this.get('password');
-				account["passwordConfirm"] = this.get('passwordConfirm');
+			var accountErrors = AccountValidator.getValidationErrorsFor(account);
+
+			if (accountErrors.is_not_empty){
+				this._handleAccountValidationErrors(accountErrors);
 			}
-
-			// validate data
-			var validate = AccountValidator.getValidationErrorsFor(account);
-			delete validate.is_not_empty;
-			var validate_res = true;
-
-			for (var key in validate) {
-				value = validate[key];
-				if (value != null){
-					this.set('requestMessages',
-							App.RequestMessagesObject.create({
-								json: {"status": 'error', "api_token" : null,
-									"errors": validate}
-							})
-						);
-					validate_res =  false;
-					}
-				}
-			if (validate_res === false) { return false; }
-
-			// if validation is success, first remove passConfirm key if exists
-			// also, remove regular Email until the api is ready for that
-			try{
-				delete account.passwordConfirm;
-				delete account.generateSysPassword;
-			}catch(e){
-				//
-			}
-
-			// check if admin, set appropriate key
-			if (this.get('selectedGroup') == 'Admin'){
-				account["admin"] = true;
-			}else{
-				account["admin"] = false;
-			}
-
-			// check if two-factor, set appropriate key
-			if (this.get('twoFactorAuth')){
-				account["twoFactor"] = true;
-			}else{
-				account["twoFactor"] = false;
-			}
-
-			// account is not suspended, hc mobile code, accountName is name
-			account["suspended"] = false;
-			account["mobilePhoneCountryCode"] = this.get("selectedCountry") ? this.get("selectedCountry")["code"] : 1;
-			account["accountName"] = account["name"];
-
-			if (Api.add_account(account)) {
-				this.transitionTo('accounts');
+			else{
+				account.save() ?
+					this.transitionToAccounts() :
+					this._handleAccountUpdateFailed(account);
 			}
 		},
 		cancelCreate: function() {
 			if (confirm("Cancel changes ?") == true) {
-				this.transitionTo('accounts');
+				this.transitionToAccounts();
 			} else {
 				// nada
 			}
 		}
 	},
+
 	toggleSysPassword: function(){
 		this.set('generateSysPassword', !this.get('generateSysPassword'));
 	},
+
 	generateSysPassword:true,
+
 	primaryGroups:["Admin","User"],
+
 	selectedGroup:"User",
+
 	countryList: Countries.list,
+
 	twoFactorAuth:true,
+
 	toggleTwoFactorAuth: function(){
 		this.set('twoFactorAuth',!this.get('twoFactorAuth'));
 		return false;
+	},
+
+	_handleAccountValidationErrors: function(errors){
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": errors
+				}
+			})
+		);
+	},
+
+	_handleAccountUpdateFailed: function(account) {
+		alert('error creating account: ' + account.name)
+	},
+
+	_formData: function(){
+		return {
+			name: this.get('accountName'),
+			accountName: this.get('accountName'),
+			firstName: this.get('firstName'),
+			lastName: this.get('lastName'),
+			email: this.get('email'),
+			mobilePhone: this.get('mobilePhone'),
+			mobilePhoneCountryCode: this.get("selectedCountry")["code"],
+			admin: this.get('selectedGroup') == 'Admin' ? true : false,
+			twoFactor: this.get('twoFactor'),
+			suspended: false,
+			password: this.get('password'),
+			passwordConfirm: this.get('passwordConfirm'),
+			generateSysPassword: this.get('generateSysPassword')
+		};
 	}
 });
 
 App.ManageAccountRoute = Ember.Route.extend({
 	model: function (params) {
 		return App.Account.findByName(params.name);
-		// return Api.find_account(params.name) || App.newAccountModel();
 	}
 });
 
-App.ManageAccountController = Ember.ObjectController.extend({
+App.ManageAccountController = App.BaseAccountController.extend({
 	actions: {
 		'doUpdateAccount': function () {
 			var account = this.get('model');
@@ -433,23 +439,37 @@ App.ManageAccountController = Ember.ObjectController.extend({
 			}
 			else{
 				account.updateWith(this._formData()) ?
-					this.transitionToRoute('accounts') :
+					this.transitionToAccounts() :
 					this._handleAccountUpdateFailed(account);
 			}
 		},
 		'doDeleteAccount': function (name) {
 			if (Api.delete_account(name)) {
-				this.transitionTo('accounts');
+				this.transitionToAccounts();
 			}
 		},
 		cancelCreate: function() {
 			if (confirm("Cancel changes ?") == true) {
-				this.transitionTo('accounts');
+				this.transitionToAccounts();
 			} else {
 				// nada
 			}
 		}
 	},
+
+	primaryGroups: ["Admin","User"],
+
+	countryList: Countries.list,
+
+	selectedGroup: function() {
+		return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
+	}.property("selectedGroup", "model"),
+
+	selectedCountry: function() {
+		var countryCode = this.get('model').mobilePhoneCountryCode;
+
+		return Countries.findByCode(countryCode);
+	}.property("selectedCountryCode", "model"),
 
 	_handleAccountValidationErrors: function(errors){
 		this.set('requestMessages',
@@ -480,21 +500,7 @@ App.ManageAccountController = Ember.ObjectController.extend({
 			twoFactor: this.get('twoFactor'),
 			suspended: false,
 		};
-	},
-
-	primaryGroups: ["Admin","User"],
-
-	countryList: Countries.list,
-
-	selectedGroup: function() {
-		return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
-	}.property("selectedGroup", "model"),
-
-	selectedCountry: function() {
-		var countryCode = this.get('model').mobilePhoneCountryCode;
-
-		return Countries.findByCode(countryCode);
-	}.property("selectedCountryCode", "model"),
+	}
 });
 
 App.EmailDomainsRoute = Ember.Route.extend({
