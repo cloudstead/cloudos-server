@@ -208,5 +208,25 @@ Validator = {
             errors.verificationCode = error_msg.two_factor_code_invalid;
         }
         return errors;
+    },
+
+    validateGroup: function(group){
+        var error_msg = locate(Em.I18n.translations, 'errors');
+
+        var errors = {is_not_empty: false};
+
+        ["name", "recipients"].forEach(function(property){
+            if(Validator.is_empty(group.get(property))){
+                errors[property] = error_msg.field_required;
+                errors.is_not_empty = true;
+            }
+        });
+
+        return errors;
+    },
+
+    is_empty: function(value) {
+        console.log("is_empty: "+value);
+        return (value === undefined || value.length === 0) ? true : false;
     }
 }
