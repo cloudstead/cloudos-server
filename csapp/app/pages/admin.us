@@ -1415,44 +1415,6 @@
 			</fieldset>
 		</div>
 	</section>
-
-		<div class="row">
-			<div class="large-6 columns large-centered">
-				<div class="row">
-					<h3>{{t sections.add_group}}</h3>
-				</div>
-				<div class="row">
-					<label>{{t forms.group.name}}
-						{{input type="text" value=name}}
-					</label>
-				</div>
-				<div class="row">
-					<label>{{t forms.group.recipients}}
-						{{input type="text" value=recipients}}
-					</label>
-				</div>
-				<div class="row">
-					<label>{{t forms.group.quota}}
-						{{input type="text" value=storageQuota}}
-					</label>
-				</div>
-				<div class="row">
-					<label>{{t forms.group.description}}
-						{{input type="text" value=description}}
-					</label>
-				</div>
-				<div class="row right">
-					<div class="large-12 columns large-right no-padding">
-						<button {{action 'doCancel'}}>
-							{{t forms.group.cancel}}
-						</button>
-						<button {{action 'doAddGroup'}}>
-							{{t forms.group.add_button}}
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
 </script>
 
 <script type="text/x-handlebars" id="group">
