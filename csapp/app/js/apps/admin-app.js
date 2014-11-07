@@ -199,11 +199,14 @@ App.Account = Ember.Object.extend({
 		return success;
 	},
 
+	updateWith: function(data) {
+		return Api.update_account(data);
+	},
+
 	changeCheckboxStatus: function(){
 		// 'this' here refers to the checkbox object.
 		// it's context is acctually this object.
 		var account = this.get("context");
-		console.log(account.get("suspended"));
 		return account.toggleStatus();
 	},
 
@@ -421,29 +424,17 @@ App.ManageAccountRoute = Ember.Route.extend({
 App.ManageAccountController = Ember.ObjectController.extend({
 	actions: {
 		'doUpdateAccount': function () {
-			account = {
-				name: this.get('accountName'),
-				firstName: this.get('firstName'),
-				lastName: this.get('lastName'),
-				email: this.get('email'),
-				mobilePhone: this.get('mobilePhone'),
-				admin: this.get('admin')
-			};
+			var account = this.get('model');
 
-			// check if admin, set appropriate key
-			account["admin"] = this.get('selectedGroup') == 'Admin' ? true : false;
+			var accountErrors = AccountValidator.getUpdateValidationErrorsFor(account);
 
-			// check if two-factor, set appropriate key
-			account["twoFactor"] = this.get('twoFactor');
-
-			account["mobilePhoneCountryCode"] = this.get("selectedCountry")["code"];
-
-			// account is not suspended, hc mobile code, accountName is name
-			account["suspended"] = false;
-			account["accountName"] = account["name"];
-
-			if (Api.update_account(account)) {
-				this.transitionTo('accounts');
+			if (accountErrors.is_not_empty){
+				this._handleAccountValidationErrors(accountErrors);
+			}
+			else{
+				account.updateWith(this._formData()) ?
+					this.transitionToRoute('accounts') :
+					this._handleAccountUpdateFailed(account);
 			}
 		},
 		'doDeleteAccount': function (name) {
@@ -458,6 +449,37 @@ App.ManageAccountController = Ember.ObjectController.extend({
 				// nada
 			}
 		}
+	},
+
+	_handleAccountValidationErrors: function(errors){
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": errors
+				}
+			})
+		);
+	},
+
+	_handleAccountUpdateFailed: function(account) {
+		alert('error updating account: ' + account.name)
+	},
+
+	_formData: function(){
+		return {
+			name: this.get('accountName'),
+			accountName: this.get('accountName'),
+			firstName: this.get('firstName'),
+			lastName: this.get('lastName'),
+			email: this.get('email'),
+			mobilePhone: this.get('mobilePhone'),
+			mobilePhoneCountryCode: this.get("selectedCountry")["code"],
+			admin: this.get('selectedGroup') == 'Admin' ? true : false,
+			twoFactor: this.get('twoFactor'),
+			suspended: false,
+		};
 	},
 
 	primaryGroups: ["Admin","User"],

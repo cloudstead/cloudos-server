@@ -254,6 +254,22 @@ AccountValidator = {
         return errors;
     },
 
+    getUpdateValidationErrorsFor: function(account){
+        var error_msg = locate(Em.I18n.translations, 'errors');
+
+        var errors = {is_not_empty: false};
+
+        errors = this._validatePresenceOf(
+            errors,
+            error_msg,
+            account,
+            ["name", "firstName", "lastName", "email", "mobilePhone"]);
+
+        errors = this._validateEmail(errors, error_msg, account.get("email"));
+
+        return errors;
+    },
+
     _is_empty: function(value) {
         return (value === undefined || String(value).trim().length === 0) ? true : false;
     },
