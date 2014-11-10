@@ -903,7 +903,7 @@
 								Mobile <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
-							<th {{action 'sortBy' 'admin'}}>
+							<th {{action 'sortBy' 'status'}}>
 								Status <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
@@ -925,7 +925,7 @@
 									<td>{{fromUTC lastLogin}}</td>
 									<td>{{email}}</td>
 									<td>{{mobilePhone}}</td>
-									<td>{{getStatus this}}</td>
+									<td>{{status}}</td>
 									<td>
 										<div class="switch" title="Toggle Status">
 											{{input id=accountDOMId type='checkbox' checked=isActive change=changeCheckboxStatus}}

@@ -226,6 +226,17 @@ App.Account = Ember.Object.extend({
 		return account.toggleStatus();
 	},
 
+	status: function() {
+		var stat_name = Em.I18n.translations['sections'].acct.status;
+		if (this.get("suspended") === true){
+			return stat_name.suspended;
+		}
+		if (this.get("admin") === true) {
+			return stat_name.admin;
+		}
+		return stat_name.active;
+	}.property("suspended", "admin"),
+
 	_commit_status_change: function(){
 		return Api.update_account(
 			{
@@ -305,7 +316,7 @@ App.AccountFilter = Ember.Object.reopenClass({
 App.AccountsController = Ember.ArrayController.extend({
 	actions:{
 		sortBy: function(property){
-			this.set('sortProperties',property);
+			this.set('sortProperties',[property]);
 			this.set('sortAscending', !this.get('sortAscending'));
 		},
 		doBulkAction: function(selectorId){
