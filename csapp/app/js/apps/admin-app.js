@@ -371,6 +371,8 @@ App.AddAccountController = App.BaseAccountController.extend({
 		this.set('generateSysPassword', !this.get('generateSysPassword'));
 	},
 
+	twoFactor: true,
+
 	generateSysPassword:true,
 
 	primaryGroups:["Admin","User"],
@@ -378,13 +380,6 @@ App.AddAccountController = App.BaseAccountController.extend({
 	selectedGroup:"User",
 
 	countryList: Countries.list,
-
-	twoFactorAuth:true,
-
-	toggleTwoFactorAuth: function(){
-		this.set('twoFactorAuth',!this.get('twoFactorAuth'));
-		return false;
-	},
 
 	_handleAccountValidationErrors: function(errors){
 		this.set('requestMessages',
