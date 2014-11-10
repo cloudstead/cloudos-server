@@ -316,9 +316,13 @@ App.AccountsController = Ember.ArrayController.extend({
 				App.Account.bulkToggleStatus(selectedAccounts);
 			}
 			else if (bulk_action === "bulk_delete"){
-				selectedAccounts.forEach(function(account){
-					account.destroy();
-				});
+				if (confirm("You are about to delete all selected accounts. Are you sure?")){
+					selectedAccounts.forEach(function(account){
+						account.destroy();
+					});
+				}
+			}
+		},
 			}
 		}
 	}
