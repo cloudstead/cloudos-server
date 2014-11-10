@@ -983,13 +983,6 @@ Ember.Handlebars.helper('fromUTC', function(timeUTC) {
 	return convertedDate.toLocaleString();
 });
 
-Ember.Handlebars.helper('getStatus', function(account) {
-	var stat_name = Em.I18n.translations['sections'].acct.status;
-	if (account.suspended === true){return stat_name.suspended;}
-	if (account.admin === true) {return stat_name.admin;}
-	return stat_name.active;
-});
-
 App.ApplicationView = Ember.View.extend({
 	initFoundation: function () {
 		Ember.$(document).foundation();
