@@ -140,6 +140,15 @@ Api = {
 	install_cloud_app: function (app_id, app_install_request) {
 		return Api._post('/api/appstore/' + app_id + '/install', app_install_request); },
 
+	admin_change_password: function (name, newPassword) {
+		var request = {
+			oldPassword: "-",
+			newPassword: newPassword,
+			sendInvite: false
+		};
+		return Api._post('/api/accounts/' + name + '/password', request);
+	},
+
 	//
 	// Regular user API
 	//

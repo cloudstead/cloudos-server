@@ -130,6 +130,19 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 
 }
 
+.modal-small {
+	width: 35%;
+	background-color: #fff;
+	left: 0;
+	margin: auto;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-top: 100px;
+	margin-bottom: 100px;
+	z-index:2;
+}
+
 .overlay {
 	height: 100%;
 	width: 100%;
@@ -160,4 +173,8 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 
 .left-margin-small{
 	margin-left: 5px;
+}
+
+.modal-small{
+	width: 35%;
 }

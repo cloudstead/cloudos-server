@@ -20,7 +20,9 @@ App.Router.map(function() {
 	});
 	this.resource('accounts');
 	this.resource('addAccount');
-	this.resource('manageAccount', { path: '/accounts/:name' });
+	this.resource('manageAccount', { path: '/accounts/:name' } , function() {
+		this.route('adminChangePassword', { path: '/admin_change_password' });
+	});
 
 	this.resource('security', function() {
 		this.resource('certs', function() {
@@ -217,6 +219,10 @@ App.Account = Ember.Object.extend({
 
 	updateWith: function(data) {
 		return Api.update_account(data);
+	},
+
+	changePassword: function() {
+		return Api.admin_change_password(this.get("name"), this.get("newPassword"));
 	},
 
 	changeCheckboxStatus: function(){
@@ -443,7 +449,7 @@ App.ManageAccountRoute = Ember.Route.extend({
 
 App.ManageAccountController = App.BaseAccountController.extend({
 	actions: {
-		'doUpdateAccount': function () {
+		doUpdateAccount: function () {
 			var account = this.get('model');
 
 			var accountErrors = AccountValidator.getUpdateValidationErrorsFor(account);
@@ -452,12 +458,11 @@ App.ManageAccountController = App.BaseAccountController.extend({
 				this._handleAccountValidationErrors(accountErrors);
 			}
 			else{
-				account.updateWith(this._formData()) ?
-					this.transitionToAccounts() :
-					this._handleAccountUpdateFailed(account);
+				this._updateAcount(account);
 			}
 		},
-		'doDeleteAccount': function (name) {
+
+		doDeleteAccount: function (name) {
 			if (Api.delete_account(name)) {
 				this.transitionToAccounts();
 			}
@@ -468,8 +473,13 @@ App.ManageAccountController = App.BaseAccountController.extend({
 			} else {
 				// nada
 			}
+		},
+		openChangePassword: function() {
+			this.transitionToRoute("manageAccount.adminChangePassword");
 		}
 	},
+
+	changePassword: false,
 
 	primaryGroups: ["Admin","User"],
 
@@ -485,7 +495,25 @@ App.ManageAccountController = App.BaseAccountController.extend({
 		return Countries.findByCode(countryCode);
 	}.property("selectedCountryCode", "model"),
 
+	_updateAcount: function(account) {
+		account.updateWith(this._formData()) ?
+			this.transitionToAccounts() :
+			this._handleAccountUpdateFailed(account);
+	},
+
 	_handleAccountValidationErrors: function(errors){
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": errors
+				}
+			})
+		);
+	},
+
+	_handleChangeAccountPasswordErrors: function(errors){
 		this.set('requestMessages',
 			App.RequestMessagesObject.create({
 				json: {
@@ -514,6 +542,66 @@ App.ManageAccountController = App.BaseAccountController.extend({
 			twoFactor: this.get('twoFactor'),
 			suspended: false,
 		};
+	}
+});
+
+App.ManageAccountAdminChangePasswordRoute = Ember.Route.extend({
+	model: function () {
+		return this.modelFor('manageAccount');
+	},
+	renderTemplate: function() {
+		this.render('manageAccount/adminChangePassword', { outlet: 'change_password', controller: this.controller });
+	}
+});
+
+App.ManageAccountAdminChangePasswordController = Ember.ObjectController.extend({
+	actions:{
+		doCloseModal: function(){
+			this._transitionToManageAccounts();
+		},
+
+		doChangePassword: function () {
+			console.log("Changing password");
+			var account = this.get('model');
+
+			var passwordErrors = AccountValidator.getPasswordValidationErrorsFor(account);
+
+			if (passwordErrors.is_not_empty){
+				this._handleChangeAccountPasswordErrors(passwordErrors);
+			}
+			else{
+				this._changePassword(account);
+			}
+		}
+	},
+
+	_handleChangeAccountPasswordErrors: function(errors){
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": errors
+				}
+			})
+		);
+	},
+
+	_changePassword: function(account) {
+		if (account.changePassword()){
+			this._transitionToManageAccounts();
+		}
+		else{
+			this._handleChangeAccountPasswordFailed(account);
+		}
+	},
+
+	_transitionToManageAccounts: function() {
+		this.transitionToRoute("manageAccount");
+	},
+
+	_handleChangeAccountPasswordFailed: function(account) {
+		alert('error creating account: ' + account.name)
 	}
 });
 

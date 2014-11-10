@@ -254,6 +254,20 @@ AccountValidator = {
         return errors;
     },
 
+    getPasswordValidationErrorsFor: function(account){
+        var error_msg = locate(Em.I18n.translations, 'errors');
+
+        var errors = {is_not_empty: false};
+
+        errors = this._validatePresenceOf(
+            errors,
+            error_msg,
+            account,
+            ["newPassword"]);
+
+        return errors;
+    },
+
     getUpdateValidationErrorsFor: function(account){
         var error_msg = locate(Em.I18n.translations, 'errors');
 
