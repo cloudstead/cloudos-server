@@ -323,6 +323,10 @@ App.AccountsController = Ember.ArrayController.extend({
 				}
 			}
 		},
+		doDeleteAccount: function(account){
+			var fullName = account.firstName + " " + account.lastName;
+			if (confirm("You are about to delete " + fullName + ". Are you sure?")){
+				account.destroy();
 			}
 		}
 	}
