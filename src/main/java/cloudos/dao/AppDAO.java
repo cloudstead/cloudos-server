@@ -30,13 +30,13 @@ public class AppDAO extends AbstractCRUDDAO<InstalledApp> {
 
     @Autowired private CloudOsConfiguration configuration;
 
-    public List<InstalledApp> findActive() throws Exception {
+    public List<InstalledApp> findActive() {
         return findByField("active", true);
     }
 
     private final AtomicReference<Map<String, AppRuntimeDetails>> appDetails = new AtomicReference<>();
 
-    public Map<String, AppRuntimeDetails> getAvailableAppDetails() throws Exception {
+    public Map<String, AppRuntimeDetails> getAvailableAppDetails() {
         // todo: periodically expire the list anyway (every 15 minutes?) and refetch freshly from S3
         if (this.appDetails.get() == null) {
             synchronized (this.appDetails) {
