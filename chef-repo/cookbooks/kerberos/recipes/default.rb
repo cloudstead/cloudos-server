@@ -39,7 +39,7 @@ echo "127.0.0.1 localhost
 EOF
   end
 
-  %w( slapd ldap-utils krb5-kdc krb5-kdc-ldap krb5-admin-server).each do |pkg|
+  %w( slapd ldap-utils krb5-kdc krb5-kdc-ldap krb5-admin-server ldapscripts).each do |pkg|
     package pkg do
       action :install
     end
@@ -132,7 +132,7 @@ ping www.#{parent_domain} > /dev/urandom &
 top > /dev/urandom &
 
 echo "#{krb_master_password}
-#{krb_master_password}" | kdb5_ldap_util -D cn=admin,#{ldap_domain_string} create -subtrees cn=krb5,#{ldap_domain_string} \
+#{krb_master_password}" | kdb5_ldap_util -D cn=admin,#{ldap_domain_string} create -subtrees cn=cloudos,#{ldap_domain_string} \
   -r #{realm} -s -w #{ldap_master_password} -H ldapi:///
 
 echo "#{ldap_master_password}
@@ -147,6 +147,10 @@ kill %1 %2 %3
 echo "change_password kadmin/admin
 #{krb_master_password}
 #{krb_master_password}" | kadmin.local
+
+# stash ldap password for ldapscripts
+echo -n '#{ldap_master_password}' > /etc/ldapscripts/ldapscripts.passwd
+chmod 400 /etc/ldapscripts/ldapscripts.passwd
 
 EOF
   end
