@@ -1,8 +1,10 @@
 package cloudos.service.task;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 public class TaskEvent {
 
     @Getter @Setter private String taskId;

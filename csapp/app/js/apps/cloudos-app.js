@@ -33,9 +33,28 @@ App.ApplicationRoute = Ember.Route.extend({
         }
 
         CloudOs.set_account(account);
-
+        pathArray = window.location.href.split( '/' );
+        if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'index.html')) && (!pathArray[4]))
+        {
+            this.transitionTo('app', 'email');
+        }
 //        this.transitionTo('app', 'files');
 //        this.transitionTo('app', AppRuntime.app_model('email'));
+    },
+    actions:{
+        openModal: function(modalName, model){
+            this.controllerFor(modalName).set('model',model);
+            return this.render(modalName, {
+                into: 'application',
+                outlet: 'modal'
+            });
+        },
+        closeModal: function(){
+            return this.disconnectOutlet({
+                outlet: 'modal',
+                parentView: 'application'
+            });
+        }
     }
 });
 
@@ -112,8 +131,8 @@ App.LoginController = Ember.ObjectController.extend({
             if ( (validate.username) || (validate.password)){
 				  this.set('requestMessages',
 						App.RequestMessagesObject.create({
-							json: {"status": 'error', "api_token" : null, 
-								"errors": 
+							json: {"status": 'error', "api_token" : null,
+								"errors":
 									{"username": validate.username,
 									"password": validate.password}}
 						})
@@ -121,17 +140,33 @@ App.LoginController = Ember.ObjectController.extend({
 				return false;
 			}
 
+            // validation ok, check device cookies
+            var ckDeviceId = checkCookie("deviceId");
+            var ckDeviceName = checkCookie("deviceName");
+
+            if ((!ckDeviceId) || (!ckDeviceName)){
+                setCookie("deviceId", generateDeviceId(), 365);
+                setCookie("deviceName", getDeviceName(), 365);
+            }
+
+            creds['deviceId'] = getCookie("deviceId");
+            creds['deviceName'] = getCookie("deviceName");
+
             var auth_response = Api.login_account(creds);
 
-            if (auth_response && auth_response.sessionId) {
+            if (auth_response && auth_response.account) {
                 CloudOs.login(auth_response);
                 window.location.replace('/index.html');
-            } else {
+            }
+            else if (auth_response && auth_response.sessionId){
+                this.send('openModal','twoFactorVerification', creds );
+            }
+            else {
                 // temporary, until the api response delivery is updated
             	this.set('requestMessages',
 						App.RequestMessagesObject.create({
-							json: {"status": 'error', "api_token" : null, 
-								"errors": 
+							json: {"status": 'error', "api_token" : null,
+								"errors":
 									{"username": error_msg.auth_invalid,
 									"password": error_msg.auth_invalid}}
 						})
@@ -176,8 +211,8 @@ App.SettingsController = Ember.ObjectController.extend({
             if ( (validate.current_password) || (validate.new_password) || (validate.confirm_new_password)){
 				this.set('requestMessages',
 						App.RequestMessagesObject.create({
-							json: {"status": 'error', "api_token" : null, 
-								"errors": 
+							json: {"status": 'error', "api_token" : null,
+								"errors":
 									{"current_password": validate.current_password,
 									"new_password": validate.new_password,
 									"new_password2": validate.confirm_new_password}}
@@ -191,8 +226,8 @@ App.SettingsController = Ember.ObjectController.extend({
             } else {
             	this.set('requestMessages',
 						App.RequestMessagesObject.create({
-							json: {"status": 'error', "api_token" : null, 
-								"errors": 
+							json: {"status": 'error', "api_token" : null,
+								"errors":
 									{"current_password": error_msg.password_incorrect}}
 					  })
 					);
@@ -204,9 +239,9 @@ App.SettingsController = Ember.ObjectController.extend({
 		var response = {"current_password":null,
 						"new_password": null,
 						"confirm_new_password":null};
-		
+
 		var error_msg = locate(Em.I18n.translations, 'errors');
-		
+
 		if ((!curr_password) || (curr_password.trim() == '')){
 			response.current_password = error_msg.field_required;
 		}
@@ -220,11 +255,11 @@ App.SettingsController = Ember.ObjectController.extend({
 		if ((!confirm_new_password) || (confirm_new_password.trim() == '')){
 			response.confirm_new_password = error_msg.field_required;
 		}
-		
+
 		if (new_password != confirm_new_password) {
 			response.confirm_new_password = error_msg.password_mismatch;
 		}
-		
+
 		return response;
 	}
 });
@@ -252,4 +287,57 @@ Ember.Handlebars.helper('app-name', function(name) {
     var appName = Em.I18n.translations['appNames'][name];
     if (!appName) return '??undefined translation: appNames.'+name;
     return appName;
+});
+
+App.ApplicationView = Ember.View.extend({
+    initFoundation: function () {
+        Ember.$(document).foundation();
+    }.on('didInsertElement')
+});
+
+App.TwoFactorVerificationController = Ember.ObjectController.extend({
+    actions:{
+        close: function() {
+            return this.send('closeModal');
+        },
+        verifyFactor: function(){
+
+            var data = {
+                name: this.get('model')["name"],
+                secondFactor: this.get('verifyCode'),
+                deviceId: this.get('model')["deviceId"],
+                deviceName: this.get('model')["deviceName"]
+            };
+
+            var validationError = Validator.validateTwoFactorVerificationCode(data.secondFactor);
+
+            if (validationError.verificationCode){
+                this._handleVerificationCodeError(validationError);
+            }
+            else{
+                this.send('_validateLoginResponse', Api.login_account(data));
+            }
+        },
+        _validateLoginResponse: function(response) {
+            if (response.account !== "undefined" && response.sessionId !== "undefined") {
+                CloudOs.login(response);
+                window.location.replace('/index.html');
+            }else{
+                // TODO display error messages, requires errors from API.
+            }
+        }
+    },
+    _handleVerificationCodeError: function(validationError) {
+      this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": {
+                        "verifyCode": validationError.verificationCode
+                    }
+                }
+            })
+        );
+    }
 });

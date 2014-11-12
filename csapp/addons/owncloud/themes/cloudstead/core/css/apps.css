@@ -1,0 +1,36 @@
+
+#app-navigation {
+	margin-left:10px;
+	background-color:#F3F3F3;
+	border-right: 0px;
+	width: 220px;
+}
+
+#app-settings{
+	position:relative;
+	width: 220px;
+}
+
+#app-settings-content{
+	position: absolute;
+	bottom: 45px;
+}
+
+#app-navigation > ul > li {
+	background-color:#F3F3F3;
+	border-bottom: 1px solid #ddd;
+}
+
+#app-navigation li > a {
+	line-height: 30px;
+	font-family: NotoSans,sans-serif;
+	font-size:12px;
+}
+
+#app-navigation .active, #app-navigation .active a {
+	font-weight: bold;
+}
+
+#app-settings-header{
+	background-color:#F3F3F3;
+}

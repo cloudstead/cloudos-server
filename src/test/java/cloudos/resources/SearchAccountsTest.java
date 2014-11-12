@@ -68,7 +68,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
         apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 accounts by name");
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
-                .setSortField("name").setSortOrder(ResultPage.SortOrder.ASC);
+                .setSortField("name").setSortOrder(ResultPage.ASC);
         expectResults(page, NUM_ACCOUNTS, accountNames);
     }
 
@@ -77,7 +77,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
 
         apiDocs.startRecording(DOC_TARGET, "search accounts in various ways");
 
-        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.SortOrder.ASC);;
+        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);;
         SearchResults<Account> found;
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
@@ -131,7 +131,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
 
         apiDocs.startRecording(DOC_TARGET, "suspend some accounts and verify searches return correctly");
 
-        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.SortOrder.ASC);;
+        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);;
         SearchResults<Account> found;
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
@@ -179,7 +179,7 @@ public class SearchAccountsTest extends ApiClientTestBase {
     public void testSearchAdminsAndNonAdmins () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "update some accounts and make them admins, verify searches return correctly");
 
-        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.SortOrder.ASC);;
+        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);;
         SearchResults<Account> found;
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");

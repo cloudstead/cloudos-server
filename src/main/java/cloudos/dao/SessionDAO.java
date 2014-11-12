@@ -3,7 +3,6 @@ package cloudos.dao;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.model.Account;
 import cloudos.server.CloudOsConfiguration;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.dao.AbstractSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,11 @@ public class SessionDAO extends AbstractSessionDAO<Account> {
 
     @Override protected String getPassphrase() { return configuration.getCloudConfig().getDataKey(); }
 
-    @Override
-    protected String toJson(Account account) {
+    @Override protected String toJson(Account account) {
         try {
             return JsonUtil.FULL_MAPPER.writeValueAsString(account);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(e);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("toJson: "+e, e);
         }
     }
 

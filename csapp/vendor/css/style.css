@@ -1336,33 +1336,33 @@ select {
     position: relative;
     right: 91.66667%;
     left: auto; } }
-/* 
-  Mixin: accordion-container() 
+/*
+  Mixin: accordion-container()
 
   Decription: Responsible for the container component of accordions, generating styles relating to a margin of zero and a clearfix
 
-  Explicit Dependencies: a clearfix mixin *is* defined. 
+  Explicit Dependencies: a clearfix mixin *is* defined.
 
-  Implicit Dependencies: None 
+  Implicit Dependencies: None
 
 */
 /*
   Mixin: accordion-navigation( $bg, $hover-bg, $active-bg, $padding, $active_class,  $font-color, $font-size, $font-family){
-  
+
     @params $bg-color: [ color or string ]: Specify the background color for the navigation element
     @params $hover-bg-color [ color or string ]: Specify the background color for the navigation element when hovered
-    @params $active-bg [ color or string ]: Specify the background color for the navigation element when clicked and not released. 
-    @params $active_class [ string ]: Specify the class name used to keep track of which accordion tab should be visible 
-    @params $font-color [ color or string ]: Color of the font for accordion 
-    @params $font-size [ number ]: Specifiy the font-size of the text inside the navigation element 
+    @params $active-bg [ color or string ]: Specify the background color for the navigation element when clicked and not released.
+    @params $active_class [ string ]: Specify the class name used to keep track of which accordion tab should be visible
+    @params $font-color [ color or string ]: Color of the font for accordion
+    @params $font-size [ number ]: Specifiy the font-size of the text inside the navigation element
     @params $font-family [ string ]: Specify the font family for the text of the navigation of the accorion
 */
 /*
 
-  Mixin: accordion-content($bg, $padding, $active-class) 
-    @params $padding [ number ]: Padding for the content of the container 
-    @params $bg [ color  ]: Background color for the content when it's visible 
-    @params $active_class [ string ]: Class name used to keep track of which accordion tab should be visible. 
+  Mixin: accordion-content($bg, $padding, $active-class)
+    @params $padding [ number ]: Padding for the content of the container
+    @params $bg [ color  ]: Background color for the content when it's visible
+    @params $active_class [ string ]: Class name used to keep track of which accordion tab should be visible.
 */
 /* line 140, /home/vukan/Work/jcobb/design/cloudstead-pattern-library/source/bower_components/foundation/scss/foundation/components/_accordion.scss */
 .accordion {

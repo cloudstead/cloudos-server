@@ -24,7 +24,7 @@
         default = FILE:/var/log/kerberos/krb5lib.log
 
 [dbdefaults]
-    ldap_kerberos_container_dn = cn=cloudos,<%=@ldap_domain%>
+    ldap_kerberos_container_dn = cn=krb5,<%=@ldap_domain%>
 
 [dbmodules]
     openldap_ldapconf = {

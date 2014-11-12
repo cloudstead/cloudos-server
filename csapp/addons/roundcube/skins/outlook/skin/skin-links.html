@@ -1,0 +1,13 @@
+
+<link rel="stylesheet" type="text/css" href="/skin/icons/css/font-awesome.min.css" />
+
+<roundcube:if condition="empty(env:rcs_device) || env:rcs_device == 'desktop'" />
+    <link rel="stylesheet" type="text/css" href="/common/icons_fa_desktop.css" />
+    <link rel="stylesheet" type="text/css" href="/common/remove_list_icons.css" />
+    <link rel="stylesheet" type="text/css" href="/skin/skin_desktop.css" />
+<roundcube:else />
+    <link rel="stylesheet" type="text/css" href="/common/icons_fa_mobile.css" />
+    <link rel="stylesheet" type="text/css" href="/skin/skin_mobile.css" />
+<roundcube:endif />
+
+<script type="text/javascript" src="/skin/skin.js"></script>

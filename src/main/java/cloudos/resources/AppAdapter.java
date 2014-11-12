@@ -4,18 +4,19 @@ import cloudos.appstore.model.AppRuntime;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
-import cloudos.service.AuthTransition;
-import cloudos.service.InstalledAppLoader;
+import cloudos.server.CloudOsConfiguration;
+import cloudos.service.app.AuthTransition;
+import cloudos.service.app.InstalledAppLoader;
 import com.sun.jersey.api.core.HttpContext;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpCookieBean;
 import org.cobbzilla.util.http.URIUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.time.TimeUtil;
+import org.cobbzilla.wizard.cache.redis.RedisService;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,7 +26,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URI;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 
@@ -36,14 +36,8 @@ public class AppAdapter {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private AppDAO appDAO;
     @Autowired private InstalledAppLoader installedAppLoader;
-
-    private final Jedis redis;
-
-    public AppAdapter() { redis = new Jedis(getRedisHost(), getRedisPort()); }
-
-    // override these if necessary
-    protected int getRedisPort() { return 6379; }
-    protected String getRedisHost() { return "127.0.0.1"; }
+    @Autowired private CloudOsConfiguration configuration;
+    @Autowired private RedisService redis;
 
     @GET
     @Path("/load/{app}")
@@ -60,7 +54,7 @@ public class AppAdapter {
             final AppRuntime app = appDAO.findAppRuntime(appName);
 
             // Hit up that URL -- do we get a login screen?
-            return installedAppLoader.loadApp(account, app, context);
+            return installedAppLoader.loadApp(apiKey, account, app, context);
 
         } catch (Exception e) {
             // todo: better error reporting
@@ -80,9 +74,9 @@ public class AppAdapter {
         try {
             auth = JsonUtil.fromJson(redis.get(uuid), AuthTransition.class);
         } catch (Exception e) {
+            redis.del(uuid);
             log.error("authRelay: error looking up AuthTransition: "+e);
-            final URI redirectUri = context.getRequest().getRequestUri();
-            return Response.temporaryRedirect(URIUtil.toUri("https://"+redirectUri.getHost())).build();
+            return Response.temporaryRedirect(URIUtil.toUri(configuration.getPublicUriBase())).build();
         }
 
         Response.ResponseBuilder responseBuilder = Response.temporaryRedirect(URIUtil.toUri(auth.getRedirectUri()));

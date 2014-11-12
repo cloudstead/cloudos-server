@@ -1,6 +1,5 @@
 package cloudos.resources;
 
-import lombok.extern.slf4j.Slf4j;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
@@ -9,6 +8,7 @@ import cloudos.server.CloudOsConfiguration;
 import cloudos.service.AppInstallTask;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskService;
+import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static cloudos.resources.ApiConstants.H_API_KEY;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,7 +32,11 @@ public class AppsResource {
 
     @GET
     @Path("/installed")
-    public Response listInstalledApps (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
+    public Response listInstalledApps (@HeaderParam(H_API_KEY) String apiKey) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return ResourceUtil.notFound(apiKey);
+
         try {
             return Response.ok(appDAO.findActive()).build();
         } catch (Exception e) {
@@ -40,7 +46,7 @@ public class AppsResource {
     }
 
     @POST
-    public Response installAppFromUrl (@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
+    public Response installAppFromUrl (@HeaderParam(H_API_KEY) String apiKey,
                                        AppInstallUrlRequest request)
             throws Exception { // todo: better exception handling, don't throw anything
 

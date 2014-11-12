@@ -36,10 +36,12 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
     public static final String EP_CHANGE_PASSWORD = "/{"+PARAM_NAME+"}/password";
     public static String getChangePasswordPath(String name) { return ACCOUNTS_ENDPOINT + EP_CHANGE_PASSWORD.replace("{"+PARAM_NAME+"}", name); }
 
-    @Override protected void afterSuccessfulLogin(LoginRequest login, Account account) throws Exception {
+    protected void beforeSessionStart(LoginRequest login, Account account) throws Exception {
         // keep the password in the session, it'll be scrubbed from the json response
         account.setPassword(login.getPassword());
+    }
 
+    @Override protected void afterSuccessfulLogin(LoginRequest login, Account account) throws Exception {
         // set apps
         account.setAvailableApps(new ArrayList<>(appDAO.getAvailableAppDetails().values()));
     }

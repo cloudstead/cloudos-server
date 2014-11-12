@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import cloudos.appstore.test.MockAppStoreApiClient;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
@@ -64,7 +65,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public static final String DEFAULT_KEY_MD5 = "23a5bcd716f54cc819a7367e64fe70e9";
     public static final String DEFAULT_PEM_SHA = "761f5e4128089695d51600c36e6b96438828e0ee7c76d7a15da2c13516832417";
     public static final String DEFAULT_PEM_MD5 = "e367ebcdec3792a33c0005e8b8098040";
-    private MockDnsManager dnsManager;
+
+    private MockDnsManager dnsManager = new MockDnsManager();
+    private MockAppStoreApiClient appStoreClient = new MockAppStoreApiClient();
 
     public boolean shouldCacheServer () { return false; }
 
@@ -196,8 +199,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         configuration.getRooty().addHandler(vendorSettingHandler);
         configuration.getRooty().addHandler(certHandler);
 
-        // setup mock DNS manager
-        dnsManager = new MockDnsManager();
+        // mock app store and DNS manager
+        configuration.setAppStoreClient(appStoreClient);
         configuration.setDnsManager(dnsManager);
     }
 

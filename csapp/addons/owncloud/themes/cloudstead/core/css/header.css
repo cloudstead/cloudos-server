@@ -1,0 +1,11 @@
+@CHARSET "UTF-8";
+
+#body-user #header,
+#body-settings #header,
+#body-public #header {
+	background-color: #03a2cc;
+}
+
+#header .menutoggle {
+	left: 10px;
+}

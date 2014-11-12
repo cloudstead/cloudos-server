@@ -12,7 +12,7 @@ kadminPassword: {{KADMIN_PASS}}
 # Name of the default admin account. The API assumes this is the organization to auth against (we expect this
 defaultAdmin: admin
 
-bcryptRounds: 16
+bcryptRounds: 12
 springContextPath: classpath:/spring.xml
 
 database:

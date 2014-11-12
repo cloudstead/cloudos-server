@@ -1,5 +1,52 @@
 String.prototype.trim = String.prototype.trim || function trim() { return this.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); };
 
+function setCookie(cname, cvalue, exdays){
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires="expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)===' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) !== -1) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie(cname) {
+    var cookie = getCookie(cname);
+    if (cookie !== "") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+function generateDeviceId()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for( var i=0; i < 20; i++ ){
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+
+function getDeviceName(){
+    return navigator.userAgent;
+}
+
+
 CloudOs = {
     json_safe_parse: function (j) {
         return j ? JSON.parse(j) : null;
@@ -15,7 +62,9 @@ CloudOs = {
     },
 
     account: function () {
-        return CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+    	var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+    	cs_acct = add_icon_data(cs_acct);
+        return cs_acct;
     },
 
     set_account: function (account) {
@@ -23,6 +72,59 @@ CloudOs = {
     }
 
 };
+
+function locate(obj, path) {
+    if (!path) return null;
+    if (path[0] == '{' && path[path.length-1] == '}') {
+        // strip leading/trailing curlies, if present
+        path = path.substring(1, path.length-1);
+    }
+    path = path.split('.');
+    var arrayPattern = /(.+)\[(\d+)\]/;
+    for (var i = 0; i < path.length; i++) {
+        var match = arrayPattern.exec(path[i]);
+        if (match) {
+            obj = obj[match[1]][parseInt(match[2])];
+        } else {
+            obj = obj[path[i]];
+        }
+    }
+
+    return obj;
+}
+
+function add_icon_data(acct){
+	var curr_acct = acct;
+	if (curr_acct){
+		var arrayLength = curr_acct.availableApps.length;
+		for (var i = 0; i < arrayLength; i++) {
+			if (curr_acct.availableApps[i].name == 'email'){
+				curr_acct.availableApps[i].icon_name = 'icon-envelope';
+			}
+
+			if (curr_acct.availableApps[i].name == 'calendar'){
+				curr_acct.availableApps[i].icon_name = 'icon-calendar';
+			}
+
+			if (curr_acct.availableApps[i].name == 'files'){
+				curr_acct.availableApps[i].icon_name = 'icon-folder';
+			}
+
+			if (curr_acct.availableApps[i].name == 'kanban'){
+				curr_acct.availableApps[i].icon_name = 'icon-tasks';
+			}
+
+		}
+	}
+	return curr_acct;
+}
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
 
 // Temporary TZ list, will be delivered via API in the future
 
@@ -93,3 +195,18 @@ var timeZoneList = [{ id:0,  dfault:false, ioffset:-720, offset:"GMT-12:00", dna
                     { id:64, dfault:false, ioffset:720, offset:"GMT+12:00", dname:"Asia/Kamchatka", lname:"Kamchatka"},
                     { id:65, dfault:false, ioffset:720, offset:"GMT+12:00", dname:"Pacific/Fiji", lname:"Fiji"}];
 
+Validator = {
+    validateTwoFactorVerificationCode: function(code){
+        var errors = {"verificationCode": null};
+        var error_msg = locate(Em.I18n.translations, 'errors');
+        var codeRegexp = /^(\d){7}$/;
+
+        if ((!code) || (code.trim() == '')){
+            errors.verificationCode = error_msg.field_required;
+        }
+        else if (!codeRegexp.test(code)){
+            errors.verificationCode = error_msg.two_factor_code_invalid;
+        }
+        return errors;
+    }
+}

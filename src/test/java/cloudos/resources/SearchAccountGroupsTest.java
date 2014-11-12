@@ -77,7 +77,7 @@ public class SearchAccountGroupsTest extends SearchAccountsTest {
         apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name");
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
-                .setSortField("name").setSortOrder(ResultPage.SortOrder.ASC);
+                .setSortField("name").setSortOrder(ResultPage.ASC);
         expectResults(page, NUM_GROUPS, groupNames, searchAccountGroups(page));
     }
 

@@ -1,5 +1,6 @@
 package cloudos.service.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,10 @@ public class TaskResult {
     @Getter @Setter private String target;
 
     @Getter @Setter private boolean success = false;
-    @Getter @Setter private Exception exception;
+    @Getter @Setter @JsonIgnore private Exception exception;
+
+    public String getError () { return exception == null ? null : exception.toString(); }
+    public void setError (String error) { exception = new Exception(error); }
 
     @Getter private List<TaskEvent> events = new ArrayList<>();
 
@@ -29,5 +33,7 @@ public class TaskResult {
         setActionMessageKey(actionMessageKey);
         setTarget(target);
     }
+
+    @JsonIgnore public boolean isComplete () { return success || getError() != null; }
 
 }

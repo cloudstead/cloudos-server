@@ -1,0 +1,302 @@
+#mailboxlist li.mailbox div.treetoggle,#directorylist li.addressbook div.collapsed:before,#directorylist li.addressbook div.expanded:before,#messagelist td.subject:before,#messagelist td.flag span.flagged,#messagelist td.status span.unread,#messagelist td.attachment span.attachment,#messagelist td.attachment span.report,#messagelist td.subject span.msgicon.replied,#messagelist td.subject span.msgicon.forwarded,#messagelist td.subject span.msgicon.replied.forwarded,#messagestack div:after,.pagenav a.firstpage:before,.pagenav a.prevpage:before,.pagenav a.nextpage:before,.pagenav a.lastpage:before,#full-headers .more-headers:before,#attachment-list .delete:before,#attachment-list .drop:before,.rcmaddcontact:before,.settings-button span,.moreheaderstoggle .iconlink,#planner_controls #new:after,#planner_controls #tomorrow:after,#planner_controls #all:after,#planner_controls #help:after,#planner_controls #filter:after,#main-menu span:before,.popup-close a:before {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: none;
+    text-indent: 0;
+}
+
+#mailboxlist li.mailbox div.treetoggle,#directorylist li.addressbook div.collapsed:before,#directorylist li.addressbook div.expanded:before,.settings-button span,#main-menu span:before,.popup-close a:before {
+    font-size: 2em;
+    padding-top: 11px;
+    text-align: center;
+}
+
+#main-menu #button-taskbar span:before {
+    content: "\f0c9";
+}
+
+#main-menu #button-toolbar span:before {
+    content: "\f013";
+}
+
+#main-menu #button-format span:before {
+    content: "\f121";
+}
+
+#main-menu #button-compose span:before {
+    content: "\f040";
+}
+
+#main-menu #button-users span:before {
+    content: "\f007";
+}
+
+#main-menu #button-folders span:before {
+    content: "\f07c";
+}
+
+#main-menu #button-mail span:before {
+    content: "\f0e0";
+}
+
+#main-menu #button-funnel span:before {
+    content: "\f0b0";
+}
+
+#main-menu #button-sections span:before {
+    content: "\f0ad";
+}
+
+#main-menu #button-calendar span:before {
+    content: "\f00a";
+}
+
+#main-menu #button-tasks span:before {
+    content: "\f0ae";
+}
+
+.popup-close a:before {
+    content: "\f0a8";
+}
+
+#mailboxlist li div.collapsed:before,#directorylist li.addressbook div.collapsed:before {
+    content: "\f055";
+}
+
+#mailboxlist li div.expanded:before,#directorylist li.addressbook div.expanded:before {
+    content: "\f056";
+}
+
+#messagelist td.subject:before {
+    content: "\f00c";
+}
+
+#messagelist td.flag span.flagged:before {
+    content: "\f024";
+}
+
+#messagelist td.status span.unread:before {
+    content: "\f069";
+}
+
+#messagelist td.attachment span.attachment:before {
+    content: "\f0c6";
+}
+
+#messagelist td.attachment span.report:before {
+    content: "\f15c";
+}
+
+#messagelist td.subject span.msgicon.replied:before {
+    content: "\f112";
+}
+
+#messagelist td.subject span.msgicon.forwarded:before {
+    content: "\f064";
+}
+
+#messagelist td.subject span.msgicon.replied.forwarded:before {
+    content: "\f07e";
+}
+
+.moreheaderstoggle.remove .iconlink:before {
+    content: "\f077";
+}
+
+.moreheaderstoggle .iconlink:before {
+    content: "\f078";
+}
+
+#planner_controls #new:after {
+    content: "\f067";
+}
+
+#planner_controls #tomorrow:after {
+    content: "\f054";
+}
+
+#planner_controls #all:after {
+    content: "\f141";
+}
+
+#planner_controls #help:after {
+    content: "\f05a";
+}
+
+#planner_controls #filter:after {
+    content: "\f0b0";
+}
+
+#messagelist td.subject:before {
+    float: right;
+    margin-top: 8px;
+    color: #aaa;
+}
+
+#messagelist tr.selected td.subject:before,#messagelist tr.unfocused td.subject:before {
+    color: #000;
+}
+
+#full-headers .more-headers {
+    background: none;
+    top: -30px;
+    font-size: 1.6em;
+    color: #666;
+}
+
+#full-headers .more-headers.show-headers:before {
+    content: "\f13a";
+}
+
+#full-headers .more-headers.hide-headers:before {
+    content: "\f13a";
+}
+
+#attachment-list .delete,#attachment-list .drop {
+    background: none;
+    text-indent: 0;
+    top: 2px;
+    width: auto;
+    font-size: 1.6em;
+    color: #666;
+}
+
+#attachment-list .delete {
+    padding-right: 30px!important;
+}
+
+#attachment-list .delete:before {
+    content: "\f00d";
+}
+
+#attachment-list .drop:before {
+    content: "\f13a";
+}
+
+.attachmentslist li a {
+    padding-right: 55px;
+}
+
+.rcmaddcontact {
+    font-size: 1.4em;
+}
+
+.rcmaddcontact img {
+    display: none;
+}
+
+.rcmaddcontact:before {
+    content: "\f007";
+}
+
+.settings-button:nth-child(3) span:before {
+    content: "\f0ad";
+}
+
+.settings-button:nth-child(4) span:before {
+    content: "\f00a";
+}
+
+#preferences-details fieldset.advanced .advanced-toggle {
+    background: none;
+    font-size: 1.4em;
+    text-indent: 0;
+    font-size: #333;
+    height: auto;
+    width: auto;
+}
+
+#messagestack div:after {
+    background-image: none!important;
+    content: "\f06a";
+    padding-top: 10px;
+    padding-left: 4px;
+    font-size: 1.2em;
+    color: #fff!important;
+}
+
+#messagestack div.error:after {
+    content: "\f00d";
+}
+
+#messagestack div.warning:after {
+    content: "\f071";
+}
+
+#messagestack div.confirmation:after {
+    content: "\f00c";
+}
+
+#messagestack div.loading {
+    padding-left: 10px;
+}
+
+#messagestack div.loading:after {
+    background-image: none!important;
+    content: "";
+}
+
+.boxpagenav a.icon,#countcontrols a.button {
+    background: #888;
+    background-image: none!important;
+    color: #fff;
+    text-indent: 0;
+    font-size: 1.2em;
+    min-width: 25px;
+    height: auto;
+    border: none;
+    text-align: center;
+}
+
+.boxpagenav a.icon {
+    text-indent: 0;
+    color: #fff;
+}
+
+.boxpagenav a.icon.disabled,.pagenav a.button.disabled {
+    background: #aaa!important;
+}
+
+.pagenav a.button span {
+    display: none!important;
+}
+
+.pagenav a.firstpage:before {
+    content: "\f100";
+}
+
+.pagenav a.prevpage:before {
+    content: "\f104";
+}
+
+.pagenav a.nextpage:before {
+    content: "\f105";
+}
+
+.pagenav a.lastpage:before {
+    content: "\f101";
+}
+
+#messageheader .pagenav a.prevpage:before {
+    content: "\f062";
+}
+
+#messageheader .pagenav a.nextpage:before {
+    content: "\f063";
+}
+
+#messageheader .pagenav a.button {
+    background: transparent!important;
+    color: #666;
+    font-size: 1.6em;
+    min-width: 20px;
+}
+
+#messageheader .pagenav a.button.disabled {
+    background: transparent!important;
+    color: #aaa;
+}

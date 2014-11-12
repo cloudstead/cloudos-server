@@ -13,6 +13,7 @@ import org.cobbzilla.mail.service.TemplatedMailSenderConfiguration;
 import org.cobbzilla.util.dns.DnsManager;
 import org.cobbzilla.util.http.ApiConnectionInfo;
 import org.cobbzilla.util.system.CommandShell;
+import org.cobbzilla.wizard.cache.redis.HasRedisConfiguration;
 import org.cobbzilla.wizard.server.config.DatabaseConfiguration;
 import org.cobbzilla.wizard.server.config.HasDatabaseConfiguration;
 import org.cobbzilla.wizard.server.config.RestServerConfiguration;
@@ -27,7 +28,7 @@ import java.net.UnknownHostException;
 
 @Configuration @Slf4j
 public class CloudOsConfiguration extends RestServerConfiguration
-        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration {
+        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration, HasRedisConfiguration {
 
     public static final String DEFAULT_ADMIN = "admin";
 
@@ -35,14 +36,19 @@ public class CloudOsConfiguration extends RestServerConfiguration
 
     @Bean public DatabaseConfiguration getDatabase() { return database; }
 
+    @Getter @Setter private CloudOsRedisConfiguration redis = new CloudOsRedisConfiguration(this);
+
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 
     @Getter @Setter private SmtpMailConfig smtpMailConfig;
     @Getter @Setter private String emailTemplateRoot;
 
     @Getter @Setter private ApiConnectionInfo appStore;
-    @Getter(lazy=true) private final AppStoreApiClient appStoreApiClient = initAppStoreApiClient();
-    private AppStoreApiClient initAppStoreApiClient() { return new AppStoreApiClient(appStore); }
+    @Setter private AppStoreApiClient appStoreClient;
+    public AppStoreApiClient getAppStoreClient () {
+        if (appStoreClient == null) appStoreClient = new AppStoreApiClient(appStore);
+        return appStoreClient;
+    }
 
     @Getter @Setter private ApiConnectionInfo authy;
 

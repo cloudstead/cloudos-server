@@ -4,25 +4,20 @@ import cloudos.appstore.model.app.AppManifest;
 import lombok.Getter;
 import lombok.Setter;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.wizard.model.IdentifiableBase;
+import org.cobbzilla.wizard.model.UniquelyNamedEntity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Entity
-public class InstalledApp extends IdentifiableBase {
+public class InstalledApp extends UniquelyNamedEntity {
 
     // uuid references Account
     @Getter @Setter private String account;
 
     @Getter @Setter private boolean active;
-
-    // from manifest
-    @Column(unique=true, nullable=false)
-    @Getter @Setter private String name;
 
     @Getter @Setter private String path;
 
@@ -30,6 +25,7 @@ public class InstalledApp extends IdentifiableBase {
 
     // set upon first install
     @Getter @Setter private int port;
+    @Getter @Setter private int adminPort; // always generated, not always used
 
     @Size(max=4096, message="err.installedApp.manifestJson.tooLong")
     @Getter private String manifestJson;
@@ -65,4 +61,9 @@ public class InstalledApp extends IdentifiableBase {
         hostname = manifest.getHostname();
     }
 
+    public String getLocalBaseUri() {
+        final AppManifest m = getManifest();
+        if (!m.hasWeb()) return null;
+        return "http://127.0.0.1:"+getPort();
+    }
 }
