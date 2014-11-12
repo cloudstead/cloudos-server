@@ -328,21 +328,22 @@ App.AccountsController = Ember.ArrayController.extend({
 			this.set('sortProperties',[property]);
 			this.set('sortAscending', !this.get('sortAscending'));
 		},
-		doBulkAction: function(selectorId){
-			var bulk_action = $("#" + selectorId).val();
+
+		doBulkDelete: function() {
 			var selectedAccounts = App.AccountFilter.filterSelected(this.get('arrangedContent'));
 
-			if (bulk_action === "bulk_toggle_status"){
-				App.Account.bulkToggleStatus(selectedAccounts);
-			}
-			else if (bulk_action === "bulk_delete"){
-				if (confirm("You are about to delete all selected accounts. Are you sure?")){
-					selectedAccounts.forEach(function(account){
-						account.destroy();
-					});
-				}
+			if (confirm("You are about to delete all selected accounts. Are you sure?")){
+				selectedAccounts.forEach(function(account){
+					account.destroy();
+				});
 			}
 		},
+
+		doBulkToggleStatus: function(){
+			var selectedAccounts = App.AccountFilter.filterSelected(this.get('arrangedContent'));
+			App.Account.bulkToggleStatus(selectedAccounts);
+		},
+
 		doDeleteAccount: function(account){
 			var fullName = account.firstName + " " + account.lastName;
 			if (confirm("You are about to delete " + fullName + ". Are you sure?")){

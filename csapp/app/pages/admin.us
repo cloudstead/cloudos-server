@@ -815,17 +815,24 @@
 </script>
 
 <script type="text/x-handlebars" id="bulk_actions">
-		<div class="large-2 columns no-padd">
-			<select id="account_bulk_action" class="select-small">
-				<option value="bulk_toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
-				<option value="bulk_delete">{{t sections.acct.bulk.delete}}</option>
-			</select>
-		</div>
-		<div class="large-2 columns no-padd">
-			<a href="#" class="button tiny" {{action "doBulkAction" "account_bulk_action"}}>Apply</a>
-		</div>
-		<div class="large-8 columns no-padd">
-		</div>
+	<ul class="inline-list">
+		<li>{{partial "bulk_suspend"}}</li>
+		<li>{{partial "bulk_delete"}}</li>
+	</ul>
+</script>
+
+<script type="text/x-handlebars" id="bulk_suspend">
+	<a href="" {{action "doBulkToggleStatus"}}>
+		<span class="icon-pause"></span>
+		<span>{{t sections.acct.bulk.toggle_status}}</span>
+	</a>
+</script>
+
+<script type="text/x-handlebars" id="bulk_delete">
+	<a href="" {{action "doBulkDelete"}}>
+		<span class="icon-times"></span>
+		<span>{{t sections.acct.bulk.delete}}</span>
+	</a>
 </script>
 
 <script type="text/x-handlebars" id="accounts">
@@ -884,7 +891,7 @@
 					</ul>
 						{{partial "account-col-toggle"}}
 				</div>
-				<div class="large-12 columns no-padd">
+				<div class="large-12 columns no-padd bulk_action_list">
 					{{#if anySelected}}
 						{{render "bulk_actions"}}
 					{{/if}}
@@ -923,9 +930,6 @@
 								<tr>
 									<td>
 										{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}
-										{{#if isSelected}}
-											<button {{action "doDeleteAccount" this}} class="alert label">X</button>
-										{{/if}}
 									</td>
 									<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
 									<td>{{fromUTC lastLogin}}</td>

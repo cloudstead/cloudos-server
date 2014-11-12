@@ -178,3 +178,7 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .modal-small{
 	width: 35%;
 }
+
+.bulk_action_list{
+	min-height: 45px;
+}
