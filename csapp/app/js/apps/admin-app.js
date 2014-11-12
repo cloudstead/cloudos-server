@@ -225,13 +225,6 @@ App.Account = Ember.Object.extend({
 		return Api.admin_change_password(this.get("name"), this.get("newPassword"));
 	},
 
-	changeCheckboxStatus: function(){
-		// 'this' here refers to the checkbox object.
-		// it's context is acctually this object.
-		var account = this.get("context");
-		return account.toggleStatus();
-	},
-
 	status: function() {
 		var stat_name = Em.I18n.translations['sections'].acct.status;
 		if (this.get("suspended") === true){

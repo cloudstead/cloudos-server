@@ -920,10 +920,6 @@
 								Status <span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
-							<th>
-								<span class="icon-sort-down right"></span>
-								<span class="icon-sort-up table-icon table-icon-upper right" style="margin-right: -6px;"></span>
-							</th>
 						</thead>
 						<tbody>
 							{{#each}}
@@ -936,12 +932,6 @@
 									<td>{{email}}</td>
 									<td>{{mobilePhone}}</td>
 									<td>{{status}}</td>
-									<td>
-										<div class="switch" title="Toggle Status">
-											{{input id=accountDOMId type='checkbox' checked=isActive change=changeCheckboxStatus}}
-											<label {{bindAttr for="accountDOMId"}}></label>
-										</div>
-									</td>
 								</tr>
 							{{/each}}
 						</tbody>
