@@ -815,17 +815,17 @@
 </script>
 
 <script type="text/x-handlebars" id="bulk_actions">
-	<div class="large-2 columns no-padd">
-		<select id="account_bulk_action" class="select-small">
-			<option value="bulk_toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
-			<option value="bulk_delete">{{t sections.acct.bulk.delete}}</option>
-		</select>
-	</div>
-	<div class="large-2 columns no-padd">
-		<a href="#" class="button tiny" {{action "doBulkAction" "account_bulk_action"}}>Apply</a>
-	</div>
-	<div class="large-8 columns no-padd">
-	</div>
+		<div class="large-2 columns no-padd">
+			<select id="account_bulk_action" class="select-small">
+				<option value="bulk_toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
+				<option value="bulk_delete">{{t sections.acct.bulk.delete}}</option>
+			</select>
+		</div>
+		<div class="large-2 columns no-padd">
+			<a href="#" class="button tiny" {{action "doBulkAction" "account_bulk_action"}}>Apply</a>
+		</div>
+		<div class="large-8 columns no-padd">
+		</div>
 </script>
 
 <script type="text/x-handlebars" id="accounts">
@@ -882,10 +882,12 @@
 							</a>
 						</li>
 					</ul>
-					{{partial "account-col-toggle"}}
+						{{partial "account-col-toggle"}}
 				</div>
 				<div class="large-12 columns no-padd">
-					{{render "bulk_actions"}}
+					{{#if anySelected}}
+						{{render "bulk_actions"}}
+					{{/if}}
 				</div>
 				<div class="large-12 columns no-padd">
 					<table style="width: 100%">

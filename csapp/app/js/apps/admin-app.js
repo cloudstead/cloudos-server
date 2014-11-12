@@ -316,6 +316,9 @@ App.AccountFilter = Ember.Object.reopenClass({
 		return accounts.filter(function(account){
 				return account.get('isSelected');
 			});
+	},
+	anySelected: function(accounts) {
+		return App.AccountFilter.filterSelected(accounts).length > 0 ? true : false;
 	}
 });
 
@@ -346,7 +349,11 @@ App.AccountsController = Ember.ArrayController.extend({
 				account.destroy();
 			}
 		}
-	}
+	},
+
+	anySelected: function(){
+		return App.AccountFilter.anySelected(this.get('arrangedContent'));
+	}.property("arrangedContent.@each.isSelected")
 });
 
 App.newAccountModel = function () {
