@@ -162,6 +162,17 @@ Api = {
 			newPassword: newPassword
 		};
 		return Api._post('/api/accounts/' + name + '/password', request);
+	},
+
+	change_password_2: function (name, oldPassword, newPassword, uuid, sendInvite) {
+		console.log("cp2");
+		var request = {
+			oldPassword: oldPassword,
+			newPassword: newPassword,
+			uuid: uuid,
+			sendInvite: sendInvite
+		};
+		return Api._post('/api/accounts/' + name + '/password', request);
 	}
 
 };

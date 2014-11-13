@@ -65,6 +65,10 @@ App.Router.map(function() {
     this.resource('logout');
     this.resource('settings');
     this.resource('app', { path: '/app/:app_name' });
+
+    this.resource('profile', function(){
+        this.route('changePassword', { path: '/change_password' });
+    });
 });
 
 App.LogoutRoute = Ember.Route.extend({
@@ -339,5 +343,209 @@ App.TwoFactorVerificationController = Ember.ObjectController.extend({
                 }
             })
         );
+    }
+});
+
+
+App.Profile = Ember.Object.extend(Ember.Copyable, {
+
+    updateWith: function(data) {
+        return Api.update_account(data);
+    },
+
+    changePassword: function() {
+        return Api.admin_change_password(this.get("name"), this.get("newPassword"));
+    },
+
+    _commit_status_change: function(){
+        return Api.update_account(
+            {
+                name: this.get("name"),
+                firstName: this.get("firstName"),
+                lastName: this.get("lastName"),
+                email: this.get("email"),
+                emailVerified: false,
+                mobilePhone: ""+this.get("mobilePhone"),
+                admin: this.get("admin"),
+                twoFactor: this.get("twoFactor"),
+                mobilePhoneCountryCode: ""+this.get("mobilePhoneCountryCode"),
+                suspended: this.get("suspended"),
+                accountName: this.get("accountName")
+            }
+        );
+    },
+
+    _data: function() {
+        return {
+            name: this.get("name"),
+            firstName: this.get("firstName"),
+            lastName: this.get("lastName"),
+            email: this.get("email"),
+            emailVerified: this.get("emailVerified"),
+            mobilePhone: ""+this.get("mobilePhone"),
+            admin: this.get("admin"),
+            twoFactor: this.get("twoFactor"),
+            mobilePhoneCountryCode: ""+this.get("mobilePhoneCountryCode"),
+            suspended: this.get("suspended"),
+            accountName: this.get("accountName"),
+            isSelected: this.get("isSelected")
+        };
+    },
+
+    copy: function() {
+        return App.Profile.create(this._data());
+    },
+
+    changePassword: function() {
+        console.log(this);
+        return Api.change_password_2(
+            this.get("name"), this.get("oldPassword"), this.get("newPassword"), this.get("uuid"), false);
+    },
+});
+
+App.Profile.reopenClass({
+
+    findByName: function(account_name){
+        return App.Profile.create(Api.find_account(account_name));
+    }
+});
+
+App.ProfileRoute = Ember.Route.extend({
+    model: function() {
+        return App.Profile.findByName(CloudOs.account().name);
+    },
+    setupController: function(controller, model) {
+        controller.set('model', model);
+        controller.set('original_model', model.copy());
+    }
+});
+
+App.ProfileController = Ember.ObjectController.extend({
+    actions: {
+        doReset: function() {
+            var account = this.get('original_model');
+
+            this.set('name', account.get("name"));
+            this.set('firstName', account.get("firstName"));
+            this.set('lastName', account.get("lastName"));
+            this.set('email', account.get("email"));
+            this.set('mobilePhone', account.get("mobilePhone"));
+        },
+
+        doEditProfile: function() {
+            var account = this.get('model');
+
+            var accountErrors = AccountValidator.getUpdateValidationErrorsFor(account);
+
+            if (accountErrors.is_not_empty){
+                this._handleAccountValidationErrors(accountErrors);
+            }
+            else{
+                this._updateAcount(account);
+            }
+        },
+
+        openChangePassword: function() {
+            this.transitionToRoute("profile.changePassword");
+        }
+    },
+
+    _handleAccountValidationErrors: function(errors){
+        this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": errors
+                }
+            })
+        );
+    },
+
+    _updateAcount: function(account) {
+        account.updateWith(this._formData()) ?
+            this.transitionToRoute("profile") :
+            this._handleAccountUpdateFailed(account);
+    },
+
+    _handleAccountUpdateFailed: function(account) {
+        alert('error updating account: ' + account.name)
+    },
+
+    _formData: function(){
+        var account = this.get('model');
+        return {
+            name: this.get('name'),
+            accountName: this.get('name'),
+            firstName: this.get('firstName'),
+            lastName: this.get('lastName'),
+            email: this.get('email'),
+            mobilePhone: this.get('mobilePhone'),
+
+            mobilePhoneCountryCode: account.get("mobilePhoneCountryCode"),
+            admin: account.get('admin'),
+            twoFactor: account.get('twoFactor'),
+            suspended: account.get('suspended'),
+        };
+    }
+});
+
+App.ProfileChangePasswordRoute = Ember.Route.extend({
+    model: function () {
+        return this.modelFor('profile');
+    },
+    renderTemplate: function() {
+        this.render('change_password_modal', { outlet: 'change_password', controller: this.controller });
+    }
+});
+
+App.ProfileChangePasswordController = Ember.ObjectController.extend({
+    actions:{
+        doCloseModal: function(){
+            this._transitionToProfile();
+        },
+
+        doChangePassword: function () {
+            var account = this.get('model');
+            console.log(account);
+
+            var passwordErrors = AccountValidator.getPasswordValidationErrorsFor(account);
+
+            if (passwordErrors.is_not_empty){
+                this._handleChangeAccountPasswordErrors(passwordErrors);
+            }
+            else{
+                this._changePassword(account);
+            }
+        }
+    },
+
+    _handleChangeAccountPasswordErrors: function(errors){
+        this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": errors
+                }
+            })
+        );
+    },
+
+    _changePassword: function(account) {
+        if (account.changePassword()){
+            this._transitionToProfile();
+        }
+        else{
+            this._handleChangeAccountPasswordFailed(account);
+        }
+    },
+
+    _transitionToProfile: function() {
+        this.transitionToRoute("profile");
+    },
+
+    _handleChangeAccountPasswordFailed: function(account) {
+        alert('error changing password account: ' + account.name)
     }
 });
