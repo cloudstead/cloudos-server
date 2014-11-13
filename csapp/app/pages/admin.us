@@ -1239,7 +1239,7 @@
 				</div>
 				<div class="row">
 					<div class="large-6 columns">
-						<button class="small" {{action openChangePassword}} >Change Password</button>
+						<button class="small" {{action openChangePassword}} >{{t forms.account.change_password}}</button>
 					</div>
 					<div class="large-2 columns">
 						<input id="checkbox1" type="checkbox"><label for="checkbox1">{{t forms.account.add_another}}</label>
@@ -1507,15 +1507,22 @@
 			<fieldset class="wrap-set">
 				<legend>{{t sections.profile}}</legend>
 					<div class="row">
-						<label>{{t forms.profile.username}}
-						<div><span class="permanent-input">{{name}}</span></div>
-						</label>
+						<div class="large-4 columns">
+							<label>{{t forms.profile.username}}
+								<div><span class="permanent-input">{{name}}</span></div>
+							</label>
+						</div>
+						<div class="large-4 columns">
+							<button class="small" {{action openChangePassword}} >
+								{{t forms.account.change_password}}
+							</button>
+						</div>
 					</div>
 					<div class="row">
 						<label>{{t forms.profile.first_name}}
-						{{#if requestMessages.error.first_name}}
+						{{#if requestMessages.error.firstName}}
 							{{input type="text" value=firstName class="error"}}
-							<span class="message error">{{requestMessages.error.first_name}}</span>
+							<span class="message error">{{requestMessages.error.firstName}}</span>
 						{{else}}
 							{{input type="text" value=firstName}}
 						{{/if}}
@@ -1523,9 +1530,9 @@
 					</div>
 					<div class="row">
 						<label>{{t forms.profile.last_name}}
-						{{#if requestMessages.error.last_name}}
+						{{#if requestMessages.error.lastName}}
 							{{input type="text" value=lastName class="error"}}
-							<span class="message error">{{requestMessages.error.last_name}}</span>
+							<span class="message error">{{requestMessages.error.lastName}}</span>
 						{{else}}
 							{{input type="text" value=lastName}}
 						{{/if}}
@@ -1547,9 +1554,9 @@
 					</div>
 					<div class="row">
 						<label>{{t forms.profile.mobile_phone}}
-						{{#if requestMessages.error.mobile_phone}}
+						{{#if requestMessages.error.mobilePhone}}
 							{{input type="text" value=mobilePhone class="error"}}
-							<span class="message error">{{requestMessages.error.mobile_phone}}</span>
+							<span class="message error">{{requestMessages.error.mobilePhone}}</span>
 						{{else}}
 							{{input type="text" value=mobilePhone}}
 						{{/if}}
@@ -1576,6 +1583,7 @@
 			</fieldset>
 		</div>
 	</section>
+	{{outlet change_password}}
 </script>
 
 <script type="text/x-handlebars" id="components/modal-dialog">

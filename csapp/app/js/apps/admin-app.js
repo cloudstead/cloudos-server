@@ -24,7 +24,9 @@ App.Router.map(function() {
 		this.route('adminChangePassword', { path: '/admin_change_password' });
 	});
 
-	this.resource('profile');
+	this.resource('profile', function(){
+		this.route('changePassword', { path: '/change_password' });
+	});
 
 	this.resource('security', function() {
 		this.resource('certs', function() {
@@ -1074,6 +1076,10 @@ App.ProfileController = Ember.ObjectController.extend({
 			else{
 				this._updateAcount(account);
 			}
+		},
+
+		openChangePassword: function() {
+			this.transitionToRoute("profile.changePassword");
 		}
 	},
 
@@ -1114,6 +1120,65 @@ App.ProfileController = Ember.ObjectController.extend({
 			twoFactor: account.get('twoFactor'),
 			suspended: account.get('suspended'),
 		};
+	}
+});
+
+App.ProfileChangePasswordRoute = Ember.Route.extend({
+	model: function () {
+		return this.modelFor('profile');
+	},
+	renderTemplate: function() {
+		this.render('manageAccount/adminChangePassword', { outlet: 'change_password', controller: this.controller });
+	}
+});
+
+App.ProfileChangePasswordController = Ember.ObjectController.extend({
+	actions:{
+		doCloseModal: function(){
+			this._transitionToProfile();
+		},
+
+		doChangePassword: function () {
+			var account = this.get('model');
+
+			var passwordErrors = AccountValidator.getPasswordValidationErrorsFor(account);
+
+			if (passwordErrors.is_not_empty){
+				this._handleChangeAccountPasswordErrors(passwordErrors);
+			}
+			else{
+				this._changePassword(account);
+			}
+		}
+	},
+
+	_handleChangeAccountPasswordErrors: function(errors){
+		this.set('requestMessages',
+			App.RequestMessagesObject.create({
+				json: {
+					"status": 'error',
+					"api_token" : null,
+					"errors": errors
+				}
+			})
+		);
+	},
+
+	_changePassword: function(account) {
+		if (account.changePassword()){
+			this._transitionToProfile();
+		}
+		else{
+			this._handleChangeAccountPasswordFailed(account);
+		}
+	},
+
+	_transitionToProfile: function() {
+		this.transitionToRoute("profile");
+	},
+
+	_handleChangeAccountPasswordFailed: function(account) {
+		alert('error changing password account: ' + account.name)
 	}
 });
 
