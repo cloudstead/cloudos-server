@@ -85,7 +85,7 @@ public class KerberosService {
     }
 
     public void adminChangePassword(String accountName, String newPassword) {
-        run_kadmin("change_password "+accountName+"\n"+newPassword+"\n"+newPassword+"\n", "adminChangePassword");
+        run_kadmin(configuration.getKadminPassword()+"\nchange_password "+accountName+"\n"+newPassword+"\n"+newPassword+"\n", "adminChangePassword");
     }
 
     public void deletePrincipal(String accountName) {
