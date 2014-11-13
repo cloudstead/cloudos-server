@@ -1555,6 +1555,14 @@
 						{{/if}}
 						</label>
 					</div>
+					<div class="row">
+						<label>{{t forms.account.two_factor_auth}}
+							<div class="switch">
+									{{input type="checkbox" id="two_factor_auth_checkbox" checked=twoFactor}}
+									<label for="two_factor_auth_checkbox"></label>
+							</div>
+						</label>
+					</div>
 					<div class="row right">
 						<div class="large-12 columns large-right no-padding">
 							<button type="submit" class="small right left-margin-small">
