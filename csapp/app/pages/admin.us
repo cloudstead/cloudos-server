@@ -79,7 +79,7 @@
 		<li><a href="#">{{t menu.help.ticket}}</a></li>
 	</ul>
 	<ul id="user-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">{{t menu.profile}}</a></li>
+		<li>{{#link-to "profile"}}{{t menu.profile}}{{/link-to}}
 		<li><a href="/#/settings">{{t menu.settings}}</a></li>
 		<li class="divider"></li>
 		<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
@@ -1492,6 +1492,77 @@
 						<div class="large-12 columns large-right no-padding">
 							<button type="submit" class="small right left-margin-small">{{t forms.group.edit_button}}</button>
 							<button type="submit" class="small right left-margin-small" {{action 'doCancel'}}>{{t forms.group.cancel}}</button>
+						</div>
+					</div>
+			</fieldset>
+		</div>
+	</section>
+</script>
+
+<script type="text/x-handlebars" id="profile">
+
+	<section class="deck">
+		<div class="row large-4">
+			<form {{action 'doEditProfile' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.profile}}</legend>
+					<div class="row">
+						<label>{{t forms.profile.username}}
+						<div><span class="permanent-input">{{name}}</span></div>
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.first_name}}
+						{{#if requestMessages.error.first_name}}
+							{{input type="text" value=firstName class="error"}}
+							<span class="message error">{{requestMessages.error.first_name}}</span>
+						{{else}}
+							{{input type="text" value=firstName}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.last_name}}
+						{{#if requestMessages.error.last_name}}
+							{{input type="text" value=lastName class="error"}}
+							<span class="message error">{{requestMessages.error.last_name}}</span>
+						{{else}}
+							{{input type="text" value=lastName}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>
+							{{t forms.profile.recovery_email}}
+							{{#if emailVerified}}
+								<span class="icon-check success-check"></span>
+							{{/if}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
+								<span class="message error">{{requestMessages.error.email}}</span>
+							{{else}}
+								{{input type="text" value=email}}
+							{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.mobile_phone}}
+						{{#if requestMessages.error.mobile_phone}}
+							{{input type="text" value=mobilePhone class="error"}}
+							<span class="message error">{{requestMessages.error.mobile_phone}}</span>
+						{{else}}
+							{{input type="text" value=mobilePhone}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row right">
+						<div class="large-12 columns large-right no-padding">
+							<button type="submit" class="small right left-margin-small">
+								{{t forms.profile.commit_changes}}
+							</button>
+							<button type="submit" class="small right left-margin-small" {{action 'doReset'}}>
+								{{t forms.profile.cancel}}
+							</button>
 						</div>
 					</div>
 			</fieldset>
