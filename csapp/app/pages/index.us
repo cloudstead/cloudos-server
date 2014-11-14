@@ -212,7 +212,11 @@
 <script type="text/x-handlebars" id="components/modal-dialog">
 	<div class="overlay" {{action "close"}}>
 	</div>
-	<div class="modal">
+	{{#if small}}
+		<div class="modal-small">
+	{{else}}
+		<div class="modal">
+	{{/if}}
 		{{yield}}
 	</div>
 </script>
@@ -360,7 +364,7 @@
 </script>
 
 <script type="text/x-handlebars" id="change_password_modal">
-	{{#modal-dialog}}
+	{{#modal-dialog small=true}}
 		<div class="row modal-filler">
 			<legend>{{name}}: {{t forms.account.change_password}}</legend>
 		</div>
