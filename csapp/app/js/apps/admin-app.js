@@ -6,7 +6,7 @@ App = Ember.Application.create({
 
 App.Router.map(function() {
 	this.resource('logout');
-//  this.resource('apps');
+	// this.resource('apps');
 	this.resource('appstore');
 	this.resource('installedapps');
 	this.resource('selectedapp', {path: '/appstore/:appname'});
@@ -38,8 +38,8 @@ App.Router.map(function() {
 	this.route('groupsNew', { path: "/groups/new/" });
 	this.route('group', { path: '/group/:group_name' });
 
-//  this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
-//  this.resource('configCloud', { path: '/cloud/:cloud_name' });
+	// this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
+	// this.resource('configCloud', { path: '/cloud/:cloud_name' });
 });
 
 App.ApplicationRoute = Ember.Route.extend({
@@ -227,10 +227,10 @@ App.Account = Ember.Object.extend(Ember.Copyable, {
 
 	status: function() {
 		var stat_name = Em.I18n.translations['sections'].acct.status;
-		if (this.get("suspended") === true){
+		if (this.get("suspended")){
 			return stat_name.suspended;
 		}
-		if (this.get("admin") === true) {
+		if (this.get("admin")) {
 			return stat_name.admin;
 		}
 		return stat_name.active;
@@ -310,15 +310,6 @@ App.Account.reopenClass({
 	}
 });
 
-App.newAccountModel = function () {
-	return {
-		accountName: '',
-		email: '',
-		mobilePhone: '',
-		admin: false
-	};
-};
-
 App.AccountsRoute = Ember.Route.extend({
 	model: function () {
 		return App.Account.findAll();
@@ -370,15 +361,6 @@ App.AccountsController = Ember.ArrayController.extend({
 		return App.AccountFilter.anySelected(this.get('arrangedContent'));
 	}.property("arrangedContent.@each.isSelected")
 });
-
-App.newAccountModel = function () {
-	return {
-		accountName: '',
-		email: '',
-		mobilePhone: '',
-		admin: false
-	};
-}
 
 App.BaseAccountController = Ember.ObjectController.extend({
 	transitionToAccounts: function(){
