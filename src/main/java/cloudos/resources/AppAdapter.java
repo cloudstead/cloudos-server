@@ -7,6 +7,7 @@ import cloudos.model.Account;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.app.AuthTransition;
 import cloudos.service.app.InstalledAppLoader;
+import com.qmino.miredot.annotations.ReturnType;
 import com.sun.jersey.api.core.HttpContext;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpCookieBean;
@@ -39,8 +40,17 @@ public class AppAdapter {
     @Autowired private CloudOsConfiguration configuration;
     @Autowired private RedisService redis;
 
+    /**
+     * Load a CloudOs application.
+     * @param apiKey The session ID
+     * @param context The HTTP context
+     * @param appName name of the app to load
+     * @return a 302 redirect
+     * @statuscode 302 a redirect to the AuthRelay URL
+     */
     @GET
     @Path("/load/{app}")
+    @ReturnType("java.lang.Void")
     public Response loadApp(@QueryParam(H_API_KEY) String apiKey,
                             @Context HttpContext context,
                             @PathParam("app") String appName) throws IOException {
@@ -66,8 +76,15 @@ public class AppAdapter {
         }
     }
 
+    /**
+     * The AuthRelay. Sends app-specific cookies to the caller, then redirects to the app.
+     * @param context The HTTP context
+     * @param uuid The AuthRelay UUID, returned in the 302 redirect from a call to /load/{app}
+     * @return 302 redirect to the app
+     */
     @GET
     @Path("/auth/{uuid}")
+    @ReturnType("java.lang.Void")
     public Response authRelay(@Context HttpContext context,
                               @PathParam("uuid") String uuid) {
         final AuthTransition auth;

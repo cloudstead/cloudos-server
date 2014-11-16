@@ -10,6 +10,7 @@ import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
 import cloudos.server.CloudOsConfiguration;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.TemplatedMail;
 import org.cobbzilla.mail.service.TemplatedMailService;
@@ -58,7 +59,14 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
     @Autowired private TemplatedMailService mailService;
     @Autowired private CloudOsConfiguration configuration;
 
+    /**
+     * Find all accounts. Must be an admin.
+     * @param apiKey The session ID
+     * @return a List of Accounts
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
+    @ReturnType("java.util.List<cloudos.model.Account>")
     public Response findAll (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -70,10 +78,19 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         return Response.ok(accountDAO.findAll()).build();
     }
 
+    /**
+     * Create a new Account. Must be an admin. This also sends a welcome email to the new user.
+     * @param apiKey The session ID
+     * @param name The name of the new account
+     * @param request The AccountRequest
+     * @return The Account that was created
+     * @statuscode 403 if caller is not an admin
+     */
     @PUT
     @Path("/{name}")
+    @ReturnType("cloudos.model.Account")
     public Response addAccount(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
-                               @PathParam("name") String accountUuid,
+                               @PathParam("name") String name,
                                @Valid AccountRequest request) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -119,8 +136,18 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         }
     }
 
+    /**
+     * Update an Account. Caller can only update their own account unless they are an admin.
+     * @param apiKey The session ID
+     * @param name The name of the account to update
+     * @param request The AccountRequest
+     * @return The updated Account
+     * @statuscode 403 if the caller is not an admin and is attempting to update an Account other than their own
+     * @statuscode 404 account not found
+     */
     @POST
     @Path("/{name}")
+    @ReturnType("cloudos.model.Account")
     public Response update (@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                             @PathParam("name") String name,
                             @Valid AccountRequest request) {
@@ -182,8 +209,16 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         getTwoFactorAuthService().deleteUser(account.getAuthIdInt());
     }
 
+    /**
+     * Change account password. Caller can only change their own password unless they are an admin.
+     * @param apiKey The session ID
+     * @param name The name of the account to change
+     * @param request The change password request
+     * @return The updated account
+     */
     @POST
     @Path(EP_CHANGE_PASSWORD)
+    @ReturnType("cloudos.model.Account")
     public Response changePassword(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                    @PathParam(PARAM_NAME) String name,
                                    @Valid ChangePasswordRequest request) {
@@ -218,8 +253,17 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         return Response.ok(account).build();
     }
 
+    /**
+     * Find a single Account. Caller can only find their own account unless they are an admin
+     * @param apiKey The session ID
+     * @param name The name of the account to find
+     * @return The Account
+     * @statuscode 403 if the caller is not an admin and is attempting to find an Account other than their own
+     * @statuscode 404 account not found
+     */
     @GET
     @Path("/{name}")
+    @ReturnType("cloudos.model.Account")
     public Response find(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                          @PathParam("name") String name) {
         long start = System.currentTimeMillis();
@@ -251,8 +295,17 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         }
     }
 
+    /**
+     * Delete an account. Must be admin.
+     * @param apiKey The session ID
+     * @param name The name of the account to delete
+     * @return Just an HTTP status code
+     * @statuscode 403 if the caller is not an admin
+     * @statuscode 404 account not found
+     */
     @DELETE
     @Path("/{name}")
+    @ReturnType("java.lang.Void")
     public Response delete(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("name") String name) {
 

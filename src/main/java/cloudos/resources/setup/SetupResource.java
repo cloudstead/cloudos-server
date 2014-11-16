@@ -7,6 +7,7 @@ import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.support.SetupRequest;
 import cloudos.resources.ApiConstants;
 import cloudos.service.RootyService;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,14 @@ public class SetupResource {
     @Autowired private SetupSettingsSource setupSettingsSource;
     @Autowired private RootyService rooty;
 
+    /**
+     * Perform first-time cloudstead setup. Creates the first admin account.
+     * @param request The SetupRequest
+     * @return a CloudosAuthResponse
+     * @statuscode 422 if the setup request fails validation
+     */
     @POST
+    @ReturnType("cloudos.model.auth.CloudOsAuthResponse")
     public Response setup (@Valid SetupRequest request) throws Exception {
 
         // only proceed if the setup key file is present and matches the request's setupKey

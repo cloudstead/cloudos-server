@@ -7,6 +7,7 @@ import cloudos.model.AccountGroupMember;
 import cloudos.model.support.AccountGroupRequest;
 import cloudos.model.support.AccountGroupView;
 import cloudos.service.RootyService;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.collection.InspectCollection;
 import org.cobbzilla.wizard.resources.ResourceUtil;
@@ -37,7 +38,14 @@ public class AccountGroupsResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private RootyService rooty;
 
+    /**
+     * Find all groups. Must be admin.
+     * @param apiKey The session ID
+     * @return a List of AccountGroupViews
+     * @statuscode 403 caller is not an admin
+     */
     @GET
+    @ReturnType("java.util.List<cloudos.model.support.AccountGroupView>")
     public Response findAll(@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -50,8 +58,18 @@ public class AccountGroupsResource {
         return Response.ok(groups).build();
     }
 
+    /**
+     * Create a new AccountGroup
+     * @param apiKey The session ID
+     * @param groupName name of the new group
+     * @param groupRequest The GroupRequest
+     * @return an AccountGroupView representing the newly created group
+     * @statuscode 403 if the caller is not an admin
+     * @statuscode 422 if the group cannot be created due to validation errors
+     */
     @PUT
     @Path("/{group}")
+    @ReturnType("cloudos.model.support.AccountGroupView")
     public Response create(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("group") String groupName,
                            AccountGroupRequest groupRequest) {
@@ -95,8 +113,19 @@ public class AccountGroupsResource {
         return Response.ok(view).build();
     }
 
+    /**
+     * Update an AccountGroup
+     * @param apiKey The session ID
+     * @param groupName name of the group to update
+     * @param groupRequest The GroupRequest
+     * @return the updated AccountGroup
+     * @statuscode 403 if the caller is not an admin
+     * @statuscode 404 group not found
+     * @statuscode 422 if the group cannot be created due to validation errors
+     */
     @POST
     @Path("/{group}")
+    @ReturnType("cloudos.model.AccountGroup")
     public Response update(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("group") String groupName,
                            AccountGroupRequest groupRequest) {
@@ -169,8 +198,17 @@ public class AccountGroupsResource {
         for (AccountGroupMember m : members) view.addMember(m);
     }
 
+    /**
+     * Find an AccountGroup
+     * @param apiKey The session ID
+     * @param groupName name of the group to find
+     * @return the AccountGroupView
+     * @statuscode 403 if the caller is not an admin
+     * @statuscode 404 group not found
+     */
     @GET
     @Path("/{group}")
+    @ReturnType("cloudos.model.support.AccountGroupView")
     public Response find(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                          @PathParam("group") String groupName) {
 
@@ -189,8 +227,15 @@ public class AccountGroupsResource {
         return Response.ok(view).build();
     }
 
+    /**
+     * Delete an AccountGroup
+     * @param apiKey The session ID
+     * @param groupName name of the group to delete
+     * @return Just an HTTP status code
+     */
     @DELETE
     @Path("/{group}")
+    @ReturnType("java.lang.Void")
     public Response remove(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("group") String groupName) {
 

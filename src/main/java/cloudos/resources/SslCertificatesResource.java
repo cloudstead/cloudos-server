@@ -6,6 +6,7 @@ import cloudos.model.Account;
 import cloudos.model.SslCertificate;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.service.RootyService;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.openssl.PEMParser;
@@ -35,6 +36,12 @@ public class SslCertificatesResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private RootyService rooty;
 
+    /**
+     * Find all SSL certificates. Must be admin
+     * @param apiKey The session ID
+     * @return a List of SslCertificates
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
     public Response findCertificates (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
@@ -46,8 +53,17 @@ public class SslCertificatesResource {
         return Response.ok(certs).build();
     }
 
+    /**
+     * Find a single SSL certificate. Must be admin
+     * @param apiKey The session ID
+     * @param name The name of the certificate
+     * @return an SslCertificates
+     * @statuscode 403 if caller is not an admin
+     * @statuscode 404 no certificate with that name
+     */
     @GET
     @Path("/{name}")
+    @ReturnType("cloudos.model.SslCertificate")
     public Response findCertificate (@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                      @PathParam("name") String name) {
 
@@ -61,8 +77,17 @@ public class SslCertificatesResource {
         return Response.ok(found).build();
     }
 
+    /**
+     * Create or over-write an SSL certificate
+     * @param apiKey The session ID
+     * @param name The name of the certificate
+     * @param request
+     * @return The Certificate that was added/updated
+     * @statuscode 403 if caller is not an admin
+     */
     @POST
     @Path("/{name}")
+    @ReturnType("cloudos.model.SslCertificate")
     public Response addOrOverwriteCert(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                        @PathParam("name") String name,
                                        SslCertificateRequest request) {
@@ -126,8 +151,16 @@ public class SslCertificatesResource {
         return Response.ok(dbCert).build();
     }
 
+    /**
+     * Delete an SSL certificate
+     * @param apiKey The session ID
+     * @param name The name of the certificate
+     * @return Just an HTTP status code
+     * @statuscode 403 if caller is not an admin
+     */
     @DELETE
     @Path("/{name}")
+    @ReturnType("java.lang.Void")
     public Response removeCertificate (@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                        @PathParam("name") String name) {
 

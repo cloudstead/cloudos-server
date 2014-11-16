@@ -8,6 +8,7 @@ import cloudos.server.CloudOsConfiguration;
 import cloudos.service.AppInstallTask;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskService;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,14 @@ public class AppsResource {
     @Autowired private CloudOsConfiguration configuration;
     @Autowired private TaskService taskService;
 
+    /**
+     * List all installed apps
+     * @param apiKey The session ID
+     * @return a List of InstalledApps
+     */
     @GET
     @Path("/installed")
+    @ReturnType("java.util.List<cloudos.model.InstalledApp>")
     public Response listInstalledApps (@HeaderParam(H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -45,7 +52,15 @@ public class AppsResource {
         }
     }
 
+    /**
+     * Install a new app from a URL. Must be admin
+     * @param apiKey The session ID
+     * @param request The installation request
+     * @statuscode 403 if caller is not an admin
+     * @return a TaskId, can be used to check installation progress
+     */
     @POST
+    @ReturnType("cloudos.service.task.TaskId")
     public Response installAppFromUrl (@HeaderParam(H_API_KEY) String apiKey,
                                        AppInstallUrlRequest request)
             throws Exception { // todo: better exception handling, don't throw anything
