@@ -195,3 +195,27 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .caption-for-icon{
 	margin-left: 0.6em;
 }
+
+.top-bar-section .has-dropdown .dropdown {
+	border: #03a2cc 1px solid;
+}
+
+.top-bar-section .has-dropdown .divider {
+  background: #fff !important;
+}
+
+.top-bar-section .has-dropdown .dropdown label {
+  background: #03a2cc !important;
+  color: #fff !important;
+  cursor: default;
+}
+
+.top-bar-section .has-dropdown .dropdown a:hover {
+  background: #fff !important;
+  color: #03a2cc !important;
+}
+
+.top-bar-section .has-dropdown .dropdown a {
+  background: #03a2cc !important;
+  color: #fff !important;
+}

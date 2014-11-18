@@ -29,23 +29,51 @@
 			{{#if cloudos_account}}
 				<section class="top-bar-section">
 					<ul class="right">
-						<li>
-							<a href="#" data-dropdown="help-submenu" data-options="align:left">
+						<li class="has-dropdown">
+							<a href="#">
 								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
 								<span class="show-for-xxlarge-up">Help</span>
 							</a>
+							<ul class="dropdown">
+								<li><a href="#">{{t menu.help.online}}</a></li>
+								<li><a href="#">{{t menu.help.news}}</a></li>
+								<li><a href="#">{{t menu.help.status}}</a></li>
+								<li class="divider"></li>
+								<li><a href="#">{{t menu.help.ticket}}</a></li>
+							</ul>
 						</li>
-						<li>
+						<li class="has-dropdown">
 							<a href="#" data-dropdown="settings-submenu" data-options="align:left">
 								<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
 								<span class="show-for-xxlarge-up">Settings</span>
 							</a>
+							<ul class="dropdown">
+								<li><label>{{t menu.cloudstead.label}}</label></li>
+								{{#if cloudos_account.admin}}
+									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
+									<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
+									<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
+								{{/if}}
+								<li><a href="#">{{t menu.defaultapps}}</a></li>
+								<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
+								<li class="divider"></li>
+								<li><label>{{t menu.cloudstead.other_label}}</label></li>
+								<li><a href="#">{{t menu.cloudstead.confluence}}</a></li>
+								<li><a href="#">{{t menu.cloudstead.jira}}</a></li>
+								<li><a href="#">{{t menu.cloudstead.phabricator}}</a></li>
+							</ul>
 						</li>
-						<li>
+						<li class="has-dropdown">
 							<a href="#" data-dropdown="user-submenu" data-options="align:left">
 								<span class="icon-user"><span class="caption-for-icon show-for-small">User</span></span>
 								<span class="show-for-xxlarge-up">User</span>
 							</a>
+							<ul class="dropdown">
+								<li>{{#link-to 'profile'}}{{t menu.profile}}{{/link-to}}</li>
+								<li>{{#link-to 'settings'}}{{t menu.settings}}{{/link-to}}</li>
+								<li class="divider"></li>
+								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
+							</ul>
 						</li>
 					</ul>
 					<ul class="nav-apps">
@@ -78,34 +106,6 @@
 			{{/if}}
 		</nav>
 	</section>
-	<ul id="help-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">{{t menu.help.online}}</a></li>
-		<li><a href="#">{{t menu.help.news}}</a></li>
-		<li><a href="#">Service status</a></li>
-		<li class="divider"></li>
-		<li><a href="#">Open support ticket</a></li>
-	</ul>
-	<ul id="user-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li>{{#link-to 'profile'}}{{t menu.profile}}{{/link-to}}</li>
-		<li>{{#link-to 'settings'}}{{t menu.settings}}{{/link-to}}</li>
-		<li class="divider"></li>
-		<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
-	</ul>
-	<ul id="settings-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><label>CLOUDSTEAD SETTINGS</label></li>
-		{{#if cloudos_account.admin}}
-			<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
-			<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
-			<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
-		{{/if}}
-		<li><a href="#">{{t menu.defaultapps}}</a></li>
-		<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
-		<li class="divider"></li>
-		<li><label>OTHER APPLICATIONS</label></li>
-		<li><a href="#">Confluence Administration</a></li>
-		<li><a href="#">Jira Administration</a></li>
-		<li><a href="#">Phabricator Admninistration</a></li>
-	</ul>
 
 	{{outlet}}
 	{{outlet modal}}
