@@ -191,3 +191,7 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .success-check{
 	color: #43ac6a;
 }
+
+.caption-for-icon{
+	margin-left: 0.6em;
+}

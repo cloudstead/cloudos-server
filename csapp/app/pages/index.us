@@ -13,11 +13,11 @@
 
 <script type="text/x-handlebars">
 	<section class="app-bar">
-		<nav class="top-bar" data-top-bar>
+		<nav class="top-bar" data-topbar role="navigation">
 			<ul class="title-area">
 				<li class="name">
 					<h1>
-						<a class="brand" href="#">{{t app.title}} <!--active_account={{active_account.name}}--></a>
+						<a class="brand" href="#">{{t app.title}}</a>
 					</h1>
 				</li>
 				<li class="toggle-topbar menu-icon">
@@ -26,32 +26,39 @@
 					</a>
 				</li>
 			</ul>
-			<section class="top-bar-section">
-				<!--<ul>
-					{{#if cloudos_account.admin}}
-						<li><a href="/admin.html">{{t sections.admin}}</a></li>
-					{{/if}}
-				</ul>-->
-				<ul class="nav-apps">
-					{{#if cloudos_account}}
+			{{#if cloudos_account}}
+				<section class="top-bar-section">
+					<ul class="right">
+						<li>
+							<a href="#" data-dropdown="help-submenu" data-options="align:left">
+								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
+								<span class="show-for-xxlarge-up">Help</span>
+							</a>
+						</li>
+						<li>
+							<a href="#" data-dropdown="settings-submenu" data-options="align:left">
+								<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
+								<span class="show-for-xxlarge-up">Settings</span>
+							</a>
+						</li>
+						<li>
+							<a href="#" data-dropdown="user-submenu" data-options="align:left">
+								<span class="icon-user"><span class="caption-for-icon show-for-small">User</span></span>
+								<span class="show-for-xxlarge-up">User</span>
+							</a>
+						</li>
+					</ul>
+					<ul class="nav-apps">
 						{{#each cloudos_account.availableApps}}
 							<li>
 								<a {{action 'select_app' this.name}}>
-									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}"></span>
+									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}">
+										<span class="show-for-small">{{app-name name}}</span>
+									</span>
 									<span class="show-for-xxlarge-up">{{app-name name}}</span>
 								</a>
 							</li>
 						{{/each}}
-					{{/if}}
-				</ul>
-
-			</section>
-			{{#if cloudos_account}}
-				<section class="top-bar-section show-for-medium-up right">
-					<ul>
-						<li><a href="#" data-dropdown="help-submenu" data-options="align:left"><span class="icon-question-circle"></span> <span class="show-for-xxlarge-up">Help</span></a></li>
-						<li><a href="#" data-dropdown="settings-submenu" data-options="align:left"><span class="icon-gear"></span> <span class="show-for-xxlarge-up">Settings</span></a></li>
-						<li><a href="#" data-dropdown="user-submenu" data-options="align:left"><span class="icon-user"></span> <span class="show-for-xxlarge-up">User</span></a></li>
 					</ul>
 				</section>
 				<section class="top-bar-section show-for-medium-up right">
