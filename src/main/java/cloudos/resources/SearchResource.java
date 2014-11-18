@@ -8,6 +8,7 @@ import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.AccountGroup;
 import cloudos.model.support.AccountGroupView;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
@@ -54,16 +55,26 @@ public class SearchResource {
 
     public enum Type {accounts, groups}
 
+    /**
+     * Download a CSV report. Must be admin
+     * @param apiKey The session ID
+     * @param type The type of report, either 'accounts' or 'groups'
+     * @param page The page of results to return
+     * @return The CSV report, with HTTP headers to force a download.
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
     @Path("/{type}/download.csv")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes("*/*")
+    @ReturnType("cloudos.resources.SearchResource.CsvOutput")
     public Response download(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                              @PathParam("type") final String type,
                              @QueryParam("page") final ResultPage page) {
 
         final Account account = sessionDAO.find(apiKey);
         if (account == null) return ResourceUtil.notFound(apiKey);
+        if (!account.isAdmin()) return ResourceUtil.forbidden();
 
         page.setPageNumber(1);
         page.setPageSize(Integer.MAX_VALUE);
@@ -83,8 +94,16 @@ public class SearchResource {
         }
     }
 
+    /**
+     * Search CloudOs objects. If not admin, results will be scrubbed of any sensitive data.
+     * @param apiKey The session ID
+     * @param type The type of report, either 'accounts' or 'groups'
+     * @param page The page of results to return
+     * @return a SearchResults object containing the results
+     */
     @POST
     @Path("/{type}")
+    @ReturnType("org.cobbzilla.wizard.dao.SearchResults")
     public Response search(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("type") String type,
                            ResultPage page) {

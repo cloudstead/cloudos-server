@@ -5,6 +5,7 @@ import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.EmailDomain;
 import cloudos.server.CloudOsConfiguration;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,14 @@ public class EmailDomainsResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private CloudOsConfiguration configuration;
 
+    /**
+     * Find all email domains. Must be admin.
+     * @param apiKey The session ID
+     * @return a List of all email domains
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
+    @ReturnType("java.util.List<cloudos.model.EmailDomain>")
     public Response findAll(@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -36,8 +44,15 @@ public class EmailDomainsResource {
         return Response.ok(emailDomainDAO.findAll()).build();
     }
 
+    /**
+     * Register a new email domain. Upon successful completion, the cloudstead will accept email for the new domain.
+     * @param apiKey The session ID
+     * @param domainName The email domain that the cloudstead should accept email for.
+     * @return the EmailDomain that was registered
+     */
     @PUT
     @Path("/{domain}")
+    @ReturnType("cloudos.model.EmailDomain")
     public Response create(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("domain") String domainName) {
 
@@ -54,8 +69,15 @@ public class EmailDomainsResource {
         return Response.ok(emailDomainDAO.create(emailDomain)).build();
     }
 
+    /**
+     * Remove an email domain.
+     * @param apiKey The session ID
+     * @param domainName The email domain to remove
+     * @return "true" if the domain was successfully removed
+     */
     @DELETE
     @Path("/{domain}")
+    @ReturnType("java.lang.Boolean")
     public Response remove(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                            @PathParam("domain") String domainName) {
 

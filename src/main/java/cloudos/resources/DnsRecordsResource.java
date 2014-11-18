@@ -3,6 +3,7 @@ package cloudos.resources;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.server.CloudOsConfiguration;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.dns.DnsManager;
 import org.cobbzilla.util.dns.DnsRecord;
@@ -32,7 +33,14 @@ public class DnsRecordsResource {
 
     private DnsManager dnsManager() { return configuration.getDnsManager(); }
 
+    /**
+     * List all DNS records. Must be admin.
+     * @param apiKey The session ID
+     * @return A List of DnsRecords
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
+    @ReturnType("java.util.List<org.cobbzilla.util.dns.DnsRecord>")
     public Response listAllRecords (@HeaderParam(H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -50,7 +58,15 @@ public class DnsRecordsResource {
         return Response.ok(records).build();
     }
 
+    /**
+     * Write a DNS record. Must be admin
+     * @param apiKey The session ID
+     * @param record The record to write
+     * @return The record that was written
+     * @statuscode 403 if caller is not an admin
+     */
     @POST
+    @ReturnType("org.cobbzilla.util.dns.DnsRecord")
     public Response writeRecord (@HeaderParam(H_API_KEY) String apiKey, DnsRecord record) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -68,8 +84,16 @@ public class DnsRecordsResource {
         return Response.ok(written).build();
     }
 
+    /**
+     * Delete a DNS record. Must be admin
+     * @param apiKey The session ID
+     * @param match The records to match
+     * @return The number of records removed
+     * @statuscode 403 if caller is not an admin
+     */
     @POST
     @Path(EP_DELETE)
+    @ReturnType("java.lang.Integer")
     public Response deleteRecords (@HeaderParam(H_API_KEY) String apiKey, DnsRecordMatch match) {
 
         final Account admin = sessionDAO.find(apiKey);

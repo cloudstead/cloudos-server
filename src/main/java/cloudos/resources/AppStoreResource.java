@@ -7,6 +7,7 @@ import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.server.CloudOsConfiguration;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
@@ -30,7 +31,14 @@ public class AppStoreResource {
     @Autowired private AppDAO appDAO;
     @Autowired private CloudOsConfiguration configuration;
 
+    /**
+     * Search the app store
+     * @param apiKey The session ID
+     * @param query The app store query
+     * @return the search results
+     */
     @POST
+    @ReturnType("org.cobbzilla.wizard.dao.SearchResults<cloudos.appstore.model.support.AppListing>")
     public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, ResultPage query) {
 
         final Account admin = sessionDAO.find(apiKey);

@@ -15,6 +15,7 @@ public class TaskResult {
     @Getter @Setter private boolean success = false;
     @Getter @Setter @JsonIgnore private Exception exception;
 
+    /** an error message for the task */
     public String getError () { return exception == null ? null : exception.toString(); }
     public void setError (String error) { exception = new Exception(error); }
 

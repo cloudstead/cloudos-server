@@ -272,7 +272,7 @@ public class InstalledAppLoader {
             auth.setAuthHeaderValue(pctx.getAuthHeaderValue());
             cookieJar.add(auth.getAuthCookie());
 
-            // If the app proxies via CloudOs, the AppProxy will identify the user from this session
+            // If the app proxies via CloudOs, the proxy will identify the user from this session
             auth.setSessionId(pctx.getApiKey());
             cookieJar.add(auth.getSessionCookie());
         }

@@ -31,7 +31,7 @@ public class AuthTransition {
     }
 
     // for apps that use HTTP auth proxied via CloudOs, put the sessionId here
-    // so the AppProxy can identify the user
+    // so the proxy can identify the user
     @JsonIgnore public HttpCookieBean getSessionCookie() {
         return new HttpCookieBean(SESSION_COOKIE, sessionId).setSecure(true).setPath("/");
     }

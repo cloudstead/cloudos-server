@@ -5,6 +5,7 @@ import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.ServiceKey;
 import cloudos.service.RootyService;
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
@@ -33,7 +34,14 @@ public class ServiceKeysResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private RootyService rooty;
 
+    /**
+     * List all ServiceKeys. Must be admin
+     * @param apiKey The session ID
+     * @return a List of ServiceKeys
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
+    @ReturnType("java.util.List<cloudos.model.ServiceKey>")
     public Response findServiceKeys (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -44,8 +52,16 @@ public class ServiceKeysResource {
         return Response.ok(keys).build();
     }
 
+    /**
+     * Find a single ServiceKey. Must be admin
+     * @param apiKey The session ID
+     * @param name the name of the key
+     * @return The ServiceKey
+     * @statuscode 403 if caller is not an admin
+     */
     @GET
     @Path("/{name}")
+    @ReturnType("cloudos.model.ServiceKey")
     public Response findServiceKey (@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                      @PathParam("name") String name) {
 
@@ -61,8 +77,17 @@ public class ServiceKeysResource {
 
     private static final long GEN_KEY_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 
+    /**
+     * Generate a new ServiceKey. Must be admin
+     * @param apiKey The session ID
+     * @param name The name of the service key
+     * @param request The ServiceKeyRequest
+     * @return Just an HTTP status code
+     * @statuscode 403 if caller is not an admin
+     */
     @POST
     @Path("/{name}")
+    @ReturnType("java.lang.Void")
     public Response generateKey(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,
                                 @PathParam("name") String name,
                                 ServiceKeyRequest request) {
@@ -101,6 +126,13 @@ public class ServiceKeysResource {
         return Response.serverError().build();
     }
 
+    /**
+     * Delete a ServiceKey. Must be admin
+     * @param apiKey The session ID
+     * @param name The name of the service key
+     * @return Just an HTTP status code
+     * @statuscode 403 if caller is not an admin
+     */
     @DELETE
     @Path("/{name}")
     public Response destroyKey(@HeaderParam(ApiConstants.H_API_KEY) String apiKey,

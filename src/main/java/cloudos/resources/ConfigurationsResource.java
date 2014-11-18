@@ -7,6 +7,7 @@ import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.RootyService;
+import com.qmino.miredot.annotations.ReturnType;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpStatusCodes;
@@ -44,7 +45,14 @@ public class ConfigurationsResource {
     @Autowired private SslCertificateDAO certificateDAO;
     @Autowired private RootyService rooty;
 
+    /**
+     * Get all configuration groups. Must be admin
+     * @param apiKey The session ID
+     * @return a Set of Strings, each representing a configuration group
+     * @statuscode 403 if caller is not admin
+     */
     @GET
+    @ReturnType("java.util.List<java.lang.String>")
     public Response getConfigurations (@HeaderParam(H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -67,8 +75,16 @@ public class ConfigurationsResource {
         return JsonUtil.fromJson(rooty.request(new VendorSettingsListRequest()).getResults(), String[].class);
     }
 
+    /**
+     * Get all configuration options for a configuration group. Must be admin
+     * @param apiKey The session ID
+     * @param app Name of the configuration group (usually the name of the CloudOs app, or the special 'system' category)
+     * @return an array of VendorSettingDisplayValues
+     * @statuscode 403 if caller is not admin
+     */
     @GET
     @Path("/{app}")
+    @ReturnType("rooty.toots.vendor.VendorSettingDisplayValue[]")
     public Response getConfigurationOptions (@HeaderParam(H_API_KEY) String apiKey,
                                              @PathParam("app") String app) {
 
@@ -100,8 +116,18 @@ public class ConfigurationsResource {
         return JsonUtil.fromJson(request.getResults(), VendorSettingDisplayValue[].class);
     }
 
+    /**
+     * Get the value for a single configuration option
+     * @param apiKey The session ID
+     * @param app Name of the configuration group (usually the name of the CloudOs app, or the special 'system' category)
+     * @param option name of the configuration option
+     * @return the VendorSettingDisplayValue
+     * @statuscode 403 if caller is not admin
+     * @statuscode 404 if the configuration option was not found
+     */
     @GET
     @Path("/{app}/{option}")
+    @ReturnType("rooty.toots.vendor.VendorSettingDisplayValue")
     public Response getConfigurationOption (@HeaderParam(H_API_KEY) String apiKey,
                                             @PathParam("app") String app,
                                             @PathParam("option") String option) {
@@ -131,8 +157,18 @@ public class ConfigurationsResource {
         return null;
     }
 
+    /**
+     * Set a single configuration option
+     * @param apiKey The session ID
+     * @param app Name of the configuration group (usually the name of the CloudOs app, or the special 'system' category)
+     * @param option name of the configuration option
+     * @param value the value to set
+     * @return "true" if the settings was written successfully, "false" if it was not written
+     * @statuscode 500 if an error occurred writing the option
+     */
     @POST
     @Path("/{app}/{option}")
+    @ReturnType("java.lang.Boolean")
     public Response setConfigurationOption (@HeaderParam(H_API_KEY) String apiKey,
                                             @PathParam("app") String app,
                                             @PathParam("option") String option,
@@ -155,8 +191,15 @@ public class ConfigurationsResource {
         return rooty.request(new VendorSettingUpdateRequest(option, value).setCookbook(app));
     }
 
+    /**
+     * Unlock the cloudstead
+     * @param apiKey The session ID
+     * @param unlockRequest The unlock request
+     * @return Just an HTTP status code
+     */
     @PUT
     @Path("/unlock")
+    @ReturnType("java.lang.Void")
     public Response unlockCloudstead(@HeaderParam(H_API_KEY) String apiKey, UnlockRequest unlockRequest) {
 
         final Account admin = sessionDAO.find(apiKey);

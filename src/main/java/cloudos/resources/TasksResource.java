@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import cloudos.service.task.TaskResult;
 import cloudos.service.task.TaskService;
@@ -19,8 +20,14 @@ public class TasksResource {
 
     @Autowired private TaskService taskService;
 
+    /**
+     * Retrieve history for a background task
+     * @param uuid The background task to look up
+     * @return a TaskResult representing the history for the task
+     */
     @GET
     @Path("/{uuid}")
+    @ReturnType("cloudos.service.task.TaskResult")
     public Response getHistory (@PathParam("uuid") String uuid) {
 
         final TaskResult result = taskService.getResult(uuid);
