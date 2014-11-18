@@ -71,8 +71,8 @@
 		</nav>
 	</section>
 	<ul id="help-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">Online Help</a></li>
-		<li><a href="#">What's new</a></li>
+		<li><a href="#">{{t menu.help.online}}</a></li>
+		<li><a href="#">{{t menu.help.news}}</a></li>
 		<li><a href="#">Service status</a></li>
 		<li class="divider"></li>
 		<li><a href="#">Open support ticket</a></li>
