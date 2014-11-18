@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>CloudOS</title>
-    <link rel="stylesheet" href="css/app.css">
-    <script src="js/app.js"></script>
-    <script src="js/apps/cloudos-app.js"></script>
+	<meta charset="utf-8">
+	<title>CloudOS</title>
+	<link rel="stylesheet" href="css/app.css">
+	<script src="js/app.js"></script>
+	<script src="js/apps/cloudos-app.js"></script>
 	<script src="localize?js/local/strings.js"></script>
 </head>
 <body>
 
 <script type="text/x-handlebars">
-    <section class="app-bar">
-	<nav class="top-bar" data-top-bar>
+	<section class="app-bar">
+		<nav class="top-bar" data-top-bar>
 			<ul class="title-area">
 				<li class="name">
 					<h1>
@@ -26,49 +26,49 @@
 				</li>
 			</ul>
 			<section class="top-bar-section">
-            	<!--<ul>
-                	{{#if cloudos_account.admin}}
-                    	<li><a href="/admin.html">{{t sections.admin}}</a></li>
-                	{{/if}}
+				<!--<ul>
+					{{#if cloudos_account.admin}}
+						<li><a href="/admin.html">{{t sections.admin}}</a></li>
+					{{/if}}
 				</ul>-->
 				<ul class="nav-apps">
-                	{{#if cloudos_account}}
-                    	{{#each cloudos_account.availableApps}}
-                        	<li>
-                        		<a {{action 'select_app' this.name}}>
+					{{#if cloudos_account}}
+						{{#each cloudos_account.availableApps}}
+							<li>
+								<a {{action 'select_app' this.name}}>
 									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}"></span>
 									<span class="show-for-xxlarge-up">{{app-name name}}</span>
 								</a>
 							</li>
-                    	{{/each}}
-                	{{/if}}
+						{{/each}}
+					{{/if}}
 				</ul>
 
 			</section>
 			{{#if cloudos_account}}
-			<section class="top-bar-section show-for-medium-up right">
-				<ul>
-					<li><a href="#" data-dropdown="help-submenu" data-options="align:left"><span class="icon-question-circle"></span> <span class="show-for-xxlarge-up">Help</span></a></li>
-					<li><a href="#" data-dropdown="settings-submenu" data-options="align:left"><span class="icon-gear"></span> <span class="show-for-xxlarge-up">Settings</span></a></li>
-					<li><a href="#" data-dropdown="user-submenu" data-options="align:left"><span class="icon-user"></span> <span class="show-for-xxlarge-up">User</span></a></li>
-				</ul>
-			</section>
-			<section class="top-bar-section show-for-medium-up right">
-				<div class="row">
-					<div class="large-12 columns">
-						<div class="row collapse">
-							<div class="small-10 columns">
-								<input type="text" placeholder="">
-							</div>
-							<div class="small-2 columns">
-								<a href="#" class="button tiny" style="top:0px;"><span class="icon-search"></span> <span class="show-for-xxlarge-up">Search</span></a>
+				<section class="top-bar-section show-for-medium-up right">
+					<ul>
+						<li><a href="#" data-dropdown="help-submenu" data-options="align:left"><span class="icon-question-circle"></span> <span class="show-for-xxlarge-up">Help</span></a></li>
+						<li><a href="#" data-dropdown="settings-submenu" data-options="align:left"><span class="icon-gear"></span> <span class="show-for-xxlarge-up">Settings</span></a></li>
+						<li><a href="#" data-dropdown="user-submenu" data-options="align:left"><span class="icon-user"></span> <span class="show-for-xxlarge-up">User</span></a></li>
+					</ul>
+				</section>
+				<section class="top-bar-section show-for-medium-up right">
+					<div class="row">
+						<div class="large-12 columns">
+							<div class="row collapse">
+								<div class="small-10 columns">
+									<input type="text" placeholder="">
+								</div>
+								<div class="small-2 columns">
+									<a href="#" class="button tiny" style="top:0px;"><span class="icon-search"></span> <span class="show-for-xxlarge-up">Search</span></a>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</section>
+				</section>
 			{{/if}}
-    </nav>
+		</nav>
 	</section>
 	<ul id="help-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
 		<li><a href="#">Online Help</a></li>
@@ -99,55 +99,55 @@
 		<li><a href="#">Phabricator Admninistration</a></li>
 	</ul>
 
-    {{outlet}}
-		{{outlet modal}}
+	{{outlet}}
+	{{outlet modal}}
 </script>
 
 <script type="text/x-handlebars" id="login">
-    <section class="deck">
-        <div class="row">
-            <div class="medium-6 large-5 medium-centered columns">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 small-12 medium-centered columns">
 				<form {{action 'doLogin' on="submit"}}>
-			<fieldset class="wrap-set">
-				<legend>{{t sections.login}}</legend>
-				<div class="field-container">
-					<label for="text">{{t forms.login.username}}</label>
-					{{#if requestMessages.error.username}}
-						{{input type="text" value=username class="error"}}
-					{{else}}
-						{{input type="text" value=username}}
-					{{/if}}
+					<fieldset class="wrap-set small-12">
+						<legend>{{t sections.login}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.login.username}}</label>
+							{{#if requestMessages.error.username}}
+								{{input type="text" value=username class="error"}}
+							{{else}}
+								{{input type="text" value=username}}
+							{{/if}}
 
-					{{#if requestMessages.error.username}}
-						<span class="message error">{{requestMessages.error.username}}</span>
-					{{/if}}
-				</div>
-				<div class="field-container">
-					<label for="password">{{t forms.login.password}}</label>
-					{{#if requestMessages.error.password}}
-						{{input type="password" value=password class="error"}}
-					{{else}}
-						{{input type="password" value=password}}
-					{{/if}}
+							{{#if requestMessages.error.username}}
+								<span class="message error">{{requestMessages.error.username}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="password">{{t forms.login.password}}</label>
+							{{#if requestMessages.error.password}}
+								{{input type="password" value=password class="error"}}
+							{{else}}
+								{{input type="password" value=password}}
+							{{/if}}
 
-					{{#if requestMessages.error.password}}
-						<span class="message error">{{requestMessages.error.password}}</span>
-					{{/if}}
-				</div>
-				<div class="field-container">
-					<p><button type="submit" class="expand" {{action 'doLogin'}}>{{t forms.login.login_button}}</button></p>
-				</div>
-			</fieldset>
+							{{#if requestMessages.error.password}}
+								<span class="message error">{{requestMessages.error.password}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<p><button type="submit" class="expand" {{action 'doLogin'}}>{{t forms.login.login_button}}</button></p>
+						</div>
+					</fieldset>
 				</form>
-            </div>
-        </div>
-    </section>
+			</div>
+		</div>
+	</section>
 </script>
 
 <script type="text/x-handlebars" id="settings">
-    <section class="deck">
-        <div class="row">
-            <div class="medium-6 large-5 medium-centered columns">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
 				<h3 class="text-center">{{t sections.settings}}</h3>
 				<form {{action 'changePassword' on="submit"}}>
 					<fieldset class="wrap-set">
@@ -193,9 +193,9 @@
 							</div>
 					</fieldset>
 				</form>
-            </div>
-        </div>
-    </section>
+			</div>
+		</div>
+	</section>
 </script>
 
 <script type="text/x-handlebars" id="app">
@@ -204,9 +204,9 @@
 			height:100%;
 		}
 	</style>
-    <div style="height: 94% !important;">
-        <iframe id="app_frame" width="100%" height="100%" {{bindAttr src="app_url"}} frameBorder="0"></iframe>
-    </div>
+	<div style="height: 94% !important;">
+		<iframe id="app_frame" width="100%" height="100%" {{bindAttr src="app_url"}} frameBorder="0"></iframe>
+	</div>
 </script>
 
 <script type="text/x-handlebars" id="components/modal-dialog">
