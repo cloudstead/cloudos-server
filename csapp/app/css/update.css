@@ -219,3 +219,8 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
   background: #03a2cc !important;
   color: #fff !important;
 }
+
+.forgot-password-notification{
+	color: rgba(204, 88, 74, 1);
+	margin: 1em;
+}

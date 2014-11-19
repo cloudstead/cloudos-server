@@ -173,6 +173,11 @@ Api = {
 			sendInvite: sendInvite
 		};
 		return Api._post('/api/accounts/' + name + '/password', request);
+	},
+
+	forgot_password: function (username) {
+		return Api._post('/api/auth/forgot_password/', username);
+	},
 	}
 
 };

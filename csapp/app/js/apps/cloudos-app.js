@@ -176,6 +176,12 @@ App.LoginController = Ember.ObjectController.extend({
 						})
 					);
             }
+        },
+
+        doForgotPassword: function() {
+            Api.forgot_password(this.get("username"));
+            this.set('notificationForgotPassword',
+                "You have been sent an email with a link for reseting your password.")
         }
     },
 	validateLogin: function(username, password){
@@ -507,7 +513,6 @@ App.ProfileChangePasswordController = Ember.ObjectController.extend({
 
         doChangePassword: function () {
             var account = this.get('model');
-            console.log(account);
 
             var passwordErrors = AccountValidator.getPasswordValidationErrorsFor(account);
 
