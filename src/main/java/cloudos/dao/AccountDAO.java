@@ -4,6 +4,7 @@ import cloudos.model.Account;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
 import cloudos.model.auth.AuthenticationException;
+import cloudos.appstore.model.AppRuntime;
 import cloudos.resources.ApiConstants;
 import cloudos.service.KerberosService;
 import cloudos.service.RootyService;
@@ -16,16 +17,20 @@ import org.springframework.stereotype.Repository;
 import rooty.events.account.AccountEvent;
 import rooty.events.account.NewAccountEvent;
 import rooty.events.account.RemoveAccountEvent;
+import rooty.toots.app.AppScriptMessage;
+import rooty.toots.app.AppScriptMessageType;
 
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Repository  @Slf4j
 public class AccountDAO extends AccountBaseDAO<Account> {
 
     @Autowired private KerberosService kerberos;
     @Autowired private RootyService rooty;
+    @Autowired private AppDAO appDAO;
 
     @Override public Account authenticate(LoginRequest loginRequest) throws AuthenticationException {
 
@@ -44,6 +49,9 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         kerberos.changePassword(account.getAccountName(), oldPassword, newPassword);
         account.getHashedPassword().setResetToken(null);
         update(account);
+
+        // Tell the rooty subsystems we've changed the password
+        broadcastPasswordChange(account, newPassword);
     }
 
     @Override
@@ -51,6 +59,9 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         kerberos.adminChangePassword(account.getAccountName(), newPassword);
         account.getHashedPassword().setResetToken(null);
         update(account);
+
+        // Tell the rooty subsystems we've changed the password
+        broadcastPasswordChange(account, newPassword);
     }
 
     public List<Account> findAccounts() {
@@ -148,6 +159,22 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
             default:
                 throw new IllegalArgumentException("Invalid bound: "+bound);
+        }
+    }
+
+    private void broadcastPasswordChange(Account account, String newPassword) {
+        final Map<String, AppRuntime> apps = appDAO.getAvailableRuntimes();
+
+        for (Map.Entry<String, AppRuntime> app : apps.entrySet()) {
+            final AppRuntime runtime = app.getValue();
+            if (runtime.hasUserManagement()) {
+                final AppScriptMessage message = new AppScriptMessage()
+                        .setApp(runtime.getDetails().getName())
+                        .setType(AppScriptMessageType.user_change_password)
+                        .addArg(account.getName())
+                        .addArg(newPassword);
+                rooty.getSender().write(message);
+            }
         }
     }
 
