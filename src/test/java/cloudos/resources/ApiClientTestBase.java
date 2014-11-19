@@ -182,7 +182,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
         // the vendor endpoint is called when a test requests a rootyService key with a recipient of VENDOR
         final String vendorEndpoint = server.getClientUri() + MockServiceRequestsResource.ENDPOINT;
-        serviceKeyHandler.setVendorEndpoint(vendorEndpoint);
+        serviceKeyHandler.setServiceKeyEndpoint(vendorEndpoint);
 
         // the settings handler
         chefHome = Files.createTempDir();
