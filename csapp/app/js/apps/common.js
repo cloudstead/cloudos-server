@@ -232,88 +232,44 @@ Validator = {
 
 AccountValidator = {
     getValidationErrorsFor: function(account) {
-        var error_msg = locate(Em.I18n.translations, 'errors');
+        var data = new ValidatorData(locate(Em.I18n.translations, 'errors'), account);
 
-        var errors = {is_not_empty: false};
+        data.errors = this._info_fields_errors(data);
 
-        errors = this._validatePresenceOf(
-            errors,
-            error_msg,
-            account,
-            ["name", "firstName", "lastName", "email", "mobilePhone"]);
+        data.errors = account.generateSysPassword ?
+            data.errors :
+            PresenceValidator.getErrors(data, ["password", "passwordConfirm"]);
 
-        errors = account.generateSysPassword ?
-            errors :
-            this._validatePresenceOf(errors, error_msg, account, ["password", "passwordConfirm"]);
+        data.errors = EqualPasswordsValidator.getErrors(data, "password", "passwordConfirm");
 
-        errors = this._validatePassword(
-            errors, error_msg, account.get("password"), account.get("passwordConfirm"));
+        data.errors = EmailValidator.getErrors(data, account.get("email"));
 
-        errors = this._validateEmail(errors, error_msg, account.get("email"));
-
-        return errors;
+        return data.errors;
     },
 
     getPasswordValidationErrorsFor: function(account){
-        var error_msg = locate(Em.I18n.translations, 'errors');
+        var data = new ValidatorData(locate(Em.I18n.translations, 'errors'), account);
 
-        var errors = {is_not_empty: false};
+        data.errors = PresenceValidator.getErrors(data, ["newPassword"]);
 
-        errors = this._validatePresenceOf(
-            errors,
-            error_msg,
-            account,
-            ["newPassword"]);
-
-        return errors;
+        return data.errors;
     },
 
     getUpdateValidationErrorsFor: function(account){
-        var error_msg = locate(Em.I18n.translations, 'errors');
+        var data = new ValidatorData(locate(Em.I18n.translations, 'errors'), account);
 
-        var errors = {is_not_empty: false};
+        data.errors = this._info_fields_errors(data);
 
-        errors = this._validatePresenceOf(
-            errors,
-            error_msg,
-            account,
-            ["name", "firstName", "lastName", "email", "mobilePhone"]);
+        data.errors = EmailValidator.getErrors(data, account.get("email"));
 
-        errors = this._validateEmail(errors, error_msg, account.get("email"));
-
-        return errors;
+        return data.errors;
     },
 
-    _is_empty: function(value) {
-        return (value === undefined || String(value).trim().length === 0) ? true : false;
-    },
-
-    _validatePresenceOf: function(errors, error_msg, data, fields) {
-        fields.forEach(function(property){
-            if(AccountValidator._is_empty(data.get(property))){
-                errors[property] = error_msg.field_required;
-                errors["is_not_empty"] = true;
-            }
-        });
-        return errors;
-    },
-
-    _validateEmail: function(errors, error_msg, email) {
-        var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!pattern.test(email)){
-            errors["email"] = error_msg.email_invalid;
-            errors["is_not_empty"] = true;
-        }
-        return errors;
-    },
-
-    _validatePassword: function(errors, error_msg, password, confirm) {
-        if (password != confirm){
-            errors["password"] = error_msg.password_mismatch;
-            errors["passwordConfirm"] = error_msg.password_mismatch;
-            errors["is_not_empty"] = true;
-        }
-        return errors;
+    _info_fields_errors: function(data) {
+        return PresenceValidator.getErrors(
+                data,
+                ["name", "firstName", "lastName", "email", "mobilePhone"]
+            );
     }
 };
 
@@ -363,9 +319,20 @@ EqualPasswordsValidator = {
         password = data.validationSubject.get(passwordField);
         confirm = data.validationSubject.get(confirmField);
 
-        if (password != confirm){
-            data.errors[password] = data.error_msg.password_mismatch;
-            data.errors[confirm] = data.error_msg.password_mismatch;
+        if (password !== confirm){
+            data.errors[passwordField] = data.error_msg.password_mismatch;
+            data.errors[confirmField] = data.error_msg.password_mismatch;
+            data.errors["is_not_empty"] = true;
+        }
+        return data.errors;
+    }
+};
+
+EmailValidator = {
+    getErrors: function(data, email) {
+        var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!pattern.test(email)){
+            data.errors["email"] = data.error_msg.email_invalid;
             data.errors["is_not_empty"] = true;
         }
         return data.errors;
