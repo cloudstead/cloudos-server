@@ -18,6 +18,7 @@ import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.junit.Assert.*;
 
 @Slf4j
@@ -156,6 +157,10 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
     @Test
     public void testCreateAccountWith2FactorAuth () throws Exception {
+        if (empty(getConfiguration().getAuthy().getUser())) {
+            log.warn("testCreateAccountWith2FactorAuth: No auth config found, skipping test");
+            return;
+        }
         apiDocs.startRecording(DOC_TARGET, "create a account with 2-factor authentication and login");
         final String accountName = randomAlphanumeric(10);
         final String password = randomAlphanumeric(10);
