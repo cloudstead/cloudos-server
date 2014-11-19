@@ -1,0 +1,13 @@
+{
+    "id": "init",
+    "admin": {
+        "name": "initial-superuser",
+        "password": "bcrypted-superuser-password"
+    },
+    "dyndns": {
+        "account": "your-dyndns-account",
+        "user": "a-dyndns-user-account",
+        "password": "password",
+        "zone": "example.com"
+    }
+}

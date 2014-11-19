@@ -1,7 +1,7 @@
 {
     "id": "init",
 
-    "server_tarball": "http://some-host/path/to/cloudos-server.tar.gz",
+    "server_tarball": "http://cloudstead.io/downloads/cloudos-server.tar.gz",
     "run_as": "cloudos",
     "admin_initial_pass": "bcrypted-initial-password-here",
     "recovery_email": "put-recovery-email-here",
@@ -12,37 +12,15 @@
 
     "authy": {
         "user": "authy-api-key",
-        "base_uri": "http://sandbox-api.authy.com"
+        "base_uri": "https://api.authy.com"
     },
 
     "dns": {
-        "base_uri": "http://dns-manager-uri/cloudstead-will-fill-this-out-at-launch-time or omit if using DynDNS directly",
-        "user": "cloudos-dns or dyn username goes here",
-        "password": "cloudos-dns or dyn password goes here",
+        "base_uri": "https://localhost/dns/api",
+        "user": "cloudos-dns-admin (if using Dyn, put dyn username here)",
+        "password": "user password goes here. (if using cloudos-dns, put the bcrypted value in: ../cloudos-dns/init.json, admin.password)",
         "account": "if using Dyn, put main dyn account here. omit if using cloudos-dns",
         "zone": "if using Dyn, put zone name here. omit if using cloudos-dns"
-    },
-
-    "vendor": {
-        "service_key_endpoint": "https://some-host/endpoint",
-        "ssl_key_sha": "--some-sha256-sum--",
-        "settings": [
-            {
-                "path": "cloudos.aws_access_key",
-                "shasum": "--some-sha256-sum--"
-            }, {
-                "path": "cloudos.aws_secret_key",
-                "shasum": "--some-sha256-sum--"
-            }, {
-                "path": "cloudos.aws_iam_user",
-                "shasum": "--some-sha256-sum--"
-            }, {
-                "path": "cloudos.s3_bucket",
-                "shasum": "--some-sha256-sum--"
-            }, {
-                "path": "cloudos.authy.user",
-                "shasum": "--some-sha256-sum--"
-            }
-        ]
     }
+
 }
