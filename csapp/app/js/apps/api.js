@@ -178,6 +178,9 @@ Api = {
 	forgot_password: function (username) {
 		return Api._post('/api/auth/forgot_password/', username);
 	},
+
+	reset_password: function (token, password) {
+		return Api._post('/api/auth/reset_password/', { "token": token, "password": password });
 	}
 
 };

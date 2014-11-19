@@ -317,3 +317,57 @@ AccountValidator = {
     }
 };
 
+PasswordValidator = {
+    getErrorsFor: function(object, password, confirm){
+        var data = new ValidatorData(locate(Em.I18n.translations, 'errors'), object);
+
+        data.errors = EqualPasswordsValidator.getErrors(data, password, confirm);
+
+        data.errors = PresenceValidator.getErrors(data, [password, confirm]);
+
+        return data.errors;
+    }
+};
+
+ValidatorData = function(error_msg, validationSubject) {
+    this.errors = {
+        is_not_empty: false
+    };
+
+    this.error_msg = error_msg;
+
+    this.validationSubject = validationSubject;
+};
+
+PresenceValidator = {
+    getErrors: function(data, fields) {
+        fields.forEach(function(property){
+            if(EmptyValidator.is_empty(data.validationSubject.get(property))){
+                data.errors[property] = data.error_msg.field_required;
+                data.errors["is_not_empty"] = true;
+            }
+        });
+
+        return data.errors;
+    }
+};
+
+EmptyValidator = {
+    is_empty: function(value) {
+        return (value === undefined || String(value).trim().length === 0) ? true : false;
+    }
+};
+
+EqualPasswordsValidator = {
+    getErrors: function(data, passwordField, confirmField) {
+        password = data.validationSubject.get(passwordField);
+        confirm = data.validationSubject.get(confirmField);
+
+        if (password != confirm){
+            data.errors[password] = data.error_msg.password_mismatch;
+            data.errors[confirm] = data.error_msg.password_mismatch;
+            data.errors["is_not_empty"] = true;
+        }
+        return data.errors;
+    }
+};

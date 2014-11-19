@@ -69,6 +69,8 @@ App.Router.map(function() {
     this.resource('profile', function(){
         this.route('changePassword', { path: '/change_password' });
     });
+
+    this.resource('resetPassword', { path: '/reset_password/:token' });
 });
 
 App.LogoutRoute = Ember.Route.extend({
@@ -552,5 +554,44 @@ App.ProfileChangePasswordController = Ember.ObjectController.extend({
 
     _handleChangeAccountPasswordFailed: function(account) {
         alert('error changing password account: ' + account.name)
+    }
+});
+
+App.ResetPasswordRoute = Ember.Route.extend({
+    model: function (params) {
+        return { token : params['token'] };
+    }
+});
+
+App.ResetPasswordController = Ember.ObjectController.extend({
+    actions:{
+        doResetPassword: function () {
+            var token = this.get('model').token;
+
+            var passwordErrors =
+                PasswordValidator.getErrorsFor(this, "password", "passwordConfirm");
+
+            if (passwordErrors.is_not_empty){
+                this._handleChangeAccountPasswordErrors(passwordErrors);
+            }
+            else{
+                Api.reset_password(token, this.get('password'));
+
+                this.transitionToRoute("index");
+            }
+
+        }
+    },
+
+    _handleChangeAccountPasswordErrors: function(errors) {
+        this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": errors
+                }
+            })
+        );
     }
 });
