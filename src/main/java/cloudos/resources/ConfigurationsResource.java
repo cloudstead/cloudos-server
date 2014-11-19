@@ -84,7 +84,7 @@ public class ConfigurationsResource {
      */
     @GET
     @Path("/{app}")
-    @ReturnType("rooty.toots.vendor.VendorSettingDisplayValue[]")
+    @ReturnType("java.util.List<rooty.toots.vendor.VendorSettingDisplayValue>")
     public Response getConfigurationOptions (@HeaderParam(H_API_KEY) String apiKey,
                                              @PathParam("app") String app) {
 
