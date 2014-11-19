@@ -273,6 +273,7 @@ public class AccountsResourceTest extends ApiClientTestBase {
 
         final MockTemplatedMailSender sender = getTemplatedMailSender();
         sender.reset();
+        flushTokens();
         apiDocs.addNote("hit forgot password link");
         post(ApiConstants.AUTH_ENDPOINT + AuthResource.EP_FORGOT_PASSWORD, accountName);
 
