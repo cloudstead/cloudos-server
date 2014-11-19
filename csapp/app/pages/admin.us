@@ -11,94 +11,101 @@
 <body>
 
 <script type="text/x-handlebars">
-
 	<section class="app-bar">
-		<nav class="top-bar" data-top-bar>
+		<nav class="top-bar" data-topbar role="navigation">
 			<ul class="title-area">
 				<li class="name">
 					<h1>
-						<a class="brand" href="/">{{t app.title}} </a>
+						<a class="brand" href="#">{{t app.title}}</a>
 					</h1>
 				</li>
+				<li class="toggle-topbar menu-icon">
+					<a href="#">
+						<span></span>
+					</a>
+				</li>
 			</ul>
-			<section class="top-bar-section">
-				<!--<ul>
-					{{#if cloudos_account.admin}}
-						<li>{{#link-to 'accounts'}}{{t sections.accounts}}{{/link-to}}</li>
-						<li>{{#link-to 'email'}}{{t sections.email.main}}{{/link-to}}</li>
-						<li>{{#link-to 'security'}}{{t sections.security.main}}{{/link-to}}</li>
-						<li>{{#link-to 'appstore'}}{{t sections.appstore}}{{/link-to}}</li>
-						{{#if cloudos_account}}
-						{{/if}}
-					{{/if}}
-				</ul>-->
-				<ul class="nav-apps">
-									{{#if cloudos_account}}
-											{{#each cloudos_account.availableApps}}
-													<li>
-														<a {{action 'select_app' this.name}} >
-									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}"></span>
+			{{#if cloudos_account}}
+				<section class="top-bar-section">
+					<ul class="right">
+						<li class="has-dropdown">
+							<a href="#">
+								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
+								<span class="show-for-xxlarge-up">Help</span>
+							</a>
+							<ul class="dropdown">
+								<li><a href="#">{{t menu.help.online}}</a></li>
+								<li><a href="#">{{t menu.help.news}}</a></li>
+								<li><a href="#">{{t menu.help.status}}</a></li>
+								<li class="divider"></li>
+								<li><a href="#">{{t menu.help.ticket}}</a></li>
+							</ul>
+						</li>
+						<li class="has-dropdown">
+							<a href="#" data-dropdown="settings-submenu" data-options="align:left">
+								<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
+								<span class="show-for-xxlarge-up">Settings</span>
+							</a>
+							<ul class="dropdown">
+								<li><label>{{t menu.cloudstead.label}}</label></li>
+								{{#if cloudos_account.admin}}
+									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
+									<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
+									<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
+								{{/if}}
+								<li><a href="#">{{t menu.defaultapps}}</a></li>
+								<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
+								<li class="divider"></li>
+								<li><label>{{t menu.cloudstead.other_label}}</label></li>
+								<li><a href="#">{{t menu.cloudstead.confluence}}</a></li>
+								<li><a href="#">{{t menu.cloudstead.jira}}</a></li>
+								<li><a href="#">{{t menu.cloudstead.phabricator}}</a></li>
+							</ul>
+						</li>
+						<li class="has-dropdown">
+							<a href="#" data-dropdown="user-submenu" data-options="align:left">
+								<span class="icon-user"><span class="caption-for-icon show-for-small">User</span></span>
+								<span class="show-for-xxlarge-up">User</span>
+							</a>
+							<ul class="dropdown">
+								<li><a href="/#/profile">{{t menu.profile}}</a>
+								<li><a href="/#/settings">{{t menu.settings}}</a></li>
+								<li class="divider"></li>
+								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
+							</ul>
+						</li>
+					</ul>
+					<ul class="nav-apps">
+						{{#each cloudos_account.availableApps}}
+							<li>
+								<a {{action 'select_app' this.name}}>
+									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}">
+										<span class="show-for-small">{{app-name name}}</span>
+									</span>
 									<span class="show-for-xxlarge-up">{{app-name name}}</span>
 								</a>
 							</li>
-											{{/each}}
-									{{/if}}
-				</ul>
-			</section>
-
-			{{#if cloudos_account}}
-			<section class="top-bar-section show-for-medium-up right">
-				<ul>
-					<li><a href="#" data-dropdown="help-submenu" data-options="align:left"><span class="icon-question-circle"></span> <span class="show-for-xxlarge-up">Help</span></a></li>
-					<li><a href="#" data-dropdown="settings-submenu" data-options="align:left"><span class="icon-gear"></span> <span class="show-for-xxlarge-up">Settings</span></a></li>
-					<li><a href="#" data-dropdown="user-submenu" data-options="align:left"><span class="icon-user"></span> <span class="show-for-xxlarge-up">User</span></a></li>
-				</ul>
-			</section>
-			<section class="top-bar-section show-for-medium-up right">
-				<div class="row">
-					<div class="large-12 columns">
-						<div class="row collapse">
-							<div class="small-10 columns">
-								<input type="text" placeholder="">
-							</div>
-							<div class="small-2 columns">
-								<a href="#" class="button tiny" style="top:0px;"><span class="icon-search"></span> <span class="show-for-xxlarge-up">Search</span></a>
+						{{/each}}
+					</ul>
+				</section>
+				<section class="top-bar-section show-for-medium-up right">
+					<div class="row">
+						<div class="large-12 columns">
+							<div class="row collapse">
+								<div class="small-10 columns">
+									<input type="text" placeholder="">
+								</div>
+								<div class="small-2 columns">
+									<a href="#" class="button tiny" style="top:0px;"><span class="icon-search"></span> <span class="show-for-xxlarge-up">Search</span></a>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</section>
+				</section>
 			{{/if}}
 		</nav>
 	</section>
-	<ul id="help-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="#">{{t menu.help.online}}</a></li>
-		<li><a href="#">{{t menu.help.news}}</a></li>
-		<li><a href="#">{{t menu.help.status}}</a></li>
-		<li class="divider"></li>
-		<li><a href="#">{{t menu.help.ticket}}</a></li>
-	</ul>
-	<ul id="user-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><a href="/#/profile">{{t menu.profile}}</a>
-		<li><a href="/#/settings">{{t menu.settings}}</a></li>
-		<li class="divider"></li>
-		<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
-	</ul>
-	<ul id="settings-submenu" class="f-dropdown update-dropdown" data-dropdown-content>
-		<li><label>{{t menu.cloudstead.label}}</label></li>
-		{{#if cloudos_account.admin}}
-			<li>{{#link-to 'accounts'}}{{t menu.accounts}}{{/link-to}}</li>
-			<li>{{#link-to 'email'}}{{t menu.emaildom}}{{/link-to}}</li>
-			<li>{{#link-to 'security'}}{{t menu.securitycert}}{{/link-to}}</li>
-		{{/if}}
-		<li>{{#link-to ''}}{{t menu.defaultapps}}{{/link-to}}</li>
-		<li>{{#link-to 'appstore'}}{{t menu.appstore}}{{/link-to}}</li>
-		<li class="divider"></li>
-		<li><label>{{t menu.cloudstead.other_label}}</label></li>
-		<li><a href="#">{{t menu.cloudstead.confluence}}</a></li>
-		<li><a href="#">{{t menu.cloudstead.jira}}</a></li>
-		<li><a href="#">{{t menu.cloudstead.phabricator}}</a></li>
-	</ul>
+
 	{{outlet}}
 </script>
 
