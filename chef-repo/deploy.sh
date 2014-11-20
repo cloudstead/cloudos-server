@@ -14,6 +14,7 @@ function die {
 }
 
 BASE=$(cd $(dirname $0) && pwd)
+JSON_EDIT="java -cp ${BASE}/../target/cloudos-server-*.jar org.cobbzilla.util.json.main.JsonEditor"
 cd ${BASE}
 CLOUDOS_BASE=$(cd ${BASE}/../.. && pwd)
 
@@ -30,6 +31,14 @@ host="${1:?no user@host specified}"
 if [ -z ${SSH_KEY} ] ; then
   die "SSH_KEY is not defined in the environment."
 fi
+
+function append_recipe () {
+  local json="$1"
+  local recipe="$2"
+  local TMP=$(mktemp /tmp/append_recipe.XXXXXX) || die "append_recipe: error creating temp file"
+  ${JSON_EDIT} -f ${json} -o write -p run_list[] -v \"${recipe}\" > ${TMP}
+  echo ${TMP}
+}
 
 REQUIRED=" \
 data_bags/cloudos/base.json \
@@ -54,7 +63,6 @@ if [ ! -f ${CLOUDOS_INIT_BAG} ] ; then
 fi
 
 # If not using Dyn directly from cloudos, install cloudos-dns
-JSON_EDIT="java -cp ${BASE}/../target/cloudos-server-*.jar org.cobbzilla.util.json.main.JsonEditor"
 DYN_ZONE=$(${JSON_EDIT} -f ${CLOUDOS_INIT_BAG} -o read -p dns.zone | tr -d ' ')
 if [ -z "${DYN_ZONE}" ] ; then
   echo "No DynDNS config detected, enabling cloudos-dns..."
@@ -63,13 +71,13 @@ if [ -z "${DYN_ZONE}" ] ; then
     data_bags/cloudos-dns/ports.json"
 
   # Add cloudos-dns recipe
-  ${JSON_EDIT} -f ${SOLO_JSON} -o write -p run_list[] -v \"recipe[cloudos-dns]\" > ${TMP_SOLO}
-else
-  cat ${SOLO_JSON} > ${TMP_SOLO}
+  SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos-dns]")"
 fi
 
 # Add cloudos recipe
-SOLO_JSON=$(mktemp /tmp/cloudos-solo-json.XXXXXX) || die "Error creating final temp file for solo.json"
-${JSON_EDIT} -f ${TMP_SOLO} -o write -p run_list[] -v \"recipe[cloudos]\" > ${SOLO_JSON}
+SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos]")"
+
+# Add cloudos-inspect recipe
+SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos::validate]")"
 
 ${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}" ${SOLO_JSON}
