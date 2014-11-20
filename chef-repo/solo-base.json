@@ -1,15 +1,19 @@
 {
     "run_list": [
-        // packages
-        "recipe[base::prep-base-image]",
+        // the very basics
+        "recipe[base]",
 
-        // we manage our own subdomain
-        "recipe[djbdns]",
+        // cloudOS core services (ldap and search engine will go here)
+        "recipe[kerberos]",
 
         // software shared by multiple apps (switching to docker may change this)
-        "recipe[apache]", "recipe[postgresql]", "recipe[java]", "recipe[java::jdk]",
+        "recipe[apache]", "recipe[postgresql]", "recipe[mysql]",
+        "recipe[java]",
 
         // message queue for rooty-tooty
-        "recipe[kestrel]"
+        "recipe[kestrel]",
+
+        // the built-in apps
+        "recipe[email]", "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[owncloud]"
     ]
 }
