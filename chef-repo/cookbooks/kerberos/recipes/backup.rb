@@ -1,10 +1,8 @@
 #
-# Cookbook Name:: sso
+# Cookbook Name:: kerberos
 # Recipe:: backup
 #
 # Copyright 2014, cloudstead
-#
-# All rights reserved - Do Not Redistribute
 #
 
 # creates a tarball containing kerberos config files + database dump
