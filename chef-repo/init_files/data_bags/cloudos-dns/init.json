@@ -1,8 +1,8 @@
 {
     "id": "init",
     "admin": {
-        "name": "initial-superuser",
-        "password": "bcrypted-superuser-password"
+        "name": "cloudos-dns-admin",
+        "password": "bcrypted-password"
     },
     "dyndns": {
         "account": "your-dyndns-account",
