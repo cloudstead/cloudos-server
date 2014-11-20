@@ -33,7 +33,7 @@ public class MockRootySender extends RootySender {
                 message.setError(e.getMessage());
 
             } finally {
-                handler.getStatusManager().update(message.setFinished(true));
+                handler.getStatusManager().update(getQueueName(), message.setFinished(true));
             }
         }
 

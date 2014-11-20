@@ -25,8 +25,9 @@ public class ConfigurationsResourceTest extends ConfigurationTestBase {
     public void testListConfigGroups () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "list system configuration groups");
         apiDocs.addNote("Request list of config groups, expect 3: cloudos, email, and system");
-        String[] configGroups = fromJson(get(CONFIGS_ENDPOINT).json, String[].class);
-        Set<String> groupSet = new HashSet<>();
+        final RestResponse response = doGet(CONFIGS_ENDPOINT);
+        final String[] configGroups = fromJson(response.json, String[].class);
+        final Set<String> groupSet = new HashSet<>();
         groupSet.addAll(Arrays.asList(configGroups));
         assertEquals(3, configGroups.length);
         assertTrue(groupSet.contains("cloudos"));
@@ -38,20 +39,20 @@ public class ConfigurationsResourceTest extends ConfigurationTestBase {
     public void testUpdateAuthyKey () throws Exception {
 
         final String cloudOsConfigPath = CONFIGS_ENDPOINT + "/cloudos";
-        final String configSettingPath = cloudOsConfigPath + "/" + AUTHY_SETTING_NAME;
+        final String configSettingPath = cloudOsConfigPath + "/" + AUTHY_SETTING_PATH;
         apiDocs.startRecording(DOC_TARGET, "update a system configuration setting in the cloudos config group");
 
         Map<String, String> settingsMap;
 
-        apiDocs.addNote("read setting " + AUTHY_SETTING_NAME + " from server, confirm value is empty since it is still the default value");
+        apiDocs.addNote("read setting " + AUTHY_SETTING_PATH + " from server, confirm value is empty since it is still the default value");
         settingsMap = getSettings(cloudOsConfigPath);
-        assertEquals(VendorSettingHandler.VENDOR_DEFAULT, settingsMap.get(AUTHY_SETTING_NAME));
+        assertEquals(VendorSettingHandler.VENDOR_DEFAULT, settingsMap.get(AUTHY_SETTING_PATH));
 
         // flush rooty messages (otherwise we'll see other messages that have been sent, like NewAccountEvent)
         getRootySender().flush();
 
         final String newKey = randomAlphanumeric(10);
-        apiDocs.addNote("write new value (" + newKey + ") for " + AUTHY_SETTING_NAME);
+        apiDocs.addNote("write new value (" + newKey + ") for " + AUTHY_SETTING_PATH);
         RestResponse response = doPost(configSettingPath, newKey);
         assertEquals(200, response.status);
         assertTrue(Boolean.valueOf(response.json));
@@ -60,16 +61,16 @@ public class ConfigurationsResourceTest extends ConfigurationTestBase {
         final List<RootyMessage> sent = getRootySender().getSent();
         assertEquals(1, sent.size());
         final VendorSettingUpdateRequest request = (VendorSettingUpdateRequest) sent.get(0);
-        assertEquals(AUTHY_SETTING_NAME, request.getSetting().getPath());
+        assertEquals(AUTHY_SETTING_PATH, request.getSetting().getPath());
         assertEquals(newKey, request.getValue());
 
         // verify the databag was updated
         final CloudOsDatabag databag = fromJson(FileUtil.toString(cloudosInitDatabag), CloudOsDatabag.class);
         assertEquals(newKey, databag.getAuthy().getUser());
 
-        apiDocs.addNote("re-read setting "+AUTHY_SETTING_NAME+", should see new value");
+        apiDocs.addNote("re-read setting "+AUTHY_SETTING_PATH+", should see new value");
         settingsMap = getSettings(cloudOsConfigPath);
-        assertEquals(newKey, settingsMap.get(AUTHY_SETTING_NAME));
+        assertEquals(newKey, settingsMap.get(AUTHY_SETTING_PATH));
     }
 
     public Map<String, String> getSettings(String cloudOsConfigPath) throws Exception {

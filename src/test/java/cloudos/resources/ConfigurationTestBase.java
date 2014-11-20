@@ -19,6 +19,7 @@ public class ConfigurationTestBase extends ApiClientTestBase {
 
     public static final String AUTHY_DEFAULT_VALUE = "authy-key-goes-here";
     public static final String AUTHY_SETTING_NAME = "authy.user";
+    public static final String AUTHY_SETTING_PATH = "init/" + AUTHY_SETTING_NAME;
 
     public static final String[][] EMAIL_SETTINGS = {
             { "smtp_relay.username", "sg-user-foo" },

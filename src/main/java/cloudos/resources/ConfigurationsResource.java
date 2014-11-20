@@ -1,8 +1,12 @@
 package cloudos.resources;
 
+import cloudos.appstore.model.app.AppDatabagDef;
+import cloudos.appstore.model.app.AppManifest;
+import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.model.Account;
+import cloudos.model.InstalledApp;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
 import cloudos.server.CloudOsConfiguration;
@@ -23,9 +27,7 @@ import rooty.toots.vendor.VendorSettingsListRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.wizard.resources.ResourceUtil.forbidden;
@@ -41,6 +43,7 @@ public class ConfigurationsResource {
     public static final String SYSTEM_APP = "system";
 
     @Autowired private CloudOsConfiguration configuration;
+    @Autowired private AppDAO appDAO;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private SslCertificateDAO certificateDAO;
     @Autowired private RootyService rooty;
@@ -72,7 +75,8 @@ public class ConfigurationsResource {
     }
 
     private String[] getAllConfigurations() throws Exception {
-        return JsonUtil.fromJson(rooty.request(new VendorSettingsListRequest()).getResults(), String[].class);
+        final RootyMessage request = rooty.request(new VendorSettingsListRequest());
+        return JsonUtil.fromJson(request.getResults(), String[].class);
     }
 
     /**
@@ -112,8 +116,24 @@ public class ConfigurationsResource {
     }
 
     private VendorSettingDisplayValue[] getConfiguration(String app) throws Exception {
-        final RootyMessage request = rooty.request(new VendorSettingsListRequest().setCookbook(app));
+        final InstalledApp installedApp = appDAO.findByName(app);
+        List<String> fields = null;
+        if (installedApp != null) {
+            final AppManifest appManifest = installedApp.getManifest();
+            fields = toFieldList(appManifest);
+        }
+        final RootyMessage request = rooty.request(new VendorSettingsListRequest().setCookbook(app).setFields(fields));
         return JsonUtil.fromJson(request.getResults(), VendorSettingDisplayValue[].class);
+    }
+
+    private List<String> toFieldList(AppManifest appManifest) {
+        final List<String> fields = new ArrayList<>();
+        for (AppDatabagDef def : appManifest.getDatabags()) {
+            for (String item : def.getItems()) {
+                fields.add(def.getName() + "/" + item);
+            }
+        }
+        return fields;
     }
 
     /**
@@ -161,16 +181,18 @@ public class ConfigurationsResource {
      * Set a single configuration option
      * @param apiKey The session ID
      * @param app Name of the configuration group (usually the name of the CloudOs app, or the special 'system' category)
+     * @param category name of the configuration category
      * @param option name of the configuration option
      * @param value the value to set
      * @return "true" if the settings was written successfully, "false" if it was not written
      * @statuscode 500 if an error occurred writing the option
      */
     @POST
-    @Path("/{app}/{option}")
+    @Path("/{app}/{category}/{option}")
     @ReturnType("java.lang.Boolean")
     public Response setConfigurationOption (@HeaderParam(H_API_KEY) String apiKey,
                                             @PathParam("app") String app,
+                                            @PathParam("category") String category,
                                             @PathParam("option") String option,
                                             String value) {
 
@@ -179,7 +201,7 @@ public class ConfigurationsResource {
         if (!admin.isAdmin()) return forbidden();
 
         try {
-            return Response.ok(Boolean.valueOf(updateConfig(app, option, value).getResults())).build();
+            return Response.ok(Boolean.valueOf(updateConfig(app, category+"/"+option, value).getResults())).build();
 
         } catch (Exception e) {
             log.error("Error handling setConfig ("+ app +"): "+e, e);

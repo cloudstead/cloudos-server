@@ -71,7 +71,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
                 .setName("ssl-https");
 
         final Map<String, String> settings = new HashMap<>();
-        settings.put(ConfigurationsResourceTest.AUTHY_SETTING_NAME, randomAlphanumeric(10));
+        settings.put(ConfigurationsResourceTest.AUTHY_SETTING_PATH, randomAlphanumeric(10));
         final UnlockRequest unlockRequest = new UnlockRequest().setCert(request).setSettings(settings);
 
         apiDocs.addNote("unlock the cloudstead: overwrite default ssl cert and update all required vendor settings");
