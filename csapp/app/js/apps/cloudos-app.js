@@ -121,10 +121,24 @@ App.IndexController = Ember.ObjectController.extend({
     username: get_username()
 });
 
+App.LoginRoute = Ember.Route.extend({
+    beforeModel: function(transition) {
+        this._resetLoginControllerMessages();
+    },
+
+    _resetLoginControllerMessages: function() {
+        var loginController = this.controllerFor('login');
+        loginController.set('notificationForgotPassword', null);
+        loginController.set('requestMessages', null);
+    }
+});
+
 App.LoginController = Ember.ObjectController.extend({
     cloudos_account: CloudOs.account(),
     username: get_username(),
     password: '',
+    notificationForgotPassword: null,
+    requestMessages: null,
     actions: {
         doLogin: function () {
             var creds = {
@@ -181,9 +195,18 @@ App.LoginController = Ember.ObjectController.extend({
         },
 
         doForgotPassword: function() {
-            Api.forgot_password(this.get("username"));
-            this.set('notificationForgotPassword',
-                "You have been sent an email with a link for reseting your password.")
+            var token = this.get('model').token;
+
+            var forgetPasswordErrors = PresenceValidator.validate(this, ['username']);
+
+            if (forgetPasswordErrors.is_not_empty){
+                this._handleForgetPasswordErrors(forgetPasswordErrors);
+            }
+            else{
+                Api.forgot_password(this.get("username"));
+                this.set('notificationForgotPassword',
+                    Em.I18n.translations.notifications.forgot_password_email_sent);
+            }
         }
     },
 	validateLogin: function(username, password){
@@ -199,7 +222,19 @@ App.LoginController = Ember.ObjectController.extend({
 			response.password = error_msg.field_required;
 		}
 		return response;
-	}
+	},
+
+    _handleForgetPasswordErrors: function(validationErrors) {
+        this.set('requestMessages',
+            App.RequestMessagesObject.create({
+                json: {
+                    "status": 'error',
+                    "api_token" : null,
+                    "errors": validationErrors
+                }
+            })
+        );
+    }
 });
 
 App.SettingsRoute = Ember.Route.extend({
@@ -567,6 +602,7 @@ App.ResetPasswordController = Ember.ObjectController.extend({
     actions:{
         doResetPassword: function () {
             var token = this.get('model').token;
+            var delayInSeconds = 3;
 
             var passwordErrors =
                 PasswordValidator.getErrorsFor(this, "password", "passwordConfirm");
@@ -577,7 +613,11 @@ App.ResetPasswordController = Ember.ObjectController.extend({
             else{
                 Api.reset_password(token, this.get('password'));
 
-                this.transitionToRoute("index");
+                this.set(
+                    "resetPasswordSuccessful",
+                    this._delayMessage(delayInSeconds));
+
+                this._delayedTransitionTo("login", delayInSeconds);
             }
 
         }
@@ -593,5 +633,31 @@ App.ResetPasswordController = Ember.ObjectController.extend({
                 }
             })
         );
-    }
+    },
+
+    _delayedTransitionTo: function(routeName, delayInSeconds){
+        TIMER_STEP_IN_SECONDS = 1;
+        var passedInSeconds = 0;
+        var self = this;
+
+        var interval = setInterval(
+            function() {
+                passedInSeconds += 1;
+                self.set(
+                    "resetPasswordSuccessful",
+                    self._delayMessage(parseInt(delayInSeconds - passedInSeconds, 10))
+                );
+                if (passedInSeconds >= delayInSeconds){
+                    clearInterval(interval);
+                    self.transitionToRoute(routeName);
+                }
+            },
+            Timer.s2ms(TIMER_STEP_IN_SECONDS)
+        );
+    },
+
+    _delayMessage: function(delayInSeconds) {
+        return Ember.I18n.translations.notifications.reset_password_successful +
+            " " + delayInSeconds + "s.";
+    },
 });

@@ -298,6 +298,7 @@ ValidatorData = function(error_msg, validationSubject) {
 PresenceValidator = {
     getErrors: function(data, fields) {
         fields.forEach(function(property){
+            console.log(">>> " + data.validationSubject.get(property));
             if(EmptyValidator.is_empty(data.validationSubject.get(property))){
                 data.errors[property] = data.error_msg.field_required;
                 data.errors["is_not_empty"] = true;
@@ -305,12 +306,18 @@ PresenceValidator = {
         });
 
         return data.errors;
+    },
+    validate: function(subject, fields) {
+        return this.getErrors(
+            new ValidatorData(locate(Em.I18n.translations, 'errors'), subject),
+            fields
+        );
     }
 };
 
 EmptyValidator = {
     is_empty: function(value) {
-        return (value === undefined || String(value).trim().length === 0) ? true : false;
+        return (Ember.isNone(value) || String(value).trim().length === 0);
     }
 };
 
@@ -338,3 +345,13 @@ EmailValidator = {
         return data.errors;
     }
 };
+
+Timer = {
+    ms_in_s: 1000,
+    ms2s: function(ms) {
+        return ms/this.ms_in_s;
+    },
+    s2ms: function(s) {
+        return s * this.ms_in_s;
+    }
+}

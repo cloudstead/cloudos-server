@@ -146,9 +146,9 @@
 							<p><button type="submit" class="expand" {{action 'doLogin'}}>{{t forms.login.login_button}}</button></p>
 						</div>
 						<a href="" {{action "doForgotPassword"}}>{{t forms.login.forgot_password}}</a>
+						<div class="forgot-password-notification">{{notificationForgotPassword}}</div>
 					</fieldset>
 				</form>
-				<div class="forgot-password-notification">{{notificationForgotPassword}}</div>
 			</div>
 		</div>
 	</section>
@@ -458,6 +458,7 @@
 						<div class="field-container">
 							<p><button type="submit" class="expand">{{t forms.reset_password.submit}}</button></p>
 						</div>
+						<div class="forgot-password-notification">{{resetPasswordSuccessful}}</div>
 					</fieldset>
 				</form>
 			</div>
