@@ -6,7 +6,7 @@ import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.model.Account;
-import cloudos.model.InstalledApp;
+import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
 import cloudos.server.CloudOsConfiguration;
@@ -116,7 +116,7 @@ public class ConfigurationsResource {
     }
 
     private VendorSettingDisplayValue[] getConfiguration(String app) throws Exception {
-        final InstalledApp installedApp = appDAO.findByName(app);
+        final CloudOsApp installedApp = appDAO.findByName(app);
         List<String> fields = null;
         if (installedApp != null) {
             final AppManifest appManifest = installedApp.getManifest();

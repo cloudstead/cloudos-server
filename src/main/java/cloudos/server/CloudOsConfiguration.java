@@ -1,9 +1,11 @@
 package cloudos.server;
 
 import cloudos.appstore.client.AppStoreApiClient;
+import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
 import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
+import cloudos.model.app.CloudOsAppLayout;
 import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +25,7 @@ import rooty.RootyConfiguration;
 import rooty.toots.chef.ChefHandler;
 import rooty.toots.postfix.PostfixHandler;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -33,10 +36,12 @@ public class CloudOsConfiguration extends RestServerConfiguration
     public static final String DEFAULT_ADMIN = "admin";
 
     @Setter private DatabaseConfiguration database;
-
     @Bean public DatabaseConfiguration getDatabase() { return database; }
 
     @Getter @Setter private CloudOsRedisConfiguration redis = new CloudOsRedisConfiguration(this);
+
+    @Getter @Setter private File appRepository = new File(System.getProperty("user.home"), "app-repository");
+    @Getter(lazy=true) private final CloudOsAppLayout appLayout = new CloudOsAppLayout(getAppRepository());
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 

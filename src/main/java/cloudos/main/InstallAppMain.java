@@ -3,7 +3,7 @@ package cloudos.main;
 import cloudos.model.auth.AuthResponse;
 import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
-import cloudos.model.support.AppInstallUrlRequest;
+import cloudos.model.support.AppDownloadRequest;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskResult;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class InstallAppMain {
 
         // install app
         log.info("installing app from "+options.getUrl()+" ...");
-        final AppInstallUrlRequest request = new AppInstallUrlRequest().setUrl(options.getUrl());
+        final AppDownloadRequest request = new AppDownloadRequest().setUrl(options.getUrl());
         final TaskId taskId = fromJson(api.post(APPS_ENDPOINT, toJson(request)).json, TaskId.class);
 
         // monitor status

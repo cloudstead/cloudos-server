@@ -1,10 +1,11 @@
 package cloudos.model.support;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@NoArgsConstructor @AllArgsConstructor @ToString
 public class AppInstallRequest {
 
-    @Getter @Setter private String cloudType;
+    @Getter @Setter private String name;
+    @Getter @Setter private String version;
 
 }

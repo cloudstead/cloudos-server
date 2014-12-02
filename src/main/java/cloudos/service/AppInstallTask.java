@@ -1,97 +1,91 @@
 package cloudos.service;
 
-import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.CloudOsAccount;
+import cloudos.appstore.model.app.AppDatabagDef;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
 import cloudos.databag.PortsDatabag;
-import cloudos.model.InstalledApp;
-import cloudos.model.support.AppInstallUrlRequest;
+import cloudos.model.app.AppMetadata;
+import cloudos.model.app.CloudOsApp;
+import cloudos.model.app.CloudOsAppLayout;
+import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
 import cloudos.service.task.TaskResult;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.dns.DnsRecord;
 import org.cobbzilla.util.dns.DnsType;
-import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.io.Tarball;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.system.PortPicker;
-import rooty.RootyConfiguration;
+import org.cobbzilla.wizard.validation.ConstraintViolationBean;
+import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Installs an application from your cloudstead's app library onto your cloudos.
+ */
 @Accessors(chain=true) @Slf4j
 public class AppInstallTask extends TaskBase {
 
-    public static final String PLUGIN_JAR = "plugin.jar";
-    public static final String CLOUDOS_MANIFEST_JSON = "cloudos-manifest.json";
-
     private static final int DEFAULT_TTL = 3600;
 
+    @Getter @Setter private RootyService rootyService;
     @Getter @Setter private CloudOsAccount account;
-    @Getter @Setter private AppInstallUrlRequest request;
+    @Getter @Setter private AppInstallRequest request;
     @Getter @Setter private AppDAO appDAO;
     @Getter @Setter private CloudOsConfiguration configuration;
 
     @Override
     public TaskResult call() {
 
-        final RootyConfiguration rooty = configuration.getRooty();
+        description("{appInstall.installingApp}", request.toString());
 
-        // initial description of task (we'll refine this when we know what is being installed)
-        description("{appInstall.installingPackage}", request.getUrl());
+        // Find the app version to install
+        final CloudOsAppLayout appLayout = configuration.getAppLayout();
+        final File appDir = appLayout.getAppDir(request.getName());
+        final File appVersionDir = appLayout.getAppVersionDir(request.getName(), request.getVersion());
 
-        // download the tarball to a tempfile
-        addEvent("{appInstall.downloadingTarball}");
-        final String suffix = request.getUrl().substring(request.getUrl().lastIndexOf('.'));
-        final File tarball;
-        try {
-            tarball = File.createTempFile("app-tarball", suffix);
-            HttpUtil.url2file(request.getUrl(), tarball);
-        } catch (Exception e) {
-            error("{appInstall.error.downloadingTarball", e);
+        if (!appVersionDir.exists() || !appVersionDir.isDirectory()) {
+            error("{appInstall.versionNotFound}", "not a directory: "+appVersionDir.getAbsolutePath());
             return null;
         }
 
-        // unroll the tarball to a temp dir
-        addEvent("{appInstall.unpackingTarball}");
-        final File tempDir;
-        try {
-            tempDir = Tarball.unroll(tarball);
-        } catch (Exception e) {
-            error("{appInstall.error.unpackingTarball}", e);
-            return null;
+        final AppManifest manifest = AppManifest.load(appVersionDir);
+        final String name = manifest.getId();
+        final List<ConstraintViolationBean> validationErrors = new ArrayList<>();
+
+        // do we have all the required configuration?
+        if (manifest.hasDatabags()) {
+            for (AppDatabagDef databag : manifest.getDatabags()) {
+                final JsonNode node = appLayout.getDatabag(appVersionDir, databag.getName());
+                for (String item : databag.getItems()) {
+                    if (node == null) {
+                        validationErrors.add(missingConfig(databag, item));
+                    } else {
+                        try {
+                            // validate that all fields are present and have values.
+                            if (JsonUtil.toString(JsonUtil.findNode(node, item)) == null) {
+                                validationErrors.add(missingConfig(databag, item));
+                            }
+                        } catch (Exception e) {
+                            validationErrors.add(missingConfig(databag, item));
+                        }
+                    }
+                }
+            }
         }
-
-        // validate the manifest
-        addEvent("{appInstall.readingManifest}");
-        final AppManifest manifest;
-        try {
-            final File manifestFile = new File(tempDir, CLOUDOS_MANIFEST_JSON);
-            manifest = JsonUtil.fromJson(FileUtil.toString(manifestFile), AppManifest.class);
-        } catch (Exception e) {
-            error("{appInstall.error.readingManifest}", e);
-            return null;
-        }
-
-        // update description, we now know the app name
-        final String name = manifest.getName();
-        description("{appInstall.installingApp}", name);
-
-        // load the AppRuntime class
-        addEvent("{appInstall.loadingPlugin}");
-        final File pluginJar = new File(tempDir, PLUGIN_JAR);
-        try {
-            final Class<? extends AppRuntime> pluginClass = appDAO.loadPluginClass(pluginJar, manifest.getPlugin());
-        } catch (Exception e) {
-            error("{appInstall.error.loadingPlugin}", e);
+        if (!validationErrors.isEmpty()) {
+            error("err.validation", validationErrors);
             return null;
         }
 
@@ -108,65 +102,66 @@ public class AppInstallTask extends TaskBase {
             }
         }
 
-        // collect cookbooks and recipes, build delta command
+        // collect cookbooks and recipes, build chef
         addEvent("{appInstall.verifyingChefCookbooks}");
         final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD);
+        final File chefDir = appLayout.getChefDir(appVersionDir);
+        if (!chefDir.exists()) {
+            error("{appInstall.error.chefDir.notFound", "chefDir not found: "+chefDir.getAbsolutePath());
+            return null;
+        }
+        chefMessage.setChefDir(chefDir.getAbsolutePath());
+
         for (String recipe : manifest.getChefInstallRunlist()) {
             chefMessage.addRecipe(recipe.trim());
         }
 
-        final File chefDir = new File(tempDir, "chef");
-        final File databagDir = new File(chefDir.getAbsolutePath() + "/data_bags/" + name);
-        if (!databagDir.mkdirs()) {
-            error("{appInstall.error.creatingDatabagDir}", new IllegalStateException("error creating " + databagDir.getAbsolutePath()));
-            return null;
-        }
-
+        // create or read ports databag
         final PortsDatabag ports;
-
-        InstalledApp existing = appDAO.findByName(name);
-        final int port;
+        CloudOsApp existing = appDAO.findByName(name);
         if (existing == null) {
             // pick a port to listen on and write data bag
             ports = new PortsDatabag()
                     .setPrimary(PortPicker.pickOrDie())
                     .setAdmin(PortPicker.pickOrDie());
         } else {
-            ports = new PortsDatabag()
-                    .setPrimary(existing.getPort())
-                    .setAdmin(existing.getAdminPort());
+            ports = existing.getDatabag(PortsDatabag.ID);
         }
+
         try {
-            FileUtil.toFile(new File(databagDir, "ports.json"), JsonUtil.toJson(ports));
+            FileUtil.toFile(appLayout.getDatabagFile(appVersionDir, PortsDatabag.ID), JsonUtil.toJson(ports));
         } catch (Exception e) {
             error("{appInstall.error.writingPortsDataBag}", e);
             return null;
         }
-        port = ports.getPrimary();
 
         // notify the chef-user that we have some new recipes to add to the run list
         addEvent("{appInstall.notifyingChefToRun}");
+        final RootyMessage status;
         try {
-            configuration.getChefHandler().write(chefMessage, rooty.getSecret(), chefDir);
+            result.setRootyUuid(chefMessage.initUuid());
+            status = rootyService.request(chefMessage);
         } catch (Exception e) {
             error("{appInstall.error.notifyingChefToRun}", e);
             return null;
         }
 
-        // todo: check for messages*.properties and populate localized string tables for app
+        if (status.isSuccess()) {
+            addEvent("{appInstall.recordingInstallation}");
+            final AppMetadata metadata = new AppMetadata()
+                    .setInstalled_by(account.getName())
+                    .setActive_version(request.getVersion());
+            metadata.write(appDir);
+            result.setSuccess(true);
 
-        // todo: find a way to monitor progress of chef installation
-
-        addEvent("{appInstall.recordingInstallation}");
-        try {
-            appDAO.install(account, manifest, pluginJar, tarball, port);
-        } catch (Exception e) {
-            error("{appInstall.error.recordingInstallation}", e);
-            return null;
+        } else {
+            result.setError(status.getLastError());
         }
-
-        result.setSuccess(true);
         return result;
+    }
+
+    private ConstraintViolationBean missingConfig(AppDatabagDef databag, String item) {
+        return new ConstraintViolationBean("err."+databag.getName()+"."+item+".empty");
     }
 
     protected void createDnsRecord(DnsType type, String fqdn, String value) throws Exception {

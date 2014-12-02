@@ -3,6 +3,8 @@ package cloudos.service.task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.string.StringUtil;
+import rooty.RootyMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,13 @@ public class TaskResult {
     @Getter @Setter private String actionMessageKey;
     @Getter @Setter private String target;
 
+    @Getter @Setter private String rootyUuid;
+    @JsonIgnore public boolean hasRootyUuid () { return !StringUtil.empty(rootyUuid); }
+
+    @Getter @Setter private String returnValue;
+
+    @Getter @Setter private RootyMessage rootyStatus;
+
     @Getter @Setter private boolean success = false;
     @Getter @Setter @JsonIgnore private Exception exception;
 
@@ -19,10 +28,17 @@ public class TaskResult {
     public String getError () { return exception == null ? null : exception.toString(); }
     public void setError (String error) { exception = new Exception(error); }
 
-    @Getter private List<TaskEvent> events = new ArrayList<>();
+    private final List<TaskEvent> events = new ArrayList<>();
+    public List<TaskEvent> getEvents () {
+        synchronized (events) {
+            return new ArrayList<>(events);
+        }
+    }
 
     public void add(TaskEvent event) {
-        this.events.add(event);
+        synchronized (events) {
+            this.events.add(event);
+        }
     }
 
     public void error(TaskEvent event, Exception e) {

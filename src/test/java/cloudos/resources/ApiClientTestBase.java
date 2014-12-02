@@ -36,6 +36,8 @@ import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.cobbzilla.wizardtest.resources.ApiDocsResourceIT;
 import org.junit.Before;
+import rooty.toots.chef.ChefHandler;
+import rooty.toots.chef.ChefSolo;
 import rooty.toots.service.ServiceKeyHandler;
 import rooty.toots.ssl.SslCertHandler;
 import rooty.toots.system.SystemSetTimezoneMessage;
@@ -134,7 +136,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     protected ServiceKeyHandler serviceKeyHandler;
     protected SslCertHandler certHandler;
     protected VendorSettingHandler vendorSettingHandler;
+    protected ChefHandler chefHandler;
     protected File chefHome;
+    protected File appRepository;
 
     @Override public void beforeStart() {
         try { _beforeStart(); } catch (Exception e) {
@@ -192,16 +196,33 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override protected String initChefUser() { return "nobody"; }
         };
 
+        // the chef handler (for AppInstallTest)
+        chefHandler = new ChefHandler() {
+            @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
+            @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
+            @Override protected String initChefUser() { return "nobody"; }
+            @Override protected void runChefSolo() throws Exception { /* noop */ }
+        };
+        // write a simple solo.json file
+        final ChefSolo chefSolo = new ChefSolo();
+        chefSolo.setRun_list(new String[] {"recipe[test]", "recipe[test-foo]"});
+        FileUtil.toFile(new File(chefHome, "solo.json"), JsonUtil.toJson(chefSolo));
+
         // register mocks with rooty
         final CloudOsConfiguration configuration = (CloudOsConfiguration) serverHarness.getConfiguration();
         configuration.setRooty(new MockRootyConfiguration());
         configuration.getRooty().addHandler(serviceKeyHandler);
         configuration.getRooty().addHandler(vendorSettingHandler);
         configuration.getRooty().addHandler(certHandler);
+        configuration.getRooty().addHandler(chefHandler);
 
         // mock app store and DNS manager
         configuration.setAppStoreClient(appStoreClient);
         configuration.setDnsManager(dnsManager);
+
+        // use scratch dir for app repository
+        appRepository = Files.createTempDir();
+        configuration.setAppRepository(appRepository);
     }
 
     @Before

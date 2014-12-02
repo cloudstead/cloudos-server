@@ -14,7 +14,7 @@ public class TaskService {
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
     private final Map<String, TaskBase> taskMap = new ConcurrentHashMap<>();
 
-    public TaskId execute(TaskBase task) throws Exception {
+    public TaskId execute(TaskBase task) {
         task.init();
         executor.submit(task);
         taskMap.put(task.getTaskId().getUuid(), task);

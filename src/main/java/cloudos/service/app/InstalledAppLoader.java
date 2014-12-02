@@ -1,11 +1,8 @@
 package cloudos.service.app;
 
 import cloudos.appstore.model.AppRuntime;
-import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.CloudOsAccount;
-import cloudos.appstore.model.ConfigurableAppRuntime;
 import cloudos.appstore.model.app.AppAuthConfig;
-import cloudos.dao.AppDAO;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.RootyService;
 import com.sun.jersey.api.core.HttpContext;
@@ -14,7 +11,6 @@ import org.cobbzilla.util.http.CookieJar;
 import org.cobbzilla.util.http.HttpMethods;
 import org.cobbzilla.util.http.HttpRequestBean;
 import org.cobbzilla.util.http.URIUtil;
-import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.cache.redis.RedisService;
 import org.cobbzilla.wizard.util.BufferedResponse;
 import org.cobbzilla.wizard.util.ProxyUtil;
@@ -26,8 +22,6 @@ import rooty.toots.app.AppScriptMessageType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
@@ -36,82 +30,11 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Service @Slf4j
 public class InstalledAppLoader {
 
-    public static final String APP_EMAIL = "email";
-    public static final String APP_CALENDAR = "calendar";
-    public static final String APP_FILES = "files";
-
-    public static final AppRuntimeDetails ROUNDCUBE_DETAILS = new AppRuntimeDetails(APP_EMAIL, "/roundcube/", null);
-    public static final AppRuntimeDetails ROUNDCUBE_CAL_DETAILS = new AppRuntimeDetails(APP_CALENDAR, "/roundcube/?_task=calendar", null);
-    public static final AppRuntimeDetails OWNCLOUD_DETAILS = new AppRuntimeDetails(APP_FILES, "/owncloud/", null);
-
-    public static final AppAuthConfig ROUNDCUBE_APP_AUTH = JsonUtil.fromJsonOrDie("{\n" +
-            "        \"login_fields\": {\n" +
-            "            \"_user\": \"{{account.name}}\",\n" +
-            "            \"_pass\": \"{{account.password}}\",\n" +
-            "            \"_timezone\": \"{{timezone-name}}\",\n" +
-            "            \"_task\": \"login\",\n" +
-            "            \"_action\": \"login\",\n" +
-            "            \"_url\": \"_task=login\",\n" +
-            "            \"_token\": \"pass\"\n" +
-            "        },\n" +
-            "        \"login_path\": \"./?_task=login\",\n" +
-            "        \"login_page_markers\": [\n" +
-            "            \"rcmloginuser\",\n" +
-            "            \"rcmloginpwd\",\n" +
-            "            \"_token\",\n" +
-            "            \"rcmloginsubmit\"\n" +
-            "        ]" +
-            "    }", AppAuthConfig.class);
-
-    public static final ConfigurableAppRuntime ROUNDCUBE = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
-            .setDetails(ROUNDCUBE_DETAILS)
-            .setAuthentication(ROUNDCUBE_APP_AUTH);
-
-    public static final ConfigurableAppRuntime ROUNDCUBE_CAL = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
-            .setDetails(ROUNDCUBE_CAL_DETAILS)
-            .setAuthentication(ROUNDCUBE_APP_AUTH);
-
-    public static final ConfigurableAppRuntime OWNCLOUD = (ConfigurableAppRuntime) new ConfigurableAppRuntime()
-            .setDetails(OWNCLOUD_DETAILS)
-            .setAuthentication(JsonUtil.fromJsonOrDie("{\n" +
-                    "        \"login_fields\": {\n" +
-                    "            \"user\": \"{{account.name}}\",\n" +
-                    "            \"password\": \"{{account.password}}\",\n" +
-                    "            \"remember_login\": \"1\",\n" +
-                    "            \"timezone-offset\": \"{{timezone-offset}}\",\n" +
-                    "            \"requesttoken\": \"pass\"\n" +
-                    "        },\n" +
-                    "        \"home_path\": \"index.php\",\n" +
-                    "        \"login_path\": \"index.php\",\n" +
-                    "        \"login_page_markers\": [ \"<form method=\\\"post\\\" name=\\\"login\\\">\", \"class=\\\"login primary\\\"\" ]\n" +
-                    "    }", AppAuthConfig.class));
-
-    public static final Map<String, AppRuntime> APPS_BY_NAME = initAppMap();
-
     private static final int MAX_REDIRECTS = 10;
 
-    private static Map<String, AppRuntime> initAppMap() {
-        final Map<String, AppRuntime> appMap = new LinkedHashMap<>();
-        appMap.put(APP_EMAIL, ROUNDCUBE);
-        appMap.put(APP_CALENDAR, ROUNDCUBE_CAL);
-        appMap.put(APP_FILES, OWNCLOUD);
-        return appMap;
-    }
-
     @Autowired private CloudOsConfiguration configuration;
-    @Autowired private AppDAO appDAO;
     @Autowired private RootyService rooty;
     @Autowired private RedisService redis;
-
-    public static final Map<String, AppRuntimeDetails> APP_DETAILS_BY_NAME = initAppDetailsMap();
-
-    private static Map<String, AppRuntimeDetails> initAppDetailsMap() {
-        final Map<String, AppRuntimeDetails> appDetailsMap = new LinkedHashMap<>();
-        appDetailsMap.put(APP_EMAIL, ROUNDCUBE_DETAILS);
-        appDetailsMap.put(APP_CALENDAR, ROUNDCUBE_CAL_DETAILS);
-        appDetailsMap.put(APP_FILES, OWNCLOUD_DETAILS);
-        return appDetailsMap;
-    }
 
     public Response loadApp(String apiKey, CloudOsAccount account, AppRuntime app, HttpContext context) throws IOException {
 

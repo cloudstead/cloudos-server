@@ -1,0 +1,24 @@
+{
+    "name": "simple-webapp",
+    "version": "0.1.0",
+    "style": "java_webapp",
+    "publisher": {
+        "maintainer": "Jonathan Cobb",
+        "maintainer_email": "jonathan@cloudstead.io",
+        "license": "https://www.gnu.org/licenses/agpl-3.0.txt",
+        "code_copyright": "Copyright 2014 Cloudstead, Inc.",
+        "packaging_copyright": "Copyright 2014 Cloudstead, Inc."
+    },
+
+    "databags": [ {
+        "name": "init",
+        "items": [ "admin.name", "admin.password",
+            "test.config1", "test.config2", "test.config3" ]
+    }, {
+        "name": "custom",
+        "items": [ "c1", "c2" ]
+    } ],
+
+    "web": { "type": "apache", "mode": "proxy_service", "mount": "bogus" }
+
+}
