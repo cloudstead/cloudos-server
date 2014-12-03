@@ -46,7 +46,12 @@ public class SyncAppRepositoryMain {
             m.setArgs(args);
 
             final CloudOsConfiguration configuration = loadConfiguration(m.getOptions());
-            m.synchronize(configuration);
+
+            // force app-repository to reference same dir as exports file
+            final File cloudosUserHome = m.getOptions().getExports().getParentFile();
+            configuration.setAppRepository(new File(cloudosUserHome, CloudOsConfiguration.APP_REPOSITORY));
+
+            m.synchronize(cloudosUserHome.getName(), configuration);
 
         } catch (Exception e) {
             log.error("Unexpected error: "+e, e);
@@ -69,7 +74,7 @@ public class SyncAppRepositoryMain {
     /**
      * Read authoritative solo.json, populate app-repository if we are missing anything that is already installed
      */
-    public void synchronize(CloudOsConfiguration configuration) {
+    public void synchronize(String cloudosUser, CloudOsConfiguration configuration) {
 
         final File chefDir = new File(new ChefHandler().getChefDir());
         final File soloJsonFile = new File(chefDir, "solo.json");
@@ -111,7 +116,7 @@ public class SyncAppRepositoryMain {
             } finally {
                 // ensure repository keeps proper ownership and permissions
                 try {
-                    CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository(), true);
+                    CommandShell.chown(cloudosUser+"."+configuration.getRootyGroup(), configuration.getAppRepository(), true);
                     CommandShell.chmod(configuration.getAppRepository(), "750", true);
                 } catch (Exception e) {
                     throw new IllegalStateException("Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e, e);

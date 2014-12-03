@@ -33,13 +33,14 @@ public class CloudOsConfiguration extends RestServerConfiguration
         implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration, HasRedisConfiguration {
 
     public static final String DEFAULT_ADMIN = "admin";
+    public static final String APP_REPOSITORY = "app-repository";
 
     @Setter private DatabaseConfiguration database;
     @Bean public DatabaseConfiguration getDatabase() { return database; }
 
     @Getter @Setter private CloudOsRedisConfiguration redis = new CloudOsRedisConfiguration(this);
 
-    @Getter @Setter private File appRepository = new File(System.getProperty("user.home"), "app-repository");
+    @Getter @Setter private File appRepository = new File(System.getProperty("user.home"), APP_REPOSITORY);
     @Getter(lazy=true) private final CloudOsAppLayout appLayout = new CloudOsAppLayout(getAppRepository());
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
