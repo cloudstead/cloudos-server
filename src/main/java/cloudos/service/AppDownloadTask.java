@@ -122,7 +122,7 @@ public class AppDownloadTask extends TaskBase {
 
         // ensure app-repository remains readable to rooty group
         try {
-            CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository());
+            CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository(), true);
             CommandShell.chmod(configuration.getAppRepository(), "750", true);
         } catch (Exception e) {
             error("{appDownload.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
