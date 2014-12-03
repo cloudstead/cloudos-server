@@ -77,7 +77,7 @@ fi
 # Add cloudos recipe
 SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos]")"
 
-# Add cloudos-inspect recipe
+# Add cloudos-validate recipe
 SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos::validate]")"
 
 ${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}" ${SOLO_JSON}
