@@ -2,6 +2,7 @@ package cloudos.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.server.RestServerBase;
+import org.cobbzilla.wizard.server.RestServerLifecycleListener;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public class CloudOsServer extends RestServerBase<CloudOsConfiguration> {
     // args are ignored, config is loaded from the classpath
     public static void main(String[] args) throws Exception {
         final List<ConfigurationSource> configSources = getStreamConfigurationSources(CloudOsServer.class, API_CONFIG_YML);
-        main(CloudOsServer.class, configSources);
+        final RestServerLifecycleListener listener = new CloudOsServerLifecycleListener();
+        main(CloudOsServer.class, listener, configSources);
     }
 
 }

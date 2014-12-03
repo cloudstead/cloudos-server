@@ -55,4 +55,6 @@ public class AppMetadata {
         return new AppMetadata().setError(error);
     }
 
+    public boolean isVersion(String version) { return active_version != null && active_version.equals(version); }
+
 }

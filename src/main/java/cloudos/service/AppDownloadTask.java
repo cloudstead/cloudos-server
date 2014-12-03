@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.Tarball;
+import org.cobbzilla.util.system.CommandShell;
 
 import java.io.File;
 
@@ -117,6 +118,15 @@ public class AppDownloadTask extends TaskBase {
                 error("{appDownload.error.renaming.contents}", new Exception("the bundle file/dir could not be moved: "+f.getAbsolutePath()+" -> "+dest.getAbsolutePath()));
                 return cleanup(tarball, tempDir);
             }
+        }
+
+        // ensure app-repository remains readable to rooty group
+        try {
+            CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository());
+            CommandShell.chmod(configuration.getAppRepository(), "750", true);
+        } catch (Exception e) {
+            error("{appDownload.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
+            return cleanup(tarball, tempDir);
         }
 
         if (request.isAutoInstall() && !manifest.hasDatabags()) {

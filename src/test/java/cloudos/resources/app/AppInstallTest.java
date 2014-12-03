@@ -149,11 +149,14 @@ public class AppInstallTest extends ApiClientTestBase {
         assertEquals(manifest.getScrubbedName(), chefMessage.getCookbooks().get(0));
 
         // Verify app was installed correctly
-        final JsonNode initDatabag = fromJson(FileUtil.toString(chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName() + "/init.json"), JsonNode.class);
+        final String appDatabagsDir = chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName();
+        final JsonNode initDatabag = fromJson(FileUtil.toString(appDatabagsDir + "/init.json"), JsonNode.class);
         assertEquals(rand, JsonUtil.nodeValue(initDatabag, "test.config1"));
 
         final JsonNode customDatabag = fromJson(FileUtil.toString(chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName() + "/custom.json"), JsonNode.class);
         assertEquals("custom-"+rand, JsonUtil.nodeValue(customDatabag, "c2"));
+
+        assertTrue(new File(appDatabagsDir+"/cloudos-manifest.json").exists());
     }
 
     private TaskResult getTaskResult(TaskId taskId) throws Exception {

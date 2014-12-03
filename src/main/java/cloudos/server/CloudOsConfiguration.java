@@ -1,7 +1,6 @@
 package cloudos.server;
 
 import cloudos.appstore.client.AppStoreApiClient;
-import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
 import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
@@ -69,6 +68,8 @@ public class CloudOsConfiguration extends RestServerConfiguration
     @Getter @Setter private RootyConfiguration rooty;
     public ChefHandler getChefHandler () { return rooty.getHandler(ChefHandler.class); }
     public PostfixHandler getPostfixHandler () { return rooty.getHandler(PostfixHandler.class); }
+
+    @Getter @Setter private String rootyGroup = "rooty";
 
     @Getter @Setter private DynDnsConfiguration dns;
     @Setter private DnsManager dnsManager;

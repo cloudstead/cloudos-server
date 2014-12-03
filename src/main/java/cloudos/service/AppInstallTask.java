@@ -89,6 +89,14 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
 
+        // write manifest file to data_bags/app-name directory
+        try {
+            FileUtil.toFile(appLayout.getDatabagFile(appVersionDir, "cloudos-manifest"), JsonUtil.toJson(manifest));
+        } catch (Exception e) {
+            error("err.manifestDatabag", "Error creating cloudos-manifest.json databag");
+            return null;
+        }
+
         // does it want its own hostname?
         if (manifest.hasHostname()) {
             addEvent("{appInstall.creatingHostname}");

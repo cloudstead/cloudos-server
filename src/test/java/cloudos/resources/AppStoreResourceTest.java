@@ -6,9 +6,11 @@ import cloudos.appstore.model.support.AppListing;
 import cloudos.appstore.model.support.AppStoreAccountRegistration;
 import cloudos.appstore.test.AppStoreSeedData;
 import cloudos.appstore.test.AppStoreTestUtil;
+import cloudos.server.CloudOsConfiguration;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
+import org.cobbzilla.wizard.server.RestServer;
 import org.junit.Test;
 
 import static org.cobbzilla.util.json.JsonUtil.toJson;
@@ -24,7 +26,7 @@ public class AppStoreResourceTest extends ApiClientTestBase {
 
     protected AppStoreSeedData seedData;
 
-    @Override public void onStart() {
+    @Override public void onStart(RestServer<CloudOsConfiguration> server) {
         final AppStoreApiClient appStoreClient = getConfiguration().getAppStoreClient();
         try {
             final ApiToken apiToken = appStoreClient.registerAccount((AppStoreAccountRegistration) AppStoreTestUtil.buildPublisherRegistration().setAdmin(true));
@@ -33,6 +35,7 @@ public class AppStoreResourceTest extends ApiClientTestBase {
         } catch (Exception e) {
             throw new IllegalStateException("error populating seed data: "+e, e);
         }
+        super.onStart(server);
     }
 
     @Test
