@@ -86,9 +86,21 @@ App.ApplicationController = Ember.ObjectController.extend({
 	cloudos_account: CloudOs.account(),
 	actions: {
 		'select_app': function (app_name) {
-			this.transitionTo('app', App.app_model(app_name));
+			if (app_name === 'addressbook'){
+				$('#app_frame').attr('src', '/roundcube/?_task=addressbook');
+			}else if (app_name === 'settings'){
+				$('#app_frame').attr('src', '/roundcube/?_task=settings');
+			}else{
+				this.transitionTo('app', App.app_model(app_name));
+			}
 		}
 	}
+});
+
+App.EappController = Ember.ObjectController.extend({
+	isEmail: function(){
+		return this.get('name') === 'email';
+	}.property()
 });
 
 function get_username () {
