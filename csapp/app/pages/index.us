@@ -73,7 +73,7 @@
 								<li>{{#link-to 'settings'}}{{t menu.settings}}{{/link-to}}</li>
 								<li>
 									<a {{action 'select_app' 'settings'}}>
-										Mail/Calendar Settings
+										{{t menu.mail_and_cal}}
 									</a>
 								</li>
 								<li class="divider"></li>
@@ -94,10 +94,10 @@
 							{{#if isEmail}}
 								<li>
 									<a {{action 'select_app' 'addressbook'}}>
-										<span {{bind-attr class="icon-plus"}} data-tooltip aria-haspopup="true" class="has-tip" title="Address Book">
+										<span {{bind-attr class="icon-plus"}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name 'addressbook'}}">
 											<span class="icon-tag"></span>
 										</span>
-										<span class="show-for-xxlarge-up"></span>
+										<span class="show-for-xxlarge-up">{{app-name 'addressbook'}}</span>
 									</a>
 								</li>
 							{{/if}}
