@@ -244,6 +244,8 @@ AccountValidator = {
 
 		data.errors = EmailValidator.getErrors(data, account.get("email"));
 
+		data.errors = PhoneNumberValidator.getErrors(data, account.get("mobilePhone"));
+
 		return data.errors;
 	},
 
@@ -261,6 +263,8 @@ AccountValidator = {
 		data.errors = this._info_fields_errors(data);
 
 		data.errors = EmailValidator.getErrors(data, account.get("email"));
+
+		data.errors = PhoneNumberValidator.getErrors(data, account.get("mobilePhone"));
 
 		return data.errors;
 	},
@@ -344,6 +348,18 @@ EmailValidator = {
 		return data.errors;
 	}
 };
+
+PhoneNumberValidator = {
+	getErrors: function(data, number) {
+		var pattern = /^[0-9]([0-9]|[\s]|[-])*$/;
+		if (!pattern.test(number)){
+			data.errors["mobilePhone"] = data.error_msg.not_a_phone_number;
+			data.errors["is_not_empty"] = true;
+		}
+		return data.errors;
+	}
+};
+
 
 Timer = {
 	ms_in_s: 1000,
