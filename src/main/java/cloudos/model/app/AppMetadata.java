@@ -23,6 +23,7 @@ public class AppMetadata {
 
     @Getter @Setter private String active_version;
     @Getter @Setter private String installed_by;
+    @Getter @Setter private boolean interactive = false;
 
     @JsonIgnore public boolean isActive () { return !empty(active_version); }
 
@@ -32,7 +33,7 @@ public class AppMetadata {
     public static AppMetadata fromJson(File appDir) {
 
         final String name = appDir.getName();
-        if (!appDir.exists() || appDir.isDirectory()) return errorMetadata(name, NOT_FOUND);
+        if (!appDir.exists() || !appDir.isDirectory()) return errorMetadata(name, NOT_FOUND);
 
         final File metaFile = new File(appDir, METADATA_JSON);
         if (!metaFile.exists()) return errorMetadata(name, NOT_FOUND);

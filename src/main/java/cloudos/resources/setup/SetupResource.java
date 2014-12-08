@@ -1,6 +1,7 @@
 package cloudos.resources.setup;
 
 import cloudos.dao.AccountDAO;
+import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.auth.CloudOsAuthResponse;
@@ -21,6 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,6 +34,7 @@ public class SetupResource {
     @Autowired private AccountDAO accountDAO;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private SetupSettingsSource setupSettingsSource;
+    @Autowired private AppDAO appDAO;
     @Autowired private RootyService rooty;
 
     /**
@@ -57,6 +60,16 @@ public class SetupResource {
             return Response.serverError().build();
         }
 
+        // initial account does not require email validation
+        account.setEmailVerified(true);
+        account.setLastLogin();
+        try {
+            accountDAO.update(account);
+        } catch (Exception e) {
+            log.error("Error activating admin account: "+e, e);
+            return Response.serverError().build();
+        }
+
         if (request.hasSystemTimeZone()) {
             final ImprovedTimezone timezone = ImprovedTimezone.getTimeZoneById(request.getSystemTimeZone());
             rooty.getSender().write(new SystemSetTimezoneMessage(timezone.getLinuxName()));
@@ -66,6 +79,9 @@ public class SetupResource {
         final String sessionId = sessionDAO.create(account);
 
         setupSettingsSource.firstTimeSetupCompleted();
+
+        // Load available apps
+        account.setAvailableApps(new ArrayList<>(appDAO.getAvailableAppDetails().values()));
 
         return Response.ok(new CloudOsAuthResponse(sessionId, account)).build();
     }

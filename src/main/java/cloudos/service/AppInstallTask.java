@@ -158,7 +158,8 @@ public class AppInstallTask extends TaskBase {
             addEvent("{appInstall.recordingInstallation}");
             final AppMetadata metadata = new AppMetadata()
                     .setInstalled_by(account.getName())
-                    .setActive_version(request.getVersion());
+                    .setActive_version(request.getVersion())
+                    .setInteractive(manifest.isInteractive());
             metadata.write(appDir);
             result.setSuccess(true);
 

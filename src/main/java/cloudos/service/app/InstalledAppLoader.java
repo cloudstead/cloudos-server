@@ -38,7 +38,9 @@ public class InstalledAppLoader {
 
     public Response loadApp(String apiKey, CloudOsAccount account, AppRuntime app, HttpContext context) throws IOException {
 
-        if (app.hasUserManagement()) {
+        if (app.hasUserManagement()
+                && app.getAuthentication().getUser_management().hasUserExists()
+                && app.getAuthentication().getUser_management().hasUserCreate()) {
             try {
                 if (!userExists(account, app) && !createUser(account, app)) {
                     log.error("error registering user " + account.getName() + " with app " + app.getDetails().getName());

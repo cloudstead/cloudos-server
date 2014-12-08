@@ -221,9 +221,10 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         configuration.setAppStoreClient(appStoreClient);
         configuration.setDnsManager(dnsManager);
 
-        // use scratch dir for app repository
+        // use scratch dir for app repository, set rooty group to null (skip chgrp)
         appRepository = Files.createTempDir();
         configuration.setAppRepository(appRepository);
+        configuration.setRootyGroup(null);
     }
 
     @Before

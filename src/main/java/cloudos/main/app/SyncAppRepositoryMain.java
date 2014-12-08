@@ -160,7 +160,8 @@ public class SyncAppRepositoryMain {
             // needs updating
             metadata = new AppMetadata()
                     .setActive_version(version)
-                    .setInstalled_by("cloudos-builtin");
+                    .setInstalled_by("cloudos-builtin")
+                    .setInteractive(manifest.isInteractive());
             metadata.write(appDir);
         }
 

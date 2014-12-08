@@ -26,8 +26,6 @@ import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import rooty.toots.vendor.VendorSettingRequest;
-import rooty.toots.vendor.VendorSettingsListRequest;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -235,7 +233,7 @@ public class AppDAO {
 
     private CloudOsApp loadApp(File appDir, AppMetadata metadata, boolean loadDataBags) {
 
-        if (!appDir.exists() || appDir.isDirectory()) return null;
+        if (!appDir.exists() || !appDir.isDirectory()) return null;
 
         final CloudOsApp app = new CloudOsApp()
                 .setName(appDir.getName())
