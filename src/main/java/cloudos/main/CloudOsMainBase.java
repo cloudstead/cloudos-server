@@ -73,7 +73,7 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
 
         final ApiClientBase api = getApiClient();
         final long start = System.currentTimeMillis();
-        final long pollInterval = getOptions().getPollInterval();
+        final long pollInterval = 1000 * getOptions().getPollInterval();
         final String taskStatusUri = TASKS_ENDPOINT + "/" + taskId.getUuid();
 
         TaskResult result = fromJson(api.get(taskStatusUri).json, TaskResult.class);

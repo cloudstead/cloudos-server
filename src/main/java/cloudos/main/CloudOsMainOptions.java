@@ -5,8 +5,6 @@ import lombok.Setter;
 import org.cobbzilla.util.string.StringUtil;
 import org.kohsuke.args4j.Option;
 
-import java.util.concurrent.TimeUnit;
-
 public class CloudOsMainOptions {
 
     public static final String PASSWORD_ENV_VAR = "CLOUDOS_PASS";
@@ -17,11 +15,11 @@ public class CloudOsMainOptions {
     @Option(name=OPT_ACCOUNT, aliases=LONGOPT_ACCOUNT, usage=USAGE_ACCOUNT, required=true)
     @Getter @Setter private String account;
 
-    public static final String USAGE_API_BASE = "The server's API base URI. Required.";
+    public static final String USAGE_API_BASE = "The server's API base URI. Default is http://127.0.0.1:3001/api";
     public static final String OPT_API_BASE = "-s";
     public static final String LONGOPT_API_BASE = "--server";
-    @Option(name=OPT_API_BASE, aliases=LONGOPT_API_BASE, usage=USAGE_API_BASE, required=true)
-    @Getter @Setter private String apiBase;
+    @Option(name=OPT_API_BASE, aliases=LONGOPT_API_BASE, usage=USAGE_API_BASE)
+    @Getter @Setter private String apiBase = "http://127.0.0.1:3001/api";
 
     @Getter private final String password = initPassword();
 
@@ -35,6 +33,6 @@ public class CloudOsMainOptions {
     public static final String OPT_POLL_INTERVAL = "-p";
     public static final String LONGOPT_POLL_INTERVAL = "--poll";
     @Option(name=OPT_POLL_INTERVAL, aliases=LONGOPT_POLL_INTERVAL, usage=USAGE_POLL_INTERVAL)
-    @Getter @Setter private long pollInterval = TimeUnit.SECONDS.toMillis(4);
+    @Getter @Setter private long pollInterval = 4;
 
 }
