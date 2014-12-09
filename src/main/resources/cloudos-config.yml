@@ -41,6 +41,7 @@ staticAssets:
 
 appStore:
   baseUri: {{APPSTORE_BASE_URI}}
+  user: {{APPSTORE_USER}}
 
 http:
   port: {{CLOUDOS_SERVER_PORT}}

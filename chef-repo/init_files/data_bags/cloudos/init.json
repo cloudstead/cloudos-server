@@ -10,6 +10,11 @@
     "aws_iam_user": "aws_iam_user",
     "s3_bucket": "s3_bucket",
 
+    "appstore": {
+        "user": "dummy-user (set to your appstore account name)",
+        "base_uri": "https://css7.cloudstead.io/appstore/api"
+    },
+
     "authy": {
         "user": "authy-api-key",
         "base_uri": "https://api.authy.com"
