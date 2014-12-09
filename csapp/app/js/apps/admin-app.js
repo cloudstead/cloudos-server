@@ -138,7 +138,7 @@ App.InstalledappsController = Ember.ObjectController.extend({
 
 App.AppstoreRoute = Ember.Route.extend({
 	model: function() {
-		var page = {"pageSize": "10", "pageNumber": "1"};
+		var page = {"pageSize": 10, "pageNumber": 1, "sortField" : "ctime", "sortOrder" : "DESC" };
 		var apps = Api.find_apps(page);
 		return { "apps": apps };
 	}
@@ -1099,6 +1099,12 @@ App.ProfileController = Ember.ObjectController.extend({
 			suspended: account.get('suspended'),
 		};
 	}
+});
+
+App.EappController = Ember.ObjectController.extend({
+	isEmail: function(){
+		return this.get('name') === 'email';
+	}.property()
 });
 
 

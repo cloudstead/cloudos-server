@@ -86,13 +86,7 @@ App.ApplicationController = Ember.ObjectController.extend({
 	cloudos_account: CloudOs.account(),
 	actions: {
 		'select_app': function (app_name) {
-			if (app_name === 'addressbook'){
-				$('#app_frame').attr('src', '/roundcube/?_task=addressbook');
-			}else if (app_name === 'settings'){
-				$('#app_frame').attr('src', '/roundcube/?_task=settings');
-			}else{
-				this.transitionTo('app', App.app_model(app_name));
-			}
+			this.transitionToRoute('app', app_name);
 		}
 	}
 });
@@ -325,8 +319,17 @@ App.SettingsController = Ember.ObjectController.extend({
 
 App.app_model = function (app_name) {
 	var app_url = "/api/app/load/"+app_name;
-	return { "app_name": app_name,
-			 "app_url":  app_url + "?" + Api.API_TOKEN + "=" + sessionStorage.getItem('cloudos_session') };
+	if ( app_name === 'addressbook' || app_name == 'settings') {
+		return {
+			"app_name": "email",
+			"app_url": '/roundcube/?_task=' + app_name
+		}
+	} else{
+		return {
+			"app_name": app_name,
+			"app_url":  app_url + "?" + Api.API_TOKEN + "=" + sessionStorage.getItem('cloudos_session')
+		};
+	}
 };
 
 App.AppRoute = Ember.Route.extend({

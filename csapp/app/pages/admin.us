@@ -70,13 +70,18 @@
 							<ul class="dropdown">
 								<li><a href="/#/profile">{{t menu.profile}}</a>
 								<li><a href="/#/settings">{{t menu.settings}}</a></li>
+								<li>
+									<a {{action 'select_app' 'settings'}}>
+										{{t menu.mail_and_cal}}
+									</a>
+								</li>
 								<li class="divider"></li>
 								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
 							</ul>
 						</li>
 					</ul>
 					<ul class="nav-apps">
-						{{#each cloudos_account.availableApps}}
+						{{#each cloudos_account.availableApps itemController="eapp"}}
 							<li>
 								<a {{action 'select_app' this.name}}>
 									<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}">
@@ -85,6 +90,16 @@
 									<span class="show-for-xxlarge-up">{{app-name name}}</span>
 								</a>
 							</li>
+							{{#if isEmail}}
+								<li>
+									<a {{action 'select_app' 'addressbook'}}>
+										<span {{bind-attr class="icon-plus"}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name 'addressbook'}}">
+											<span class="icon-tag"></span>
+										</span>
+										<span class="show-for-xxlarge-up">{{app-name 'addressbook'}}</span>
+									</a>
+								</li>
+							{{/if}}
 						{{/each}}
 					</ul>
 				</section>
