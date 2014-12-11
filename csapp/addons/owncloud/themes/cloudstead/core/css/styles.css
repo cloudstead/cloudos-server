@@ -21,3 +21,17 @@
 #header {
 	display: none;
 }
+
+.contacts-button {
+	margin: 10px;
+}
+.contacts-button a {
+	height: 36px;
+	display: inline-block;
+	box-sizing: border-box;
+	margin: 0px;
+}
+
+.app-gallery #controls {
+	margin-top: 45px;
+}

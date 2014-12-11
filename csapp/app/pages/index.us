@@ -93,12 +93,11 @@
 									</a>
 									<ul class="dropdown">
 										<li>
-											<a {{action 'select_app' 'oc-files'}}>Files</a>
-											<a {{action 'select_app' 'oc-activity'}}>Activity</a>
-											<a {{action 'select_app' 'oc-documents'}}>Documents</a>
-											<a {{action 'select_app' 'oc-gallery'}}>Pictures</a>
-											<a {{action 'select_app' 'oc-calendar'}}>Calendar</a>
-											<a {{action 'select_app' 'oc-contacts'}}>Contacts</a>
+											<a {{action 'select_app' 'oc-files'}}>{{t appNames.oc_files}}</a>
+											<a {{action 'select_app' 'oc-activity'}}>{{t appNames.oc_activity}}</a>
+											<a {{action 'select_app' 'oc-documents'}}>{{t appNames.oc_documents}}</a>
+											<a {{action 'select_app' 'oc-gallery'}}>{{t appNames.oc_gallery}}</a>
+											<a {{action 'select_app' 'oc-calendar'}}>{{t appNames.oc_calendar}}</a>
 										</li>
 									</ul>
 								</li>
