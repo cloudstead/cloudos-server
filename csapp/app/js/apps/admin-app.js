@@ -1104,6 +1104,10 @@ App.ProfileController = Ember.ObjectController.extend({
 App.EappController = Ember.ObjectController.extend({
 	isEmail: function(){
 		return this.get('name') === 'email';
+	}.property(),
+
+	isFiles: function(){
+		return this.get('name') === 'files';
 	}.property()
 });
 

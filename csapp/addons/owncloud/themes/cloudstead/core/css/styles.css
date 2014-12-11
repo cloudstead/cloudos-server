@@ -10,6 +10,14 @@
 }
 
 #controls {
-	top : 55px;
+	top : 5px;
 	width: 70%;
+}
+
+#content-wrapper {
+	padding-top: 0px;
+}
+
+#header {
+	display: none;
 }
