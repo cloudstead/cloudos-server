@@ -21,7 +21,7 @@ import org.cobbzilla.util.dns.DnsRecord;
 import org.cobbzilla.util.dns.DnsType;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.system.PortPicker;
+import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.validation.ConstraintViolationBean;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
@@ -30,6 +30,7 @@ import rooty.toots.chef.ChefOperation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Installs an application from your cloudstead's app library onto your cloudos.
@@ -38,6 +39,8 @@ import java.util.List;
 public class AppInstallTask extends TaskBase {
 
     private static final int DEFAULT_TTL = 3600;
+
+    private static final long INSTALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
     @Getter @Setter private RootyService rootyService;
     @Getter @Setter private CloudOsAccount account;
@@ -125,15 +128,13 @@ public class AppInstallTask extends TaskBase {
         }
 
         // create or read ports databag
-        final PortsDatabag ports;
+        PortsDatabag ports;
         CloudOsApp existing = appDAO.findByName(name);
         if (existing == null) {
-            // pick a port to listen on and write data bag
-            ports = new PortsDatabag()
-                    .setPrimary(PortPicker.pickOrDie())
-                    .setAdmin(PortPicker.pickOrDie());
+            ports = PortsDatabag.pick();
         } else {
             ports = existing.getDatabag(PortsDatabag.ID);
+            if (ports == null) ports = PortsDatabag.pick();
         }
 
         try {
@@ -143,12 +144,23 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
 
+        // ensure app-repository remains readable to rooty group
+        try {
+            if (configuration.getRootyGroup() != null) {
+                CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository(), true);
+            }
+            CommandShell.chmod(configuration.getAppRepository(), "750", true);
+        } catch (Exception e) {
+            error("{appInstall.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
+            return null;
+        }
+
         // notify the chef-user that we have some new recipes to add to the run list
         addEvent("{appInstall.notifyingChefToRun}");
         final RootyMessage status;
         try {
             result.setRootyUuid(chefMessage.initUuid());
-            status = rootyService.request(chefMessage);
+            status = rootyService.request(chefMessage, INSTALL_TIMEOUT);
         } catch (Exception e) {
             error("{appInstall.error.notifyingChefToRun}", e);
             return null;

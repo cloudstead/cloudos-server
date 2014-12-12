@@ -20,20 +20,16 @@ public abstract class TaskBase implements Callable<TaskResult> {
         taskId.initUUID();
     }
 
-    protected void description(String actionMessageKey, String target) {
-        result.description(actionMessageKey, target);
-    }
+    protected void description(String messageKey, String target) { result.description(messageKey, target); }
 
-    protected void addEvent(String messageKey) {
-        result.add(new TaskEvent(this, messageKey));
-    }
+    protected void addEvent(String messageKey) { result.add(new TaskEvent(this, messageKey)); }
 
     protected void error(String messageKey, Exception e) { result.error(new TaskEvent(this, messageKey), e); }
 
-    protected void error(String messageKey, String message) { result.error(new TaskEvent(this, messageKey), new Exception(message)); }
+    protected void error(String messageKey, String message) { error(messageKey, new Exception(message)); }
 
     protected void error(String messageKey, List<ConstraintViolationBean> errors) {
-        result.error(new TaskEvent(this, messageKey), new MultiViolationException(errors));
+        error(messageKey, new MultiViolationException(errors));
     }
 
 }

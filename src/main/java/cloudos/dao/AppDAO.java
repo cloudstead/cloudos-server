@@ -26,6 +26,8 @@ import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import rooty.toots.vendor.VendorDatabag;
+import rooty.toots.vendor.VendorSettingHandler;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -96,12 +98,24 @@ public class AppDAO {
 
                 final AppConfigurationCategory category = new AppConfigurationCategory(databagName);
                 config.add(category);
+
+                // does this databag define vendor-defaults that should be hidden?
+                final VendorDatabag vendor = getVendorDatabag(node);
+
                 for (String item : databag.getItems()) {
                     category.add(item);
                     if (node != null) {
                         try {
                             final JsonNode itemNode = JsonUtil.findNode(node, item);
-                            if (itemNode != null) category.set(item, itemNode.asText());
+                            if (itemNode != null) {
+                                String value = itemNode.asText();
+                                if (vendor != null && vendor.isDefault(item, value)) {
+                                    value = VendorSettingHandler.VENDOR_DEFAULT;
+                                }
+                                category.set(item, value);
+                            } else {
+                                category.set(item, VendorSettingHandler.VALUE_NOT_SET);
+                            }
 
                         } catch (IOException e) {
                             log.warn("Error loading databag item ("+databagName+"/"+item+"): "+e);
@@ -111,6 +125,15 @@ public class AppDAO {
             }
         }
         return config;
+    }
+
+    public VendorDatabag getVendorDatabag(JsonNode node) {
+        try {
+            return JsonUtil.fromJson(node, "vendor", VendorDatabag.class);
+        } catch (Exception e) {
+            log.warn("Error finding 'vendor' section in databag: "+e);
+            return null;
+        }
     }
 
     /**
@@ -158,6 +181,12 @@ public class AppDAO {
                     // Did the caller provide a value for this config item?
                     final String value = category.getValues().get(item);
                     if (value != null) {
+                        // If the value is the special 'default' value, skip this and do not edit anything
+                        if (value.equals(VendorSettingHandler.VENDOR_DEFAULT)) {
+                            log.info("skipping value (not changed from default): "+item);
+                            continue;
+                        }
+
                         // If the setting already exists in the data bag, determine the type from there
                         final JsonEditOperation op = new JsonEditOperation()
                                 .setType(JsonEditOperationType.write)

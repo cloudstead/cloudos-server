@@ -25,17 +25,26 @@ public class RootyService {
     public <T extends RootyHandler> T getHandler(Class<T> clazz) { return configuration.getRooty().getHandler(clazz); }
 
     public RootyMessage request(RootyMessage message) {
+        return request(message, TIMEOUT);
+    }
+
+    public RootyMessage request(RootyMessage message, long timeout) {
         getSender().write(message);
+        sleep();
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < TIMEOUT) {
+        while (System.currentTimeMillis() - start < timeout) {
             final RootyMessage status = getStatusManager().getStatus(message.getUuid());
             if (status != null) return status;
-            try {
-                Thread.sleep(250);
-            } catch (InterruptedException e) {
-                throw new IllegalStateException("Error while sleeping: "+e, e);
-            }
+            sleep();
         }
         throw new IllegalStateException("request timeout: "+message);
+    }
+
+    public void sleep() {
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Error while sleeping: "+e, e);
+        }
     }
 }

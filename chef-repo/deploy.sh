@@ -4,8 +4,11 @@
 #
 # Required environment variables:
 # SSH_KEY    -- path to the private key to use when connecting
-#
 # INIT_FILES -- a directory containing data bags and certs for the chef-run. See README.md
+#
+# Optional environment variables:
+# JSON_EDIT   -- command to edit JSON documents
+# DISABLE_DNS -- if set, the cloudos-dns app will not be installed on the cloudstead
 #
 
 function die {
@@ -14,9 +17,12 @@ function die {
 }
 
 BASE=$(cd $(dirname $0) && pwd)
-JSON_EDIT="java -cp ${BASE}/../target/cloudos-server-*.jar org.cobbzilla.util.json.main.JsonEditor"
 cd ${BASE}
 CLOUDOS_BASE=$(cd ${BASE}/../.. && pwd)
+
+if [ -z "${JSON_EDIT}" ] ; then
+  JSON_EDIT="java -cp ${BASE}/../target/cloudos-server-*.jar org.cobbzilla.util.json.main.JsonEditor"
+fi
 
 DEPLOYER=${BASE}/deploy_lib.sh
 if [ ! -x ${DEPLOYER} ] ; then
@@ -63,15 +69,17 @@ if [ ! -f ${CLOUDOS_INIT_BAG} ] ; then
 fi
 
 # If not using Dyn directly from cloudos, install cloudos-dns
-DYN_ZONE=$(${JSON_EDIT} -f ${CLOUDOS_INIT_BAG} -o read -p dns.zone | tr -d ' ')
-if [ -z "${DYN_ZONE}" ] ; then
-  echo "No DynDNS config detected, enabling cloudos-dns..."
-  REQUIRED="${REQUIRED} \
-    data_bags/cloudos-dns/init.json \
-    data_bags/cloudos-dns/ports.json"
+if [ -z "${DISABLE_DNS}" ] ; then
+  DYN_ZONE=$(${JSON_EDIT} -f ${CLOUDOS_INIT_BAG} -o read -p dns.zone | tr -d ' ')
+  if [ -z "${DYN_ZONE}" ] ; then
+    echo "No DynDNS config detected, enabling cloudos-dns..."
+    REQUIRED="${REQUIRED} \
+      data_bags/cloudos-dns/init.json \
+      data_bags/cloudos-dns/ports.json"
 
-  # Add cloudos-dns recipe
-  SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos-dns]")"
+    # Add cloudos-dns recipe
+    SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos-dns]")"
+  fi
 fi
 
 # Add cloudos recipe

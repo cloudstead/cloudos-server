@@ -12,7 +12,7 @@
 
     "appstore": {
         "user": "dummy-user (set to your appstore account name)",
-        "base_uri": "https://css7.cloudstead.io/appstore/api"
+        "base_uri": "https://css7.cloudstead.io/appstore"
     },
 
     "authy": {

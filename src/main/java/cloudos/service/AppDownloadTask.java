@@ -48,7 +48,7 @@ public class AppDownloadTask extends TaskBase {
     public TaskResult call() throws Exception {
 
         // initial description of task (we'll refine this when we know what is being installed)
-        description("{appDownload.installingPackage}", request.getUrl());
+        description("{appDownload.starting}", request.getUrl());
 
         // download the tarball to a tempfile
         addEvent("{appDownload.downloadingTarball}");
@@ -118,17 +118,6 @@ public class AppDownloadTask extends TaskBase {
                 error("{appDownload.error.renaming.contents}", new Exception("the bundle file/dir could not be moved: "+f.getAbsolutePath()+" -> "+dest.getAbsolutePath()));
                 return cleanup(tarball, tempDir);
             }
-        }
-
-        // ensure app-repository remains readable to rooty group
-        try {
-            if (configuration.getRootyGroup() != null) {
-                CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository(), true);
-            }
-            CommandShell.chmod(configuration.getAppRepository(), "750", true);
-        } catch (Exception e) {
-            error("{appDownload.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
-            return cleanup(tarball, tempDir);
         }
 
         if (request.isAutoInstall() && !manifest.hasDatabags()) {
