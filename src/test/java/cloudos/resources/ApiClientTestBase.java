@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
@@ -203,6 +204,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
             @Override protected String initChefUser() { return "nobody"; }
             @Override protected void runChefSolo() throws Exception { /* noop */ }
+            @Override protected CommandLine backupCommand(File chefDir, File backup) { return new CommandLine("ls"); }
+            @Override protected CommandLine rollbackCommand(File backupDir, File chefDir) { return new CommandLine("ls"); }
         };
         // write a simple solo.json file
         final ChefSolo chefSolo = new ChefSolo();
