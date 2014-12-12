@@ -8,7 +8,7 @@
 
         // software shared by multiple apps (switching to docker may change this)
         "recipe[apache]", "recipe[postgresql]", "recipe[mysql]",
-        "recipe[java]",
+        "recipe[java]", "recipe[git]",
 
         // message queue for rooty-tooty
         "recipe[kestrel]",
