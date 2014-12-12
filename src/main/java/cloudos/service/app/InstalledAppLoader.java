@@ -61,7 +61,7 @@ public class InstalledAppLoader {
 
         // Supports HTTP auth... store authHeaderValue in AuthTransition and send directly to app
         // Proxy will use authHeaderValue to populate Authorization header
-        if (app.getAuthentication().hasHttp_auth()) return sendToApp(pctx);
+        if (app.hasAuthentication() && app.getAuthentication().hasHttp_auth()) return sendToApp(pctx);
 
         BufferedResponse response;
         CookieJar cookieJar;

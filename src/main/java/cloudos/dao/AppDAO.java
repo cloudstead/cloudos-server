@@ -34,10 +34,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cobbzilla.util.json.JsonUtil.FULL_MAPPER;
@@ -312,11 +309,11 @@ public class AppDAO {
         if (this.appDetails.get() == null) {
             synchronized (this.appDetails) {
                 if (this.appDetails.get() == null) {
-                    final Map<String, AppRuntimeDetails> apps = new LinkedHashMap<>();
-                    for (CloudOsApp app : findActive()) {
-                        apps.put(app.getManifest().getName(), app.getManifest().getInstalledAppDetails());
+                    final Map<String, AppRuntimeDetails> detailsMap = new HashMap<>();
+                    for (Map.Entry<String, AppRuntime> entry : getAvailableRuntimes().entrySet()) {
+                        detailsMap.put(entry.getKey(), entry.getValue().getDetails());
                     }
-                    this.appDetails.set(apps);
+                    this.appDetails.set(detailsMap);
                 }
             }
         }
@@ -343,8 +340,12 @@ public class AppDAO {
     }
 
     private Map<String, AppRuntime> initAvailableRuntimes() throws Exception {
-        final Map<String, AppRuntime> apps = new LinkedHashMap<>();
+
+        final Map<String, CloudOsApp> appCache = new HashMap<>();
+        final Map<String, AppRuntime> runtimes = new HashMap<>();
         final CloudOsAppLayout layout = configuration.getAppLayout();
+
+        // load runtimes
         for (CloudOsApp app : findActive()) {
             final AppManifest manifest = app.getManifest();
             final File versionDir = layout.getAppActiveVersionDir(manifest);
@@ -356,13 +357,33 @@ public class AppDAO {
             } else {
                 appClass = (Class<? extends AppRuntime>) getClass().getClassLoader().loadClass(manifest.getPlugin());
             }
-            final AppRuntime appRuntime = appClass.newInstance();
 
+            final AppRuntime appRuntime = appClass.newInstance();
             appRuntime.setDetails(manifest.getInstalledAppDetails());
             appRuntime.setAuthentication(manifest.getAuth());
+
+            appCache.put(manifest.getName(), app);
+            runtimes.put(manifest.getName(), appRuntime);
+        }
+
+        // for apps that have a parent, merge parent runtime into child
+        final Map<String, AppRuntime> apps = new LinkedHashMap<>();
+        for (CloudOsApp app : appCache.values()) {
+            final AppManifest manifest = app.getManifest();
+            final AppRuntime appRuntime = runtimes.get(manifest.getName());
+            if (manifest.hasParent()) {
+                final AppRuntime parentRuntime = runtimes.get(manifest.getParent());
+                mergeParent(appRuntime, parentRuntime);
+            }
             apps.put(manifest.getName(), appRuntime);
         }
+
         return apps;
+    }
+
+    private void mergeParent(AppRuntime appRuntime, AppRuntime parentRuntime) {
+        appRuntime.getDetails().mergeParent(parentRuntime.getDetails());
+        appRuntime.setAuthentication(parentRuntime.getAuthentication());
     }
 
     public AppRuntime findAppRuntime(String appName) { return getAvailableRuntimes().get(appName); }
