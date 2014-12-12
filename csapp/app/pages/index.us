@@ -37,9 +37,8 @@
 							<ul class="dropdown">
 								<li><a href="#">{{t menu.help.online}}</a></li>
 								<li><a href="#">{{t menu.help.news}}</a></li>
-								<li><a href="#">{{t menu.help.status}}</a></li>
 								<li class="divider"></li>
-								<li><a href="#">{{t menu.help.ticket}}</a></li>
+								<li><a href="http://cloudstead.uservoice.com/">{{t menu.help.ticket}}</a></li>
 							</ul>
 						</li>
 						<li class="has-dropdown">
@@ -48,19 +47,12 @@
 								<span class="show-for-xxlarge-up">Settings</span>
 							</a>
 							<ul class="dropdown">
-								<li><label>{{t menu.cloudstead.label}}</label></li>
 								{{#if cloudos_account.admin}}
 									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
 									<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
 									<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
 								{{/if}}
-								<li><a href="#">{{t menu.defaultapps}}</a></li>
 								<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
-								<li class="divider"></li>
-								<li><label>{{t menu.cloudstead.other_label}}</label></li>
-								<li><a href="#">{{t menu.cloudstead.confluence}}</a></li>
-								<li><a href="#">{{t menu.cloudstead.jira}}</a></li>
-								<li><a href="#">{{t menu.cloudstead.phabricator}}</a></li>
 							</ul>
 						</li>
 						<li class="has-dropdown">
