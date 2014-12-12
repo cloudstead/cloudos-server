@@ -7,7 +7,6 @@ import cloudos.model.app.AppConfiguration;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
-import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -135,7 +134,7 @@ public class AppsResource {
     }
 
     /**
-     * Retrieve configuration options for an app.
+     * Write configuration options for an app.
      * @param apiKey The session ID
      * @param app The app name
      * @param version The app version
