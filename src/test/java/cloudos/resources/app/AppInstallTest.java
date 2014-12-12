@@ -42,7 +42,7 @@ public class AppInstallTest extends ApiClientTestBase {
     private static final String TEST_APP_TARBALL = "test-bundle.tar.gz";
 
     private static final String TEST_MANIFEST = "apps/simple-webapp-manifest.json";
-    private static final long TIMEOUT = TimeUnit.HOURS.toMillis(10);
+    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 
     private static Server testHttpServer;
     private static int testServerPort;
@@ -98,16 +98,17 @@ public class AppInstallTest extends ApiClientTestBase {
         final AppDownloadRequest downloadRequest = new AppDownloadRequest()
                 .setUrl("http://127.0.0.1:"+testServerPort+"/"+TEST_APP_TARBALL)
                 .setToken(randomPassword());
+        apiDocs.addNote("initiate the download request to add the app to app-repository");
         final RestResponse response = doPost(APPS_ENDPOINT + "/download", toJson(downloadRequest));
         assertEquals(200, response.status);
         TaskId taskId = fromJson(response.json, TaskId.class);
         TaskResult result = getTaskResult(taskId);
 
-        // Read configuration for the app
         final AppManifest manifest = fromJson(result.getReturnValue(), AppManifest.class);
         final String configUri = APPS_ENDPOINT + "/apps/" + manifest.getScrubbedName() + "/versions/" + manifest.getScrubbedVersion() + "/config";
         AppConfiguration appConfig;
 
+        apiDocs.addNote("read configuration information for the app");
         appConfig = fromJson(doGet(configUri).json, AppConfiguration.class);
         assertEquals(2, appConfig.getCategories().size());
         assertEquals("init", appConfig.getCategories().get(0).getName());
@@ -117,7 +118,6 @@ public class AppInstallTest extends ApiClientTestBase {
         assertTrue(appConfig.getCategory("init").getValues().isEmpty());
         assertTrue(appConfig.getCategory("custom").getValues().isEmpty());
 
-        // Write configuration for the app
         final String rand = RandomStringUtils.randomAlphanumeric(10);
         appConfig.getCategory("init").set("admin.name", rand);
         appConfig.getCategory("init").set("admin.password", rand);
@@ -127,9 +127,10 @@ public class AppInstallTest extends ApiClientTestBase {
         appConfig.getCategory("custom").set("c1", "custom-"+rand);
         appConfig.getCategory("custom").set("c2", "custom-"+rand);
 
+        apiDocs.addNote("write configuration information for the app");
         assertEquals(200, doPost(configUri, toJson(appConfig)).status);
 
-        // Re-read config, ensure settings were written
+        apiDocs.addNote("re-read config, ensure settings were written");
         appConfig = fromJson(doGet(configUri).json, AppConfiguration.class);
         assertEquals(rand, appConfig.getCategory("init").get("admin.name"));
         assertEquals(rand, appConfig.getCategory("init").get("admin.password"));
@@ -137,6 +138,7 @@ public class AppInstallTest extends ApiClientTestBase {
         assertEquals("custom-"+rand, appConfig.getCategory("custom").get("c2"));
 
         // Install the app
+        apiDocs.addNote("initiate the install request to install from app-repository to main chef-solo");
         final String installUri = APPS_ENDPOINT + "/apps/"+manifest.getScrubbedName()+"/versions/"+manifest.getScrubbedVersion()+"/install";
         final String json = doPost(installUri, null).json;
         taskId = fromJson(json, TaskId.class);
@@ -161,12 +163,15 @@ public class AppInstallTest extends ApiClientTestBase {
 
     private TaskResult getTaskResult(TaskId taskId) throws Exception {
         long start = System.currentTimeMillis();
-        TaskResult result = fromJson(doGet(TASKS_ENDPOINT+"/"+taskId.getUuid()).json, TaskResult.class);
-        while (!result.isComplete() && System.currentTimeMillis() - start < TIMEOUT) {
-            Thread.sleep(1000);
+        TaskResult result = null;
+        while (System.currentTimeMillis() - start < TIMEOUT) {
+            Thread.sleep(250);
+            apiDocs.addNote("check status of task "+taskId.getUuid());
             final String json = doGet(TASKS_ENDPOINT + "/" + taskId.getUuid()).json;
             result = fromJson(json, TaskResult.class);
+            if (result.isSuccess()) break;
         }
+        assertNotNull(result);
         assertTrue(result.isSuccess());
         return result;
     }
