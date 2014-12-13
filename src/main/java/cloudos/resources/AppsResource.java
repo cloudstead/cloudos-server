@@ -172,7 +172,8 @@ public class AppsResource {
     @ReturnType("cloudos.service.task.TaskId")
     public Response installApp (@HeaderParam(H_API_KEY) String apiKey,
                                 @PathParam("app") String app,
-                                @PathParam("version") String version) {
+                                @PathParam("version") String version,
+                                @QueryParam("force") Boolean force) {
 
         final Account admin = sessionDAO.find(apiKey);
         if (admin == null) return ResourceUtil.notFound(apiKey);
@@ -180,7 +181,7 @@ public class AppsResource {
         // only admins can install apps
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
-        final TaskId taskId = appDAO.install(admin, app, version);
+        final TaskId taskId = appDAO.install(admin, app, version, force == null ? false : force);
 
         return Response.ok(taskId).build();
     }

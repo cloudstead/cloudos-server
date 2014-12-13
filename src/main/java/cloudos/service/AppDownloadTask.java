@@ -16,7 +16,6 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.Tarball;
-import org.cobbzilla.util.system.CommandShell;
 
 import java.io.File;
 
@@ -126,7 +125,7 @@ public class AppDownloadTask extends TaskBase {
                     .setAccount(account)
                     .setAppDAO(appDAO)
                     .setConfiguration(configuration)
-                    .setRequest(new AppInstallRequest(manifest.getName(), manifest.getVersion()))
+                    .setRequest(new AppInstallRequest(manifest.getName(), manifest.getVersion(), false))
                     .setRootyService(rootyService)
                     .setResult(result);
             return installTask.call();

@@ -6,7 +6,6 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
 import cloudos.databag.PortsDatabag;
 import cloudos.model.app.AppMetadata;
-import cloudos.model.app.CloudOsApp;
 import cloudos.model.app.CloudOsAppLayout;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
@@ -115,7 +114,7 @@ public class AppInstallTask extends TaskBase {
 
         // collect cookbooks and recipes, build chef
         addEvent("{appInstall.verifyingChefCookbooks}");
-        final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD);
+        final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD).setForceApply(request.isForce());
         final File chefDir = appLayout.getChefDir(appVersionDir);
         if (!chefDir.exists()) {
             error("{appInstall.error.chefDir.notFound", "chefDir not found: "+chefDir.getAbsolutePath());
@@ -127,15 +126,8 @@ public class AppInstallTask extends TaskBase {
             chefMessage.addRecipe(recipe.trim());
         }
 
-        // create or read ports databag
-        PortsDatabag ports;
-        CloudOsApp existing = appDAO.findByName(name);
-        if (existing == null) {
-            ports = PortsDatabag.pick();
-        } else {
-            ports = existing.getDatabag(PortsDatabag.ID);
-            if (ports == null) ports = PortsDatabag.pick();
-        }
+        // generate a new ports databag every time
+        final PortsDatabag ports = PortsDatabag.pick();
 
         try {
             FileUtil.toFile(appLayout.getDatabagFile(appVersionDir, PortsDatabag.ID), JsonUtil.toJson(ports));
@@ -173,6 +165,7 @@ public class AppInstallTask extends TaskBase {
                     .setActive_version(request.getVersion())
                     .setInteractive(manifest.isInteractive());
             metadata.write(appDir);
+            appDAO.resetApps();
             result.setSuccess(true);
 
         } else {

@@ -219,12 +219,12 @@ public class AppDAO {
         }
     }
 
-    public TaskId install(Account admin, String app, String version) {
+    public TaskId install(Account admin, String app, String version, boolean force) {
         // start background job
         final AppInstallTask task = new AppInstallTask()
                 .setAccount(admin)
                 .setAppDAO(this)
-                .setRequest(new AppInstallRequest(app, version))
+                .setRequest(new AppInstallRequest(app, version, force))
                 .setRootyService(rootyService)
                 .setConfiguration(configuration);
 
@@ -268,7 +268,12 @@ public class AppDAO {
 
         final CloudOsAppLayout layout = configuration.getAppLayout();
         final File versionDir = layout.getAppActiveVersionDir(app.getName());
+        if (versionDir == null) {
+            log.warn("App "+app.getName()+" downloaded but no version is active");
+            return null;
+        }
         final File databagsDir = layout.getDatabagsDir(versionDir);
+
         try {
             app.setManifest(AppManifest.load(versionDir));
 
@@ -404,4 +409,9 @@ public class AppDAO {
         return pluginClass;
     }
 
+    public void resetApps() {
+        synchronized (this.apps) {
+            this.apps.set(null);
+        }
+    }
 }

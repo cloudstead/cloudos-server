@@ -103,9 +103,10 @@ public class SyncAppRepositoryMain {
                             // Does the app-repository contain this app+version?
                             final CloudOsAppLayout layout = configuration.getAppLayout();
                             final File appVersionDir = layout.getAppVersionDir(manifest.getName(), manifest.getVersion());
-                            if (!appVersionDir.exists()) {
-                                registerApp(configuration, manifestFile, manifest, chefDir);
+                            if (appVersionDir.exists()) {
+                                // back it up?
                             }
+                            registerApp(configuration, manifestFile, manifest, chefDir);
                         }
                     }
                 }
