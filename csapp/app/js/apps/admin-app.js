@@ -136,6 +136,13 @@ App.InstalledappsController = Ember.ObjectController.extend({
 
 });
 
+App.DefaultPagination = {
+	pageSize: 9,
+	pageNumber: 1,
+	sortField : "ctime",
+	sortOrder : "DESC"
+};
+
 App.CloudOsApp = Ember.Object.extend({
 	name: function(){
 		return this.get('name');
@@ -157,33 +164,62 @@ App.CloudOsApp = Ember.Object.extend({
 App.CloudOsApp.reopenClass({
 	all: Ember.ArrayProxy.create({content: []}),
 
+	totalCount: 0,
+
 	findPaginated: function(paging) {
-		var data = Api.find_apps(paging).results;
 		App.CloudOsApp.all.clear();
-		data.forEach(function(datum) {
-			App.CloudOsApp.all.pushObject(App.CloudOsApp.create(datum));
-		});
+		App.CloudOsApp._fetchApps(paging);
 		return App.CloudOsApp.all;
+	},
+
+	loadNextPage: function(page) {
+		var paging = App.DefaultPagination;
+		paging.pageNumber = page;
+
+		App.CloudOsApp._fetchApps(paging);
+
+		return App.CloudOsApp.all;
+	},
+
+	_fetchApps: function(paging){
+		var data = Api.find_apps(paging);
+
+		App.CloudOsApp.totalCount = data.totalCount;
+		var apps = data.results;
+
+		apps.forEach(function(app) {
+			App.CloudOsApp.all.pushObject(App.CloudOsApp.create(app));
+		});
 	}
 });
 
 App.AppstoreRoute = Ember.Route.extend({
 	model: function() {
-		var page = {"pageSize": 10, "pageNumber": 1, "sortField" : "ctime", "sortOrder" : "DESC" };
+		var page = App.DefaultPagination;
 		return App.CloudOsApp.findPaginated(page);
 	}
 });
 
 App.AppstoreController = Ember.ArrayController.extend({
 	appUrl: '',
+	currentPage: 1,
 	actions: {
 		installFromUrl: function () {
 			var task_id = Api.install_app_from_url(this.get('appUrl'));
 			if (task_id && task_id.uuid) {
 				this.transitionTo('tasks', task_id.uuid);
 			}
+		},
+
+		loadNextPage: function () {
+			this.set('currentPage', this.get('currentPage') + 1);
+			this.set('content', App.CloudOsApp.loadNextPage(this.get('currentPage')));
 		}
 	},
+
+	morePagesAvailable: function() {
+		return App.CloudOsApp.totalCount > (this.get('currentPage') * App.DefaultPagination.pageSize);
+	}.property('currentPage')
 });
 
 App.TasksRoute = Ember.Route.extend({

@@ -678,6 +678,9 @@
 							</div>
 						{{/each}}
 					</div>
+					{{#if morePagesAvailable}}
+						<a {{action 'loadNextPage'}}>More Apps</a>
+					{{/if}}
 				</div>
 			</div>
 		</div>
