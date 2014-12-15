@@ -136,15 +136,41 @@ App.InstalledappsController = Ember.ObjectController.extend({
 
 });
 
-App.AppstoreRoute = Ember.Route.extend({
-	model: function() {
-		var page = {"pageSize": 10, "pageNumber": 1, "sortField" : "ctime", "sortOrder" : "DESC" };
-		var apps = Api.find_apps(page);
-		return { "apps": apps };
+App.CloudOsApp = Ember.Object.extend({
+	name: function(){
+		return this.get('name');
+	},
+
+	description: function() {
+		return this.get('appVersion').data.description;
+	}.property(),
+
+	smallIcon: function() {
+		return this.get('appVersion').data.smallIconUrl
+	}.property()
+});
+
+App.CloudOsApp.reopenClass({
+	all: Ember.ArrayProxy.create({content: []}),
+
+	findPaginated: function(paging) {
+		var data = Api.find_apps(paging).results;
+		App.CloudOsApp.all.clear();
+		data.forEach(function(datum) {
+			App.CloudOsApp.all.pushObject(App.CloudOsApp.create(datum));
+		});
+		return App.CloudOsApp.all;
 	}
 });
 
-App.AppstoreController = Ember.ObjectController.extend({
+App.AppstoreRoute = Ember.Route.extend({
+	model: function() {
+		var page = {"pageSize": 10, "pageNumber": 1, "sortField" : "ctime", "sortOrder" : "DESC" };
+		return App.CloudOsApp.findPaginated(page);
+	}
+});
+
+App.AppstoreController = Ember.ArrayController.extend({
 	appUrl: '',
 	actions: {
 		installFromUrl: function () {
@@ -153,7 +179,7 @@ App.AppstoreController = Ember.ObjectController.extend({
 				this.transitionTo('tasks', task_id.uuid);
 			}
 		}
-	}
+	},
 });
 
 App.TasksRoute = Ember.Route.extend({
