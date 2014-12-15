@@ -224,3 +224,12 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 	color: rgba(204, 88, 74, 1);
 	margin: 1em;
 }
+
+.installed-app-check {
+	position: absolute;
+	right: 25%;
+}
+
+.half-width-tab{
+	width: 50% !important;
+}
