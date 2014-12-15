@@ -147,6 +147,10 @@ App.CloudOsApp = Ember.Object.extend({
 
 	smallIcon: function() {
 		return this.get('appVersion').data.smallIconUrl
+	}.property(),
+
+	isInstalled: function() {
+		return this.get('installStatus') == 'installed';
 	}.property()
 });
 

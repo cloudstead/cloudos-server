@@ -666,10 +666,15 @@
 				<div class="content active">
 					<div class="circles row text-center">
 						{{#each app in arrangedContent}}
-							<div class="large-4 columns">
+							<div class="large-4 medium-6 columns">
+								{{#if app.isInstalled}}
+									<div class="icon-check  success-check installed-app-check"></div>
+								{{/if}}
+								{{#link-to 'selectedapp' app.name}}
 									<div class="circle"><img {{bind-attr src=app.smallIcon}} alt=""/></div>
 									<h3 class="gamma light">{{app.name}}</h3>
-								<p>{{app.description}}</p>
+									<p>{{app.description}}</p>
+								{{/link-to}}
 							</div>
 						{{/each}}
 					</div>
