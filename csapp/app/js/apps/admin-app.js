@@ -117,13 +117,24 @@ App.ApplicationController = Ember.ObjectController.extend({
 });
 
 App.SelectedappRoute = Ember.Route.extend({
+	model: function(params) {
+		return App.CloudOsApp.all.findBy('name', params.appname);
+	},
 
+	afterModel: function(model, transition) {
+		if (Ember.isNone(model)){
+			this.transitionTo('appstore');
+		}
+	}
 });
 
 App.SelectedappController = Ember.ObjectController.extend({
 	actions: {
 		select_app: function (app_name) {
 			window.location.replace('/#/app/' + app_name);
+		},
+
+		install_app: function (app_name) {
 		}
 	}
 });
@@ -144,9 +155,6 @@ App.DefaultPagination = {
 };
 
 App.CloudOsApp = Ember.Object.extend({
-	name: function(){
-		return this.get('name');
-	},
 
 	description: function() {
 		return this.get('appVersion').data.description;
@@ -154,6 +162,10 @@ App.CloudOsApp = Ember.Object.extend({
 
 	smallIcon: function() {
 		return this.get('appVersion').data.smallIconUrl
+	}.property(),
+
+	largeIcon: function() {
+		return this.get('appVersion').data.largeIconUrl
 	}.property(),
 
 	isInstalled: function() {
@@ -197,12 +209,15 @@ App.AppstoreRoute = Ember.Route.extend({
 	model: function() {
 		var page = App.DefaultPagination;
 		return App.CloudOsApp.findPaginated(page);
-	}
+	},
 });
 
 App.AppstoreController = Ember.ArrayController.extend({
 	appUrl: '',
 	currentPage: 1,
+	reEnteredPage: function(){
+		this.set('currentPage', 1);
+	}.observes('content'),
 	actions: {
 		installFromUrl: function () {
 			var task_id = Api.install_app_from_url(this.get('appUrl'));

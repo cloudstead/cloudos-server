@@ -509,25 +509,33 @@
 <script type="text/x-handlebars" id="selectedapp">
 	<section class="deck">
 		<div class="row">
-			<dl class="tabs">
-				<dd class="active">{{#link-to 'appstore'}}<span class="icon-mail-reply"></span>{{/link-to}}</dd>
-				<dd>{{#link-to 'installedapps'}}Installed Apps{{/link-to}}</dd>
+			<dl class="tabs" data-tab>
+				<dd class="active half-width-tab">
+					{{#link-to 'appstore'}}<span class="icon-mail-reply"></span>{{/link-to}}
+				</dd>
+				<dd class="half-width-tab">
+					{{#link-to 'installedapps'}}{{t sections.appstr.installed_apps}}{{/link-to}}
+				</dd>
 			</dl>
 			<div class="tabs-content">
 				<div class="content active">
-					<div class="row event-single">
+					<div class="row event-single no-margin">
 						<div class="large-2 columns">
-							<h4>Email App</h4>
+							<h4>{{name}} App</h4>single
 						</div>
 						<div class="large-4 columns">
-							<p>by <a href="">http://emailapp.com</a></p>
+							<p>by {{publisher.name}}</p>
 						</div>
 						<div class="large-4 columns rating">
 							<p><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span></p>
 							<p>12,340 Cloudstead Users</p>
 						</div>
 						<div class="large-2 columns">
-							<button class="tiny secondary expand" {{action 'select_app' 'email'}}>Open</button>
+							{{#if isInstalled}}
+								<button class="tiny secondary expand" {{action 'select_app' name}}>Open</button>
+							{{else}}
+								<button class="tiny primary expand" {{action 'install_app' name}}>install</button>
+							{{/if}}
 						</div>
 					</div>
 					<div class="row">
@@ -535,20 +543,19 @@
 					</div>
 					<div class="row">
 						<div class="large-4 columns">
-							<div class="circle"><img src="images/image1.png"></div>
+							<div class="circle"><img {{bind-attr src=smallIcon}}></div>
 						</div>
 						<div class="large-8 columns small-only-text-center">
 							<div class="large-12 columns">
 								<p>Overview : </p>
-								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
-								<p>This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done. This curated view includes personal messages without Newsletters, Daily Deals, and Social Notifications. This is the ultimate powerhouse view for getting things done.</p>
+								<p>{{description}}</p>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						&nbsp;
 					</div>
-					<div class="row event-single">
+					<div class="row event-single no-margin">
 						<div class="large-12 columns text-center rating">
 							<h4>RATE THIS APP</h4>
 							<p><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"></p>
