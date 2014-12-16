@@ -78,8 +78,7 @@
 							{{#if isFiles}}
 								<li class="has-dropdown">
 									<a {{action 'select_app' this.name}}>
-										<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}">
-											<span class="show-for-small">{{app-name name}}</span>
+											<span>{{app-name name}}</span>
 										</span>
 										<span class="show-for-xxlarge-up">{{app-name name}}</span>
 									</a>
@@ -96,19 +95,13 @@
 							{{else}}
 								<li>
 									<a {{action 'select_app' this.name}}>
-										<span {{bind-attr class=this.icon_name}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name name}}">
-											<span class="show-for-small">{{app-name name}}</span>
-										</span>
-										<span class="show-for-xxlarge-up">{{app-name name}}</span>
+										<span>{{app-name name}}</span>
 									</a>
 								</li>
 								{{#if isEmail}}
 									<li>
 										<a {{action 'select_app' 'addressbook'}}>
-											<span {{bind-attr class="icon-plus"}} data-tooltip aria-haspopup="true" class="has-tip" title="{{app-name 'addressbook'}}">
-												<span class="icon-tag"></span>
-											</span>
-											<span class="show-for-xxlarge-up">{{app-name 'addressbook'}}</span>
+											<span>{{app-name 'addressbook'}}</span>
 										</a>
 									</li>
 								{{/if}}
