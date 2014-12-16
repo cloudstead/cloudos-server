@@ -185,8 +185,7 @@ App.CloudOsApp.reopenClass({
 	},
 
 	loadNextPage: function(page) {
-		var paging = App.DefaultPagination;
-		paging.pageNumber = page;
+		var paging = $.extend(true, {}, App.DefaultPagination, { pageNumber: page });
 
 		App.CloudOsApp._fetchApps(paging);
 
@@ -207,9 +206,16 @@ App.CloudOsApp.reopenClass({
 
 App.AppstoreRoute = Ember.Route.extend({
 	model: function() {
-		var page = App.DefaultPagination;
-		return App.CloudOsApp.findPaginated(page);
+		return App.CloudOsApp.findPaginated(App.DefaultPagination);
 	},
+
+	setupController: function(controller, model) {
+		this._super(controller, model);
+		if (controller.get('currentPage') > 1){
+			controller.set('currentPage', 1);
+			this.refresh();
+		}
+	}
 });
 
 App.AppstoreController = Ember.ArrayController.extend({
