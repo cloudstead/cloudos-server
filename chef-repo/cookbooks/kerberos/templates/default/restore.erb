@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-bash "restore kerberos config files & database" do
+bash "restore kerberos / ldap database" do
 user "root"
 cwd "<%=@backup_dir%>"
 code <<-EOF
@@ -15,9 +15,12 @@ echo "restoring config files from backup at <%=@backup_dir%>"
 
 cp -rf etc/* /etc
 
-echo "restoring kerberos dump file <%=@dumpfile%>"
+echo "restoring ldap dump files"
 
-kdb5_util load tmp/<%=@dumpfile%>
+service slapd stop
+slapadd -F /etc/ldap/slapd.d -n 0 -l <%=@backup_dir%>/config.ldif
+slapadd -F /etc/ldap/slapd.d -n 1 -l <%=@backup_dir%>/data.ldif
+service slapd start
 
 EOF
 end

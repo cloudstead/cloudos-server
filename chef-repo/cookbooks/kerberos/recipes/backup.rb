@@ -82,20 +82,20 @@ if [ ! -d $BACKUP_DIR ] ; then
 	mkdir -p $BACKUP_DIR
 fi
 
-# dump the kerberos database
-KDBDUMP="#{dumpfile}"
-kdb5_util dump /tmp/${KDBDUMP}
-if [ ! -f /tmp/${KDBDUMP}.dump_ok ] ; then
-	echo "unable to dump kerberos database to ${KDBDUMP}"
+# dump the ldap / kerberos database
+slapcat -n 0 > ${BACKUP_DIR}/config.ldif
+slapcat -n 1 > ${BACKUP_DIR}/data.ldif
+if [ ! -f ${BACKUP_DIR}/data.ldif ] ; then
+	echo "unable to dump ldap database"
 	exit 1
 fi
 
-tar cjfp $BACKUP_DIR/$TARBALL /etc/krb* /tmp/${KDBDUMP} restore/recipes/#{restorefile} restore.json restore-solo.rb
+tar cjfp $BACKUP_DIR/$TARBALL /etc/krb* ${BACKUP_DIR}/*.ldif restore/recipes/#{restorefile} restore.json restore-solo.rb
 openssl enc -e -aes256 -pass file:$KEY -in $BACKUP_DIR/$TARBALL -out $BACKUP_DIR/$TARBALL.enc
 
 if [ -f $BACKUP_DIR/$TARBALL ] ; then
 	echo "backup tarball created"
-	rm /tmp/${KDBDUMP}*
+	rm $BACKUP_DIR/*.ldif
   rm -rf restore
   rm restore.json
   rm restore-solo.rb
