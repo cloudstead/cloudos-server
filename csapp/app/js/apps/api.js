@@ -135,7 +135,9 @@ Api = {
 
 	find_apps: function (page) { return Api._post('/api/appstore', page); },
 
-	find_app: function (app_id) { return Api._get('/api/appstore/' + app_id);  },
+	find_app: function (app_id) { return Api._get('/api/appstore/' + app_id); },
+
+	find_installed_apps: function () { return Api._get('/api/apps/'); },
 
 	install_cloud_app: function (app_id, app_install_request) {
 		return Api._post('/api/appstore/' + app_id + '/install', app_install_request); },

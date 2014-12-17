@@ -140,11 +140,21 @@ App.SelectedappController = Ember.ObjectController.extend({
 });
 
 App.InstalledappsRoute = Ember.Route.extend({
+	model: function() {
+		return Api.find_installed_apps();
+	}
+});
+
+App.InstalledappsController = Ember.ArrayController.extend({
 
 });
 
-App.InstalledappsController = Ember.ObjectController.extend({
-
+App.InstalledappController = Ember.ObjectController.extend({
+	installedBy: function() {
+		return this.get('metadata').installed_by === 'cloudos-builtin' ?
+			'Default' :
+			this.get('metadata').installed_by;
+	}.property()
 });
 
 App.DefaultPagination = {
