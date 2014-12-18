@@ -3,8 +3,9 @@
 
 serverName: cloudos-api
 
-#publicUriBase: https://127.0.0.1
-publicUriBase: {{PUBLIC_BASE_URI}}
+# set in ApiClientTestBase after the port is picked
+#publicUriBase: http://127.0.0.1
+#publicUriBase: {{PUBLIC_BASE_URI}}
 
 # Kerberos admin password. For creating and listing accounts with kadmin program.
 kadminPassword: {{KADMIN_PASS}}

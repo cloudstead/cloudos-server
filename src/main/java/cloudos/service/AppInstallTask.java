@@ -2,11 +2,12 @@ package cloudos.service;
 
 import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppDatabagDef;
+import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
+import cloudos.dao.SessionDAO;
 import cloudos.databag.PortsDatabag;
-import cloudos.model.app.AppMetadata;
-import cloudos.model.app.CloudOsAppLayout;
+import cloudos.appstore.model.app.AppMetadata;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
@@ -45,6 +46,7 @@ public class AppInstallTask extends TaskBase {
     @Getter @Setter private CloudOsAccount account;
     @Getter @Setter private AppInstallRequest request;
     @Getter @Setter private AppDAO appDAO;
+    @Getter @Setter private SessionDAO sessionDAO;
     @Getter @Setter private CloudOsConfiguration configuration;
 
     @Override
@@ -53,23 +55,20 @@ public class AppInstallTask extends TaskBase {
         description("{appInstall.installingApp}", request.toString());
 
         // Find the app version to install
-        final CloudOsAppLayout appLayout = configuration.getAppLayout();
-        final File appDir = appLayout.getAppDir(request.getName());
-        final File appVersionDir = appLayout.getAppVersionDir(request.getName(), request.getVersion());
-
-        if (!appVersionDir.exists() || !appVersionDir.isDirectory()) {
-            error("{appInstall.versionNotFound}", "not a directory: "+appVersionDir.getAbsolutePath());
+        final AppLayout appLayout = configuration.getAppLayout(request.getName(), request.getVersion());
+        final File appDir = appLayout.getAppDir();
+        if (!appLayout.exists()) {
+            error("{appInstall.versionNotFound}", "not a directory");
             return null;
         }
 
-        final AppManifest manifest = AppManifest.load(appVersionDir);
-        final String name = manifest.getId();
+        final AppManifest manifest = AppManifest.load(appLayout.getVersionDir());
         final List<ConstraintViolationBean> validationErrors = new ArrayList<>();
 
         // do we have all the required configuration?
         if (manifest.hasDatabags()) {
             for (AppDatabagDef databag : manifest.getDatabags()) {
-                final JsonNode node = appLayout.getDatabag(appVersionDir, databag.getName());
+                final JsonNode node = appLayout.getDatabag(databag.getName());
                 for (String item : databag.getItems()) {
                     if (node == null) {
                         validationErrors.add(missingConfig(databag, item));
@@ -93,7 +92,7 @@ public class AppInstallTask extends TaskBase {
 
         // write manifest file to data_bags/app-name directory
         try {
-            FileUtil.toFile(appLayout.getDatabagFile(appVersionDir, "cloudos-manifest"), JsonUtil.toJson(manifest));
+            FileUtil.toFile(appLayout.getDatabagFile("cloudos-manifest"), JsonUtil.toJson(manifest));
         } catch (Exception e) {
             error("err.manifestDatabag", "Error creating cloudos-manifest.json databag");
             return null;
@@ -115,7 +114,7 @@ public class AppInstallTask extends TaskBase {
         // collect cookbooks and recipes, build chef
         addEvent("{appInstall.verifyingChefCookbooks}");
         final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD).setForceApply(request.isForce());
-        final File chefDir = appLayout.getChefDir(appVersionDir);
+        final File chefDir = appLayout.getChefDir();
         if (!chefDir.exists()) {
             error("{appInstall.error.chefDir.notFound", "chefDir not found: "+chefDir.getAbsolutePath());
             return null;
@@ -130,7 +129,7 @@ public class AppInstallTask extends TaskBase {
         final PortsDatabag ports = PortsDatabag.pick();
 
         try {
-            FileUtil.toFile(appLayout.getDatabagFile(appVersionDir, PortsDatabag.ID), JsonUtil.toJson(ports));
+            FileUtil.toFile(appLayout.getDatabagFile(PortsDatabag.ID), JsonUtil.toJson(ports));
         } catch (Exception e) {
             error("{appInstall.error.writingPortsDataBag}", e);
             return null;

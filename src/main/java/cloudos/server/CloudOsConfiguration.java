@@ -1,10 +1,11 @@
 package cloudos.server;
 
 import cloudos.appstore.client.AppStoreApiClient;
+import cloudos.appstore.model.app.AppLayout;
+import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
 import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
-import cloudos.model.app.CloudOsAppLayout;
 import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +42,9 @@ public class CloudOsConfiguration extends RestServerConfiguration
     @Getter @Setter private CloudOsRedisConfiguration redis = new CloudOsRedisConfiguration(this);
 
     @Getter @Setter private File appRepository = new File(System.getProperty("user.home"), APP_REPOSITORY);
-    @Getter(lazy=true) private final CloudOsAppLayout appLayout = new CloudOsAppLayout(getAppRepository());
+    public AppLayout getAppLayout(String name) { return new AppLayout(getAppRepository(), name); }
+    public AppLayout getAppLayout(String name, String version) { return new AppLayout(getAppRepository(), name, version); }
+    public AppLayout getAppLayout(AppManifest manifest) { return new AppLayout(getAppRepository(), manifest); }
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 

@@ -3,8 +3,9 @@ package cloudos.service.task;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-@NoArgsConstructor
+@NoArgsConstructor @ToString
 public class TaskEvent {
 
     @Getter @Setter private String taskId;

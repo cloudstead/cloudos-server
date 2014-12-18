@@ -1,6 +1,7 @@
 package cloudos.model.app;
 
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.AppMetadata;
 import cloudos.databag.PortsDatabag;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;

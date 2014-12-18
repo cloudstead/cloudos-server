@@ -38,5 +38,4 @@ public class SessionDAO extends AbstractSessionDAO<Account> {
         account.setAvailableApps(availableApps);
         return account;
     }
-
 }

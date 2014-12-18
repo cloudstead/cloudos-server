@@ -30,6 +30,7 @@ public class ApiConstants {
     public static final String APP_ADAPTER_ENDPOINT = "/app";
     public static final String APP_PROXY_ENDPOINT = "/proxy";
     public static final String APPS_ENDPOINT = "/apps";
+    public static final String APP_ASSETS_ENDPOINT = "/app_assets";
     public static final String TASKS_ENDPOINT = "/tasks";
 
     public static final String APPSTORE_ENDPOINT = "/appstore";

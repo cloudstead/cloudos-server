@@ -164,6 +164,7 @@ public class AppsResource {
      * @param apiKey The session ID
      * @param app The app name
      * @param version The app version
+     * @param force If true, force installation even if the same version is already installed
      * @statuscode 403 if caller is not an admin
      * @return a TaskId, can be used to check installation progress
      */

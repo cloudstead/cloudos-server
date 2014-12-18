@@ -1,8 +1,8 @@
 package cloudos.main.app;
 
+import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
-import cloudos.model.app.AppMetadata;
-import cloudos.model.app.CloudOsAppLayout;
+import cloudos.appstore.model.app.AppMetadata;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import com.fasterxml.jackson.core.JsonParser;
@@ -101,8 +101,8 @@ public class SyncAppRepositoryMain {
                             final AppManifest manifest = AppManifest.load(manifestFile);
 
                             // Does the app-repository contain this app+version?
-                            final CloudOsAppLayout layout = configuration.getAppLayout();
-                            final File appVersionDir = layout.getAppVersionDir(manifest.getName(), manifest.getVersion());
+                            final AppLayout layout = configuration.getAppLayout(manifest.getName());
+                            final File appVersionDir = layout.getAppVersionDir(manifest.getVersion());
                             if (appVersionDir.exists()) {
                                 // back it up?
                             }
@@ -137,12 +137,12 @@ public class SyncAppRepositoryMain {
         final String app = manifest.getScrubbedName();
         final String version = manifest.getVersion();
 
-        final CloudOsAppLayout layout = configuration.getAppLayout();
-        final File appDir = layout.getAppDir(app);
-        final File appVersionDir = layout.getAppVersionDir(manifest.getName(), version);
+        final AppLayout layout = configuration.getAppLayout(app);
+        final File appDir = layout.getAppDir();
+        final File appVersionDir = layout.getAppVersionDir(version);
 
         final String chefPath = chefDir.getAbsolutePath();
-        final String repoChefPath = layout.getChefDir(appVersionDir).getAbsolutePath();
+        final String repoChefPath = layout.getChefDir().getAbsolutePath();
 
         // Copy: [chefDir]/cookbooks/app/* -> [appVersionDir]/chef/cookbooks/app/
         FileUtils.copyDirectory(new File(chefPath + "/cookbooks/" + app),

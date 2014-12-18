@@ -3,7 +3,9 @@ package cloudos.dao;
 import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.app.AppDatabagDef;
+import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.AppMetadata;
 import cloudos.model.Account;
 import cloudos.model.app.*;
 import cloudos.model.support.AppDownloadRequest;
@@ -49,7 +51,8 @@ public class AppDAO {
 
     /**
      * Download an app to the cloudstead app library
-     * @param admin The account making the request (must be admin)
+     *
+     * @param admin   The account making the request (must be admin)
      * @param request The download request
      * @return a TaskId that the caller can use to check on the status of the request
      */
@@ -70,24 +73,24 @@ public class AppDAO {
 
     /**
      * Get configuration settings for a particular app version.
-     * @param app The name of the app
+     *
+     * @param app     The name of the app
      * @param version The version of the app
      * @return the app configuration
      */
-    public AppConfiguration getConfiguration (String app, String version) {
+    public AppConfiguration getConfiguration(String app, String version) {
 
-        final CloudOsAppLayout layout = configuration.getAppLayout();
+        final AppLayout layout = configuration.getAppLayout(app, version);
 
-        final File appVersionDir = layout.getAppVersionDir(app, version);
-        if (!appVersionDir.exists()) throw new IllegalArgumentException("App does not exist: "+app+"/"+version);
+        if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
 
-        final AppManifest manifest = AppManifest.load(layout.getManifest(appVersionDir));
+        final AppManifest manifest = AppManifest.load(layout.getManifest());
         final AppConfiguration config = new AppConfiguration();
         if (manifest.hasDatabags()) {
             for (AppDatabagDef databag : manifest.getDatabags()) {
 
                 final String databagName = databag.getName();
-                final File databagFile = layout.getDatabagFile(appVersionDir, databagName);
+                final File databagFile = layout.getDatabagFile(databagName);
                 JsonNode node = null;
                 if (databagFile.exists()) {
                     node = JsonUtil.fromJsonOrDie(FileUtil.toStringOrDie(databagFile), JsonNode.class);
@@ -115,7 +118,7 @@ public class AppDAO {
                             }
 
                         } catch (IOException e) {
-                            log.warn("Error loading databag item ("+databagName+"/"+item+"): "+e);
+                            log.warn("Error loading databag item (" + databagName + "/" + item + "): " + e);
                         }
                     }
                 }
@@ -128,24 +131,24 @@ public class AppDAO {
         try {
             return JsonUtil.fromJson(node, "vendor", VendorDatabag.class);
         } catch (Exception e) {
-            log.warn("Error finding 'vendor' section in databag: "+e);
+            log.warn("Error finding 'vendor' section in databag: " + e);
             return null;
         }
     }
 
     /**
      * Set configuration options for a particular app version
-     * @param app The name of the app
+     *
+     * @param app     The name of the app
      * @param version The version of the app
-     * @param config The new configuration. Any fields that are missing will not be written (existing settings will be preserved)
+     * @param config  The new configuration. Any fields that are missing will not be written (existing settings will be preserved)
      */
-    public void setConfiguration (String app, String version, AppConfiguration config) {
-        final CloudOsAppLayout layout = configuration.getAppLayout();
+    public void setConfiguration(String app, String version, AppConfiguration config) {
+        final AppLayout layout = configuration.getAppLayout(app, version);
 
-        final File appVersionDir = layout.getAppVersionDir(app, version);
-        if (!appVersionDir.exists()) throw new IllegalArgumentException("App does not exist: " + app + "/" + version);
+        if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
 
-        final AppManifest manifest = AppManifest.load(layout.getManifest(appVersionDir));
+        final AppManifest manifest = AppManifest.load(layout.getManifest());
         if (manifest.hasDatabags()) {
             for (AppDatabagDef databag : manifest.getDatabags()) {
 
@@ -160,15 +163,15 @@ public class AppDAO {
                 // Did the caller provide config for this category?
                 final AppConfigurationCategory category = config.getCategory(databagName);
                 if (category == null) {
-                    log.warn("No configuration provided for category ("+databagName+"), skipping");
+                    log.warn("No configuration provided for category (" + databagName + "), skipping");
                     continue;
                 }
 
                 // Does this category exist as a databag? If not create a new JsonNode to represent it
-                final File databagFile = layout.getDatabagFile(appVersionDir, databagName);
+                final File databagFile = layout.getDatabagFile(databagName);
                 final JsonNode node;
                 if (databagFile.exists()) {
-                    node = layout.getDatabag(appVersionDir, databagName);
+                    node = layout.getDatabag(databagName);
                 } else {
                     node = new ObjectNode(FULL_MAPPER.getNodeFactory());
                 }
@@ -180,7 +183,7 @@ public class AppDAO {
                     if (value != null) {
                         // If the value is the special 'default' value, skip this and do not edit anything
                         if (value.equals(VendorSettingHandler.VENDOR_DEFAULT)) {
-                            log.info("skipping value (not changed from default): "+item);
+                            log.info("skipping value (not changed from default): " + item);
                             continue;
                         }
 
@@ -201,7 +204,7 @@ public class AppDAO {
                             operations.add(op);
 
                         } catch (Exception e) {
-                            throw new IllegalStateException("Error preparing to write "+databagName+"/"+item+": "+e);
+                            throw new IllegalStateException("Error preparing to write " + databagName + "/" + item + ": " + e);
                         }
                     }
                 }
@@ -212,7 +215,7 @@ public class AppDAO {
                     FileUtil.toFile(databagFile, updatedJson);
 
                 } catch (Exception e) {
-                    throw new IllegalStateException("Error generating updated json: "+e);
+                    throw new IllegalStateException("Error generating updated json: " + e);
                 }
 
             }
@@ -232,7 +235,7 @@ public class AppDAO {
     }
 
     public CloudOsApp findByName(String name) {
-        return loadApp(configuration.getAppLayout().getAppDir(name));
+        return loadApp(configuration.getAppLayout(name).getAppDir());
     }
 
     public List<CloudOsApp> findActive() {
@@ -255,7 +258,9 @@ public class AppDAO {
         return loadApp(appDir, AppMetadata.fromJson(appDir));
     }
 
-    private CloudOsApp loadApp(File appDir, AppMetadata metadata) { return loadApp(appDir, metadata, false); }
+    private CloudOsApp loadApp(File appDir, AppMetadata metadata) {
+        return loadApp(appDir, metadata, false);
+    }
 
     private CloudOsApp loadApp(File appDir, AppMetadata metadata, boolean loadDataBags) {
 
@@ -266,13 +271,13 @@ public class AppDAO {
                 .setAppRepository(configuration.getAppRepository())
                 .setMetadata(metadata);
 
-        final CloudOsAppLayout layout = configuration.getAppLayout();
-        final File versionDir = layout.getAppActiveVersionDir(app.getName());
+        final AppLayout layout = configuration.getAppLayout(app.getName());
+        final File versionDir = layout.getAppActiveVersionDir();
         if (versionDir == null) {
-            log.warn("App "+app.getName()+" downloaded but no version is active");
+            log.warn("App " + app.getName() + " downloaded but no version is active");
             return null;
         }
-        final File databagsDir = layout.getDatabagsDir(versionDir);
+        final File databagsDir = layout.getDatabagsDir();
 
         try {
             app.setManifest(AppManifest.load(versionDir));
@@ -296,7 +301,7 @@ public class AppDAO {
             return app;
 
         } catch (Exception e) {
-            log.error("loadApp("+appDir+", "+metadata+") error: "+e, e);
+            log.error("loadApp(" + appDir + ", " + metadata + ") error: " + e, e);
             return null;
         }
     }
@@ -304,7 +309,8 @@ public class AppDAO {
     private String databagName(File databagFile) {
         final String name = databagFile.getName();
         int lastDot = name.lastIndexOf('.');
-        if (lastDot == -1 || lastDot == name.length()-1) throw new IllegalArgumentException("Invalid databag file: "+name);
+        if (lastDot == -1 || lastDot == name.length() - 1)
+            throw new IllegalArgumentException("Invalid databag file: " + name);
         return name.substring(0, lastDot);
     }
 
@@ -348,13 +354,13 @@ public class AppDAO {
 
         final Map<String, CloudOsApp> appCache = new HashMap<>();
         final Map<String, AppRuntime> runtimes = new HashMap<>();
-        final CloudOsAppLayout layout = configuration.getAppLayout();
 
         // load runtimes
         for (CloudOsApp app : findActive()) {
             final AppManifest manifest = app.getManifest();
+            final AppLayout layout = configuration.getAppLayout(manifest.getName());
             final File versionDir = layout.getAppActiveVersionDir(manifest);
-            final File pluginJar = layout.getPluginJar(versionDir);
+            final File pluginJar = layout.getPluginJar();
 
             final Class<? extends AppRuntime> appClass;
             if (pluginJar.exists()) {
@@ -391,7 +397,9 @@ public class AppDAO {
         appRuntime.setAuthentication(parentRuntime.getAuthentication());
     }
 
-    public AppRuntime findAppRuntime(String appName) { return getAvailableRuntimes().get(appName); }
+    public AppRuntime findAppRuntime(String appName) {
+        return getAvailableRuntimes().get(appName);
+    }
 
     public Class<? extends AppRuntime> loadPluginClass(File pluginJar, String pluginClassName) throws SimpleViolationException {
         final Class<? extends AppRuntime> pluginClass;
@@ -399,7 +407,7 @@ public class AppDAO {
             final ClassLoader loader = new URLClassLoader(new URL[]{pluginJar.toURI().toURL()}, getClass().getClassLoader());
             pluginClass = (Class<AppRuntime>) loader.loadClass(pluginClassName);
 
-        } catch (Exception e)  {
+        } catch (Exception e) {
             throw new SimpleViolationException("{error.installApp.pluginClass.errorLoading}", "The sso class specified in the cloudos-manifest.json file could not be loaded", pluginClassName);
         }
 
@@ -411,7 +419,11 @@ public class AppDAO {
 
     public void resetApps() {
         synchronized (this.apps) {
-            this.apps.set(null);
+            synchronized (this.appDetails) {
+                this.apps.set(null);
+                this.appDetails.set(null);
+            }
         }
     }
+
 }

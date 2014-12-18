@@ -3,12 +3,14 @@ package cloudos.service.task;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.cobbzilla.util.string.StringUtil;
 import rooty.RootyMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 public class TaskResult {
 
     @Getter @Setter private String actionMessageKey;
