@@ -63,9 +63,11 @@ CloudOs = {
 
 	account: function () {
 		var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
-		cs_acct.availableApps = cs_acct.availableApps.filter(function(app) {
-			return app.interactive === true;
-		});
+		if (!Ember.isNone(cs_acct)){
+			cs_acct.availableApps = cs_acct.availableApps.filter(function(app) {
+				return app.interactive === true;
+			});
+		}
 		// cs_acct = add_icon_data(cs_acct);
 		return cs_acct;
 	},
