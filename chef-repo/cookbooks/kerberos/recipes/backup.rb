@@ -74,7 +74,8 @@ TIMESTAMP="#{timestamp}"
 BACKUP_DIR=#{backup_dir}
 TARBALL="#{tarball}"
 RUNAS="#{run_as}"
-KEY="/home/${RUNAS}/.backup-key"
+# KEY="/home/${RUNAS}/.backup-key"
+KEY="/etc/.cloudos"
 
 echo "creating backup tarball at ${BACKUP_DIR}/${TARBALL}"
 
