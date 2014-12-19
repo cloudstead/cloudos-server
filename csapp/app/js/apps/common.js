@@ -63,12 +63,22 @@ CloudOs = {
 
 	account: function () {
 		var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
-		cs_acct = add_icon_data(cs_acct);
+		if (!Ember.isNone(cs_acct)){
+			cs_acct.availableApps = cs_acct.availableApps.filter(function(app) {
+				return app.interactive === true;
+			});
+		}
+		// cs_acct = add_icon_data(cs_acct);
 		return cs_acct;
 	},
 
 	set_account: function (account) {
 		sessionStorage.setItem('cloudos_account', JSON.stringify(account));
+	},
+
+	get_app: function(app_name) {
+		var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+		return cs_acct.availableApps.findBy('name', app_name);
 	}
 
 };
@@ -98,15 +108,15 @@ function add_icon_data(acct){
 	if (curr_acct){
 		var arrayLength = curr_acct.availableApps.length;
 		for (var i = 0; i < arrayLength; i++) {
-			if (curr_acct.availableApps[i].name == 'email'){
+			if (curr_acct.availableApps[i].name == 'roundcube'){
 				curr_acct.availableApps[i].icon_name = 'icon-envelope';
 			}
 
-			if (curr_acct.availableApps[i].name == 'calendar'){
+			if (curr_acct.availableApps[i].name == 'roundcube-calendar'){
 				curr_acct.availableApps[i].icon_name = 'icon-calendar';
 			}
 
-			if (curr_acct.availableApps[i].name == 'files'){
+			if (curr_acct.availableApps[i].name == 'owncloud'){
 				curr_acct.availableApps[i].icon_name = 'icon-folder';
 			}
 
