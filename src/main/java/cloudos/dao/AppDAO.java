@@ -1,5 +1,6 @@
 package cloudos.dao;
 
+import cloudos.appstore.model.AppMutableData;
 import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.app.AppDatabagDef;
@@ -370,6 +371,7 @@ public class AppDAO {
             }
 
             final AppRuntime appRuntime = appClass.newInstance();
+            AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase());
             appRuntime.setDetails(manifest.getInstalledAppDetails());
             appRuntime.setAuthentication(manifest.getAuth());
 

@@ -16,19 +16,11 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpUtil;
-import org.cobbzilla.util.http.URIUtil;
-import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.Tarball;
-import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.reflect.ReflectionUtil;
-import org.cobbzilla.util.security.ShaUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.cobbzilla.util.json.JsonUtil.toJson;
-import static org.cobbzilla.util.string.StringUtil.empty;
 
 /**
  * Download an application and add it to your cloudstead's application library
@@ -129,14 +121,7 @@ public class AppDownloadTask extends TaskBase {
         }
 
         // If assets are defined, ensure they will be accessible via https from local cloudstead
-        boolean assetChanged = false;
-        for (String asset : new String[] {"taskbarIcon", "smallIcon", "largeIcon"}) {
-            assetChanged = validateAsset(manifest, asset, layout) || assetChanged;
-        }
-        if (assetChanged) {
-            // rewrite manifest with new asset URLs
-            FileUtil.toFileOrDie(layout.getManifest(), JsonUtil.toJson(manifest));
-        }
+        AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase());
 
         if (request.isAutoInstall() && !manifest.hasDatabags()) {
             // submit another job to do the install
@@ -153,60 +138,6 @@ public class AppDownloadTask extends TaskBase {
         result.setReturnValue(toJson(manifest));
         result.setSuccess(true);
         return result;
-    }
-
-    private boolean validateAsset(AppManifest manifest, String asset, AppLayout layout) {
-        // does the manifest define this asset?
-        File assetFile = null;
-        String sha = null;
-        AppMutableData assets = manifest.getAssets();
-        if (assets != null) {
-            final Object value = ReflectionUtil.get(assets, asset + "Url");
-            final Object shaValue = ReflectionUtil.get(assets, asset + "UrlSha");
-            if (value != null) {
-                final String assetUrl = value.toString();
-                final String ext = URIUtil.getFileExt(assetUrl);
-                if (!isValidImageExtention(ext)) {
-                    throw new IllegalStateException("Invalid file extension for asset (must be one of: "+ Arrays.toString(AppLayout.ASSET_IMAGE_EXTS) +"): "+assetUrl);
-                }
-                assetFile = new File(layout.getChefFilesDir(), asset + "." + ext);
-                final File parent = assetFile.getParentFile();
-                if (!parent.exists() && !parent.mkdirs()) throw new IllegalStateException("Error creating directory: "+ parent.getAbsolutePath());
-
-                try {
-                    HttpUtil.url2file(assetUrl, assetFile);
-                } catch (IOException e) {
-                    throw new IllegalStateException("Asset (" + asset + ") could not be loaded from: " + assetUrl, e);
-                }
-                if (!empty(shaValue)) sha = shaValue.toString();
-            }
-        }
-
-        // no asset URL defined, check the app cookbook's "files/default" directory for a default asset
-        if (assetFile == null) assetFile = layout.findDefaultAsset(asset);
-
-        if (assetFile == null) return false;
-
-        // calculate sha, validate if manifest specified one
-        final String fileSha = ShaUtil.sha256_file(assetFile);
-        if (!empty(sha) && !fileSha.equals(sha)) throw new IllegalStateException("Asset (" + assetFile.getAbsolutePath() + " had an invalid SHA sum");
-
-        if (assets == null) {
-            assets = new AppMutableData();
-            manifest.setAssets(assets);
-        }
-        String base = configuration.getPublicUriBase();
-        if (base.endsWith("/")) base = base.substring(0, base.length()-1);
-        ReflectionUtil.set(assets, asset + "Url", base + configuration.getHttp().getBaseUri() +"/app_assets/"+manifest.getScrubbedName()+"/"+assetFile.getName());
-        ReflectionUtil.set(assets, asset + "UrlSha", fileSha);
-        return true;
-    }
-
-    private boolean isValidImageExtention(String ext) {
-        for (String validExt : AppLayout.ASSET_IMAGE_EXTS) {
-            if (ext.equals(validExt)) return true;
-        }
-        return false;
     }
 
     private TaskResult cleanup(File... files) {
