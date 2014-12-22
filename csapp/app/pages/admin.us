@@ -42,20 +42,20 @@
 								</li>
 							</ul>
 						</li>
-						<li class="has-dropdown">
-							<a href="#" data-dropdown="settings-submenu" data-options="align:left">
-								<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
-								<span class="show-for-xxlarge-up">Settings</span>
-							</a>
-							<ul class="dropdown">
-								{{#if cloudos_account.admin}}
-									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
-									<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
-									<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
-								{{/if}}
-								<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
-							</ul>
-						</li>
+						{{#if cloudos_account.admin}}
+							<li class="has-dropdown">
+								<a href="#" data-dropdown="settings-submenu" data-options="align:left">
+									<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
+									<span class="show-for-xxlarge-up">Settings</span>
+								</a>
+								<ul class="dropdown">
+										<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
+										<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
+										<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
+									<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
+								</ul>
+							</li>
+						{{/if}}
 						<li class="has-dropdown">
 							<a href="#" data-dropdown="user-submenu" data-options="align:left">
 								<span class="icon-user"><span class="caption-for-icon show-for-small">User</span></span>
