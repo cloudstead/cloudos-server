@@ -35,10 +35,12 @@
 								<span class="show-for-xxlarge-up">Help</span>
 							</a>
 							<ul class="dropdown">
-								<li><a href="#">{{t menu.help.online}}</a></li>
-								<li><a href="#">{{t menu.help.news}}</a></li>
-								<li class="divider"></li>
-								<li><a href="http://cloudstead.uservoice.com/">{{t menu.help.ticket}}</a></li>
+								<li>
+									<a href=" http://www.cloudstead.io/blog/" target="_blank">{{t menu.help.news}}</a>
+								</li>
+								<li>
+									<a href="http://cloudstead.uservoice.com/" target="_blank">{{t menu.help.ticket}}</a>
+								</li>
 							</ul>
 						</li>
 						<li class="has-dropdown">
