@@ -237,3 +237,16 @@ table tr th, table tr td input[type=file], input[type=checkbox], input[type=radi
 .no-margin {
 	margin: 0px !important;
 }
+
+img.toolbar_icon {
+	height: 16px;
+}
+
+.toolbar_link {
+	padding-right: 5px !important;
+	padding-left: 5px !important;
+}
+
+.toolbar_link:after {
+	left: 30px;
+}
