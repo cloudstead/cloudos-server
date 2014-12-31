@@ -3,8 +3,8 @@
         // the very basics
         "recipe[base]",
 
-        // cloudOS core services (ldap and search engine will go here)
-        "recipe[kerberos]",
+        // cloudOS core services (search engine will also go here)
+        "recipe[auth]",
 
         // software shared by multiple apps (switching to docker may change this)
         "recipe[apache]", "recipe[postgresql]", "recipe[mysql]",
