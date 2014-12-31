@@ -6,7 +6,6 @@ import cloudos.model.Account;
 import cloudos.model.app.AppConfiguration;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
-import cloudos.model.support.AppInstallRequest;
 import cloudos.service.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -56,33 +55,6 @@ public class AppsResource {
         }
 
         return Response.ok(apps).build();
-    }
-
-    /**
-     * Load all information about an app, including configuration information. Info will be loaded for the active version of the app (as set in the metadata).
-     * @param apiKey The session ID
-     * @param app The name of the app
-     * @statuscode 403 if caller is not an admin
-     * @return a TaskId, can be used to check installation progress
-     */
-    @GET
-    @Path("/app/{app}")
-    @ReturnType("cloudos.service.task.TaskId")
-    public Response loadApp (@HeaderParam(H_API_KEY) String apiKey,
-                             @PathParam("app") String app,
-                             @PathParam("version") String version,
-                             AppInstallRequest request) {
-
-        final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-
-        // only admins can install apps
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
-
-        final CloudOsApp cloudOsApp = appDAO.findByName(app);
-        if (cloudOsApp == null) return ResourceUtil.notFound();
-
-        return Response.ok(cloudOsApp).build();
     }
 
     /**
