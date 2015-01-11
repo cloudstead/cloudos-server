@@ -11,5 +11,6 @@ public class SetupSettings {
     @Getter @Setter private String secret;
     @Getter @Setter private String email;
     @Getter @Setter private String passwordHash;
+    @Getter @Setter private String backupKey;
 
 }

@@ -23,7 +23,10 @@ public class CloudOsMainOptions {
 
     @Getter private final String password = initPassword();
 
+    protected boolean requireAccount() { return true; }
+
     private String initPassword() {
+        if (!requireAccount()) return null;
         final String pass = System.getenv(PASSWORD_ENV_VAR);
         if (StringUtil.empty(pass)) throw new IllegalStateException("No "+PASSWORD_ENV_VAR+" defined in environment");
         return pass;

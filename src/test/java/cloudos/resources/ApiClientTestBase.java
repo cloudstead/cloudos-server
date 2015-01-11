@@ -11,6 +11,7 @@ import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountGroupView;
 import cloudos.model.support.AccountRequest;
 import cloudos.model.support.SetupRequest;
+import cloudos.model.support.SetupResponse;
 import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
@@ -252,9 +253,11 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     @Before
     public void createAdminUser () throws Exception {
-
         if (skipAdminCreation()) return;
+        doFirstTimeSetup();
+    }
 
+    public void doFirstTimeSetup() throws Exception {
         // Peek into Spring context to find out what the setup secrets are in the mock
         final MockSetupSettingsSource setupSource  = server.getApplicationContext().getBean(MockSetupSettingsSource.class);
 
@@ -277,7 +280,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
         // Do first-time setup, create cloudOs admin
         final RestResponse response = post(ApiConstants.SETUP_ENDPOINT, toJson(request));
-        final AuthResponse authResponse = fromJson(response.json, CloudOsAuthResponse.class);
+        final AuthResponse authResponse = fromJson(response.json, SetupResponse.class);
 
         // ensure kerberos got the message
         assertEquals(request.getPassword(), getKerberos().getPassword(request.getAccountName()));

@@ -9,10 +9,11 @@
     "aws_secret_key": "aws_secret_key",
     "aws_iam_user": "aws_iam_user",
     "s3_bucket": "s3_bucket",
+    "backup_cron_schedule": "30 4  * * *",
 
     "appstore": {
         "user": "dummy-user (set to your appstore account name)",
-        "base_uri": "https://css7.cloudstead.io/appstore"
+        "base_uri": "https://css20.cloudstead.io/appstore"
     },
 
     "authy": {

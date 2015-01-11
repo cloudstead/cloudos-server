@@ -23,11 +23,12 @@ public class SetupSettingsSource {
         return JsonUtil.fromJsonOrDie(toStringOrDie(SETUP_KEY_FILE), SetupSettings.class);
     }
 
-    public void validateFirstTimeSetup(SetupRequest request) {
+    public String validateFirstTimeSetup(SetupRequest request) {
         if (!SETUP_KEY_FILE.exists()) throw new SimpleViolationException("{error.setup.alreadySetup}");
         final SetupSettings settings = getSettings();
         if (settings == null) throw new SimpleViolationException("{error.setup.alreadySetup}");
         validateSecrets(request, settings);
+        return settings.getBackupKey();
     }
 
     protected void validateSecrets(SetupRequest request, SetupSettings settings) {

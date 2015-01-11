@@ -48,7 +48,7 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
         try {
             CloudOsMainBase m = clazz.newInstance();
             m.setArgs(args);
-            m.login();
+            if (m.getOptions().requireAccount()) m.login();
             m.run();
         } catch (Exception e) {
             log.error("Unexpected error: "+e, e);
