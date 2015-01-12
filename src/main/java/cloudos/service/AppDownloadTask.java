@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.Tarball;
 
@@ -114,6 +115,14 @@ public class AppDownloadTask extends TaskBase {
         }
         for (File f : appFiles) {
             final File dest = new File(appVersionDir, f.getName());
+            if (dest.exists()) {
+                if (!request.isOverwrite()) {
+                    error("{appDownload.error.alreadyExists}", new Exception("the app already exists in your app-repository and 'overwrite' was not set"));
+                    return cleanup(tarball, tempDir);
+                } else {
+                    FileUtils.deleteDirectory(dest);
+                }
+            }
             if (!f.renameTo(dest)) {
                 error("{appDownload.error.renaming.contents}", new Exception("the bundle file/dir could not be moved: "+f.getAbsolutePath()+" -> "+dest.getAbsolutePath()));
                 return cleanup(tarball, tempDir);
