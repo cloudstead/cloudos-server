@@ -76,10 +76,14 @@
 						</li>
 					</ul>
 					<ul class="nav-apps">
-						{{#each app in cloudos_account.availableApps}}
+						{{#each app in cloudos_account.availableApps itemController="eapp"}}
 							<li>
 								<a {{action 'select_app' app.name}} {{bind-attr title=app.name}} class="toolbar_link">
-									<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.name}} class="toolbar_icon" />
+									{{#if hasTaskbarIcon}}
+										<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.name}} class="toolbar_icon" />
+									{{else}}
+										<span class="hide-for-small">{{app-name app.name}}</span>
+									{{/if}}
 									<span class="show-for-small">{{app-name app.name}}</span>
 								</a>
 							</li>
