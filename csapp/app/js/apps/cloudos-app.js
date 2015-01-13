@@ -322,24 +322,11 @@ App.SettingsController = Ember.ObjectController.extend({
 });
 
 App.app_model = function (app_name) {
-	var app_url = "/api/app/load/"+app_name;
-	if ( app_name === 'addressbook' || app_name == 'settings') {
-		return {
+	var app_url = "/api/app/load/" + app_name;
+	return {
 			"app_name": app_name,
-			"app_url": '/roundcube/?_task=' + app_name
+			"app_url":  app_url + "?" + Api.API_TOKEN + "=" + sessionStorage.getItem('cloudos_session')
 		};
-	} else if (/^oc-/.test(app_name)){
-		return {
-			"app_name": 'owncloud',
-			"app_url": '/owncloud/index.php/apps/' + app_name.replace(/^oc-/, '')
-		};
-	} else{
-		var app = CloudOs.get_app(app_name);
-		return {
-			"app_name": app_name,
-			"app_url":  app.path
-		};
-	}
 };
 
 App.AppRoute = Ember.Route.extend({
