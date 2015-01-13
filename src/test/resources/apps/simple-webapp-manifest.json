@@ -23,7 +23,8 @@
     "web": { "type": "apache", "mode": "proxy_service", "mount": "bogus" },
 
     "assets": {
-        "taskbarIconUrl": "http://127.0.0.1:@@PORT@@/some-icon.png"
+        "taskbarIconUrl": "http://127.0.0.1:@@PORT@@/some-icon.png",
+        "taskbarIconAltText": "simple webapp"
     }
 
 }
