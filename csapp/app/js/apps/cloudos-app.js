@@ -91,16 +91,6 @@ App.ApplicationController = Ember.ObjectController.extend({
 	}
 });
 
-App.EappController = Ember.ObjectController.extend({
-	isEmail: function(){
-		return this.get('name') === 'roundcube';
-	}.property(),
-
-	isFiles: function(){
-		return this.get('name') === 'owncloud';
-	}.property()
-});
-
 function get_username () {
 	const account = CloudOs.account();
 	return account ? account.name : null;

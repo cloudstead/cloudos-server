@@ -1198,16 +1198,6 @@ App.ProfileController = Ember.ObjectController.extend({
 	}
 });
 
-App.EappController = Ember.ObjectController.extend({
-	isEmail: function(){
-		return this.get('name') === 'roundcube';
-	}.property(),
-
-	isFiles: function(){
-		return this.get('name') === 'owncloud';
-	}.property()
-});
-
 
 Ember.Handlebars.helper('cloud-type-field', function(cloudType, field) {
 
