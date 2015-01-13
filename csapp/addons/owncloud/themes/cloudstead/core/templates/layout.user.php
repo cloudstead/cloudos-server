@@ -119,9 +119,6 @@
 		</div></nav>
 
 		<div id="content-wrapper">
-			<div class="contacts-button">
-				<a href="/owncloud/index.php/apps/contacts/" class="button" id="oc-contacts-link">Contacts</a>
-			</div>
 			<div id="content" class="app-<?php p($_['appid']) ?>">
 				<?php print_unescaped($_['content']); ?>
 			</div>
