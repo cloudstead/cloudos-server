@@ -14,11 +14,10 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import java.util.concurrent.TimeUnit;
 
-import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
-import static cloudos.resources.ApiConstants.H_API_KEY;
-import static cloudos.resources.ApiConstants.TASKS_ENDPOINT;
+import static cloudos.resources.ApiConstants.*;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
 public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
@@ -79,7 +78,7 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
         TaskResult result = fromJson(api.get(taskStatusUri).json, TaskResult.class);
 
         while (!result.isComplete() && System.currentTimeMillis() - start < TIMEOUT) {
-            Thread.sleep(pollInterval);
+            sleep(pollInterval, "waiting for task ("+taskId+") to complete");
             final String json = api.get(taskStatusUri).json;
             result = fromJson(json, TaskResult.class);
         }

@@ -11,6 +11,8 @@ import rooty.RootyStatusManager;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.system.Sleep.sleep;
+
 @Service @Slf4j
 public class RootyService {
 
@@ -30,21 +32,14 @@ public class RootyService {
 
     public RootyMessage request(RootyMessage message, long timeout) {
         getSender().write(message);
-        sleep();
+        sleep(250, "waiting for rooty to complete");
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < timeout) {
             final RootyMessage status = getStatusManager().getStatus(message.getUuid());
             if (status != null) return status;
-            sleep();
+            sleep(250, "waiting for rooty to complete");
         }
         throw new IllegalStateException("request timeout: "+message);
     }
 
-    public void sleep() {
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("Error while sleeping: "+e, e);
-        }
-    }
 }

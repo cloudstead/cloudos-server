@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static cloudos.resources.ApiConstants.*;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.util.system.Sleep.sleep;
 import static org.junit.Assert.*;
 
 @Slf4j
@@ -200,7 +201,7 @@ public class AppInstallTest extends ApiClientTestBase {
         long start = System.currentTimeMillis();
         TaskResult result = null;
         while (System.currentTimeMillis() - start < TIMEOUT) {
-            Thread.sleep(250);
+            sleep(250, "getTaskResult");
             apiDocs.addNote("check status of task " + taskId.getUuid());
             final String json = doGet(TASKS_ENDPOINT + "/" + taskId.getUuid()).json;
             result = fromJson(json, TaskResult.class);
