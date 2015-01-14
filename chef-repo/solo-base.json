@@ -14,6 +14,6 @@
         "recipe[kestrel]",
 
         // the built-in apps
-        "recipe[email]", "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[owncloud]"
+        "recipe[email]", "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[roundcube-addressbook]", "recipe[owncloud]",
     ]
 }
