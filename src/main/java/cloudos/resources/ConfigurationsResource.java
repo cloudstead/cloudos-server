@@ -16,11 +16,13 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.http.HttpStatusCodes;
 import org.cobbzilla.util.json.JsonUtil;
+import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rooty.RootyMessage;
 import rooty.toots.service.ServiceKeyRequest;
 import rooty.toots.vendor.VendorSettingDisplayValue;
+import rooty.toots.vendor.VendorSettingHandler;
 import rooty.toots.vendor.VendorSettingUpdateRequest;
 import rooty.toots.vendor.VendorSettingsListRequest;
 
@@ -200,6 +202,8 @@ public class ConfigurationsResource {
         final Account admin = sessionDAO.find(apiKey);
         if (admin == null) return notFound(apiKey);
         if (!admin.isAdmin()) return forbidden();
+
+        if (value.equals(VendorSettingHandler.VENDOR_DEFAULT)) return ResourceUtil.invalid("{err.setConfig.invalidValue}");
 
         try {
             return Response.ok(Boolean.valueOf(updateConfig(app, category+"/"+option, value).getResults())).build();
