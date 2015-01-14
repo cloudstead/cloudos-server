@@ -27,12 +27,18 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
     @Getter private final OPT options = initOptions();
     protected abstract OPT initOptions();
 
-    private final CmdLineParser parser = new CmdLineParser(getOptions());
+    @Getter(value=AccessLevel.PROTECTED) private final CmdLineParser parser = new CmdLineParser(getOptions());
 
     @Getter private String[] args;
     public void setArgs(String[] args) throws CmdLineException {
         this.args = args;
-        parser.parseArgument(args);
+        try {
+            parser.parseArgument(args);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+            System.exit(1);
+        }
     }
 
     @Getter(value=AccessLevel.PROTECTED, lazy=true) private final ApiClientBase apiClient = initApiClient();
@@ -45,10 +51,19 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
 
     protected static void main(Class<? extends CloudOsMainBase> clazz, String[] args) {
         try {
-            CloudOsMainBase m = clazz.newInstance();
+            final CloudOsMainBase m = clazz.newInstance();
+            final CloudOsMainOptions options = m.getOptions();
+
+            if (options.isHelp()) {
+                m.getParser().printUsage(System.err);
+                System.exit(1);
+            }
+
             m.setArgs(args);
-            if (m.getOptions().requireAccount()) m.login();
+            if (options.requireAccount()) m.login();
+
             m.run();
+
         } catch (Exception e) {
             log.error("Unexpected error: "+e, e);
         }
