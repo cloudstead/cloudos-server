@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
+import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.cobbzilla.wizard.resources.ResourceUtil.forbidden;
 import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
 import static rooty.toots.service.ServiceKeyRequest.Operation.ALLOW_SSH;
@@ -96,7 +97,7 @@ public class ConfigurationsResource {
         if (admin == null) return notFound(apiKey);
         if (!admin.isAdmin()) return forbidden();
 
-        if (app.equals(SYSTEM_APP)) {
+        if (empty(app) || app.equals("undefined") || app.equals(SYSTEM_APP)) {
             return Response.ok(getSystemOptions()).build();
         }
 
@@ -110,8 +111,8 @@ public class ConfigurationsResource {
 
     private VendorSettingDisplayValue[] getSystemOptions() {
         return new VendorSettingDisplayValue[] {
-                new VendorSettingDisplayValue("mxrecord", "mx."+configuration.getHostname()),
-                new VendorSettingDisplayValue("allowssh", Boolean.valueOf(rooty.request(new ServiceKeyRequest(ALLOW_SSH)).getResults()).toString())
+                new VendorSettingDisplayValue("mxrecord", "mx."+configuration.getHostname(), true),
+                new VendorSettingDisplayValue("allowssh", Boolean.valueOf(rooty.request(new ServiceKeyRequest(ALLOW_SSH)).getResults()).toString(), true)
         };
     }
 

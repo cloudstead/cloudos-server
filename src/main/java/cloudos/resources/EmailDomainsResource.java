@@ -16,6 +16,7 @@ import rooty.events.email.RemoveEmailDomainEvent;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,7 +42,11 @@ public class EmailDomainsResource {
         if (admin == null) return ResourceUtil.notFound(apiKey);
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
-        return Response.ok(emailDomainDAO.findAll()).build();
+        final List<EmailDomain> emailDomains = emailDomainDAO.findAll();
+        final EmailDomain localDomain = new EmailDomain(configuration.getHostname(), true);
+        if (!emailDomains.contains(localDomain)) emailDomains.add(localDomain);
+
+        return Response.ok(emailDomains).build();
     }
 
     /**
