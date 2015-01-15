@@ -50,10 +50,9 @@
 									<span class="show-for-xxlarge-up">Settings</span>
 								</a>
 								<ul class="dropdown">
-										<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
-										<li><a href="/admin.html#/email">{{t menu.emaildom}}</a></li>
-										<li><a href="/admin.html#/security">{{t menu.securitycert}}</a></li>
+									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
 									<li><a href="/admin.html#/appstore">{{t menu.appstore}}</a></li>
+									<li><a href="/admin.html#/security/certs">{{t menu.sys_settings}}</a></li>
 								</ul>
 							</li>
 						{{/if}}
