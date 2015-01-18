@@ -6,6 +6,7 @@ import cloudos.appstore.model.support.AppListing;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
+import cloudos.model.app.CloudOsApp;
 import cloudos.server.CloudOsConfiguration;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,18 @@ public class AppStoreResource {
         }
 
         for (AppListing listing : results.getResults()) {
-            if (appDAO.findByName(listing.getName()) != null) listing.setInstallStatus(AppInstallStatus.installed);
+            final CloudOsApp found = appDAO.findByName(listing.getName());
+            if (found != null) {
+                if (listing.getAppVersion().getVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                    listing.setInstallStatus(AppInstallStatus.upgrade_available);
+                } else {
+                    if (found.getMetadata().isActive()) {
+                        listing.setInstallStatus(AppInstallStatus.installed);
+                    } else {
+                        listing.setInstallStatus(AppInstallStatus.available);
+                    }
+                }
+            }
             // todo: check for apps that are actively installing, set status=installing
         }
 
