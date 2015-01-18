@@ -31,6 +31,7 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 public class InstalledAppLoader {
 
     private static final int MAX_REDIRECTS = 10;
+    private static final long ROOTY_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
 
     @Autowired private CloudOsConfiguration configuration;
     @Autowired private RootyService rooty;
@@ -169,7 +170,7 @@ public class InstalledAppLoader {
                 .setApp(app.getDetails().getName())
                 .setType(AppScriptMessageType.user_exists)
                 .addArg(account.getName());
-        return Boolean.valueOf(rooty.request(message).getResults());
+        return Boolean.valueOf(rooty.request(message, ROOTY_TIMEOUT).getResults());
     }
 
     private boolean createUser(CloudOsAccount account, AppRuntime app) {
@@ -179,7 +180,7 @@ public class InstalledAppLoader {
                 .addArg(account.getName())
                 .addArg(account.getPassword())
                 .addArg(String.valueOf(account.isAdmin()));
-        return Boolean.valueOf(rooty.request(message).getResults());
+        return Boolean.valueOf(rooty.request(message, ROOTY_TIMEOUT).getResults());
     }
 
     public Response sendToApp(AppProxyContext pctx) {
