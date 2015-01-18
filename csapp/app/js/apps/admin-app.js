@@ -38,6 +38,9 @@ App.Router.map(function() {
 	this.route('groupsNew', { path: "/groups/new/" });
 	this.route('group', { path: '/group/:group_name' });
 
+	this.resource('valet_keys');
+	this.resource('app_settings');
+
 	// this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
 	// this.resource('configCloud', { path: '/cloud/:cloud_name' });
 });
