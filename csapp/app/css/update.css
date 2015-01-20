@@ -250,3 +250,7 @@ img.toolbar_icon {
 .toolbar_link:after {
 	left: 30px;
 }
+
+.user_restore_message{
+	text-align: center;
+}

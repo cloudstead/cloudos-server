@@ -12,7 +12,6 @@ App.Router.map(function() {
 App.ApplicationController = Ember.ObjectController.extend({});
 
 App.IndexRoute = Ember.Route.extend({
-
 });
 
 App.RequestMessagesObject = Ember.Object.extend({
@@ -162,6 +161,20 @@ App.IndexController = Ember.ObjectController.extend({
 App.RestoreRoute = Ember.Route.extend({
 	model: function() {
 		return {};
+	},
+	actions:{
+		openModal: function(modalName){
+			return this.render(modalName, {
+				into: 'application',
+				outlet: 'modal'
+			});
+		},
+		closeModal: function(){
+			return this.disconnectOutlet({
+				outlet: 'modal',
+				parentView: 'application'
+			});
+		}
 	}
 });
 
@@ -174,7 +187,9 @@ App.RestoreController = Ember.ObjectController.extend({
 		}
 	}.property(),
 
-	user_message: "Messages will be here",
+	user_message_priority: "alert-box",
+
+	user_message: "Initializing restore...",
 
 	actions: {
 		doRestore: function(){
@@ -202,31 +217,30 @@ App.RestoreController = Ember.ObjectController.extend({
 			}
 			else {
 				var task_id = Api.restore(restore_data).uuid;
-				console.log(task_id);
-				console.log("--------");
+				self.send('openModal','user_message_modal');
 
 				var statusInterval = setInterval(function(){
 					result = Api.get_task_results(task_id);
-					console.log(result);
-					console.log(self.hasRestoreTaskFailed(result));
+
 					if (self.hasRestoreTaskFailed(result)){
-						console.log("error", result);
-						window.clearInterval(statusInterval);
-						self.set("user_message", Em.I18n.translations.task.events['{restore.error}'] + ": " + result.error);
+						var last_error = result.events[result.events.length-1].messageKey
+						self.set("user_message", Em.I18n.translations.task.events[last_error]);
+						self.set("user_message_priority", "alert-box alert");
 					}
 					else if (self.isShuttingDown(result)){
-						console.log("shutting down", result);
 						self.set("user_message", Em.I18n.translations.task.events['{restore.shutting_down}']);
+						self.set("user_message_priority", "alert-box");
 					}
 					else if (self.hasRestoreTaskSucceded(result)){
 						window.clearInterval(statusInterval);
 						self.set("user_message", Em.I18n.translations.task.events['{restore.done}']);
+						self.set("user_message_priority", "alert-box success");
 					}
 					else{
-						console.log("all done", result);
 						self.set("user_message", Em.I18n.translations.task.events[result.actionMessageKey]);
+						self.set("user_message_priority", "alert-box");
 					}
-				}, 10000);
+				}, 5000);
 			}
 		}
 	},
