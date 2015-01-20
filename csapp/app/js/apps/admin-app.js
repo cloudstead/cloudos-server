@@ -1201,6 +1201,7 @@ App.ProfileController = Ember.ObjectController.extend({
 	}
 });
 
+
 App.EappController = Ember.ObjectController.extend({
 	hasTaskbarIcon: function(){
 		var assets = this.get('assets');

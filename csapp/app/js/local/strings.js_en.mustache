@@ -5,6 +5,12 @@ Em.I18n.translations = {
 	sections: {
 		setup: 'Setup Cloudstead and Initial User',
 
+		restore: 'Restore from backup',
+
+		keys: 'Backup and Restore Keys',
+
+		sys_settings: 'System Settings',
+
 		admin: 'Admin',
 
 		login: 'Sign In',
@@ -154,7 +160,9 @@ Em.I18n.translations = {
 			mobilePhone : 'Mobile Phone',
 			recoveryEmail : 'Recovery Email',
 			firstName: 'First Name',
-			lastName: 'Last Name'
+			lastName: 'Last Name',
+
+			restore: 'Restore from backup',
 		},
 		login: {
 			username: 'Username',
@@ -259,6 +267,19 @@ Em.I18n.translations = {
 		},
 		reset_password:{
 			submit: "Set new password"
+		},
+		restore: {
+			password: 'Initial password',
+			email: 'Email',
+			private_key: 'Existing private key',
+			submit: 'Restore',
+			back: 'Back to Setup'
+		},
+		keys: {
+			caption: "This Cloudstead's Private Backup Key",
+			warning: "This private key MUST be safeguarded by you. A related public key will be used to create your Cloudstead's backups, and using this private key will be the only way to unlock them to restore your data. We DO NOT keep a copy of this key in escrow for you, and this is the ONLY opportunity for you to claim it. Faliure to collect and store this key in a safe place (we recomend a USB key drive that is locked away where only specific and known individuals may access in case of emergency) will result in an inability to access backups created using its public key.",
+			submit: "Done",
+			private_key: "Private key"
 		}
 	},
 	alerts: {
@@ -343,7 +364,12 @@ Em.I18n.translations = {
 			'{appInstall.error.waitingForChefToComplete}': 'Error waiting for installation to complete',
 			'{appInstall.error.waitingForChefToComplete.timeout}': 'Timeout waiting for installation to complete',
 			'{appInstall.recordingInstallation}': 'Finalizing installation',
-			'{appInstall.error.recordingInstallation}': 'Error finalizing installation'
+			'{appInstall.error.recordingInstallation}': 'Error finalizing installation',
+
+			'{restore.error}': 'Error while restoring',
+			'{restore.starting}': 'Starting restoring procedure...',
+			'{restore.shutting_down}': 'Shutting down instance...',
+			'{restore.done}': 'Restoring complete. You should receive an email with further instructions. It may take several minutes before you receive your email.'
 		}
 	},
 	errors: {
@@ -357,7 +383,8 @@ Em.I18n.translations = {
 		cloudosname_short: 'CloudOS name must be at least 4 characters long',
 		cloudos_reserverd : 'Please use different cloudOs name',
 		two_factor_code_invalid: 'Invalid verification code',
-		not_a_phone_number: 'Must contain only digits, hyphens and spaces'
+		not_a_phone_number: 'Must contain only digits, hyphens and spaces',
+		setup_key_missing: 'No setup key provided'
 	},
 	header: {
 		search: "Search",

@@ -85,6 +85,10 @@ Api = {
 		return Api._post('/api/setup', setupData);
 	},
 
+	restore: function(data) {
+		return Api._post("/api/setup/restore", data);
+	},
+
 	// admin API
 	list_accounts: function () {
 		var users = Api._get('/api/accounts');
@@ -106,7 +110,26 @@ Api = {
 
 	install_app_from_url: function (url) { return Api._post('/api/apps', {url: url}); },
 
-	get_task_results: function (task_id) { return Api._get('/api/tasks/' + task_id); },
+	get_task_results: function (task_id) {
+		var results = null;
+		Ember.$.ajax({
+			type: 'GET',
+			url: '/api/tasks/' + task_id,
+			async: false,
+			beforeSend: add_api_auth,
+			success: function (data, status, jqXHR) {
+				results = data;
+			},
+			error: function (jqXHR, status, error) {
+				results = {
+					status: status,
+					errorMessage: error,
+					jqXHR: jqXHR
+				};
+			}
+		});
+		return results;
+	},
 
 	list_email_domains: function () { return Api._get('/api/email/domains'); },
 	add_email_domain: function (domain) { return Api._put('/api/email/domains/' + domain, null); },

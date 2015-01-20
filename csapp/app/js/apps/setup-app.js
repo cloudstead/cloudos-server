@@ -4,6 +4,11 @@ App = Ember.Application.create({
 	LOG_ACTIVE_GENERATION: true
 });
 
+App.Router.map(function() {
+	this.resource('restore');
+	this.resource('keys')
+});
+
 App.ApplicationController = Ember.ObjectController.extend({});
 
 App.IndexRoute = Ember.Route.extend({
@@ -36,6 +41,7 @@ App.IndexController = Ember.ObjectController.extend({
 	email:'',
 	firstName:'',
 	lastName:'',
+	setup_response: null,
 	timeZones: function() {
 		var time = new Date();
 		var tzoffset = time.getTimezoneOffset();
@@ -85,10 +91,16 @@ App.IndexController = Ember.ObjectController.extend({
 				return false;
 			}
 
+			// this.set("setup_response", { restoreKey: "some uuid" });
+
+			// this.transitionToRoute('keys');
+
 			var auth_response = Api.setup(setupKey, name, initial_password, password, tzone, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName);
 			if (auth_response) {
 				CloudOs.login(auth_response);
-				window.location.replace('/admin.html');
+				this.set("setup_response", { restoreKey: auth_response.restoreKey });
+				this.transitionToRoute('keys');
+				// window.location.replace('/admin.html');
 			} else {
 				alert('error, perhaps the key was not correct. check your email again.');
 			}
@@ -145,5 +157,141 @@ App.IndexController = Ember.ObjectController.extend({
 
 		return response;
 	}
+});
+
+App.RestoreRoute = Ember.Route.extend({
+	model: function() {
+		return {};
+	}
+});
+
+App.RestoreController = Ember.ObjectController.extend({
+	setup_key: function() {
+		try{
+			return getParameterByName('key');
+		}catch(err){
+			//
+		}
+	}.property(),
+
+	user_message: "Messages will be here",
+
+	actions: {
+		doRestore: function(){
+			var self = this;
+
+			var restore_data = {
+				setupKey: this.get('setup_key'),
+				initialPassword: this.get('initialPassword'),
+				restoreKey: this.get('restoreKey'),
+				notifyEmail: this.get('notifyEmail')
+			};
+
+			var validate = this.validate(restore_data);
+
+			if (this.hasValidationFailed(validate)){
+				this.set('requestMessages',
+							App.RequestMessagesObject.create({
+								json: {
+									status: 'error',
+									api_token : null,
+									errors: validate
+								}
+							})
+						);
+			}
+			else {
+				var task_id = Api.restore(restore_data).uuid;
+				console.log(task_id);
+				console.log("--------");
+
+				var statusInterval = setInterval(function(){
+					result = Api.get_task_results(task_id);
+					console.log(result);
+					console.log(self.hasRestoreTaskFailed(result));
+					if (self.hasRestoreTaskFailed(result)){
+						console.log("error", result);
+						window.clearInterval(statusInterval);
+						self.set("user_message", Em.I18n.translations.task.events['{restore.error}'] + ": " + result.error);
+					}
+					else if (self.isShuttingDown(result)){
+						console.log("shutting down", result);
+						self.set("user_message", Em.I18n.translations.task.events['{restore.shutting_down}']);
+					}
+					else if (self.hasRestoreTaskSucceded(result)){
+						window.clearInterval(statusInterval);
+						self.set("user_message", Em.I18n.translations.task.events['{restore.done}']);
+					}
+					else{
+						console.log("all done", result);
+						self.set("user_message", Em.I18n.translations.task.events[result.actionMessageKey]);
+					}
+				}, 10000);
+			}
+		}
+	},
+
+	validate: function(data) {
+		var error_msg = locate(Em.I18n.translations, 'errors');
+		var response = {
+			setupKey:null,
+			initialPassword:null,
+			notifyEmail:null,
+			restoreKey:null,
+		};
+
+		if (Ember.isEmpty(data.setupKey)){
+			response.setupKey = error_msg.setup_key_missing;
+		}
+		if (Ember.isEmpty(data.initialPassword)){
+			response.initialPassword = error_msg.field_required;
+		}else if(data.initialPassword.length < 8) {
+			response.initialPassword = error_msg.password_short;
+		}
+		if (Ember.isEmpty(data.notifyEmail)){
+			response.notifyEmail = error_msg.field_required;
+		}
+		if (Ember.isEmpty(data.restoreKey)){
+			response.restoreKey = error_msg.field_required;
+		}
+
+		return response;
+	},
+
+	hasValidationFailed: function(validation) {
+		return !Ember.isNone(validation.setupKey) || !Ember.isNone(validation.restoreKey) ||
+			!Ember.isNone(validation.initialPassword) || !Ember.isNone(validation.notifyEmail);
+	},
+
+	hasRestoreTaskSucceded: function(task) {
+		return task.status === 'error' && task.jqXHR.status == 404;
+	},
+
+	hasRestoreTaskFailed: function(task) {
+		return !Ember.isEmpty(task.error);
+	},
+
+	isShuttingDown: function(task) {
+		return task.status === 'error' && task.jqXHR.status == 503;
+	}
+});
+
+
+App.KeysRoute = Ember.Route.extend({
+	model: function() {
+		return {};
+	}
+});
+
+App.KeysController = Ember.ObjectController.extend({
+	needs: "index",
+
+	restoreKey: Ember.computed.alias("controllers.index.setup_response.restoreKey"),
+
+	actions: {
+		doComplete: function(){
+			window.location.replace('/admin.html');
+		}
+	},
 });
 

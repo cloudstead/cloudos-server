@@ -339,7 +339,7 @@
 		<section class="deck account-deck">
 			<div class="row admin-row">
 				<div class="large-12 medium-centered columns">
-					<h1>System Settings</h1>
+					<h1>{{t sections.sys_settings}}</h1>
 					<div class="button-bar">
 						<ul class="button-group">
 							<li>
