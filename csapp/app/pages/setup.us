@@ -312,7 +312,10 @@
 									</label>
 								</div>
 								<div class="small-8 columns">
-									<p class="alert-box">{{t forms.keys.warning}}</p>
+									<div class="alert-box">
+										<p>{{t forms.keys.warning}}</p>
+										<p>{{t forms.keys.instructions}}</p>
+									</div>
 								</div>
 							</div>
 						</div>
