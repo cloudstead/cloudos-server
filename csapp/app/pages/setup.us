@@ -260,6 +260,11 @@
 							</div>
 						</div>
 						<div class="field-container">
+							<div class="row hide">
+								<div class="small-12 columns">
+									<button class="button tiny right" >{{t forms.restore.upload_as_file }}</button>
+								</div>
+							</div>
 							<div class="row">
 								<div class="small-4 columns">
 									<label for="restore_key" class="right msg-mod">
@@ -320,6 +325,11 @@
 							</div>
 						</div>
 						<div class="field-container">
+							<div class="row hide">
+								<div class="small-12 columns">
+									<button class="button tiny right" >{{t forms.restore.download_as_file }}</button>
+								</div>
+							</div>
 							<div class="row">
 								<div class="small-4 columns">
 									<label for="restore_key" class="right msg-mod">
