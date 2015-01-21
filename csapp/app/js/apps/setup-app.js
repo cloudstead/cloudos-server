@@ -170,6 +170,7 @@ App.RestoreRoute = Ember.Route.extend({
 			});
 		},
 		closeModal: function(){
+			this.controllerFor('restore').set("isHidden", true);
 			return this.disconnectOutlet({
 				outlet: 'modal',
 				parentView: 'application'
@@ -190,6 +191,8 @@ App.RestoreController = Ember.ObjectController.extend({
 	user_message_priority: "alert-box",
 
 	user_message: "Initializing restore...",
+
+	isHidden: true,
 
 	actions: {
 		doRestore: function(){
@@ -226,6 +229,7 @@ App.RestoreController = Ember.ObjectController.extend({
 						var last_error = result.events[result.events.length-1].messageKey
 						self.set("user_message", Em.I18n.translations.task.events[last_error]);
 						self.set("user_message_priority", "alert-box alert");
+						self.set("isHidden", false);
 					}
 					else if (self.isShuttingDown(result)){
 						self.set("user_message", Em.I18n.translations.task.events['{restore.shutting_down}']);
