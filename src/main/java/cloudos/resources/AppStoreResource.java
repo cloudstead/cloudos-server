@@ -59,7 +59,7 @@ public class AppStoreResource {
         for (AppListing listing : results.getResults()) {
             final CloudOsApp found = appDAO.findByName(listing.getName());
             if (found != null) {
-                if (listing.getAppVersion().getVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                if (listing.getAppVersion().getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
                     listing.setInstallStatus(AppInstallStatus.upgrade_available);
                 } else {
                     if (found.getMetadata().isActive()) {
