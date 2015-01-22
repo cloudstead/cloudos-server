@@ -32,7 +32,7 @@ public class ServiceKeyDAO  {
     private ServiceKeyHandler initHandler() { return rooty.getHandler(ServiceKeyHandler.class); }
 
     public ServiceKey findByName (String name) {
-        final File keyfile = new File(getHandler().getServiceDir(), ServiceKeyHandler.keyname(name)+".pub");
+        final File keyfile = new File(getHandler().getServiceDir(), ServiceKeyHandler.keyName(name)+".pub");
         return keyfile.exists() ? (ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(keyfile)).setName(name) : null;
     }
 
@@ -41,7 +41,8 @@ public class ServiceKeyDAO  {
         final List<ServiceKey> keys = new ArrayList<>();
         if (keyFiles != null) {
             for (File f : keyFiles) {
-                final String keyname = f.getName().substring(0, f.getName().length() - PUB_SUFFIX.length());
+                final String basename = f.getName().substring(0, f.getName().length() - PUB_SUFFIX.length());
+                final String keyname = ServiceKeyHandler.baseKeyName(basename);
                 keys.add((ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(f)).setName(keyname));
             }
         }

@@ -121,7 +121,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
     }
 
     public String readPrivateKeyFromDisk(String keyName) {
-        return FileUtil.toStringOrDie(new File(serviceKeyHandler.getServiceKeyDir(), ServiceKeyHandler.keyname(keyName)));
+        return FileUtil.toStringOrDie(new File(serviceKeyHandler.getServiceKeyDir(), ServiceKeyHandler.keyName(keyName)));
     }
 
     public String serviceKeyUri(String keyName) {
