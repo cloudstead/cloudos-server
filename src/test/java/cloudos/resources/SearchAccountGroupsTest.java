@@ -16,10 +16,10 @@ import java.util.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class SearchAccountGroupsTest extends SearchAccountsTest {
+public class SearchAccountGroupsTest extends SearchTestBase {
 
     private static final String DOC_TARGET = "Search: Account Groups";
-    public static final Comparator<AccountGroup> SORT_BY_NAME = new Comparator<AccountGroup>() {
+    public static final Comparator<AccountGroup> GROUPS_BY_NAME = new Comparator<AccountGroup>() {
         @Override public int compare(AccountGroup g1, AccountGroup g2) { return g1.getName().compareToIgnoreCase(g2.getName()); }
     };
 
@@ -28,9 +28,10 @@ public class SearchAccountGroupsTest extends SearchAccountsTest {
     protected static final List<AccountGroup> groupsByName = new ArrayList<>();
     protected static final List<String> groupNames = new ArrayList<>();
 
-    @Before public void seed() throws Exception {
+    @Before public void seedGroups() throws Exception {
 
-        super.seed();
+        resetGroups();
+        super.seedAccounts();
 
         final AccountGroupMemberDAO memberDAO = getBean(AccountGroupMemberDAO.class);
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
@@ -52,13 +53,13 @@ public class SearchAccountGroupsTest extends SearchAccountsTest {
             }
         }
 
-        final Set<AccountGroup> sorted = new TreeSet<>(SORT_BY_NAME);
+        final Set<AccountGroup> sorted = new TreeSet<>(GROUPS_BY_NAME);
         sorted.addAll(groups);
         groupsByName.addAll(sorted);
         for (AccountGroup g : groupsByName) groupNames.add(g.getName());
     }
 
-    @Override public void reset() {
+    public void resetGroups () {
 
         final AccountGroupMemberDAO memberDAO = getBean(AccountGroupMemberDAO.class);
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
@@ -69,7 +70,7 @@ public class SearchAccountGroupsTest extends SearchAccountsTest {
         groupNames.clear();
         groupsByName.clear();
 
-        super.reset();
+        super.resetAccounts();
     }
 
     @Test
