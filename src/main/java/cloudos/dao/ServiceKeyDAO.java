@@ -4,6 +4,7 @@ import cloudos.model.ServiceKey;
 import cloudos.service.RootyService;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.io.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+@Repository @Slf4j
 public class ServiceKeyDAO  {
 
     public static final String PUB_SUFFIX = ".pub";
@@ -38,9 +39,11 @@ public class ServiceKeyDAO  {
     public List<ServiceKey> findAll() {
         final File[] keyFiles = new File(getHandler().getServiceDir()).listFiles(KEY_FILTER);
         final List<ServiceKey> keys = new ArrayList<>();
-        for (File f : keyFiles) {
-            final String keyname = f.getName().substring(f.getName().length() - PUB_SUFFIX.length());
-            keys.add((ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(f)).setName(keyname));
+        if (keyFiles != null) {
+            for (File f : keyFiles) {
+                final String keyname = f.getName().substring(0, f.getName().length() - PUB_SUFFIX.length());
+                keys.add((ServiceKey) new ServiceKey().setPublicKey(FileUtil.toStringOrDie(f)).setName(keyname));
+            }
         }
         return keys;
     }

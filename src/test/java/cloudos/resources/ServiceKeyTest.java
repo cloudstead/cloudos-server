@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import cloudos.model.ServiceKey;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
 import org.cobbzilla.util.http.HttpStatusCodes;
@@ -29,12 +30,15 @@ public class ServiceKeyTest extends ConfigurationTestBase {
     public static final String DOC_TARGET = "Service Key Generation";
 
     @Test
-    public void testGenerateKey () throws Exception {
+    public void testServiceKeyCrud() throws Exception {
         apiDocs.startRecording(DOC_TARGET, "generate a service key, overwrite default SSL cert, generate a key visible to end-user");
 
         // Check "allowssh" config value -- should be false
         apiDocs.addNote("check 'allowssh' config setting, should be false");
         assertFalse(getAllowSsh());
+
+        apiDocs.addNote("list all service keys -- should be empty");
+        assertEquals(0, getServiceKeys().length);
 
         final String keyName = randomAlphanumeric(10).toLowerCase();
 
@@ -53,11 +57,17 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         RestResponse response = doPost(serviceKeyUri(keyName), toJson(customerKeyRequest));
         assertEquals(HttpStatusCodes.SERVER_ERROR, response.status);
 
+        apiDocs.addNote("list all service keys -- should be empty");
+        assertEquals(0, getServiceKeys().length);
+
         // Generate key, request private key to be securely emailed to cloudstead.io
         apiDocs.addNote("request a service key to be sent to vendor, this is allowed");
         response = doPost(serviceKeyUri(keyName), toJson(vendorKeyRequest));
         assertEquals(HttpStatusCodes.OK, response.status);
         assertTrue(StringUtil.empty(response.json));
+
+        apiDocs.addNote("list all service keys -- should be one");
+        assertEquals(1, getServiceKeys().length);
 
         // Verify private key sent to vendor
         final MockServiceRequestsResource vendor = server.getApplicationContext().getBean(MockServiceRequestsResource.class);
@@ -90,12 +100,28 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         response = doPost(serviceKeyUri(keyName2), toJson(customerKeyRequest));
         assertEquals(HttpStatusCodes.OK, response.status);
 
+        apiDocs.addNote("list all service keys -- should be two");
+        assertEquals(2, getServiceKeys().length);
+
         // assert response contains private key
         assertEquals(readPrivateKeyFromDisk(keyName2).trim(), fromJson(response.json, ServiceKeyVendorMessage.class).getKey().trim());
+
+        apiDocs.addNote("remove service key "+keyName);
+        doDelete(serviceKeyUri(keyName));
+
+        apiDocs.addNote("remove service key "+keyName2);
+        doDelete(serviceKeyUri(keyName2));
+
+        apiDocs.addNote("list all service keys -- should be empty");
+        assertEquals(0, getServiceKeys().length);
+    }
+
+    public ServiceKey[] getServiceKeys() throws Exception {
+        return fromJson(doGet(serviceKeyUri("")).json, ServiceKey[].class);
     }
 
     public String readPrivateKeyFromDisk(String keyName) {
-        return FileUtil.toStringOrDie(new File(serviceKeyHandler.getKeyDir(), ServiceKeyHandler.keyname(keyName)));
+        return FileUtil.toStringOrDie(new File(serviceKeyHandler.getServiceKeyDir(), ServiceKeyHandler.keyname(keyName)));
     }
 
     public String serviceKeyUri(String keyName) {

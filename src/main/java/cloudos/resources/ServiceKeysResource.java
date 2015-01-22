@@ -145,7 +145,11 @@ public class ServiceKeysResource {
         final ServiceKey found = serviceKeyDAO.findByName(name);
         if (found == null) return ResourceUtil.notFound(name);
 
-        rooty.getSender().write(new ServiceKeyRequest().setName(name).setOperation(DESTROY));
+        try {
+            rooty.request(new ServiceKeyRequest().setName(name).setOperation(DESTROY));
+        } catch (Exception e) {
+            return Response.serverError().entity("request timed out:"+e).build();
+        }
         return Response.ok().build();
     }
 

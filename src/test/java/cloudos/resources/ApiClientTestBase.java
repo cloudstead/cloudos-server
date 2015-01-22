@@ -62,6 +62,7 @@ import static org.cobbzilla.util.string.StringUtil.urlEncode;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @Slf4j
 public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, CloudOsServer> {
@@ -70,6 +71,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public static final String DEFAULT_KEY_MD5 = "23a5bcd716f54cc819a7367e64fe70e9";
     public static final String DEFAULT_PEM_SHA = "761f5e4128089695d51600c36e6b96438828e0ee7c76d7a15da2c13516832417";
     public static final String DEFAULT_PEM_MD5 = "e367ebcdec3792a33c0005e8b8098040";
+
+    public static final String CHEF_USER = System.getProperty("user.name");
 
     private MockDnsManager dnsManager = new MockDnsManager();
     private MockAppStoreApiClient appStoreClient = new MockAppStoreApiClient();
@@ -151,8 +154,12 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     protected void _beforeStart() throws Exception {
+
+        chefHome = Files.createTempDir();
+
         // Write default ssl cert to disk and to DB
-        sslKeysDir = Files.createTempDir();
+        sslKeysDir = new File(chefHome, ".certs");
+        if (!sslKeysDir.exists() && !sslKeysDir.mkdirs()) fail("error creating dir: "+sslKeysDir.getAbsolutePath());
         final String sslKeysPath = sslKeysDir.getAbsolutePath();
 
         final File pemFile = new File(sslKeysDir, TEST_PEM);
@@ -181,8 +188,10 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         serviceKeyHandler = new ServiceKeyHandler() {
             @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
-            @Override protected String initChefUser() { return "nobody"; }
+            @Override protected String initChefUser() { return CHEF_USER; }
         };
+        final File dotsshDir = new File(chefHome, ".ssh");
+        if (!dotsshDir.mkdirs()) fail("error creating dir: "+dotsshDir.getAbsolutePath());
         serviceKeyHandler.setSslKeysDir(sslKeysPath);
         serviceKeyHandler.setDefaultSslKeySha(ShaUtil.sha256_file(keyFile));
         serviceKeyHandler.setServiceDir(Files.createTempDir().getAbsolutePath());
@@ -192,18 +201,17 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         serviceKeyHandler.setServiceKeyEndpoint(vendorEndpoint);
 
         // the settings handler
-        chefHome = Files.createTempDir();
         vendorSettingHandler = new VendorSettingHandler() {
             @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
-            @Override protected String initChefUser() { return "nobody"; }
+            @Override protected String initChefUser() { return CHEF_USER; }
         };
 
         // the chef handler (for AppInstallTest)
         chefHandler = new ChefHandler() {
             @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
-            @Override protected String initChefUser() { return "nobody"; }
+            @Override protected String initChefUser() { return CHEF_USER; }
             @Override protected void runChefSolo() throws Exception { /* noop */ }
             @Override protected CommandLine backupCommand(File chefDir, File backup) { return new CommandLine("ls"); }
             @Override protected CommandLine rollbackCommand(File backupDir, File chefDir) { return new CommandLine("ls"); }
