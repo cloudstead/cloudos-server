@@ -1,0 +1,21 @@
+{
+  "name": "noconfig-webapp",
+  "version": "0.1.1",
+  "style": "java_webapp",
+  "interactive": true,
+  "publisher": {
+    "maintainer": "Jonathan Cobb",
+    "maintainer_email": "jonathan@cloudstead.io",
+    "license": "https://www.gnu.org/licenses/agpl-3.0.txt",
+    "code_copyright": "Copyright 2015 Cloudstead, Inc.",
+    "packaging_copyright": "Copyright 2015 Cloudstead, Inc."
+  },
+
+  "web": { "type": "apache", "mode": "proxy_service", "mount": "bogus" },
+
+  "assets": {
+    "taskbarIconUrl": "http://127.0.0.1:@@PORT@@/some-icon.png",
+    "taskbarIconAltText": "noconfig webapp"
+  }
+
+}

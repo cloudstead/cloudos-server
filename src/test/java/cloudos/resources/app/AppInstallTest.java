@@ -1,122 +1,47 @@
 package cloudos.resources.app;
 
-import cloudos.appstore.bundler.BundlerMain;
-import cloudos.appstore.bundler.BundlerOptions;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.model.Account;
 import cloudos.model.app.AppConfiguration;
-import cloudos.model.support.AppDownloadRequest;
-import cloudos.resources.ApiClientTestBase;
-import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.http.HttpResponseBean;
 import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.system.CommandShell;
-import org.cobbzilla.util.system.PortPicker;
-import org.cobbzilla.wizard.util.RestResponse;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import rooty.toots.chef.ChefMessage;
 
 import javax.ws.rs.core.HttpHeaders;
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
-import static cloudos.resources.ApiConstants.*;
+import static cloudos.resources.ApiConstants.APPS_ENDPOINT;
+import static cloudos.resources.ApiConstants.SESSIONS_ENDPOINT;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
-import static org.cobbzilla.util.system.Sleep.sleep;
 import static org.junit.Assert.*;
 
 @Slf4j
-public class AppInstallTest extends ApiClientTestBase {
+public class AppInstallTest extends AppTestBase {
 
     private static final String DOC_TARGET = "App Installation";
-    private static final String TEST_APP_TARBALL = "test-bundle.tar.gz";
+    public static final String MANIFEST_RESOURCE_PATH = "apps/simple-webapp-manifest.json";
 
-    private static final String TEST_MANIFEST = "apps/simple-webapp-manifest.json";
-    private static final String TEST_ICON = "apps/some-icon.png";
-    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(10);
-
-    private static Server testHttpServer;
-    private static int testServerPort;
-    private static File testDocRoot;
-    private static File iconFile;
-
-    @BeforeClass public static void setupTestWebApp() throws Exception {
-
-        testServerPort = PortPicker.pick();
-
-        // Write manifest for test app to a temp dir
-        final File appTemp = FileUtil.createTempDir("appTemp");
-        final File manifestFile = new File(appTemp, AppManifest.CLOUDOS_MANIFEST_JSON);
-        final String manifestData = StreamUtil.loadResourceAsString(TEST_MANIFEST).replace("@@PORT@@", String.valueOf(testServerPort));
-        FileUtil.toFile(manifestFile, manifestData);
-
-        testDocRoot = FileUtil.createTempDir(AppInstallTest.class.getName());
-        File bundleDir = new File(testDocRoot, "scratch");
-
-        // Run the bundler on our test manifest
-        final BundlerMain main = new BundlerMain(new String[] {
-                BundlerOptions.OPT_MANIFEST, manifestFile.getAbsolutePath(),
-                BundlerOptions.OPT_OUTPUT_DIR, bundleDir.getAbsolutePath()
-        });
-        main.run();
-
-        // Roll the tarball into its place under the doc root
-        CommandShell.exec(new CommandLine("tar")
-                .addArgument("czf")
-                .addArgument(testDocRoot.getAbsolutePath()+"/"+TEST_APP_TARBALL)
-                .addArgument("."), bundleDir);
-
-        // Copy icon png to doc root
-        iconFile = new File(testDocRoot, new File(TEST_ICON).getName());
-        FileUtils.copyFile(StreamUtil.loadResourceAsFile(TEST_ICON), iconFile);
-
-        // Set up jetty server to serve tarball and icon png
-        testHttpServer = new Server(testServerPort);
-
-        final ResourceHandler handler = new ResourceHandler();
-        handler.setResourceBase(testDocRoot.getAbsolutePath());
-        testHttpServer.setHandler(handler);
-
-        testHttpServer.start();
-    }
-
-    @AfterClass public static void teardownTestApp () throws Exception {
-        testHttpServer.stop();
-        FileUtils.deleteDirectory(testDocRoot);
-    }
+    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH); }
 
     @Test
     public void testInstallApp () throws Exception {
 
+        TaskResult result;
+
         apiDocs.startRecording(DOC_TARGET, "Download, configure and install an application");
 
         apiDocs.addNote("download the 'test' app");
-
-        // Download the app
-        final AppDownloadRequest downloadRequest = new AppDownloadRequest()
-                .setUrl("http://127.0.0.1:"+testServerPort+"/"+TEST_APP_TARBALL)
-                .setToken(randomPassword());
-        apiDocs.addNote("initiate the download request to add the app to app-repository");
-        final RestResponse response = doPost(APPS_ENDPOINT + "/download", toJson(downloadRequest));
-        assertEquals(200, response.status);
-        TaskId taskId = fromJson(response.json, TaskId.class);
-        TaskResult result = getTaskResult(taskId);
+        result = downloadApp(bundleUrl);
 
         // Validate that default taskbar icon image was downloaded and installed
         final File installedIcon = new File(new AppLayout(appRepository, "simple-webapp", "0.1.0").getChefFilesDir(), "taskbarIcon.png");
@@ -155,18 +80,8 @@ public class AppInstallTest extends ApiClientTestBase {
         assertEquals("custom-" + rand, appConfig.getCategory("custom").get("c1"));
         assertEquals("custom-"+rand, appConfig.getCategory("custom").get("c2"));
 
-        // Install the app
-        apiDocs.addNote("initiate the install request to install from app-repository to main chef-solo");
-        final String installUri = APPS_ENDPOINT + "/apps/"+manifest.getScrubbedName()+"/versions/"+manifest.getScrubbedVersion()+"/install";
-        final String json = doPost(installUri, null).json;
-        taskId = fromJson(json, TaskId.class);
-        result = getTaskResult(taskId);
-
-        // Ensure rooty message was sent
-        final ChefMessage chefMessage = getRootySender().first(ChefMessage.class);
-        assertNotNull(chefMessage);
-        assertEquals(1, chefMessage.getCookbooks().size());
-        assertEquals(manifest.getScrubbedName(), chefMessage.getCookbooks().get(0));
+        // Install the app and verify chef message was sent
+        installApp(manifest);
 
         // Verify app was installed correctly
         final String appDatabagsDir = chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName();
@@ -195,22 +110,6 @@ public class AppInstallTest extends ApiClientTestBase {
             if (details.getName().equals(name)) return details;
         }
         return null;
-    }
-
-    private TaskResult getTaskResult(TaskId taskId) throws Exception {
-        long start = System.currentTimeMillis();
-        TaskResult result = null;
-        while (System.currentTimeMillis() - start < TIMEOUT) {
-            sleep(250, "getTaskResult");
-            apiDocs.addNote("check status of task " + taskId.getUuid());
-            final String json = doGet(TASKS_ENDPOINT + "/" + taskId.getUuid()).json;
-            result = fromJson(json, TaskResult.class);
-            if (result.isSuccess()) break;
-        }
-        log.info("getTaskResult: "+result);
-        assertNotNull(result);
-        assertTrue(result.isSuccess());
-        return result;
     }
 
 }

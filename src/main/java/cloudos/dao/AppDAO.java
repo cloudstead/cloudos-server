@@ -235,8 +235,13 @@ public class AppDAO {
         return taskService.execute(task);
     }
 
-    public CloudOsApp findByName(String name) {
+    public CloudOsApp findInstalledByName(String name) {
         return loadApp(configuration.getAppLayout(name).getAppDir());
+    }
+
+    public CloudOsApp findLatestVersionByName(String name) {
+        final AppLayout appLayout = configuration.getAppLayout(name);
+        return loadApp(appLayout.getAppDir(), appLayout.getLatestVersionDir(), null, false);
     }
 
     public List<CloudOsApp> findActive() {
@@ -267,17 +272,28 @@ public class AppDAO {
 
         if (!appDir.exists() || !appDir.isDirectory()) return null;
 
+        final String appName = appDir.getName();
+        final AppLayout layout = configuration.getAppLayout(appName);
+
+        final File versionDir = layout.getAppActiveVersionDir();
+        if (versionDir == null) {
+            log.warn("App " + appName + " downloaded but no version is active");
+            return null;
+        }
+
+        return loadApp(appDir, versionDir, metadata, loadDataBags);
+    }
+
+    protected CloudOsApp loadApp(File appDir, File versionDir, AppMetadata metadata, boolean loadDataBags) {
+
+        final String appName = appDir.getName();
+        final AppLayout layout = configuration.getAppLayout(appName);
+
         final CloudOsApp app = new CloudOsApp()
                 .setName(appDir.getName())
                 .setAppRepository(configuration.getAppRepository())
                 .setMetadata(metadata);
 
-        final AppLayout layout = configuration.getAppLayout(app.getName());
-        final File versionDir = layout.getAppActiveVersionDir();
-        if (versionDir == null) {
-            log.warn("App " + app.getName() + " downloaded but no version is active");
-            return null;
-        }
         final File databagsDir = layout.getDatabagsDir();
 
         try {

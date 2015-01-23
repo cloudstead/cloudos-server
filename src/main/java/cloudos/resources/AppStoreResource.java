@@ -57,16 +57,24 @@ public class AppStoreResource {
         }
 
         for (AppListing listing : results.getResults()) {
-            final CloudOsApp found = appDAO.findByName(listing.getName());
+            CloudOsApp found = appDAO.findInstalledByName(listing.getName());
             if (found != null) {
                 if (listing.getAppVersion().getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
-                    listing.setInstallStatus(AppInstallStatus.upgrade_available);
+                    listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
                 } else {
-                    if (found.getMetadata().isActive()) {
-                        listing.setInstallStatus(AppInstallStatus.installed);
+                    listing.setInstallStatus(AppInstallStatus.installed);
+                }
+            } else {
+                found = appDAO.findLatestVersionByName(listing.getName());
+                if (found != null) {
+                    if (listing.getAppVersion().getSemanticVersion().compareTo(found.getManifest().getSemanticVersion()) > 0) {
+                        listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
                     } else {
-                        listing.setInstallStatus(AppInstallStatus.available);
+                        listing.setInstallStatus(AppInstallStatus.available_local);
                     }
+                } else {
+                    // default -- app has not been downloaded to local app repo
+                    listing.setInstallStatus(AppInstallStatus.available_appstore);
                 }
             }
             // todo: check for apps that are actively installing, set status=installing

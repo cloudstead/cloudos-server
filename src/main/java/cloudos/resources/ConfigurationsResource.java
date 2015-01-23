@@ -119,7 +119,7 @@ public class ConfigurationsResource {
     }
 
     private VendorSettingDisplayValue[] getConfiguration(String app) throws Exception {
-        final CloudOsApp installedApp = appDAO.findByName(app);
+        final CloudOsApp installedApp = appDAO.findInstalledByName(app);
         List<String> fields = null;
         if (installedApp != null) {
             final AppManifest appManifest = installedApp.getManifest();

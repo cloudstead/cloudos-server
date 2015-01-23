@@ -120,7 +120,14 @@ public class AppDownloadTask extends TaskBase {
                     error("{appDownload.error.alreadyExists}", new Exception("the app already exists in your app-repository and 'overwrite' was not set"));
                     return cleanup(tarball, tempDir);
                 } else {
-                    FileUtils.deleteDirectory(dest);
+                    if (dest.isDirectory()) {
+                        FileUtils.deleteDirectory(dest);
+                    } else {
+                        if (!dest.delete()) {
+                            error("{appDownload.error.overwriting}", new Exception("could not overwrite: "+dest.getAbsolutePath()));
+                            return cleanup(tarball, tempDir);
+                        }
+                    }
                 }
             }
             if (!f.renameTo(dest)) {
