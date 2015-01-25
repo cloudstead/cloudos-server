@@ -112,7 +112,7 @@ public class SyncAppRepositoryMain {
                 }
 
             } catch (Exception e) {
-                log.warn("Error inspecting recipe "+recipe+" while looking for apps: "+e);
+                log.warn("Error inspecting recipe "+recipe+" while looking for apps: "+e, e);
 
             } finally {
                 // ensure repository keeps proper ownership and permissions
@@ -137,7 +137,7 @@ public class SyncAppRepositoryMain {
         final String app = manifest.getScrubbedName();
         final String version = manifest.getVersion();
 
-        final AppLayout layout = configuration.getAppLayout(app);
+        final AppLayout layout = configuration.getAppLayout(app, version);
         final File appDir = layout.getAppDir();
         final File appVersionDir = layout.getAppVersionDir(version);
 
