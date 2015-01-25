@@ -1,87 +1,37 @@
 package cloudos.main;
 
-import cloudos.model.auth.AuthResponse;
 import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskResult;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.client.ApiClientBase;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
+import org.cobbzilla.wizard.main.MainApiBase;
+import org.cobbzilla.wizard.util.RestResponse;
 
 import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.*;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
-import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
-public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
+public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends MainApiBase<OPT> {
+
+    @Override protected String getApiHeaderTokenName() { return H_API_KEY; }
+
+    @Override protected Object buildLoginRequest(OPT options) {
+        return new LoginRequest().setName(options.getAccount()).setPassword(options.getPassword());
+    }
+
+    @Override protected String getLoginUri() { return ACCOUNTS_ENDPOINT; }
+
+    @Override protected String getSessionId(RestResponse response) throws Exception {
+        return fromJson(response.json, CloudOsAuthResponse.class).getSessionId();
+    }
 
     public static final long TIMEOUT = TimeUnit.MINUTES.toMillis(20);
-
-    @Getter private final OPT options = initOptions();
-    protected abstract OPT initOptions();
-
-    @Getter(value=AccessLevel.PROTECTED) private final CmdLineParser parser = new CmdLineParser(getOptions());
-
-    @Getter private String[] args;
-    public void setArgs(String[] args) throws CmdLineException {
-        this.args = args;
-        try {
-            parser.parseArgument(args);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            parser.printUsage(System.err);
-            System.exit(1);
-        }
-    }
-
-    @Getter(value=AccessLevel.PROTECTED, lazy=true) private final ApiClientBase apiClient = initApiClient();
-
-    private ApiClientBase initApiClient() {
-        return new ApiClientBase(getOptions().getApiBase()) {
-            @Override protected String getTokenHeader() { return H_API_KEY; }
-        };
-    }
-
-    protected static void main(Class<? extends CloudOsMainBase> clazz, String[] args) {
-        try {
-            final CloudOsMainBase m = clazz.newInstance();
-            final CloudOsMainOptions options = m.getOptions();
-
-            if (options.isHelp()) {
-                m.getParser().printUsage(System.err);
-                System.exit(1);
-            }
-
-            m.setArgs(args);
-            if (options.requireAccount()) m.login();
-
-            m.run();
-
-        } catch (Exception e) {
-            log.error("Unexpected error: "+e, e);
-        }
-    }
-
-    protected abstract void run() throws Exception;
-
-    protected void login () {
-        log.info("logging in "+options.getAccount()+" ...");
-        try {
-            final LoginRequest loginRequest = new LoginRequest().setName(options.getAccount()).setPassword(options.getPassword());
-            final ApiClientBase api = getApiClient();
-            final AuthResponse authResponse = fromJson(api.post(ACCOUNTS_ENDPOINT, toJson(loginRequest)).json, CloudOsAuthResponse.class);
-            api.pushToken(authResponse.getSessionId());
-        } catch (Exception e) {
-            throw new IllegalStateException("Error logging in: "+e, e);
-        }
-    }
+    protected long getTimeout() { return TIMEOUT; }
 
     protected TaskResult awaitTaskResult(TaskId taskId) throws Exception {
 
@@ -92,7 +42,7 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> {
 
         TaskResult result = fromJson(api.get(taskStatusUri).json, TaskResult.class);
 
-        while (!result.isComplete() && System.currentTimeMillis() - start < TIMEOUT) {
+        while (!result.isComplete() && System.currentTimeMillis() - start < getTimeout()) {
             sleep(pollInterval, "waiting for task ("+taskId+") to complete");
             final String json = api.get(taskStatusUri).json;
             result = fromJson(json, TaskResult.class);

@@ -42,7 +42,7 @@ function append_recipe () {
   local json="$1"
   local recipe="$2"
   local TMP=$(mktemp /tmp/append_recipe.XXXXXX) || die "append_recipe: error creating temp file"
-  ${JSON_EDIT} -f ${json} -o write -p run_list[] -v \"${recipe}\" > ${TMP}
+  ${JSON_EDIT} -f ${json} -o write -p run_list[] -v \"${recipe}\" -w ${TMP} > /dev/null 2>&1 || die "append_recipe: error appending ${recipe} to ${json}"
   echo ${TMP}
 }
 
@@ -81,9 +81,6 @@ if [ -z "${DISABLE_DNS}" ] ; then
     SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos-dns]")"
   fi
 fi
-
-# Add cloudos recipe
-SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos]")"
 
 # Add cloudos-validate recipe
 SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos::validate]")"

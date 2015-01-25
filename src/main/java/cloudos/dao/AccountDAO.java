@@ -99,6 +99,8 @@ public class AccountDAO extends AccountBaseDAO<Account> {
                 .setAdmin(account.isAdmin());
         rooty.getSender().write(event);
 
+        broadcastNewAccount(account);
+
         log.info("create: result="+result);
         return account;
     }
@@ -138,6 +140,8 @@ public class AccountDAO extends AccountBaseDAO<Account> {
                 .setName(account.getName())
                 .setAdmin(account.isAdmin());
         rooty.getSender().write(event);
+
+        broadcastDeleteAccount(account);
     }
 
     @Override
@@ -162,12 +166,42 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         }
     }
 
+    private void broadcastNewAccount (Account account) {
+        final Map<String, AppRuntime> apps = appDAO.getAvailableRuntimes();
+
+        for (Map.Entry<String, AppRuntime> app : apps.entrySet()) {
+            final AppRuntime runtime = app.getValue();
+            if (runtime.hasUserManagement() && runtime.getAuthentication().getUser_management().hasUserCreate()) {
+                final AppScriptMessage message = new AppScriptMessage()
+                        .setApp(runtime.getDetails().getName())
+                        .setType(AppScriptMessageType.user_create)
+                        .addArg(account.getName());
+                rooty.getSender().write(message);
+            }
+        }
+    }
+
+    private void broadcastDeleteAccount (Account account) {
+        final Map<String, AppRuntime> apps = appDAO.getAvailableRuntimes();
+
+        for (Map.Entry<String, AppRuntime> app : apps.entrySet()) {
+            final AppRuntime runtime = app.getValue();
+            if (runtime.hasUserManagement() && runtime.getAuthentication().getUser_management().hasUserDelete()) {
+                final AppScriptMessage message = new AppScriptMessage()
+                        .setApp(runtime.getDetails().getName())
+                        .setType(AppScriptMessageType.user_delete)
+                        .addArg(account.getName());
+                rooty.getSender().write(message);
+            }
+        }
+    }
+
     private void broadcastPasswordChange(Account account, String newPassword) {
         final Map<String, AppRuntime> apps = appDAO.getAvailableRuntimes();
 
         for (Map.Entry<String, AppRuntime> app : apps.entrySet()) {
             final AppRuntime runtime = app.getValue();
-            if (runtime.hasUserManagement()) {
+            if (runtime.hasUserManagement() && runtime.getAuthentication().getUser_management().hasChangePassword()) {
                 final AppScriptMessage message = new AppScriptMessage()
                         .setApp(runtime.getDetails().getName())
                         .setType(AppScriptMessageType.user_change_password)

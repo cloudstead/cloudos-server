@@ -8,15 +8,16 @@
 
         // software shared by multiple apps (switching to docker may change this)
         "recipe[apache]", "recipe[postgresql]", "recipe[mysql]",
-        "recipe[java]", "recipe[git]",
+        "recipe[java]", "recipe[git]", "recipe[email]",
 
         // message queue for rooty-tooty
         "recipe[kestrel]",
 
-        // the built-in apps
-        "recipe[email]", "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[roundcube-addressbook]", "recipe[owncloud]",
-
         // the cloudOS webapp
-        "recipe[cloudos]"
+        "recipe[cloudos]",
+
+        // the built-in apps
+        "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[roundcube-addressbook]", "recipe[owncloud]"
+
   ]
 }
