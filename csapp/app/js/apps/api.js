@@ -239,6 +239,5 @@ Api = {
 
 		return Api._post('/api/security/service_keys/' + key_name, data);
 	},
-	}
 
 };

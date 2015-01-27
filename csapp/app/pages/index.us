@@ -41,6 +41,11 @@
 								<li>
 									<a href="http://cloudstead.uservoice.com/" target="_blank">{{t menu.help.ticket}}</a>
 								</li>
+								{{#if cloudos_account.admin}}
+									<li>
+										<a href="/admin.html#/valet_keys">{{t sections.security.valet_keys}}</a>
+									</li>
+								{{/if}}
 							</ul>
 						</li>
 						{{#if cloudos_account.admin}}
