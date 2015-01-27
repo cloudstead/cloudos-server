@@ -189,6 +189,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
             @Override protected String initChefUser() { return CHEF_USER; }
+            @Override protected String getVendorKeyRootPaths() { return getChefUserHome(); }
         };
         final File dotsshDir = new File(chefHome, ".ssh");
         if (!dotsshDir.mkdirs()) fail("error creating dir: "+dotsshDir.getAbsolutePath());
@@ -205,6 +206,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
             @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
             @Override protected String initChefUser() { return CHEF_USER; }
+            @Override protected String getVendorKeyRootPaths() { return getChefUserHome(); }
         };
 
         // the chef handler (for AppInstallTest)

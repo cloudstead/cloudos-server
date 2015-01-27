@@ -55,7 +55,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         // Generate key, request private key -- this will fail.
         apiDocs.addNote("request a private service key. this fails because the vendor SSL cert is still installed");
         RestResponse response = doPost(serviceKeyUri(keyName), toJson(customerKeyRequest));
-        assertEquals(HttpStatusCodes.SERVER_ERROR, response.status);
+        assertEquals(422, response.status);
 
         apiDocs.addNote("list all service keys -- should be empty");
         assertEquals(0, getServiceKeys().length);
