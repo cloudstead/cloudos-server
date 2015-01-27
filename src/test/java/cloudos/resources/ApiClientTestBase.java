@@ -178,7 +178,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         }
 
         // setup handler for certificate requests (ssl keys)
-        certHandler = new SslCertHandler();
+        certHandler = new SslCertHandler() {
+            @Override protected String getVendorKeyRootPaths() { return chefHome.getAbsolutePath(); }
+        };
         certHandler.setPemPath(sslKeysPath);
         certHandler.setKeyPath(sslKeysPath);
         certHandler.setCacertsFile(cacertsFile.getAbsolutePath());
