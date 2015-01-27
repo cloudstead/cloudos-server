@@ -123,7 +123,15 @@ Em.I18n.translations = {
 
 		add_group: "Create a new Group",
 		edit_group: "Modify Group",
-		profile: "Profile"
+		profile: "Profile",
+
+		valet_keys: {
+			delete_confirm: "You are about to delete this service key. Are You sure?",
+			key_types: {
+				vendor: "Vendor key",
+				customer: "Customer key"
+			}
+		}
 	},
 	apps: {
 		email: 'Email',
@@ -283,6 +291,13 @@ Em.I18n.translations = {
 			instructions: "You can copy the selected private key by pressing Ctrl+C keys or by right clicking on the selected text and choosing the 'Copy' option.",
 			submit: "Done",
 			private_key: "Private key"
+		},
+		service_keys: {
+			name: "Name",
+			key: "Public key",
+			action: "Action",
+			new_name: "New service key name",
+			create_button: "Create"
 		}
 	},
 	alerts: {
@@ -388,7 +403,8 @@ Em.I18n.translations = {
 		cloudos_reserverd : 'Please use different cloudOs name',
 		two_factor_code_invalid: 'Invalid verification code',
 		not_a_phone_number: 'Must contain only digits, hyphens and spaces',
-		setup_key_missing: 'No setup key provided'
+		setup_key_missing: 'No setup key provided',
+		only_alphanumeric_no_space: "Only numbers, letters, underscores and dashes are allowed. No spaces or special characters."
 	},
 	header: {
 		search: "Search",

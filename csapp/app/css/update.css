@@ -254,3 +254,16 @@ img.toolbar_icon {
 .user_restore_message{
 	text-align: center;
 }
+
+.full_width {
+	width: 100%;
+}
+
+td.long_text_content{
+	word-wrap: break-word;
+	word-break: break-all;
+}
+
+.no_padding{
+	padding:0px !important;
+}

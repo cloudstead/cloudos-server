@@ -42,6 +42,12 @@ Api = {
 			},
 			error: function (jqXHR, status, error) {
 				console.log('setup error: status='+status+', error='+error+', url='+url);
+				result = {
+					status: status,
+					statusCode: jqXHR.status,
+					jqXHR: jqXHR,
+					errorMessage: error
+				};
 			}
 		});
 		return result;
@@ -61,7 +67,7 @@ Api = {
 				ok = true;
 			},
 			'error': function (jqXHR, status, error) {
-				alert('error deleting '+path+': '+error);
+				console.log('error deleting '+path+': '+error);
 			}
 		});
 		return ok;
@@ -205,6 +211,34 @@ Api = {
 
 	reset_password: function (token, password) {
 		return Api._post('/api/auth/reset_password/', { "token": token, "password": password });
+	},
+
+	get_service_keys: function () {
+		return Api._get('/api/security/service_keys/');
+	},
+
+	delete_service_key: function (serviceKey) {
+		return Api._delete('/api/security/service_keys/' + serviceKey.name);
+	},
+
+	check_allow_ssh: function () {
+		return Api._get('/api/configs/system/allowssh');
+	},
+
+	request_vendor_key: function (key_name) {
+		var data = {
+			"@class": "rooty.toots.service.ServiceKeyRequest",
+			"ctime": Date.now(),
+			"errorCount": 0,
+			"success": false,
+			"finished": false,
+			"name": key_name,
+			"operation": "GENERATE",
+			"recipient": "VENDOR"
+		}
+
+		return Api._post('/api/security/service_keys/' + key_name, data);
+	},
 	}
 
 };
