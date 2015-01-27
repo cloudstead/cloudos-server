@@ -2,12 +2,14 @@ package cloudos.main;
 
 import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
+import cloudos.resources.ApiConstants;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskResult;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.client.ApiClientBase;
 import org.cobbzilla.wizard.main.MainApiBase;
 import org.cobbzilla.wizard.util.RestResponse;
+import rooty.toots.vendor.VendorSettingDisplayValue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +51,11 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends Ma
         }
 
         return result;
+    }
+
+    public Boolean getAllowSsh() throws Exception {
+        final RestResponse response = getApiClient().doGet(ApiConstants.CONFIGS_ENDPOINT + "/system/allowssh");
+        return Boolean.valueOf(fromJson(response.json, VendorSettingDisplayValue.class).getValue());
     }
 
 }

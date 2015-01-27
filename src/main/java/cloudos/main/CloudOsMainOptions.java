@@ -14,8 +14,8 @@ public class CloudOsMainOptions extends MainApiOptionsBase {
     @Override protected String getPasswordEnvVarName() { return PASSWORD_ENV_VAR; }
 
     public static final String USAGE_POLL_INTERVAL = "Number of seconds to sleep in between status checks. Default is 4.";
-    public static final String OPT_POLL_INTERVAL = "-p";
-    public static final String LONGOPT_POLL_INTERVAL = "--poll";
+    public static final String OPT_POLL_INTERVAL = "-I";
+    public static final String LONGOPT_POLL_INTERVAL = "--poll-interval";
     @Option(name=OPT_POLL_INTERVAL, aliases=LONGOPT_POLL_INTERVAL, usage=USAGE_POLL_INTERVAL)
     @Getter @Setter private long pollInterval = 4;
 

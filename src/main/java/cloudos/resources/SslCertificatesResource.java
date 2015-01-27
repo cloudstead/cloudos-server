@@ -23,12 +23,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.StringReader;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.EP_CERTS)
 @Service @Slf4j
 public class SslCertificatesResource {
+
+    public static final long SSL_CERT_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
     public static final String CN_PREFIX = "CN=";
 
@@ -146,7 +149,7 @@ public class SslCertificatesResource {
         }
 
         final InstallSslCertData data = new InstallSslCertData().setKey(request.getKey()).setPem(request.getPem());
-        rooty.getSender().write(new InstallSslCertMessage(data).setName(name));
+        rooty.request(new InstallSslCertMessage(data).setName(name), SSL_CERT_TIMEOUT);
 
         return Response.ok(dbCert).build();
     }

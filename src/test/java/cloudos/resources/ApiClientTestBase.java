@@ -192,7 +192,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         };
         final File dotsshDir = new File(chefHome, ".ssh");
         if (!dotsshDir.mkdirs()) fail("error creating dir: "+dotsshDir.getAbsolutePath());
-        serviceKeyHandler.setSslKeysDir(sslKeysPath);
+        serviceKeyHandler.setDefaultSslFile(keyFile.getAbsolutePath());
         serviceKeyHandler.setDefaultSslKeySha(ShaUtil.sha256_file(keyFile));
         serviceKeyHandler.setServiceDir(Files.createTempDir().getAbsolutePath());
 

@@ -109,16 +109,16 @@ public class ServiceKeysResource {
         message = (ServiceKeyRequest) rooty.request(message);
 
         if (message != null) {
-            if (message.isSuccess()) {
+            if (message.isSuccess() && message.getErrorCount() == 0) {
                 if (request.getRecipient() == CUSTOMER) {
                     return Response.ok(new ServiceKeyVendorMessage().setKey(message.getResults())).build();
                 } else {
                     return Response.ok().build();
                 }
             } else {
-                // key request failed somehow
-                log.error("Error generating service key: "+message);
-                return Response.serverError().build();
+                // key request failed -- perhaps because cloudstead is still locked
+                log.error("Error generating service key: "+message.getResults());
+                return ResourceUtil.invalid(message.getResults());
             }
         }
 

@@ -30,6 +30,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.util.string.StringUtil.empty;
@@ -44,6 +45,7 @@ import static rooty.toots.service.ServiceKeyRequest.Operation.ALLOW_SSH;
 public class ConfigurationsResource {
 
     public static final String SYSTEM_APP = "system";
+    public static final long ROOTY_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
 
     @Autowired private CloudOsConfiguration configuration;
     @Autowired private AppDAO appDAO;
@@ -78,7 +80,7 @@ public class ConfigurationsResource {
     }
 
     private String[] getAllConfigurations() throws Exception {
-        final RootyMessage request = rooty.request(new VendorSettingsListRequest());
+        final RootyMessage request = rooty.request(new VendorSettingsListRequest(), ROOTY_TIMEOUT);
         return JsonUtil.fromJson(request.getResults(), String[].class);
     }
 
@@ -114,8 +116,12 @@ public class ConfigurationsResource {
     private VendorSettingDisplayValue[] getSystemOptions() {
         return new VendorSettingDisplayValue[] {
                 new VendorSettingDisplayValue("mxrecord", "mx."+configuration.getHostname(), true),
-                new VendorSettingDisplayValue("allowssh", Boolean.valueOf(rooty.request(new ServiceKeyRequest(ALLOW_SSH)).getResults()).toString(), true)
+                new VendorSettingDisplayValue("allowssh", getAllowSsh().toString(), true)
         };
+    }
+
+    private Boolean getAllowSsh() {
+        return Boolean.valueOf(rooty.request(new ServiceKeyRequest(ALLOW_SSH), ROOTY_TIMEOUT).getResults());
     }
 
     private VendorSettingDisplayValue[] getConfiguration(String app) throws Exception {
@@ -125,7 +131,7 @@ public class ConfigurationsResource {
             final AppManifest appManifest = installedApp.getManifest();
             fields = toFieldList(appManifest);
         }
-        final RootyMessage request = rooty.request(new VendorSettingsListRequest().setCookbook(app).setFields(fields));
+        final RootyMessage request = rooty.request(new VendorSettingsListRequest().setCookbook(app).setFields(fields), ROOTY_TIMEOUT);
         return JsonUtil.fromJson(request.getResults(), VendorSettingDisplayValue[].class);
     }
 
@@ -215,7 +221,7 @@ public class ConfigurationsResource {
     }
 
     public RootyMessage updateConfig(String app, String option, String value) {
-        return rooty.request(new VendorSettingUpdateRequest(option, value).setCookbook(app));
+        return rooty.request(new VendorSettingUpdateRequest(option, value).setCookbook(app), ROOTY_TIMEOUT);
     }
 
     /**
@@ -247,7 +253,7 @@ public class ConfigurationsResource {
             }
         }
 
-        return Response.ok().build();
+        return getAllowSsh() ? Response.ok().build() : ResourceUtil.invalid("{err.serviceKey.cloudsteadLocked}");
     }
 
 }
