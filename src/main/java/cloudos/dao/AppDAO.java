@@ -241,7 +241,8 @@ public class AppDAO {
 
     public CloudOsApp findLatestVersionByName(String name) {
         final AppLayout appLayout = configuration.getAppLayout(name);
-        return loadApp(appLayout.getAppDir(), appLayout.getLatestVersionDir(), null, false);
+        final File latestVersionDir = appLayout.getLatestVersionDir();
+        return latestVersionDir != null && latestVersionDir.exists() ? loadApp(appLayout.getAppDir(), latestVersionDir, null, false) : null;
     }
 
     public List<CloudOsApp> findActive() {
