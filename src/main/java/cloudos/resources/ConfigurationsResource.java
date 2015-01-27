@@ -228,7 +228,7 @@ public class ConfigurationsResource {
      * Unlock the cloudstead
      * @param apiKey The session ID
      * @param unlockRequest The unlock request
-     * @return Just an HTTP status code
+     * @return HTTP status 200 if the unlock succeeded, or 422 if the cloudstead remains locked
      */
     @PUT
     @Path("/unlock")
@@ -246,14 +246,19 @@ public class ConfigurationsResource {
         for (Map.Entry<String, String> setting : unlockRequest.getSettings().entrySet()) {
             final String name = setting.getKey();
             try {
-                updateConfig("cloudos", name, setting.getValue());
+                final RootyMessage response = updateConfig("cloudos", name, setting.getValue());
+                if (!response.getBooleanResult()) {
+                    log.warn("unlockCloudstead: updateConfig returned false");
+                    return ResourceUtil.invalid("{err.unlock.stillLocked}");
+                }
+
             } catch (Exception e) {
                 log.error("Error handling setConfig ("+name+"): "+e, e);
                 return Response.serverError().build();
             }
         }
 
-        return getAllowSsh() ? Response.ok().build() : ResourceUtil.invalid("{err.serviceKey.cloudsteadLocked}");
+        return getAllowSsh() ? Response.ok().build() : ResourceUtil.invalid("{err.unlock.stillLocked}");
     }
 
 }
