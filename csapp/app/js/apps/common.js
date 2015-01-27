@@ -64,11 +64,12 @@ CloudOs = {
 	account: function () {
 		var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
 		if (!Ember.isNone(cs_acct)){
-			cs_acct.availableApps = cs_acct.availableApps.filter(function(app) {
-				return app.interactive === true;
-			});
+			cs_acct.availableApps = Ember.isNone(cs_acct.availableApps) ? [] :
+				cs_acct.availableApps.filter(function(app) {
+					return app.interactive === true;
+				});
+			// cs_acct = add_icon_data(cs_acct);
 		}
-		// cs_acct = add_icon_data(cs_acct);
 		return cs_acct;
 	},
 
@@ -76,10 +77,10 @@ CloudOs = {
 		sessionStorage.setItem('cloudos_account', JSON.stringify(account));
 	},
 
-	get_app: function(app_name) {
-		var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
-		return cs_acct.availableApps.findBy('name', app_name);
-	}
+	// get_app: function(app_name) {
+	// 	var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
+	// 	return cs_acct.availableApps.findBy('name', app_name);
+	// }
 
 };
 
@@ -103,31 +104,31 @@ function locate(obj, path) {
 	return obj;
 }
 
-function add_icon_data(acct){
-	var curr_acct = acct;
-	if (curr_acct){
-		var arrayLength = curr_acct.availableApps.length;
-		for (var i = 0; i < arrayLength; i++) {
-			if (curr_acct.availableApps[i].name == 'roundcube'){
-				curr_acct.availableApps[i].icon_name = 'icon-envelope';
-			}
+// function add_icon_data(acct){
+// 	var curr_acct = acct;
+// 	if (curr_acct){
+// 		var arrayLength = curr_acct.availableApps.length;
+// 		for (var i = 0; i < arrayLength; i++) {
+// 			if (curr_acct.availableApps[i].name == 'roundcube'){
+// 				curr_acct.availableApps[i].icon_name = 'icon-envelope';
+// 			}
 
-			if (curr_acct.availableApps[i].name == 'roundcube-calendar'){
-				curr_acct.availableApps[i].icon_name = 'icon-calendar';
-			}
+// 			if (curr_acct.availableApps[i].name == 'roundcube-calendar'){
+// 				curr_acct.availableApps[i].icon_name = 'icon-calendar';
+// 			}
 
-			if (curr_acct.availableApps[i].name == 'owncloud'){
-				curr_acct.availableApps[i].icon_name = 'icon-folder';
-			}
+// 			if (curr_acct.availableApps[i].name == 'owncloud'){
+// 				curr_acct.availableApps[i].icon_name = 'icon-folder';
+// 			}
 
-			if (curr_acct.availableApps[i].name == 'kanban'){
-				curr_acct.availableApps[i].icon_name = 'icon-tasks';
-			}
+// 			if (curr_acct.availableApps[i].name == 'kanban'){
+// 				curr_acct.availableApps[i].icon_name = 'icon-tasks';
+// 			}
 
-		}
-	}
-	return curr_acct;
-}
+// 		}
+// 	}
+// 	return curr_acct;
+// }
 
 function getParameterByName(name) {
 	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
