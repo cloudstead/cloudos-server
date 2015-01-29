@@ -4,8 +4,10 @@ import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.app.AppConfiguration;
+import cloudos.model.app.AppRepositoryState;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
+import cloudos.model.support.AppUninstallRequest;
 import cloudos.service.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,30 @@ public class AppsResource {
         }
 
         return Response.ok(apps).build();
+    }
+
+    /**
+     * List ALL apps in the app repository
+     * @param apiKey The session ID
+     * @return the state of the AppRepository
+     */
+    @GET
+    @Path("/all")
+    @ReturnType("cloudos.model.app.AppRepositoryState")
+    public Response listAllApps (@HeaderParam(H_API_KEY) String apiKey) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return ResourceUtil.notFound(apiKey);
+
+        final AppRepositoryState state;
+        try {
+            state = appDAO.getAppRepositoryState();
+        } catch (Exception e) {
+            log.error("Error finding installed apps: "+e, e);
+            return Response.serverError().build();
+        }
+
+        return Response.ok(state).build();
     }
 
     /**
@@ -159,4 +185,35 @@ public class AppsResource {
         return Response.ok(taskId).build();
     }
 
+    /**
+     * Uninstall an application.
+     * @param apiKey The session ID
+     * @param app The app name
+     * @param version The app version
+     * @param request Determines how much stuff to delete. @see cloudos.model.support.AppUninstallMode
+     * @statuscode 403 if caller is not an admin
+     * @return a TaskId, can be used to check uninstall progress
+     */
+    @POST
+    @Path("/apps/{app}/versions/{version}/uninstall")
+    @ReturnType("cloudos.service.task.TaskId")
+    public Response uninstallApp (@HeaderParam(H_API_KEY) String apiKey,
+                                  @PathParam("app") String app,
+                                  @PathParam("version") String version,
+                                  AppUninstallRequest request) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return ResourceUtil.notFound(apiKey);
+
+        // only admins can uninstall apps
+        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+
+        // copy URL fields to request object
+        request.setName(app);
+        request.setVersion(version);
+
+        final TaskId taskId = appDAO.uninstall(admin, app, version, request);
+
+        return Response.ok(taskId).build();
+    }
 }
