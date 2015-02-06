@@ -189,7 +189,7 @@ public class AppDAO {
                 final List<JsonEditOperation> operations = new ArrayList<>();
                 operations.add(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
-                        .setPath("name")
+                        .setPath("id")
                         .setJson("\"" + databagName + "\""));
 
                 // Did the caller provide config for this category?
