@@ -18,7 +18,7 @@ public class AppManagementMain extends CloudOsMainBase<AppManagementMainOptions>
         final RestResponse response = api.get(ApiConstants.APPS_ENDPOINT + "/all");
 
         if (response.isSuccess()) {
-            System.out.println(response.json);
+            out(response.json);
         } else {
             die("Error listing apps: "+response);
         }

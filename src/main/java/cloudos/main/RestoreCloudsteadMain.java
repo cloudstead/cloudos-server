@@ -35,6 +35,6 @@ public class RestoreCloudsteadMain extends CloudOsMainBase<RestoreCloudsteadOpti
                 .setInitialPassword(options.getPassword());
 
         final TaskId taskId = fromJson(api.post(restoreUri, toJson(restoreRequest)).json, TaskId.class);
-        log.info("Restore initiated. TaskId:\n"+toJson(taskId)+"\n");
+        out("Restore initiated. TaskId:\n"+toJson(taskId)+"\n");
     }
 }

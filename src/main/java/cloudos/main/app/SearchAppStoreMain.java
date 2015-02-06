@@ -26,7 +26,7 @@ public class SearchAppStoreMain extends CloudOsMainBase<SearchAppStoreOptions> {
             if (response.status != 200) {
                 die("Error writing configuration. Response was: " + response);
             } else {
-                System.out.println("App Store query results:\n"+response.json+"\n");
+                out("App Store query results:\n"+response.json+"\n");
             }
         } catch (Exception e) {
             die("Error writing configuration: " + e, e);
