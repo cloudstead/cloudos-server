@@ -58,7 +58,7 @@ public class InstalledAppLoader {
                 .setApp(app);
         final String appPath = pctx.getAppPath();
         final String appHome = pctx.getAppHome();
-        final HttpRequestBean<String> requestBean = new HttpRequestBean<>(HttpMethods.GET, appPath);
+        final HttpRequestBean<String> requestBean = new HttpRequestBean<>(HttpMethods.GET, appHome);
 
         // Supports HTTP auth... store authHeaderValue in AuthTransition and send directly to app
         // Proxy will use authHeaderValue to populate Authorization header
