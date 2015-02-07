@@ -98,6 +98,7 @@ public class AppAdapter {
 
         Response.ResponseBuilder responseBuilder = Response.temporaryRedirect(URIUtil.toUri(auth.getRedirectUri()));
         for (HttpCookieBean cookie : auth.getCookies()) {
+            cookie.setPath("/"); // ensure all cookies get sent
             responseBuilder = responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toHeaderValue());
         }
 
