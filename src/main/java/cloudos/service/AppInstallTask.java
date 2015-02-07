@@ -102,8 +102,11 @@ public class AppInstallTask extends TaskBase {
         if (manifest.hasHostname()) {
             addEvent("{appInstall.creatingHostname}");
             try {
-                createDnsRecord(DnsType.A, manifest.getHostname() + "-" + configuration.getHostname(), configuration.getPublicIp());
-                createDnsRecord(DnsType.A, manifest.getHostname() + "." + configuration.getHostname(), configuration.getPublicIp());
+                final String hostname = manifest.getHostname();
+                if (hostname != null && !hostname.equals(AppManifest.ROOT_HOSTNAME)) {
+                    createDnsRecord(DnsType.A, hostname + "-" + configuration.getHostname(), configuration.getPublicIp());
+                    createDnsRecord(DnsType.A, hostname + "." + configuration.getHostname(), configuration.getPublicIp());
+                }
 
             } catch (Exception e) {
                 error("{appInstall.error.creatingHostname}", e);
