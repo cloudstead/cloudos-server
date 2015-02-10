@@ -225,6 +225,18 @@ Api = {
 		return Api._get('/api/configs/system/allowssh');
 	},
 
+	get_config_categories: function () {
+		return Api._get('/api/configs/');
+	},
+
+	get_category_config: function (category) {
+		return Api._get('/api/configs/' + category + '/');
+	},
+
+	save_category_config_change: function (category, path, value) {
+		return Api._post('/api/configs/' + category + '/' + path, value);
+	},
+
 	request_vendor_key: function (key_name) {
 		var data = {
 			"@class": "rooty.toots.service.ServiceKeyRequest",

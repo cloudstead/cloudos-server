@@ -40,6 +40,7 @@ App.Router.map(function() {
 
 	this.resource('valet_keys');
 	this.resource('app_settings');
+	this.resource('app_setting', { path: '/app_settings/:app_name' });
 
 	// this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
 	// this.resource('configCloud', { path: '/cloud/:cloud_name' });
@@ -1303,7 +1304,75 @@ App.ValetKeysController = Ember.ObjectController.extend({
 	}
 });
 
+App.AppSettingsRoute = Ember.Route.extend({
+	model: function(){
+		return Api.get_config_categories();
+	}
+});
 
+App.AppSettingsController = Ember.ArrayController.extend({
+
+});
+
+App.AppSettingRoute = Ember.Route.extend({
+	params: {},
+
+	model: function(params){
+		this.set("params", params);
+		return Api.get_category_config(params.app_name);
+	},
+
+	setupController: function(controller, model, params) {
+		this._super(controller, model, params);
+		controller.set("app_name", this.get("params").app_name);
+	}
+});
+
+App.AppSettingController = Ember.ArrayController.extend({
+	app_name: ""
+});
+
+App.AppSingleSettingController = Ember.ObjectController.extend({
+	needs: "app_setting",
+
+	app_name: Ember.computed.alias("controllers.app_setting.app_name"),
+
+	hiddenValue: function() {
+		return Em.I18n.translations.sections.app_settings.hidden;
+	}.property(),
+
+	processedValue: function() {
+		var value = this.get('value');
+		return value === "__VENDOR__DEFAULT__" ? this.get('hiddenValue') : value;
+	}.property("value"),
+
+	isReadOnly: function() {
+		return this.get("readonly");
+	}.property("readonly"),
+
+	shouldShowSave: false,
+
+	valueChanged: function() {
+		this.set("shouldShowSave", this.hasValueChanged() && this.isValueAllowed());
+	}.observes("processedValue"),
+
+	isValueAllowed: function() {
+		return (this.get("processedValue") !== "__VENDOR__DEFAULT__") && (this.get("processedValue") !== this.get('hiddenValue'));
+	},
+
+	hasValueChanged: function() {
+		return this.get("processedValue") !== this.get("value");
+	},
+
+	actions: {
+		doSaveValue: function() {
+			if (this.isValueAllowed() && this.hasValueChanged()) {
+				Api.save_category_config_change(
+					this.get("app_name"), this.get("path"), this.get("processedValue"));
+			}
+		}
+	}
+});
 
 Ember.Handlebars.helper('cloud-type-field', function(cloudType, field) {
 
