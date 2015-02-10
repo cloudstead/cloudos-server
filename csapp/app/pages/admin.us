@@ -112,6 +112,7 @@
 	</section>
 
 	{{outlet}}
+	{{outlet 'modal'}}
 </script>
 
 	<script type="text/x-handlebars" id="login">
@@ -614,36 +615,49 @@
 			<div class="tabs-content">
 				<div class="content active">
 					<div class="large-12 columns no-padd">
-					<table style="width: 100%">
+					<table class="action_table" style="width: 100%">
 						<thead>
-							<th>
-								App Name <span class="icon-sort-down table-icon"></span>
+							<th {{action 'sortBy' 'name'}}>
+								{{ t sections.installed_apps.app_name }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'version'}}>
+								{{ t sections.installed_apps.version }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'installed'}}>
+								{{ t sections.installed_apps.installed }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'parent'}}>
+								{{ t sections.installed_apps.parent }}
+								<span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
 							<th>
-								Version <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th>
-								Maintainer <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th>
-								Installed By <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
+								{{ t sections.installed_apps.action }}
 							</th>
 						</thead>
 						<tbody>
 							{{#each app in arrangedContent itemController='installedapp'}}
 								<tr>
-									<td>{{app.manifest.name}}</td>
-									<td>{{app.manifest.version}}</td>
+									<td>{{app.name}}</td>
+									<td>{{app.version}}</td>
 									<td>
-										{{app.manifest.publisher.maintainer}}
-										{{app.manifest.publisher.maintainer_email}}
+										{{ app.isInstalledString }}
 									</td>
 									<td>
-										{{app.installedBy}}
+										{{ app.parentString }}
+									</td>
+									<td>
+										{{#if app.installed }}
+											<button class="tiny" {{ action "doUninstallApp" app }}>
+												{{ t sections.installed_apps.uninstall_app }}
+											</button>
+										{{/if}}
 									</td>
 								</tr>
 							{{/each}}
@@ -671,14 +685,34 @@
 				<div class="content active">
 					<div class="circles row text-center">
 						{{#each app in arrangedContent}}
-							<div class="large-4 medium-6 columns">
-								{{#if app.isInstalled}}
-									<div class="icon-check  success-check installed-app-check"></div>
+							<div class="large-4 medium-6 columns app_circle">
+								{{#if app.canBeInstalled }}
+									<button class="button tiny alert" {{ action "doInstallApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.canBeUpgraded }}
+									<button class="button tiny secondary" {{ action "doUpgradeApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.isInteractive }}
+									<button class="button tiny" {{ action "doOpenApp" app }}>
+										{{ t sections.appstr.install_status.interactive }}
+									</button>
+								{{else}}
+									{{#if app.isInstalled }}
+										<button class="button tiny disabled">
+											{{ t sections.appstr.install_status.not_interactive }}
+										</button>
+									{{/if}}
 								{{/if}}
 								{{#link-to 'selectedapp' app.name}}
 									<div class="circle"><img {{bind-attr src=app.smallIcon}} alt=""/></div>
 									<h3 class="gamma light">{{app.name}}</h3>
-									<p>{{app.description}}</p>
+									<div class="app_short_desc">
+										<p>{{app.description}}</p>
+									</div>
 								{{/link-to}}
 							</div>
 						{{/each}}
@@ -689,6 +723,7 @@
 				</div>
 			</div>
 		</div>
+		{{outlet modal}}
 	</section>
 </script>
 
@@ -1682,5 +1717,28 @@
 	</div>
 </script>
 
+
+<script type="text/x-handlebars" id="app_uninstall_modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>Uninstalling {{app_to_uninstall.name}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ uninstallStatus }}</p>
+				</div>
+				{{#if isUninstallModalCloseHidden}}
+				<div class="large-12 columns hide">
+				{{else}}
+				<div class="large-12 columns">
+				{{/if}}
+					<button {{ action "closeModal" }} class="button tiny right">Close</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>
 </body>
 </html>

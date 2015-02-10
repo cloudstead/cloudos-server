@@ -267,3 +267,7 @@ td.long_text_content{
 .no_padding{
 	padding:0px !important;
 }
+
+.action_table td {
+	line-height: 34px;
+}
