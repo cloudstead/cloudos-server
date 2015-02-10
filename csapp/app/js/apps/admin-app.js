@@ -1345,12 +1345,6 @@ Ember.Handlebars.helper('task-event', function(key) {
 	return value;
 });
 
-Ember.Handlebars.helper('app-name', function(name) {
-	var appName = Em.I18n.translations['appNames'][name];
-	if (!appName) return '??undefined translation: appNames.'+name;
-	return appName;
-});
-
 Ember.Handlebars.helper('fromUTC', function(timeUTC) {
 	var convertedDate = new Date(0);
 	convertedDate.setUTCSeconds(Math.round(timeUTC/1000));
