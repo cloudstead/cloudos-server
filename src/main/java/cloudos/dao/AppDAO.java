@@ -114,7 +114,7 @@ public class AppDAO {
 
         final AppLayout layout = configuration.getAppLayout(app, version);
 
-        if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
+        if (!layout.exists()) return null;
 
         final AppManifest manifest = AppManifest.load(layout.getManifest());
         final AppConfiguration config = new AppConfiguration();

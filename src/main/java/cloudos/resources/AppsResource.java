@@ -128,6 +128,8 @@ public class AppsResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         final AppConfiguration config = appDAO.getConfiguration(app, version);
+        if (config == null) return ResourceUtil.notFound(app+"/"+version);
+
         return Response.ok(config).build();
     }
 
