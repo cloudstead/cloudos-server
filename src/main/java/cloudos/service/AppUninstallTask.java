@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.cobbzilla.wizard.model.SemanticVersion;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
@@ -81,8 +83,17 @@ public class AppUninstallTask extends TaskBase {
         }
 
         if (status.isSuccess()) {
+            addEvent("{appUninstall.removingFromAppRepository}");
+            FileUtils.deleteDirectory(appLayout.getVersionDir());
+
+            final File[] versionDirs = appDir.listFiles(SemanticVersion.DIR_FILTER);
+            if (versionDirs == null || versionDirs.length == 0) {
+                log.info("No versions remaining, deleting appDir: "+appDir.getAbsolutePath());
+                FileUtils.deleteDirectory(appDir);
+            }
+
             appDAO.resetApps();
-            result.setSuccess(true);
+            result.setSuccess(!appLayout.getVersionDir().exists());
 
         } else {
             result.setError(status.getLastError());
