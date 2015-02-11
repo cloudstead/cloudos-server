@@ -143,7 +143,7 @@ public class AppInstallTask extends TaskBase {
             if (configuration.getRootyGroup() != null) {
                 CommandShell.chgrp(configuration.getRootyGroup(), configuration.getAppRepository(), true);
             }
-            CommandShell.chmod(configuration.getAppRepository(), "750", true);
+            CommandShell.chmod(configuration.getAppRepository(), "g+r", true);
         } catch (Exception e) {
             error("{appInstall.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
             return null;
