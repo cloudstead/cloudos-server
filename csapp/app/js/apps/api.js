@@ -259,4 +259,8 @@ Api = {
 		return Api._post('/api/security/service_keys/' + key_name, data);
 	},
 
+	get_system_configuration: function() {
+		return Api._get('/api/configs/system');
+	},
+
 };

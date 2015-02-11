@@ -799,24 +799,46 @@ App.ManageAccountAdminChangePasswordController = Ember.ObjectController.extend({
 
 App.EmailDomainsRoute = Ember.Route.extend({
 	model: function () {
-		return {
-			'mxrecord': Api.cloudos_configuration().mxrecord,
-			'domains': Api.list_email_domains()
+		return Api.list_email_domains();
+	},
+
+	setupController: function(controller, model) {
+		this._super(controller, model);
+		controller.set('configuration', Api.get_system_configuration())
+	},
+
+	actions: {
+		refreshContent: function(controller) {
+			controller.set("content", Api.list_email_domains());
 		}
 	}
 });
 
-App.EmailDomainsController = Ember.ObjectController.extend({
+App.EmailDomainsController = Ember.ArrayController.extend({
+
+	mxRecord: function() {
+		var mxrecord = this.get("configuration").find(function(x) {
+			return x.path === "mxrecord";
+		});
+		return Ember.isNone(mxrecord) ? "" : mxrecord.value;
+	}.property("configuration"),
+
 	actions: {
 		doAddDomain: function () {
 			var name = this.get('domain');
 			if (!Api.add_email_domain(name)) {
 				alert('error adding domain: ' + name);
+			} else {
+				this.send("refreshContent", this);
 			}
 		},
 		doRemoveDomain: function (name) {
-			if (!Api.remove_email_domain(name)) {
-				alert('error removing domain: ' + name);
+			if (confirm('You are about to remove domain "' + name + '". Are you sure?')){
+				if (!Api.remove_email_domain(name)) {
+					alert('error removing domain: ' + name);
+				} else {
+					this.send("refreshContent", this);
+				}
 			}
 		}
 	}

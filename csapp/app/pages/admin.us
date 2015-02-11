@@ -217,41 +217,40 @@
 						</div>
 					</div>
 				</div>
-					<div class="row">
-							<div class="medium-8 large-8 medium-centered columns">
-								 <fieldset class="wrap-set">
-											<ul>
-													<li>{{#link-to 'email.domains'}}{{t sections.email.domains}}{{/link-to}}</li>
-													<li>{{#link-to 'aliases'}}{{t sections.email.aliases}}{{/link-to}}</li>
-											</ul>
-
-							{{outlet}}
-				</fieldset>
-							</div>
-					</div>
+				{{outlet}}
 			</section>
 	</script>
 
 	<script type="text/x-handlebars" id="email/domains">
-			<div class="row">
+			<div class="row admin-row">
 			<br /><br />
-					<table class='table'>
+					<table class='table action_table'>
 							<thead>
-							<tr><th>{{t sections.email.domains}}</th></tr>
+								<tr>
+									<th>{{t sections.email.domains}}</th>
+									<th></th>
+								</tr>
 							</thead>
 							<tr>
+								<td>
+										{{t sections.email.mxrecord}}: {{mxRecord}}
+										<hr/>
+										{{t paragraphs.email.domains}}
+										<hr/>
+								</td>
+								<td></td>
+							</tr>
+							{{#each domain in arrangedContent}}
+								<tr>
+									<td>{{domain.name}} </td>
 									<td>
-											{{t sections.email.mxrecord}}: {{model.mxrecord}}
-											<hr/>
-											{{t paragraphs.email.domains}}
-											<hr/>
+										{{#unless domain.readOnly}}
+											<button class="tiny" {{action 'doRemoveDomain' domain.name}}>
+												{{t forms.email.remove_domain}}
+											</button>
+										{{/unless}}
 									</td>
-							</tr>
-							{{#each domain in model.domains}}
-							<tr>
-									<td> {{domain.name}} </td>
-									<td><button {{action 'doRemoveDomain' domain.name}}>{{t forms.email.remove_domain}}</button></td>
-							</tr>
+								</tr>
 							{{/each}}
 					</table>
 					<hr/>
@@ -260,11 +259,13 @@
 							<tr><th colspan="2">{{t sections.add_domain}}</th></tr>
 							</thead>
 							<tr>
-									<td>{{t forms.email.domain_to_add}}:</td>
-									<td>{{input type="text" value=domain}}</td>
+								<td>{{t forms.email.domain_to_add}}:</td>
+								<td>{{input type="text" value=domain}}</td>
 							</tr>
 							<tr>
-									<td colspan="2"><button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button></td>
+								<td colspan="2">
+									<button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button>
+								</td>
 							</tr>
 					</table>
 			</div>
@@ -357,7 +358,7 @@
 								{{/link-to}}
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
@@ -1505,7 +1506,7 @@
 								<a class="button tiny alert">{{t sections.security.valet_keys}}</a>
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
@@ -1631,7 +1632,7 @@
 								{{/link-to}}
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
