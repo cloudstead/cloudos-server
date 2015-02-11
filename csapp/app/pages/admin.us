@@ -1677,10 +1677,10 @@
 					<div class="row admin-row">
 						<form {{ action "doSaveValue" on="submit"}}>
 							<div class="small-4 medium-3 columns">
-								<span class="right">{{setting.path}}</span>
+								<span class="right">{{setting.path}}:</span>
 							</div>
 							<div class="small-4 medium-3 columns end">
-								{{#if isReadonly }}
+								{{#if readOnly }}
 									{{processedValue}}
 								{{else}}
 									{{input type="text" value=processedValue}}

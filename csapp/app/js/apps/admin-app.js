@@ -1456,10 +1456,6 @@ App.AppSingleSettingController = Ember.ObjectController.extend({
 		return value === "__VENDOR__DEFAULT__" ? this.get('hiddenValue') : value;
 	}.property("value"),
 
-	isReadOnly: function() {
-		return this.get("readonly");
-	}.property("readonly"),
-
 	shouldShowSave: false,
 
 	valueChanged: function() {
