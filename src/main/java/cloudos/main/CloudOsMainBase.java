@@ -45,9 +45,10 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends Ma
         TaskResult result = fromJson(api.get(taskStatusUri).json, TaskResult.class);
 
         while (!result.isComplete() && System.currentTimeMillis() - start < getTimeout()) {
-            sleep(pollInterval, "waiting for task ("+taskId+") to complete");
+            sleep(pollInterval, "waiting for task (" + taskId + ") to complete");
             final String json = api.get(taskStatusUri).json;
             result = fromJson(json, TaskResult.class);
+            out(result.toString());
         }
 
         return result;
