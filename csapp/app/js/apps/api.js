@@ -229,7 +229,7 @@ Api = {
 	},
 
 	check_allow_ssh: function () {
-		return Api._get('/api/configs/system/allowssh');
+		return Api._get('/api/configs/system/system/allowssh');
 	},
 
 	get_config_categories: function () {
