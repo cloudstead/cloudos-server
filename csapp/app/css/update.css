@@ -271,3 +271,11 @@ td.long_text_content{
 .action_table td {
 	line-height: 34px;
 }
+
+.icon_bar_link {
+	display: inline-block;
+}
+
+.icon_bar_link img{
+	vertical-align: middle;
+}

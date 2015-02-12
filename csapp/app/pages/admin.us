@@ -83,7 +83,9 @@
 							<li>
 								<a {{action 'select_app' app.name}} {{bind-attr title=app.assets.taskbarIconAltText}} class="toolbar_link">
 									{{#if hasTaskbarIcon}}
-										<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.assets.taskbarIconAltText}} class="toolbar_icon hide-for-small" />
+										<span class="icon_bar_link">
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.assets.taskbarIconAltText}} class="toolbar_icon hide-for-small" />
+										</span>
 									{{else}}
 										<span class="hide-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
 									{{/if}}
