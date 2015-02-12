@@ -30,8 +30,10 @@
 					<ul class="right">
 						<li class="has-dropdown">
 							<a href="#">
-								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
-								<span class="show-for-xxlarge-up">Help</span>
+								<span class="icon-question-circle">
+									<span class="caption-for-icon show-for-small">{{t menu.help.caption}}</span>
+								</span>
+								<span class="show-for-xxlarge-up">{{t menu.help.caption}}</span>
 							</a>
 							<ul class="dropdown">
 								<li>
@@ -50,8 +52,10 @@
 						{{#if cloudos_account.admin}}
 							<li class="has-dropdown">
 								<a href="#" data-dropdown="settings-submenu" data-options="align:left">
-									<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
-									<span class="show-for-xxlarge-up">Settings</span>
+									<span class="icon-gear">
+										<span class="caption-for-icon show-for-small">{{t menu.settings}}</span>
+									</span>
+									<span class="show-for-xxlarge-up">{{t menu.settings}}</span>
 								</a>
 								<ul class="dropdown">
 									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
@@ -68,11 +72,6 @@
 							<ul class="dropdown">
 								<li><a href="/#/profile">{{t menu.profile}}</a>
 								<li><a href="/#/settings">{{t menu.settings}}</a></li>
-								<li>
-									<a {{action 'select_app' 'settings'}}>
-										{{t menu.mail_and_cal}}
-									</a>
-								</li>
 								<li class="divider"></li>
 								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
 							</ul>
