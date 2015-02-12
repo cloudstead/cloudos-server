@@ -137,9 +137,12 @@ public class ConfigurationsResource {
 
     private List<String> toFieldList(AppManifest appManifest) {
         final List<String> fields = new ArrayList<>();
-        for (AppDatabagDef def : appManifest.getDatabags()) {
-            for (String item : def.getItems()) {
-                fields.add(def.getName() + "/" + item);
+        final AppDatabagDef[] databags = appManifest.getDatabags();
+        if (databags != null && databags.length > 0) {
+            for (AppDatabagDef def : databags) {
+                for (String item : def.getItems()) {
+                    fields.add(def.getName() + "/" + item);
+                }
             }
         }
         return fields;
@@ -149,16 +152,18 @@ public class ConfigurationsResource {
      * Get the value for a single configuration option
      * @param apiKey The session ID
      * @param app Name of the configuration group (usually the name of the CloudOs app, or the special 'system' category)
+     * @param category name of the configuration category
      * @param option name of the configuration option
      * @return the VendorSettingDisplayValue
      * @statuscode 403 if caller is not admin
      * @statuscode 404 if the configuration option was not found
      */
     @GET
-    @Path("/{app}/{option}")
+    @Path("/{app}/{category}/{option}")
     @ReturnType("rooty.toots.vendor.VendorSettingDisplayValue")
     public Response getConfigurationOption (@HeaderParam(H_API_KEY) String apiKey,
                                             @PathParam("app") String app,
+                                            @PathParam("category") String category,
                                             @PathParam("option") String option) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -170,7 +175,7 @@ public class ConfigurationsResource {
             value = getOption(option, getSystemOptions());
         } else {
             try {
-                value = getOption(option, getConfiguration(app));
+                value = getOption(category+"/"+option, getConfiguration(app));
             } catch (Exception e) {
                 log.error("Error reading config: " + e, e);
                 return Response.serverError().build();
