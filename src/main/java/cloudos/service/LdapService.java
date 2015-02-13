@@ -12,9 +12,6 @@ import org.eclipse.jetty.server.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.util.Base64;
-
 import static cloudos.model.auth.AuthenticationException.Problem.BOOTCONFIG_ERROR;
 import static cloudos.model.auth.AuthenticationException.Problem.INVALID;
 import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
@@ -26,7 +23,11 @@ public class LdapService {
     @Autowired private CloudOsConfiguration configuration;
 
     public CommandResult createUser(AccountRequest request) {
-        final String password = request.hasPassword() ? request.getPassword() : getRandomPassword();
+        final String password = request.getPassword();  // this will die if there's no password in the request, but I
+                                                        // don't see a case where we'd ever create an account without
+                                                        // one. password creation isn't something that should be
+                                                        // handled here, as we'd need to communicate the password to
+                                                        // the kerberos service to make sure it gets set there as well
         final String accountDN = getAccountDN(request.getAccountName());
         String ldif = configuration.getLdapPassword() + "\n" +
                 "dn: " + accountDN + "\n" +
@@ -173,13 +174,6 @@ public class LdapService {
 
     private String getAccountDN(String accountName) {
         return "uid=" + accountName + ",ou=People," + configuration.getLdapBaseDN();
-    }
-
-    private String getRandomPassword() {
-        SecureRandom random = new SecureRandom();
-        byte randBytes[] = new byte[1024];
-        random.nextBytes(randBytes);
-        return Base64.getEncoder().encodeToString(randBytes);
     }
 
     private CommandResult run_ldapadd(String input) {
