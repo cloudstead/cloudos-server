@@ -166,10 +166,17 @@ Api = {
 
 	find_app: function (app_id) { return Api._get('/api/appstore/' + app_id); },
 
-	find_installed_apps: function () { return Api._get('/api/apps/'); },
+	find_installed_apps: function () { return Api._get('/api/apps/all'); },
 
 	install_cloud_app: function (app_id, app_install_request) {
 		return Api._post('/api/appstore/' + app_id + '/install', app_install_request); },
+
+	uninstall_cloud_app: function(app) {
+		var data = {
+			mode: "uninstall"
+		};
+		return Api._post('/api/apps/apps/' + app.name + '/versions/' + app.version + '/uninstall', data);
+	},
 
 	admin_change_password: function (name, newPassword) {
 		var request = {
@@ -222,7 +229,19 @@ Api = {
 	},
 
 	check_allow_ssh: function () {
-		return Api._get('/api/configs/system/allowssh');
+		return Api._get('/api/configs/system/system/allowssh');
+	},
+
+	get_config_categories: function () {
+		return Api._get('/api/configs/');
+	},
+
+	get_category_config: function (category) {
+		return Api._get('/api/configs/' + category + '/');
+	},
+
+	save_category_config_change: function (category, path, value) {
+		return Api._post('/api/configs/' + category + '/' + path, value);
 	},
 
 	request_vendor_key: function (key_name) {
@@ -238,6 +257,10 @@ Api = {
 		}
 
 		return Api._post('/api/security/service_keys/' + key_name, data);
+	},
+
+	get_system_configuration: function() {
+		return Api._get('/api/configs/system');
 	},
 
 };

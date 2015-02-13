@@ -30,8 +30,10 @@
 					<ul class="right">
 						<li class="has-dropdown">
 							<a href="#">
-								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
-								<span class="show-for-xxlarge-up">Help</span>
+								<span class="icon-question-circle">
+									<span class="caption-for-icon show-for-small">{{t menu.help.caption}}</span>
+								</span>
+								<span class="show-for-xxlarge-up">{{t menu.help.caption}}</span>
 							</a>
 							<ul class="dropdown">
 								<li>
@@ -50,8 +52,10 @@
 						{{#if cloudos_account.admin}}
 							<li class="has-dropdown">
 								<a href="#" data-dropdown="settings-submenu" data-options="align:left">
-									<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
-									<span class="show-for-xxlarge-up">Settings</span>
+									<span class="icon-gear">
+										<span class="caption-for-icon show-for-small">{{t menu.settings}}</span>
+									</span>
+									<span class="show-for-xxlarge-up">{{t menu.settings}}</span>
 								</a>
 								<ul class="dropdown">
 									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
@@ -68,11 +72,6 @@
 							<ul class="dropdown">
 								<li><a href="/#/profile">{{t menu.profile}}</a>
 								<li><a href="/#/settings">{{t menu.settings}}</a></li>
-								<li>
-									<a {{action 'select_app' 'settings'}}>
-										{{t menu.mail_and_cal}}
-									</a>
-								</li>
 								<li class="divider"></li>
 								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
 							</ul>
@@ -81,13 +80,15 @@
 					<ul class="nav-apps">
 						{{#each app in cloudos_account.availableApps itemController="eapp"}}
 							<li>
-								<a {{action 'select_app' app.name}} {{bind-attr title=app.name}} class="toolbar_link">
+								<a {{action 'select_app' app.name}} {{bind-attr title=app.assets.taskbarIconAltText}} class="toolbar_link">
 									{{#if hasTaskbarIcon}}
-										<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.name}} class="toolbar_icon" />
+										<span class="icon_bar_link">
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.assets.taskbarIconAltText}} class="toolbar_icon hide-for-small" />
+										</span>
 									{{else}}
-										<span class="hide-for-small">{{app-name app.name}}</span>
+										<span class="hide-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
 									{{/if}}
-									<span class="show-for-small">{{app-name app.name}}</span>
+									<span class="show-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
 								</a>
 							</li>
 						{{/each}}
@@ -112,6 +113,7 @@
 	</section>
 
 	{{outlet}}
+	{{outlet 'modal'}}
 </script>
 
 	<script type="text/x-handlebars" id="login">
@@ -216,41 +218,40 @@
 						</div>
 					</div>
 				</div>
-					<div class="row">
-							<div class="medium-8 large-8 medium-centered columns">
-								 <fieldset class="wrap-set">
-											<ul>
-													<li>{{#link-to 'email.domains'}}{{t sections.email.domains}}{{/link-to}}</li>
-													<li>{{#link-to 'aliases'}}{{t sections.email.aliases}}{{/link-to}}</li>
-											</ul>
-
-							{{outlet}}
-				</fieldset>
-							</div>
-					</div>
+				{{outlet}}
 			</section>
 	</script>
 
 	<script type="text/x-handlebars" id="email/domains">
-			<div class="row">
+			<div class="row admin-row">
 			<br /><br />
-					<table class='table'>
+					<table class='table action_table'>
 							<thead>
-							<tr><th>{{t sections.email.domains}}</th></tr>
+								<tr>
+									<th>{{t sections.email.domains}}</th>
+									<th></th>
+								</tr>
 							</thead>
 							<tr>
+								<td>
+										{{t sections.email.mxrecord}}: {{mxRecord}}
+										<hr/>
+										{{t paragraphs.email.domains}}
+										<hr/>
+								</td>
+								<td></td>
+							</tr>
+							{{#each domain in arrangedContent}}
+								<tr>
+									<td>{{domain.name}} </td>
 									<td>
-											{{t sections.email.mxrecord}}: {{model.mxrecord}}
-											<hr/>
-											{{t paragraphs.email.domains}}
-											<hr/>
+										{{#unless domain.readOnly}}
+											<button class="tiny" {{action 'doRemoveDomain' domain.name}}>
+												{{t forms.email.remove_domain}}
+											</button>
+										{{/unless}}
 									</td>
-							</tr>
-							{{#each domain in model.domains}}
-							<tr>
-									<td> {{domain.name}} </td>
-									<td><button {{action 'doRemoveDomain' domain.name}}>{{t forms.email.remove_domain}}</button></td>
-							</tr>
+								</tr>
 							{{/each}}
 					</table>
 					<hr/>
@@ -259,11 +260,13 @@
 							<tr><th colspan="2">{{t sections.add_domain}}</th></tr>
 							</thead>
 							<tr>
-									<td>{{t forms.email.domain_to_add}}:</td>
-									<td>{{input type="text" value=domain}}</td>
+								<td>{{t forms.email.domain_to_add}}:</td>
+								<td>{{input type="text" value=domain}}</td>
 							</tr>
 							<tr>
-									<td colspan="2"><button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button></td>
+								<td colspan="2">
+									<button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button>
+								</td>
 							</tr>
 					</table>
 			</div>
@@ -356,7 +359,7 @@
 								{{/link-to}}
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
@@ -614,36 +617,49 @@
 			<div class="tabs-content">
 				<div class="content active">
 					<div class="large-12 columns no-padd">
-					<table style="width: 100%">
+					<table class="action_table" style="width: 100%">
 						<thead>
-							<th>
-								App Name <span class="icon-sort-down table-icon"></span>
+							<th {{action 'sortBy' 'name'}}>
+								{{ t sections.installed_apps.app_name }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'version'}}>
+								{{ t sections.installed_apps.version }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'installed'}}>
+								{{ t sections.installed_apps.installed }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'parent'}}>
+								{{ t sections.installed_apps.parent }}
+								<span class="icon-sort-down table-icon"></span>
 								<span class="icon-sort-up table-icon table-icon-upper"></span>
 							</th>
 							<th>
-								Version <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th>
-								Maintainer <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th>
-								Installed By <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
+								{{ t sections.installed_apps.action }}
 							</th>
 						</thead>
 						<tbody>
 							{{#each app in arrangedContent itemController='installedapp'}}
 								<tr>
-									<td>{{app.manifest.name}}</td>
-									<td>{{app.manifest.version}}</td>
+									<td>{{app.name}}</td>
+									<td>{{app.version}}</td>
 									<td>
-										{{app.manifest.publisher.maintainer}}
-										{{app.manifest.publisher.maintainer_email}}
+										{{ app.isInstalledString }}
 									</td>
 									<td>
-										{{app.installedBy}}
+										{{ app.parentString }}
+									</td>
+									<td>
+										{{#if app.installed }}
+											<button class="tiny" {{ action "doUninstallApp" app }}>
+												{{ t sections.installed_apps.uninstall_app }}
+											</button>
+										{{/if}}
 									</td>
 								</tr>
 							{{/each}}
@@ -671,14 +687,34 @@
 				<div class="content active">
 					<div class="circles row text-center">
 						{{#each app in arrangedContent}}
-							<div class="large-4 medium-6 columns">
-								{{#if app.isInstalled}}
-									<div class="icon-check  success-check installed-app-check"></div>
+							<div class="large-4 medium-6 columns app_circle">
+								{{#if app.canBeInstalled }}
+									<button class="button tiny alert" {{ action "doInstallApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.canBeUpgraded }}
+									<button class="button tiny secondary" {{ action "doUpgradeApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.isInteractive }}
+									<button class="button tiny" {{ action "doOpenApp" app }}>
+										{{ t sections.appstr.install_status.interactive }}
+									</button>
+								{{else}}
+									{{#if app.isInstalled }}
+										<button class="button tiny disabled">
+											{{ t sections.appstr.install_status.not_interactive }}
+										</button>
+									{{/if}}
 								{{/if}}
 								{{#link-to 'selectedapp' app.name}}
 									<div class="circle"><img {{bind-attr src=app.smallIcon}} alt=""/></div>
 									<h3 class="gamma light">{{app.name}}</h3>
-									<p>{{app.description}}</p>
+									<div class="app_short_desc">
+										<p>{{app.description}}</p>
+									</div>
 								{{/link-to}}
 							</div>
 						{{/each}}
@@ -689,6 +725,7 @@
 				</div>
 			</div>
 		</div>
+		{{outlet modal}}
 	</section>
 </script>
 
@@ -1470,7 +1507,7 @@
 								<a class="button tiny alert">{{t sections.security.valet_keys}}</a>
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
@@ -1596,7 +1633,7 @@
 								{{/link-to}}
 							</li>
 							<li>
-								{{#link-to "email" classNames="button tiny"}}
+								{{#link-to "email.domains" classNames="button tiny"}}
 									{{t menu.emaildom}}
 								{{/link-to}}
 							</li>
@@ -1608,7 +1645,69 @@
 				</div>
 			</div>
 			<div class="medium-10 large-10 medium-centered columns">
-				App Settings
+				<ul>
+					{{#each category in arrangedContent}}
+						<li>
+							{{#link-to 'app_setting' category }}
+								{{ category }}
+							{{/link-to}}
+						</li>
+					{{/each}}
+				</ul>
+			</div>
+</script>
+
+<script type="text/x-handlebars" id="app_setting">
+		<section class="deck account-deck">
+			<div class="row admin-row">
+				<div class="large-12 medium-centered columns">
+					<h1>Settings for {{app_name}}</h1>
+					<div class="button-bar">
+						<ul class="button-group">
+							<li>
+								{{#link-to "app_settings" classNames="button tiny"}}
+									Back
+								{{/link-to}}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="medium-10 large-10 medium-centered columns">
+				{{#each setting in arrangedContent itemController="app_single_setting"}}
+					<div class="row admin-row">
+						<form {{ action "doSaveValue" on="submit"}}>
+							<div class="small-4 medium-3 columns">
+								<span class="right">{{setting.path}}:</span>
+							</div>
+							<div class="small-4 medium-3 columns end">
+								{{#if readOnly }}
+									{{processedValue}}
+								{{else}}
+									{{input type="text" value=processedValue}}
+								{{/if}}
+							</div>
+							<div class="small-4 medium-3 columns end">
+								{{#if shouldShowSave }}
+									<button type="submit" class="button tiny">Save</button>
+								{{/if}}
+							</div>
+						</form>
+					</div>
+				{{/each}}
+			</div>
+			<div class="row admin-row">
+				<div class="large-12 medium-centered columns">
+					<div class="button-bar">
+						<ul class="button-group">
+							<li>
+								{{#link-to "app_settings" classNames="button tiny"}}
+									Back
+								{{/link-to}}
+							</li>
+						</ul>
+					</div>
+				</div>
 			</div>
 </script>
 
@@ -1620,5 +1719,28 @@
 	</div>
 </script>
 
+
+<script type="text/x-handlebars" id="app_uninstall_modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>Uninstalling {{app_to_uninstall.name}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ uninstallStatus }}</p>
+				</div>
+				{{#if isUninstallModalCloseHidden}}
+				<div class="large-12 columns hide">
+				{{else}}
+				<div class="large-12 columns">
+				{{/if}}
+					<button {{ action "closeModal" }} class="button tiny right">Close</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>
 </body>
 </html>

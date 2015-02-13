@@ -31,8 +31,10 @@
 					<ul class="right">
 						<li class="has-dropdown">
 							<a href="#">
-								<span class="icon-question-circle"><span class="caption-for-icon show-for-small">Help</span></span>
-								<span class="show-for-xxlarge-up">Help</span>
+								<span class="icon-question-circle">
+									<span class="caption-for-icon show-for-small">{{t menu.help.caption}}</span>
+								</span>
+								<span class="show-for-xxlarge-up">{{t menu.help.caption}}</span>
 							</a>
 							<ul class="dropdown">
 								<li>
@@ -51,8 +53,10 @@
 						{{#if cloudos_account.admin}}
 							<li class="has-dropdown">
 								<a href="#" data-dropdown="settings-submenu" data-options="align:left">
-									<span class="icon-gear"><span class="caption-for-icon show-for-small">Settings</span></span>
-									<span class="show-for-xxlarge-up">Settings</span>
+									<span class="icon-gear">
+										<span class="caption-for-icon show-for-small">{{t menu.settings}}</span>
+									</span>
+									<span class="show-for-xxlarge-up">{{t menu.settings}}</span>
 								</a>
 								<ul class="dropdown">
 									<li><a href="/admin.html#/accounts">{{t menu.accounts}}</a></li>
@@ -69,11 +73,6 @@
 							<ul class="dropdown">
 								<li>{{#link-to 'profile'}}{{t menu.profile}}{{/link-to}}</li>
 								<li>{{#link-to 'settings'}}{{t menu.settings}}{{/link-to}}</li>
-								<li>
-									<a {{action 'select_app' 'settings'}}>
-										{{t menu.mail_and_cal}}
-									</a>
-								</li>
 								<li class="divider"></li>
 								<li>{{#link-to 'logout'}}{{t sections.logout}}{{/link-to}}</li>
 							</ul>
@@ -82,13 +81,15 @@
 					<ul class="nav-apps">
 						{{#each app in cloudos_account.availableApps itemController="eapp"}}
 							<li>
-								<a {{action 'select_app' app.name}} {{bind-attr title=app.name}} class="toolbar_link">
+								<a {{action 'select_app' app.name}} {{bind-attr title=app.assets.taskbarIconAltText}} class="toolbar_link">
 									{{#if hasTaskbarIcon}}
-										<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.name}} class="toolbar_icon" />
+										<span class="icon_bar_link">
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.assets.taskbarIconAltText}} class="toolbar_icon hide-for-small" />
+										</span>
 									{{else}}
-										<span class="hide-for-small">{{app-name app.name}}</span>
+										<span class="hide-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
 									{{/if}}
-									<span class="show-for-small">{{app-name app.name}}</span>
+									<span class="show-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
 								</a>
 							</li>
 						{{/each}}

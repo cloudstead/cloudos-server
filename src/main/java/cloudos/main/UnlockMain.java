@@ -47,6 +47,6 @@ public class UnlockMain extends CloudOsMainBase<UnlockMainOptions> {
 
         if (!getAllowSsh()) die("Unlocking seems to have succeeded, but ALLOW_SSH is still false.");
 
-        System.out.println("Successfully unlocked cloudstead");
+        out("Successfully unlocked cloudstead");
     }
 }

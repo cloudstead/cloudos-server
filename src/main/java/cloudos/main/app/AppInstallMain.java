@@ -27,7 +27,7 @@ public class AppInstallMain extends CloudOsMainBase<AppInstallOptions> {
 
         final TaskId taskId = fromJson(api.post(installUri, null).json, TaskId.class);
         TaskResult result = awaitTaskResult(taskId);
-        log.info("Installation completed. TaskResult:\n"+toJson(result)+"\n");
+        out("Installation completed. TaskResult:\n"+toJson(result)+"\n");
     }
 
 

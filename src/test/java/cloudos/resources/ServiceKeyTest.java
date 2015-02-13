@@ -129,7 +129,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
     }
 
     public Boolean getAllowSsh() throws Exception {
-        final RestResponse response = doGet(ApiConstants.CONFIGS_ENDPOINT + "/system/allowssh");
+        final RestResponse response = doGet(ApiConstants.CONFIGS_ENDPOINT + "/system/system/allowssh");
         return Boolean.valueOf(fromJson(response.json, VendorSettingDisplayValue.class).getValue());
     }
 

@@ -31,7 +31,7 @@ public class AppDownloadMain extends CloudOsMainBase<AppDownloadOptions> {
 
         final TaskId taskId = fromJson(api.post(APPS_ENDPOINT + "/download", toJson(downloadRequest)).json, TaskId.class);
         TaskResult result = awaitTaskResult(taskId);
-        log.info("Downloading completed. TaskResult:\n"+toJson(result)+"\n");
+        out("Downloading completed. TaskResult:\n"+toJson(result)+"\n");
     }
 
 }

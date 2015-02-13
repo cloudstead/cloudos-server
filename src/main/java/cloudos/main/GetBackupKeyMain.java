@@ -14,6 +14,6 @@ public class GetBackupKeyMain extends CloudOsMainBase<CloudOsMainOptions> {
     protected void run() throws Exception {
         final ApiClientBase api = getApiClient();
         final String keyUri = SETUP_ENDPOINT + "/key";
-        System.out.println("Backup key: "+api.get(keyUri).json);
+        out("Backup key: "+api.get(keyUri).json);
     }
 }

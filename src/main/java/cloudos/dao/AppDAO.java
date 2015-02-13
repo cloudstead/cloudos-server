@@ -8,12 +8,17 @@ import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.AppMetadata;
 import cloudos.model.Account;
-import cloudos.model.app.*;
+import cloudos.model.app.AppConfiguration;
+import cloudos.model.app.AppConfigurationCategory;
+import cloudos.model.app.AppRepositoryState;
+import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
+import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.AppDownloadTask;
 import cloudos.service.AppInstallTask;
+import cloudos.service.AppUninstallTask;
 import cloudos.service.RootyService;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskService;
@@ -21,11 +26,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.cobbzilla.util.io.DirFilter;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonEdit;
 import org.cobbzilla.util.json.JsonEditOperation;
 import org.cobbzilla.util.json.JsonEditOperationType;
 import org.cobbzilla.util.json.JsonUtil;
+import org.cobbzilla.wizard.model.SemanticVersion;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -49,6 +56,30 @@ public class AppDAO {
     @Autowired private TaskService taskService;
     @Autowired private RootyService rootyService;
     @Autowired private CloudOsConfiguration configuration;
+
+    public AppRepositoryState getAppRepositoryState() {
+        final AppRepositoryState state = new AppRepositoryState();
+        for (File appDir : configuration.getAppRepository().listFiles(DirFilter.instance)) {
+
+            final String appName = appDir.getName();
+            final AppLayout layout = configuration.getAppLayout(appName);
+            final File activeVersion = layout.getAppActiveVersionDir();
+
+            for (File versionDir : appDir.listFiles(SemanticVersion.DIR_FILTER)) {
+                final String appVersion = versionDir.getName();
+                final File manifestFile = configuration.getAppLayout(appName, appVersion).getManifest();
+                if (manifestFile.exists()) {
+                    final AppManifest manifest = AppManifest.load(manifestFile);
+                    if (versionDir.equals(activeVersion)) {
+                        state.addApp(manifest, true);
+                    } else {
+                        state.addApp(manifest, false);
+                    }
+                }
+            }
+        }
+        return state;
+    }
 
     /**
      * Download an app to the cloudstead app library
@@ -83,7 +114,7 @@ public class AppDAO {
 
         final AppLayout layout = configuration.getAppLayout(app, version);
 
-        if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
+        if (!layout.exists()) return null;
 
         final AppManifest manifest = AppManifest.load(layout.getManifest());
         final AppConfiguration config = new AppConfiguration();
@@ -158,7 +189,7 @@ public class AppDAO {
                 final List<JsonEditOperation> operations = new ArrayList<>();
                 operations.add(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
-                        .setPath("name")
+                        .setPath("id")
                         .setJson("\"" + databagName + "\""));
 
                 // Did the caller provide config for this category?
@@ -235,13 +266,26 @@ public class AppDAO {
         return taskService.execute(task);
     }
 
+    public TaskId uninstall(Account admin, String app, String version, AppUninstallRequest request) {
+        // start background job
+        final AppUninstallTask task = new AppUninstallTask()
+                .setAccount(admin)
+                .setAppDAO(this)
+                .setRequest(request)
+                .setRootyService(rootyService)
+                .setConfiguration(configuration);
+
+        return taskService.execute(task);
+    }
+
     public CloudOsApp findInstalledByName(String name) {
         return loadApp(configuration.getAppLayout(name).getAppDir());
     }
 
     public CloudOsApp findLatestVersionByName(String name) {
         final AppLayout appLayout = configuration.getAppLayout(name);
-        return loadApp(appLayout.getAppDir(), appLayout.getLatestVersionDir(), null, false);
+        final File latestVersionDir = appLayout.getLatestVersionDir();
+        return latestVersionDir != null && latestVersionDir.exists() ? loadApp(appLayout.getAppDir(), latestVersionDir, null, false) : null;
     }
 
     public List<CloudOsApp> findActive() {

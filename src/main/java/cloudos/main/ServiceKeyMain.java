@@ -42,9 +42,9 @@ public class ServiceKeyMain extends CloudOsMainBase<ServiceKeyMainOptions> {
                 response = api.doPost(uri, toJson(request));
                 if (response.isSuccess()) {
                     if (options.getRecipient() == ServiceKeyRequest.Recipient.VENDOR) {
-                        System.out.println("Successfully created valet key "+keyName+" and sent to vendor");
+                        out("Successfully created valet key "+keyName+" and sent to vendor");
                     } else {
-                        System.out.println("Successfully created valet key "+keyName+":\n" + response.json);
+                        out("Successfully created valet key "+keyName+":\n" + response.json);
                     }
                 } else {
                     die("Error creating valet key:\n"+response);
@@ -54,7 +54,7 @@ public class ServiceKeyMain extends CloudOsMainBase<ServiceKeyMainOptions> {
             case DESTROY:
                 response = api.doDelete(uri);
                 if (response.isSuccess()) {
-                    System.out.println("Successfully removed valet key "+ keyName);
+                    out("Successfully removed valet key "+ keyName);
                 } else {
                     die("Error removing valet key "+ keyName +":\n"+response);
                 }

@@ -30,7 +30,10 @@ public class AppProxyContext {
 
     public String getAppPath () { return app.getDetails().getPath(configuration.getPublicUriBase()); }
 
-    public String getAppHome () { return app.hasAuthentication() ? getAppAuth().getHome_path() : getAppPath(); }
+    public String getAppHome () {
+        if (!app.hasAuthentication()) return getAppPath();
+        return getAppPath() + getAppAuth().getHome_path();
+    }
 
     public String getAuthKey() {
         final String appPath = getAppPath();

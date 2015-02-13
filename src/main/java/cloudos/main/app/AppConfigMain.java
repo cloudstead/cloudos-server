@@ -36,10 +36,10 @@ public class AppConfigMain extends CloudOsMainBase<AppConfigOptions> {
         // read config
         try {
             final String configJson = api.get(configUri).json;
-            log.info("Current configuration:\n" + configJson);
+            out("Current configuration:\n" + configJson);
 
         } catch (Exception e) {
-            log.error("Error reading configuration: "+e, e);
+            die("Error reading configuration: "+e, e);
         }
     }
 }

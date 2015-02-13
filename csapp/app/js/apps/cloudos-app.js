@@ -340,12 +340,6 @@ App.RequestMessagesObject = Ember.Object.extend({
 	}.on('init')
 });
 
-Ember.Handlebars.helper('app-name', function(name) {
-	var appName = Em.I18n.translations['appNames'][name];
-	if (!appName) return '??undefined translation: appNames.'+name;
-	return appName;
-});
-
 App.ApplicationView = Ember.View.extend({
 	initFoundation: function () {
 		Ember.$(document).foundation();

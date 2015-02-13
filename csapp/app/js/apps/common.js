@@ -381,3 +381,8 @@ Timer = {
 		return s * this.ms_in_s;
 	}
 }
+
+Ember.Handlebars.helper('app-name', function(name) {
+	var appName = Em.I18n.translations['appNames'][name];
+	return Ember.isEmpty(appName) ? name : appName;
+});

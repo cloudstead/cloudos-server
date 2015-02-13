@@ -13,6 +13,10 @@ Em.I18n.translations = {
 
 		admin: 'Admin',
 
+		app_settings: {
+			hidden: "(hidden)"
+		},
+
 		login: 'Sign In',
 		logout: 'Sign Out',
 		new_admin_account: 'Create Your Admin Account',
@@ -62,6 +66,17 @@ Em.I18n.translations = {
 					description: "A private Chat server that is an Open Source alternative to HipChat."
 				}
 			},
+		},
+
+		installed_apps: {
+			app_name: "App name",
+			version: "Version",
+			installed: "Installed?",
+			parent: "Parent",
+			action: "Action",
+			uninstall_app: "Uninstall",
+			is_installed: "yes",
+			is_not_installed: "no"
 		},
 
 		accounts: 'Accounts',
@@ -152,9 +167,11 @@ Em.I18n.translations = {
 		help: {
 			online: "Online Help",
 			news: "What's New",
-			ticket: "Open support ticket"
+			ticket: "Open support ticket",
+			caption: "Help"
 		},
-		sys_settings: 'System Settings'
+		sys_settings: 'System Settings',
+		settings: 'Settings'
 	},
 	forms: {
 		setup: {
@@ -388,7 +405,12 @@ Em.I18n.translations = {
 			'{restore.error.unknown}': 'Unknown error has occured.',
 			'{restore.starting}': 'Starting restoring procedure...',
 			'{restore.shutting_down}': 'Shutting down instance...',
-			'{restore.done}': 'Restoring complete. You should receive an email with further instructions. It may take several minutes before you receive your email.'
+			'{restore.done}': 'Restoring complete. You should receive an email with further instructions. It may take several minutes before you receive your email.',
+
+			'{appUninstall.updatingMetadata}': 'Updating metadata...',
+			'{appUninstall.updatingMetadata}': 'Notifying Cheff...',
+			'{appUninstall.error.notifyChef}': 'Error while notifying Cheff.',
+			'{appUninstall.success}': 'Application successfully uninstalled.',
 		}
 	},
 	errors: {
