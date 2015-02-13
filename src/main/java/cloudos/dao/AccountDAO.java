@@ -7,6 +7,7 @@ import cloudos.model.auth.AuthenticationException;
 import cloudos.appstore.model.AppRuntime;
 import cloudos.resources.ApiConstants;
 import cloudos.service.KerberosService;
+import cloudos.service.LdapService;
 import cloudos.service.RootyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -28,6 +29,7 @@ import java.util.Map;
 @Repository  @Slf4j
 public class AccountDAO extends AccountBaseDAO<Account> {
 
+    @Autowired private LdapService ldap;
     @Autowired private KerberosService kerberos;
     @Autowired private RootyService rooty;
     @Autowired private AppDAO appDAO;
@@ -46,6 +48,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
     }
 
     public void changePassword(Account account, String oldPassword, String newPassword) throws AuthenticationException {
+        ldap.changePassword(account.getAccountName(),oldPassword,newPassword);
         kerberos.changePassword(account.getAccountName(), oldPassword, newPassword);
         account.getHashedPassword().setResetToken(null);
         update(account);
@@ -56,6 +59,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
     @Override
     public void setPassword(Account account, String newPassword) {
+        ldap.adminChangePassword(account.getAccountName(), newPassword);
         kerberos.adminChangePassword(account.getAccountName(), newPassword);
         account.getHashedPassword().setResetToken(null);
         update(account);
@@ -82,13 +86,14 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         // generate an email verification code for new accounts
         account.initEmailVerificationCode();
 
-        final CommandResult result = kerberos.createPrincipal(request);
+        final CommandResult ldapResult = ldap.createUser(request);
+        final CommandResult kerberosResult = kerberos.createPrincipal(request);
 
         // Create account in DB
         try {
             super.create(account);
         } catch (Exception e) {
-            final String message = "create: principal created in kerberos but account not persisted to DB! " + e;
+            final String message = "create: account created in ldap / kerberos but account not persisted to DB! " + e;
             log.error(message, e);
             throw new IllegalStateException(message, e);
         }
@@ -101,7 +106,8 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
         broadcastNewAccount(account);
 
-        log.info("create: result="+result);
+        log.info("create: ldap result="+ldapResult);
+        log.info("create: krb result="+kerberosResult);
         return account;
     }
 
@@ -112,6 +118,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         boolean isSuspending = !existing.isSuspended() && account.isSuspended();
         existing.populate(account);
         if (isSuspending) {
+            ldap.adminChangePassword(account.getName(), RandomStringUtils.randomAlphanumeric(20));
             kerberos.adminChangePassword(account.getName(), RandomStringUtils.randomAlphanumeric(20));
         }
 
@@ -126,11 +133,11 @@ public class AccountDAO extends AccountBaseDAO<Account> {
             return;
         }
 
-        kerberos.deletePrincipal(accountName);
+        ldap.deleteUser(accountName);
         try {
             super.delete(account.getUuid());
         } catch (Exception e) {
-            final String message = "delete: principal deleted in kerberos but account not deleted in storageEngine! " + e;
+            final String message = "delete: account deleted in ldap / kerberos but account not deleted in storageEngine! " + e;
             log.error(message, e);
             throw new IllegalStateException(message, e);
         }

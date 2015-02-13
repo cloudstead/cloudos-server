@@ -67,6 +67,9 @@ public class CloudOsConfiguration extends RestServerConfiguration
     }
 
     @Getter @Setter private String kadminPassword;
+    @Getter @Setter private String ldapPassword;
+    @Getter @Setter private String ldapDomain;
+    @Getter @Setter private String ldapBaseDN;
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;
 
     @Getter @Setter private RootyConfiguration rooty;
