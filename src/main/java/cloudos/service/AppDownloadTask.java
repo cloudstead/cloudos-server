@@ -145,7 +145,7 @@ public class AppDownloadTask extends TaskBase {
                     .setAccount(account)
                     .setAppDAO(appDAO)
                     .setConfiguration(configuration)
-                    .setRequest(new AppInstallRequest(manifest.getName(), manifest.getVersion(), false))
+                    .setRequest(new AppInstallRequest(manifest.getName(), manifest.getVersion(), request.isOverwrite()))
                     .setRootyService(rootyService)
                     .setResult(result);
             return installTask.call();
