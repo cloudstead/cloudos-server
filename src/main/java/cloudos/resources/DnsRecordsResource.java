@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.dns.DnsManager;
 import org.cobbzilla.util.dns.DnsRecord;
 import org.cobbzilla.util.dns.DnsRecordMatch;
+import org.cobbzilla.wizard.api.ApiException;
+import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,11 @@ public class DnsRecordsResource {
         final List<DnsRecord> records;
         try {
             records = dnsManager().list(new DnsRecordMatch().setSubdomain(configuration.getHostname()));
+
+        } catch (ApiException e) {
+            log.error("API Error listing DNS records: "+e, e);
+            return ResourceUtil.toResponse(e);
+
         } catch (Exception e) {
             log.error("Error listing DNS records: "+e, e);
             return Response.serverError().build();
@@ -77,6 +84,11 @@ public class DnsRecordsResource {
         try {
             written = dnsManager().write(record);
             dnsManager().publish();
+
+        } catch (ApiException e) {
+            log.error("API Error writing DNS record: "+e, e);
+            return ResourceUtil.toResponse(e);
+
         } catch (Exception e) {
             log.error("Error writing DNS record: "+e, e);
             return Response.serverError().build();
@@ -107,8 +119,12 @@ public class DnsRecordsResource {
             removed = dnsManager().remove(match);
             dnsManager().publish();
 
+        } catch (ApiException e) {
+            log.error("API Error removing DNS records: "+e, e);
+            return ResourceUtil.toResponse(e);
+
         } catch (Exception e) {
-            log.error("Error writing DNS record: "+e, e);
+            log.error("Error removing DNS record: "+e, e);
             return Response.serverError().build();
         }
         return Response.ok(removed).build();
