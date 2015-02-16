@@ -8,6 +8,9 @@ publicUriBase: {{PUBLIC_BASE_URI}}
 
 # Kerberos admin password. For creating and listing accounts with kadmin program.
 kadminPassword: {{KADMIN_PASS}}
+ldapPassword: {{LDAP_PASS}}
+ldapDomain: {{LDAP_DOMAIN}}
+ldapBaseDN: {{LDAP_BASE_DN}}
 
 # Name of the default admin account. The API assumes this is the organization to auth against (we expect this
 defaultAdmin: admin

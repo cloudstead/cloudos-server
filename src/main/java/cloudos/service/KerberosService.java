@@ -23,9 +23,13 @@ public class KerberosService {
 
     @Autowired private CloudOsConfiguration configuration;
 
+    // kerberizes an existing ldap account ... this assumes we've already created the user in the ldap directory
     public CommandResult createPrincipal (AccountRequest request) {
-        final String password = request.hasPassword() ? " -pw " + request.getPassword() + " " : " -randkey ";
-        final String input = configuration.getKadminPassword()+"\naddprinc" + password + request.getName();
+        final String accountDN = "uid=" + request.getName() + ",ou=People," + configuration.getLdapBaseDN();
+        final String input = configuration.getKadminPassword()+ "\n" +
+                "addprinc -x dn=\"" + accountDN + "\" " + request.getName() + "\n" +
+                request.getPassword() + "\n" +
+                request.getPassword() + "\n";
 
         // Create kerberos user
         CommandResult result = run_kadmin(input, "create");
@@ -88,6 +92,7 @@ public class KerberosService {
         run_kadmin(configuration.getKadminPassword()+"\nchange_password "+accountName+"\n"+newPassword+"\n"+newPassword+"\n", "adminChangePassword");
     }
 
+    // deprecated: deletion of kerberos principals is handled through the ldap service
     public void deletePrincipal(String accountName) {
         final String input = configuration.getKadminPassword()+"\ndelprinc "+ accountName + "\nyes\n";
         final CommandResult result = run_kadmin(input, "delete");
