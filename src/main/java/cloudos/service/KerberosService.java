@@ -27,7 +27,7 @@ public class KerberosService {
     public CommandResult createPrincipal (AccountRequest request) {
         final String accountDN = "uid=" + request.getName() + ",ou=People," + configuration.getLdapBaseDN();
         final String input = configuration.getKadminPassword()+ "\n" +
-                "addprinc -x dn=\"" + accountDN + "\"\n" +
+                "addprinc -x dn=\"" + accountDN + "\" " + request.getName() + "\n" +
                 request.getPassword() + "\n" +
                 request.getPassword() + "\n";
 

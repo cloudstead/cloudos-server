@@ -12,6 +12,8 @@ import org.eclipse.jetty.server.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+
 import static cloudos.model.auth.AuthenticationException.Problem.BOOTCONFIG_ERROR;
 import static cloudos.model.auth.AuthenticationException.Problem.INVALID;
 import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
@@ -29,8 +31,7 @@ public class LdapService {
                                                         // handled here, as we'd need to communicate the password to
                                                         // the kerberos service to make sure it gets set there as well
         final String accountDN = getAccountDN(request.getAccountName());
-        String ldif = configuration.getLdapPassword() + "\n" +
-                "dn: " + accountDN + "\n" +
+        String ldif = "dn: " + accountDN + "\n" +
                 "objectClass: inetOrgPerson\n" +
                 "uid: " + request.getName() + "\n" +
                 "sn: " + request.getLastName() + "\n" +
@@ -38,9 +39,10 @@ public class LdapService {
                 "cn: " + request.getFullName() + "\n" +
                 "displayName: " + request.getFullName() + "\n" +
                 "mail: " + request.getEmail() + "\n" +
-                "userPassword: " + password + "\n\n\u0004";
+                "userPassword: " + password + "\n";
 
         CommandResult result = run_ldapadd(ldif);
+
         if (result.getStderr().contains("Already exists")) {
             if (!request.isAdmin()) {
                 throw new SimpleViolationException("{error.createAccount.alreadyExists}",
@@ -54,20 +56,18 @@ public class LdapService {
             // check to see if we've got the cloudos-user group installed. if not, go ahead and create it, then add this
             // user.
             if (!checkForCloudosGroup()) {
-                ldif= configuration.getLdapPassword() + "\n" +
-                        "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
                         "objectClass: groupOfUniqueNames\n" +
                         "cn: cloudos-users\n" +
                         "description: CloudOS Users\n" +
-                        "uniqueMember: " + accountDN + "\n\n\u0004";
+                        "uniqueMember: " + accountDN + "\n";
                 CommandResult groupCreateResult = run_ldapadd(ldif);
             } else {
                 // if the group does exist, add the user.
-                ldif= configuration.getLdapPassword() + "\n" +
-                        "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
                         "changeType: modify\n" +
                         "add: uniqueMember\n" +
-                        "uniqueMember: " + accountDN + "\n\n\u0004";
+                        "uniqueMember: " + accountDN + "\n";
                 CommandResult groupAddResult = run_ldapmodify(ldif);
             }
         }
@@ -79,9 +79,12 @@ public class LdapService {
     public void authenticate(String accountName, String password) throws AuthenticationException {
         CommandLine ldapsearch = new CommandLine("ldapsearch")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
-                .addArgument("-D " + getAccountDN(accountName))
-                .addArgument("-w " + password);
+                .addArgument("-H")
+                .addArgument("ldapi:///")
+                .addArgument("-D")
+                .addArgument(getAccountDN(accountName))
+                .addArgument("-w")
+                .addArgument(password);
         CommandResult result;
         try {
             result = CommandShell.exec(ldapsearch);
@@ -97,11 +100,14 @@ public class LdapService {
             AuthenticationException {
         final CommandLine command = new CommandLine("ldappasswd")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
+                .addArgument("-H")
+                .addArgument("ldapi:///")
                 .addArgument("-A")
                 .addArgument("-S")
-                .addArgument("-D cn=admin," + configuration.getLdapDomain())
-                .addArgument("-W")
+                .addArgument("-D")
+                .addArgument("cn=admin," + configuration.getLdapDomain())
+                .addArgument("-w")
+                .addArgument(configuration.getLdapPassword())
                 .addArgument(getAccountDN(accountName));
         final CommandResult result;
         try{
@@ -109,8 +115,7 @@ public class LdapService {
                     oldPassword + "\n" +
                     oldPassword + "\n" +
                     newPassword + "\n" +
-                    newPassword + "\n" +
-                    configuration.getLdapPassword() + "\n");
+                    newPassword + "\n");
         } catch (Exception e) {
             throw new IllegalStateException("error running ldappasswd: " + e,e);
         }
@@ -122,17 +127,19 @@ public class LdapService {
     public void adminChangePassword(String accountName, String newPassword) {
         final CommandLine command = new CommandLine("ldappasswd")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
+                .addArgument("-H")
+                .addArgument("ldapi:///")
                 .addArgument("-S")
-                .addArgument("-D cn=admin," + configuration.getLdapDomain())
-                .addArgument("-W")
+                .addArgument("-D")
+                .addArgument("cn=admin," + configuration.getLdapDomain())
+                .addArgument("-w")
+                .addArgument(configuration.getLdapPassword())
                 .addArgument(getAccountDN(accountName));
         final CommandResult result;
         try{
             result = CommandShell.exec(command,
                             newPassword + "\n" +
-                            newPassword + "\n" +
-                            configuration.getLdapPassword() + "\n");
+                            newPassword + "\n" );
         } catch (Exception e) {
             throw new IllegalStateException("error running ldappasswd: " + e,e);
         }
@@ -142,13 +149,16 @@ public class LdapService {
     public void deleteUser(String accountName) {
         final CommandLine command = new CommandLine("ldapdelete")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
-                .addArgument("-D cn=admin," + configuration.getLdapDomain())
-                .addArgument("-W")
+                .addArgument("-H")
+                .addArgument("ldapi:///")
+                .addArgument("-D")
+                .addArgument("cn=admin," + configuration.getLdapDomain())
+                .addArgument("-w")
+                .addArgument(configuration.getLdapPassword())
                 .addArgument(getAccountDN(accountName));
         final CommandResult result;
         try{
-            result = CommandShell.exec(command,configuration.getLdapPassword() + "\n");
+            result = CommandShell.exec(command);
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapdelete: " + e,e);
         }
@@ -158,11 +168,13 @@ public class LdapService {
     private Boolean checkForCloudosGroup() {
         final CommandLine checkForGroupCommand = new CommandLine("ldapsearch")
                 .addArgument("-Q")
-                .addArgument("-Y EXTERNAL")
-                .addArgument("-H ldapi:///")
-                .addArgument("-b ou=Groups," + configuration.getLdapBaseDN())
+                .addArgument("-Y")
+                .addArgument("EXTERNAL")
+                .addArgument("-H")
+                .addArgument("ldapi:///")
+                .addArgument("-b")
+                .addArgument("ou=Groups," + configuration.getLdapBaseDN())
                 .addArgument("dn");
-
         final CommandResult result;
         try {
             result = CommandShell.exec(checkForGroupCommand);
@@ -179,9 +191,12 @@ public class LdapService {
     private CommandResult run_ldapadd(String input) {
         final CommandLine ldapAddCommand = new CommandLine("ldapadd")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
-                .addArgument("-D cn=admin," + configuration.getLdapDomain())
-                .addArgument("-W");
+                .addArgument("-H")
+                .addArgument("ldapi:///")
+                .addArgument("-D")
+                .addArgument("cn=admin," + configuration.getLdapDomain())
+                .addArgument("-w")
+                .addArgument(configuration.getLdapPassword());
         final CommandResult result;
         try {
             result = CommandShell.exec(ldapAddCommand, input);
@@ -200,9 +215,12 @@ public class LdapService {
     private CommandResult run_ldapmodify(String input) {
         final CommandLine createLdapCommand = new CommandLine("ldapmodify")
                 .addArgument("-x")
-                .addArgument("-H ldapi:///")
-                .addArgument("-D cn=admin," + configuration.getLdapDomain())
-                .addArgument("-W");
+                .addArgument("-H")
+                .addArgument("ldapi:///")
+                .addArgument("-D")
+                .addArgument("cn=admin," + configuration.getLdapDomain())
+                .addArgument("-w")
+                .addArgument(configuration.getLdapPassword());
         final CommandResult result;
         try {
             result = CommandShell.exec(createLdapCommand, input);
