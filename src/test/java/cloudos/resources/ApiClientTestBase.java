@@ -16,6 +16,7 @@ import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import cloudos.service.MockKerberosService;
+import cloudos.service.MockLdapService;
 import cloudos.service.MockRootySender;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
@@ -60,9 +61,7 @@ import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.string.StringUtil.urlEncode;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @Slf4j
 public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, CloudOsServer> {
@@ -106,6 +105,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public MockTemplatedMailSender getTemplatedMailSender() { return (MockTemplatedMailSender) getTemplatedMailService().getMailSender(); }
 
     public MockKerberosService getKerberos() { return getBean(MockKerberosService.class); }
+    public MockLdapService getLdap () { return getBean(MockLdapService.class); }
 
     public CloudOsConfiguration getConfiguration() { return (CloudOsConfiguration) server.getConfiguration(); }
     public MockRootySender getRootySender() { return (MockRootySender) getConfiguration().getRooty().getSender(); }

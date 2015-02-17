@@ -18,11 +18,13 @@
     <context:component-scan base-package="cloudos.model"/>
     <context:component-scan base-package="cloudos.dao"/>
 
-    <!-- Use Kerberos and Rooty mocks instead of default implementations -->
+    <!-- Use Kerberos and Ldap mocks instead of default implementations -->
     <context:component-scan base-package="cloudos.service">
         <context:exclude-filter type="regex" expression="cloudos.service.KerberosService" />
+        <context:exclude-filter type="regex" expression="cloudos.service.LdapService" />
     </context:component-scan>
     <bean class="cloudos.service.MockKerberosService"/>
+    <bean class="cloudos.service.MockLdapService"/>
 
     <!-- Mock templated mail sender -->
     <bean class="org.cobbzilla.mail.sender.mock.MockTemplatedMailService"/>
