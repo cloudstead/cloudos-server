@@ -45,10 +45,6 @@ public class CloudOsDnsMain extends CloudOsMainBase<CloudOsDnsMainOptions> {
                 break;
 
             case list:
-                record = new DnsRecordMatch()
-                        .setSubdomain(options.getSubdomain())
-                        .setType(options.getType())
-                        .setFqdn(options.getFqdn());
                 final DnsRecord[] found = fromJson(api.get(DNS_ENDPOINT).json, DnsRecord[].class);
                 out("Successfully found "+found.length+" records");
                 for (DnsRecord rec : found) {
