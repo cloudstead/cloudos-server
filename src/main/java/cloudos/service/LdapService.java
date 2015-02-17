@@ -57,15 +57,15 @@ public class LdapService {
                         "description: CloudOS Users\n" +
                         "uniqueMember: " + accountDN + "\n";
                 CommandResult groupCreateResult = run_ldapadd(ldif);
-                if (!checkForCloudosGroup()) throw new IllegalStateException("CloudOs Group does not exist in LDAP");
-            }
 
-            // the group should now exist, add the user.
-            ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
-                    "changeType: modify\n" +
-                    "add: uniqueMember\n" +
-                    "uniqueMember: " + accountDN + "\n";
-            CommandResult groupAddResult = run_ldapmodify(ldif);
+            } else {
+                // the group should now exist, add the user.
+                ldif = "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                        "changeType: modify\n" +
+                        "add: uniqueMember\n" +
+                        "uniqueMember: " + accountDN + "\n";
+                CommandResult groupAddResult = run_ldapmodify(ldif);
+            }
         }
 
         return result;
