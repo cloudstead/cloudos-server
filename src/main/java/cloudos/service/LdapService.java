@@ -173,7 +173,7 @@ public class LdapService {
                 .addArgument("-H")
                 .addArgument("ldapi:///")
                 .addArgument("-b")
-                .addArgument("ou=Groups," + configuration.getLdapBaseDN())
+                .addArgument("cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN())
                 .addArgument("dn");
         final CommandResult result;
         try {
