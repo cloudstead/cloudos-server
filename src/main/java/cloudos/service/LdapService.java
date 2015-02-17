@@ -1,22 +1,17 @@
 package cloudos.service;
 
-import cloudos.model.support.AccountRequest;
 import cloudos.model.auth.AuthenticationException;
+import cloudos.model.support.AccountRequest;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
-import org.eclipse.jetty.server.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-
-import static cloudos.model.auth.AuthenticationException.Problem.BOOTCONFIG_ERROR;
-import static cloudos.model.auth.AuthenticationException.Problem.INVALID;
-import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
+import static cloudos.model.auth.AuthenticationException.Problem.*;
 
 
 @Service @Slf4j
@@ -62,14 +57,15 @@ public class LdapService {
                         "description: CloudOS Users\n" +
                         "uniqueMember: " + accountDN + "\n";
                 CommandResult groupCreateResult = run_ldapadd(ldif);
-            } else {
-                // if the group does exist, add the user.
-                ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
-                        "changeType: modify\n" +
-                        "add: uniqueMember\n" +
-                        "uniqueMember: " + accountDN + "\n";
-                CommandResult groupAddResult = run_ldapmodify(ldif);
+                if (!checkForCloudosGroup()) throw new IllegalStateException("CloudOs Group does not exist in LDAP");
             }
+
+            // the group should now exist, add the user.
+            ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                    "changeType: modify\n" +
+                    "add: uniqueMember\n" +
+                    "uniqueMember: " + accountDN + "\n";
+            CommandResult groupAddResult = run_ldapmodify(ldif);
         }
 
         return result;
@@ -181,7 +177,7 @@ public class LdapService {
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapsearch: " + e, e);
         }
-        return (result.getStdout().contains("result: 0 Success"));
+        return (result.isZeroExitStatus() && result.getStdout().contains("result: 0 Success"));
     }
 
     private String getAccountDN(String accountName) {
@@ -213,7 +209,7 @@ public class LdapService {
     }
 
     private CommandResult run_ldapmodify(String input) {
-        final CommandLine createLdapCommand = new CommandLine("ldapmodify")
+        final CommandLine modifyLdapCommand = new CommandLine("ldapmodify")
                 .addArgument("-x")
                 .addArgument("-H")
                 .addArgument("ldapi:///")
@@ -223,7 +219,7 @@ public class LdapService {
                 .addArgument(configuration.getLdapPassword());
         final CommandResult result;
         try {
-            result = CommandShell.exec(createLdapCommand, input);
+            result = CommandShell.exec(modifyLdapCommand, input);
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapmodify: " + e, e);
         }
