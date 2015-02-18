@@ -87,9 +87,9 @@
 											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.assets.taskbarIconAltText}} class="toolbar_icon hide-for-small" />
 										</span>
 									{{else}}
-										<span class="hide-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
+										<span class="hide-for-small">{{app-name taskbarIconCaption}}</span>
 									{{/if}}
-									<span class="show-for-small">{{app-name app.assets.taskbarIconAltText}}</span>
+									<span class="show-for-small">{{app-name taskbarIconCaption}}</span>
 								</a>
 							</li>
 						{{/each}}
