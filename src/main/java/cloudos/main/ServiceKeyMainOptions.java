@@ -9,7 +9,7 @@ import static org.cobbzilla.util.string.StringUtil.empty;
 
 public class ServiceKeyMainOptions extends CloudOsMainOptions {
 
-    public static final String USAGE_OPERATION = "The operation to perform. Of omitted, all keys will be listed";
+    public static final String USAGE_OPERATION = "The operation to perform. If omitted, all keys will be listed";
     public static final String OPT_OPERATION = "-o";
     public static final String LONGOPT_OPERATION = "--operation";
     @Option(name=OPT_OPERATION, aliases=LONGOPT_OPERATION, usage=USAGE_OPERATION)
