@@ -30,4 +30,6 @@ public class AppConfigurationCategory {
 
     public String get (String item) { return values.get(item); }
 
+    public boolean hasValues() { return !values.isEmpty(); }
+
 }
