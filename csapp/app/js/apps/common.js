@@ -77,6 +77,10 @@ CloudOs = {
 		sessionStorage.setItem('cloudos_account', JSON.stringify(account));
 	},
 
+	is_account_valid: function(account) {
+		return !account || !account.admin;
+	}
+
 	// get_app: function(app_name) {
 	// 	var cs_acct = CloudOs.json_safe_parse(sessionStorage.getItem('cloudos_account'));
 	// 	return cs_acct.availableApps.findBy('name', app_name);

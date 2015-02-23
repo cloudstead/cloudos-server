@@ -41,6 +41,9 @@ App.Router.map(function() {
 	this.resource('valet_keys');
 	this.resource('app_settings');
 	this.resource('app_setting', { path: '/app_settings/:app_name' });
+	this.resource('config_app', { path: '/config/:appname' });
+	this.resource('confirm_config_app', { path: '/confirm/:appname' });
+	this.resource('install_app', { path: '/install/:appname' });
 
 	// this.resource('addCloud', { path: '/add_cloud/:cloud_type' });
 	// this.resource('configCloud', { path: '/cloud/:cloud_name' });
@@ -258,6 +261,14 @@ App.DefaultPagination = {
 
 App.CloudOsApp = Ember.Object.extend({
 
+	version: function() {
+		return this.get("appVersion.version");
+	}.property("appVersion.version"),
+
+	openAppUri: function() {
+		return "/#/app/" + this.get("name");
+	}.property(),
+
 	description: function() {
 		return this.get('appVersion').data.description;
 	}.property(),
@@ -270,8 +281,45 @@ App.CloudOsApp = Ember.Object.extend({
 		return this.get('appVersion').data.largeIconUrl
 	}.property(),
 
+	statusCaption: function() {
+		return Em.I18n.translations.sections.appstr.install_status[this.get("installStatus")];
+	}.property("installStatus"),
+
 	isInstalled: function() {
 		return this.get('installStatus') == 'installed';
+	}.property(),
+
+	isInteractive: function() {
+		return this.get('isInstalled') && this.get('appVersion').interactive;
+	}.property(),
+
+	isUnavailable: function() {
+		return this.get('installStatus') == 'unavailable';
+	}.property(),
+
+	isAvailableAppStore: function() {
+		return this.get('installStatus') == 'available_appstore';
+	}.property(),
+
+	isAvailableLocal: function() {
+		return this.get('installStatus') == 'available_local';
+	}.property(),
+
+	isUpgradeAvailableInstalled: function() {
+		return this.get('installStatus') == 'upgrade_available_installed';
+	}.property(),
+
+	isUpgradeAvailableNotInstalled: function() {
+		return this.get('installStatus') == 'upgrade_available_not_installed';
+	}.property(),
+
+	canBeInstalled: function() {
+		return this.get("isAvailableAppStore") || this.get("isAvailableLocal") ||
+			this.get("isUpgradeAvailableNotInstalled");
+	}.property(),
+
+	canBeUpgraded: function() {
+		return this.get("isUpgradeAvailableInstalled");
 	}.property()
 });
 
@@ -306,6 +354,18 @@ App.CloudOsApp.reopenClass({
 	}
 });
 
+App.ConfigAppInfo = Ember.Object.extend({});
+
+App.ConfigAppInfo.reopenClass({
+	all: Ember.ArrayProxy.create({content: []}),
+
+	createNew: function(obj) {
+		var newObj = App.ConfigAppInfo.create(obj);
+		App.ConfigAppInfo.all.pushObject(newObj);
+		return newObj;
+	}
+});
+
 App.AppstoreRoute = Ember.Route.extend({
 	model: function() {
 		return App.CloudOsApp.findPaginated(App.DefaultPagination);
@@ -317,15 +377,47 @@ App.AppstoreRoute = Ember.Route.extend({
 			controller.set('currentPage', 1);
 			this.refresh();
 		}
+	},
+
+	actions: {
+		transitionToConfigApp: function (app) {
+			this.transitionTo("config_app", app.name);
+		},
+		openModal: function(modalName){
+			return this.render(modalName, {
+				into: 'application',
+				outlet: 'modal'
+			});
+		},
+		closeModal: function(){
+			this.controllerFor('appstore').set("isHidden", true);
+			this.controllerFor('appstore').set('user_message_priority', '');
+			this.controllerFor('appstore').set('user_message', 'Intializing download...');
+			return this.disconnectOutlet({
+				outlet: 'modal',
+				parentView: 'application'
+			});
+		}
 	}
 });
 
 App.AppstoreController = Ember.ArrayController.extend({
 	appUrl: '',
 	currentPage: 1,
+	user_message: "Initializing download...",
+	user_message_priority: "",
+	isHidden: true,
+
+	statusReportClass: function() {
+		console.log("hidden: ", this.get("isHidden"));
+		var cls = "large-12 columns";
+		return cls + (this.get("isHidden") ? " hide" : "");
+	}.property("isHidden"),
+
 	reEnteredPage: function(){
 		this.set('currentPage', 1);
 	}.observes('content'),
+
 	actions: {
 		installFromUrl: function () {
 			var task_id = Api.install_app_from_url(this.get('appUrl'));
@@ -337,8 +429,46 @@ App.AppstoreController = Ember.ArrayController.extend({
 		loadNextPage: function () {
 			this.set('currentPage', this.get('currentPage') + 1);
 			this.set('content', App.CloudOsApp.loadNextPage(this.get('currentPage')));
+		},
+
+		doOpenApp: function(app) {
+			window.location.replace(app.get("openAppUri"));
+		},
+
+		doConfigApp: function(app) {
+			var self = this;
+
+			var download_data = {
+				token: app.id,
+				url: app.appVersion.bundleUrl,
+				autoInstall: false,
+				overwrite: true
+			};
+
+			var task_id = Api.download_cloud_app(download_data).uuid;
+			self.send('openModal','user_message_modal');
+
+			var statusInterval = setInterval(function(){
+				var status = Api.get_task_results(task_id);
+
+				if (status.success){
+					var info = App.ConfigAppInfo.createNew(JSON.parse(status.returnValue));
+					clearInterval(statusInterval);
+					self.send("transitionToConfigApp", info);
+				} else if (!Ember.isEmpty(status.events)) {
+					var message_key = status.events[status.events.length-1].messageKey;
+					self.set('user_message', Em.I18n.translations.task.events[message_key]);
+					if (status.error !== undefined) {
+						clearInterval(statusInterval);
+						self.set("isHidden", false);
+						self.set('user_message_priority', 'alert-box alert');
+					}
+				}
+
+			}, 5000);
 		}
 	},
+
 
 	morePagesAvailable: function() {
 		return App.CloudOsApp.totalCount > (this.get('currentPage') * App.DefaultPagination.pageSize);
@@ -1482,6 +1612,229 @@ App.AppSingleSettingController = Ember.ObjectController.extend({
 					this.get("app_name"), this.get("path"), this.get("processedValue"));
 			}
 		}
+	}
+});
+
+App.SingleConfigCategoryController = Ember.ObjectController.extend({
+	isAdminCategory: function(){
+		// return false
+		return this.get("name") === "init";
+	}.property("name"),
+
+	isActive: function(){
+		return this.get("name");
+	}.property("name"),
+});
+
+App.AppstoreConfigBasicRoute = Ember.Route.extend({
+	config: { categories: [] },
+
+	app: null,
+
+	items: [],
+
+	model: function(params) {
+		this.set("app", App.ConfigAppInfo.all.findBy('name', params.appname));
+		var cats = [];
+		if (!Ember.isNone(this.get("app"))) {
+			this.set("config", Api.read_app_config(this.get("app")));
+			if (this.hasConfig()) {
+				this.get("config.categories").forEach(function(category) {
+					var items = [];
+					var item_names = [];
+					category.items.forEach(function(item) {
+						var value = "";
+						if (category.values !== undefined){
+							value = category.values[item] || "";
+						}
+						items.push({
+							name: item,
+							value: value
+						});
+						item_names.push(item);
+					});
+					cats.push({
+						name: category.name,
+						items: items,
+						item_names: item_names
+					});
+				});
+			}
+		}
+		return cats;
+	},
+
+	afterModel: function(model, transition) {
+		if (Ember.isNone(this.get("app"))){
+			this.transitionTo('appstore');
+		}
+	},
+
+	hasConfig: function() {
+		return !Ember.isNone(this.get("config")) && !Ember.isEmpty(this.get("config.categories"));
+	}
+});
+
+App.ConfigAppRoute = App.AppstoreConfigBasicRoute.extend({
+
+	setupController: function(controller, model) {
+		this._super(controller, model);
+		if (Ember.isEmpty(model)){
+			this.transitionTo('install_app', this.get("app.name"));
+		} else {
+			controller.set("config", this.get("config"));
+			controller.set("app", this.get("app"));
+		}
+	},
+
+	actions: {
+		transitionToConfirm: function() {
+			this.transitionTo("confirm_config_app", this.get("app.name"));
+		}
+	}
+});
+
+App.ConfigAppController = Ember.ArrayController.extend({
+	config: {},
+	app: {},
+	items: [],
+
+	actions: {
+		doInstall: function() {
+			Api.write_app_config(this.get("app"), this.get("arrangedContent"));
+			this.send("transitionToConfirm");
+		}
+	}
+});
+
+App.ConfirmConfigAppRoute = App.AppstoreConfigBasicRoute.extend({
+
+	setupController: function(controller, model) {
+		this._super(controller, model);
+		controller.set("config", this.get("config"));
+		controller.set("app", this.get("app"));
+	},
+
+	actions:{
+		transitionToConfig: function() {
+			this.transitionTo("config_app", this.get("app.name"));
+		},
+		transitionToInstall: function() {
+			this.transitionTo("install_app", this.get("app.name"));
+		}
+	}
+});
+
+App.ConfirmConfigAppController = Ember.ArrayController.extend({
+	config: {},
+	app: {},
+	items: [],
+	hiddenClass: function() {
+		return this.get("isInstallModalCloseHidden") ? "hide" : "";
+	}.property("isInstallModalCloseHidden"),
+
+	actions: {
+		doInstall: function() {
+			this.send("transitionToInstall");
+		},
+
+		doConfig: function() {
+			this.send("transitionToConfig");
+		}
+	}
+});
+
+App.InstallAppRoute = Ember.Route.extend({
+
+	model: function(params){
+		var m = App.ConfigAppInfo.all.findBy('name', params.appname);
+		console.log("model: ", m);
+		return m;
+	},
+
+	afterModel: function(model) {
+		if (Ember.isNone(model)){
+			this.transitionTo('appstore');
+		}
+	},
+
+	setupController: function(controller, model) {
+		this._super(controller, model);
+		controller.set("taskId", Api.install_cloud_app(model).uuid);
+	},
+
+	actions: {
+		openModal: function(modalName){
+			return this.render(modalName, {
+				into: 'application',
+				outlet: 'modal'
+			});
+		},
+		closeModal: function(){
+			this.disconnectOutlet({
+				outlet: 'modal',
+				parentView: 'application'
+			});
+
+			var account = Api.account_for_token(sessionStorage.getItem('cloudos_session'));
+
+			CloudOs.set_account(account);
+
+			this.transitionTo('appstore');
+		},
+		transitionToAppStore: function() {
+			this.transitionTo('appstore');
+		}
+	}
+});
+
+App.InstallAppController = Ember.ObjectController.extend({
+	taskId: "",
+	installStatus: "Initializing",
+	isInstallModalCloseHidden: true,
+
+	statusReportClass: function() {
+		console.log("hidden: ", this.get("isInstallModalCloseHidden"));
+		var cls = "large-12 columns";
+		return cls + (this.get("isInstallModalCloseHidden") ? " hide" : "");
+	}.property("isInstallModalCloseHidden"),
+
+	actions: {
+		watchTaskStatus: function() {
+			var self = this;
+			var task_id = this.get("taskId");
+
+			self.set('installStatus', "Initializing");
+			self.set('isInstallModalCloseHidden', true);
+			self.send("openModal", "app_install_modal");
+
+			var statusInterval = setInterval(function(){
+				var status = Api.get_task_results(task_id);
+
+				if (status.success) {
+					self.set('installStatus', "done");
+					self.send("stopWatchingTaskStatus", statusInterval);
+				} else if (!Ember.isEmpty(status.events)) {
+					var message_key = status.events[status.events.length-1].messageKey;
+					self.set('installStatus', Em.I18n.translations.task.events[message_key]);
+					if (status.error !== undefined) {
+						self.send("stopWatchingTaskStatus", statusInterval);
+					}
+				}
+			}, 5000);
+		},
+
+		stopWatchingTaskStatus: function(interval) {
+			this.set('isInstallModalCloseHidden', false);
+			window.clearInterval(interval);
+		}
+	}
+});
+
+App.InstallAppView = Ember.View.extend({
+	didInsertElement: function() {
+		console.log("install app view!");
+		this.get('controller').send("watchTaskStatus");
 	}
 });
 

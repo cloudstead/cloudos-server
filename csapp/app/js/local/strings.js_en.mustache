@@ -28,6 +28,19 @@ Em.I18n.translations = {
 		appstr: {
 			available_apps: "Available Apps",
 			installed_apps: "Installed Apps",
+			install_status: {
+				available_appstore: "Install",
+				available_local: "install",
+				interactive: "Open",
+				not_interactive: "Installed",
+				upgrade_available_installed: "Upgrade",
+				upgrade_available_not_installed: "Install"
+			},
+			action_status: {
+				downloading: "Downloading",
+				installing: "Installing",
+				uninstalling: "Uninstalling"
+			},
 			apps:{
 				mail:{
 					caption: "Mail",
@@ -315,7 +328,14 @@ Em.I18n.translations = {
 			action: "Action",
 			new_name: "New service key name",
 			create_button: "Create"
-		}
+		},
+		app_install: {
+			init: "Basic Configuration",
+			'admin.name': "Admin username",
+			'admin.password': "Admin password",
+			'admin.email': "Admin email",
+			'admin.bounce': "Admin bounce"
+		},
 	},
 	alerts: {
 		username_empty: 'Please enter a username',
@@ -394,12 +414,13 @@ Em.I18n.translations = {
 			'{appInstall.copyingChefCookbooks}': 'Copying cookbooks',
 			'{appInstall.error.copyingChefCookbooks}': 'Error copying cookbooks',
 			'{appInstall.notifyingChefToRun}': 'Installing app',
-			'{appInstall.error.notifyingChefToRun}': 'Installing app',
+			'{appInstall.error.notifyingChefToRun}': 'Error while Installing app',
 			'{appInstall.waitingForChefToComplete}': 'Waiting for installation to complete',
 			'{appInstall.error.waitingForChefToComplete}': 'Error waiting for installation to complete',
 			'{appInstall.error.waitingForChefToComplete.timeout}': 'Timeout waiting for installation to complete',
 			'{appInstall.recordingInstallation}': 'Finalizing installation',
 			'{appInstall.error.recordingInstallation}': 'Error finalizing installation',
+			'{appInstall.versionNotFound}': 'Could not find the requested version.',
 
 			'{restore.error.restoring}': 'Error while restoring.',
 			'{restore.error.unknown}': 'Unknown error has occured.',
@@ -411,6 +432,13 @@ Em.I18n.translations = {
 			'{appUninstall.updatingMetadata}': 'Notifying Cheff...',
 			'{appUninstall.error.notifyChef}': 'Error while notifying Cheff.',
 			'{appUninstall.success}': 'Application successfully uninstalled.',
+
+			'{appDownload.downloadingTarball}': 'Downloading tarball',
+			'{appDownload.error.downloadingTarball}': 'Error downloading tarball',
+			'{appDownload.unpackingTarball}': 'Unpacking tarball',
+			'{appDownload.error.unpackingTarball}': 'Error unpacking tarball',
+			'{appDownload.readingManifest}': 'Error downloading tarball',
+			'{appDownload.error.readingManifest}': 'Error reading manifest',
 		}
 	},
 	errors: {

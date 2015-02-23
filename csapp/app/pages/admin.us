@@ -569,7 +569,7 @@
 							{{#if isInstalled}}
 								<button class="tiny secondary expand" {{action 'select_app' name}}>Open</button>
 							{{else}}
-								<button class="tiny primary expand" {{action 'install_app' name}}>install</button>
+								<button class="tiny primary expand" {{action 'install_app' name}}>Download</button>
 							{{/if}}
 						</div>
 					</div>
@@ -689,12 +689,12 @@
 						{{#each app in arrangedContent}}
 							<div class="large-4 medium-6 columns app_circle">
 								{{#if app.canBeInstalled }}
-									<button class="button tiny alert" {{ action "doInstallApp" app }}>
+									<button class="button tiny alert" {{ action "doConfigApp" app }}>
 										{{ app.statusCaption }}
 									</button>
 								{{/if}}
 								{{#if app.canBeUpgraded }}
-									<button class="button tiny secondary" {{ action "doUpgradeApp" app }}>
+									<button class="button tiny secondary" {{ action "doConfigApp" app }}>
 										{{ app.statusCaption }}
 									</button>
 								{{/if}}
@@ -1711,6 +1711,88 @@
 			</div>
 </script>
 
+<script type="text/x-handlebars" id="config_app">
+	<section class="deck">
+		<div class="row">
+			<h3>{{app.name}} configuration</h3>
+		</div>
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<form>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">Install</button>
+					{{#each category in arrangedContent itemController="single_config_category"}}
+						{{#if category.isAdminCategory }}
+							<fieldset class="wrap-set">
+								<legend>{{t forms.app_install.init}}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<label for="text">{{ item.name }}</label>
+											{{input type="text" value=item.value}}
+										</div>
+									{{/each}}
+							</fieldset>
+						{{else}}
+							<fieldset class="wrap-set">
+								<legend>{{ category.name }}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<label for="text">{{ item.name }}</label>
+											{{input type="text" value=item.value}}
+										</div>
+									{{/each}}
+							</fieldset>
+						{{/if}}
+					{{/each}}
+					<button {{ action "doInstall" }} type="submit" class="button tiny">Install</button>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>
+
+<script type="text/x-handlebars" id="confirm_config_app">
+	<section class="deck">
+		<div class="row">
+			<h3>{{app.name}} configuration</h3>
+			{{#link-to "appstore" classNames="button tiny"}}Back to App Store{{/link-to}}
+		</div>
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<form>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">Confirm and Install</button>
+					<button {{ action "doConfig" }} class="button tiny">Back to Configuration</button>
+					{{#each category in arrangedContent itemController="single_config_category"}}
+						{{#if category.isAdminCategory }}
+							<fieldset class="wrap-set">
+								<legend>{{t forms.app_install.init}}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<p>{{ item.name }}: {{item.value}}</p>
+										</div>
+									{{/each}}
+							</fieldset>
+						{{else}}
+							<fieldset class="wrap-set">
+								<legend>{{ category.name }}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<p>{{ item.name }}: {{item.value}}</p>
+										</div>
+									{{/each}}
+							</fieldset>
+						{{/if}}
+					{{/each}}
+					<button {{ action "doInstall" }} type="submit" class="button tiny">Confirm and Install</button>
+					<button {{ action "doConfig" }} class="button tiny">Back to Configuration</button>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>
+
+<script type="text/x-handlebars" id="install_app">
+</script>
+
 <script type="text/x-handlebars" id="components/modal-dialog">
 	<div class="overlay" {{action "doCloseModal"}}>
 	</div>
@@ -1719,11 +1801,29 @@
 	</div>
 </script>
 
+<script type="text/x-handlebars" id="user_message_modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>{{t sections.appstr.action_status.downloading}} {{app.name}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ user_message }}</p>
+				</div>
+				<div {{bind-attr class="statusReportClass"}}>
+					<button {{ action "closeModal" }} class="button tiny right">Close</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>
 
 <script type="text/x-handlebars" id="app_uninstall_modal">
 	{{#modal-dialog small=true}}
 		<div class="row modal-filler">
-			<legend>Uninstalling {{app_to_uninstall.name}}</legend>
+			<legend>{{t sections.appstr.action_status.uninstalling}} {{app_to_uninstall.name}}</legend>
 		</div>
 		<div class="row modal-content">
 				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
@@ -1734,6 +1834,25 @@
 				{{else}}
 				<div class="large-12 columns">
 				{{/if}}
+					<button {{ action "closeModal" }} class="button tiny right">Close</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>
+
+<script type="text/x-handlebars" id="app_install_modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>{{t sections.appstr.action_status.installing}} {{app.name}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ installStatus }}</p>
+				</div>
+				<div {{bind-attr class="statusReportClass"}}>
 					<button {{ action "closeModal" }} class="button tiny right">Close</button>
 				</div>
 		</div>

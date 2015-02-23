@@ -168,14 +168,51 @@ Api = {
 
 	find_installed_apps: function () { return Api._get('/api/apps/all'); },
 
-	install_cloud_app: function (app_id, app_install_request) {
-		return Api._post('/api/appstore/' + app_id + '/install', app_install_request); },
+	install_cloud_app: function (app) {
+		// return Api._post('/api/appstore/' + app_id + '/install', app_install_request);
+		var version = app.version;
+		var name = app.name;
+		return Api._post('/api/apps/apps/'+name+'/versions/'+version+'/install');
+	},
 
 	uninstall_cloud_app: function(app) {
 		var data = {
 			mode: "uninstall"
 		};
 		return Api._post('/api/apps/apps/' + app.name + '/versions/' + app.version + '/uninstall', data);
+	},
+
+	download_cloud_app: function (app_download_request) {
+		return Api._post('/api/apps/download', app_download_request);
+	},
+
+	read_app_config: function(app) {
+		var version = app.version;
+		var name = app.name;
+		return Api._get('/api/apps/apps/'+name+'/versions/'+version+'/config');
+	},
+
+	write_app_config: function(app, config) {
+		var version = app.version;
+		var name = app.name;
+		var data = {
+			categories: []
+		};
+
+		config.forEach(function(category) {
+			var values = {};
+			category.items.forEach(function(item) {
+				values[item.name] = item.value
+			});
+
+			data.categories.push({
+				name: category.name,
+				items: category.item_names,
+				values: values
+			});
+		});
+
+		return Api._post('/api/apps/apps/'+name+'/versions/'+version+'/config', data);
 	},
 
 	admin_change_password: function (name, newPassword) {

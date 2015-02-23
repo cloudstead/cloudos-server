@@ -268,6 +268,15 @@ td.long_text_content{
 	padding:0px !important;
 }
 
+.app_circle {
+	margin-bottom: 10px;
+}
+
+.app_short_desc {
+	height: 60px;
+	overflow: hidden;
+}
+
 .action_table td {
 	line-height: 34px;
 }
