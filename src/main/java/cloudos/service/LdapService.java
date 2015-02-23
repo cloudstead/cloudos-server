@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 
 import static cloudos.model.auth.AuthenticationException.Problem.*;
 import static org.cobbzilla.util.system.CommandShell.okResult;
+import static org.cobbzilla.wizard.validation.ValidationMessages.translateMessage;
 
 
 @Service @Slf4j
 public class LdapService {
 
+    public static final String DEFAULT_GROUP = "cloudos-users";
     @Autowired private CloudOsConfiguration configuration;
 
     public CommandResult createUser(AccountRequest request) {
@@ -26,7 +28,8 @@ public class LdapService {
                                                         // one. password creation isn't something that should be
                                                         // handled here, as we'd need to communicate the password to
                                                         // the kerberos service to make sure it gets set there as well
-        final String accountDN = getAccountDN(request.getAccountName());
+        final String accountName = request.getAccountName();
+        final String accountDN = getAccountDN(accountName);
         String ldif = "dn: " + accountDN + "\n" +
                 "objectClass: inetOrgPerson\n" +
                 "uid: " + request.getName() + "\n" +
@@ -41,10 +44,10 @@ public class LdapService {
 
         if (result.getStderr().contains("Already exists")) {
             if (!request.isAdmin()) {
-                throw new SimpleViolationException("{error.createAccount.alreadyExists}",
+                throw new SimpleViolationException("{err.createUser.alreadyExists}",
                         "Account already exists", request.getName());
             }
-            deleteUser(request.getAccountName());
+            deleteUser(accountName);
             result = run_ldapadd(ldif);
         }
 
@@ -52,24 +55,33 @@ public class LdapService {
             // check to see if we've got the cloudos-user group installed. if not, go ahead and create it, then add this
             // user.
             if (!checkForCloudosGroup()) {
-                ldif= "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
-                        "objectClass: groupOfUniqueNames\n" +
-                        "cn: cloudos-users\n" +
-                        "description: CloudOS Users\n" +
-                        "uniqueMember: " + accountDN + "\n";
-                CommandResult groupCreateResult = okResult(run_ldapadd(ldif));
+                createGroupWithFirstAccount(accountName, DEFAULT_GROUP, translateMessage("{ldap.defaultGroupDesc}"));
 
             } else {
                 // the group should now exist, add the user.
-                ldif = "dn: cn=cloudos-users,ou=Groups," + configuration.getLdapBaseDN() + "\n" +
-                        "changeType: modify\n" +
-                        "add: uniqueMember\n" +
-                        "uniqueMember: " + accountDN + "\n";
-                CommandResult groupAddResult = run_ldapmodify(ldif);
+                addAccountToGroup(accountName, DEFAULT_GROUP);
             }
         }
 
         return result;
+    }
+
+    public CommandResult addAccountToGroup(String accountDN, final String groupName) {
+        String ldif;
+        ldif = "dn: cn=" + groupName + ",ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                "changeType: modify\n" +
+                "add: uniqueMember\n" +
+                "uniqueMember: " + accountDN + "\n";
+        return run_ldapmodify(ldif);
+    }
+
+    public CommandResult createGroupWithFirstAccount(String accountName, final String groupName, final String groupDesc) {
+        String ldif = "dn: cn=" + groupName + ",ou=Groups," + configuration.getLdapBaseDN() + "\n" +
+                "objectClass: groupOfUniqueNames\n" +
+                "cn: " + groupName + "\n" +
+                "description: " + groupDesc + "\n" +
+                "uniqueMember: " + getAccountDN(accountName) + "\n";
+        return run_ldapadd(ldif);
     }
 
     // this method is provided for completeness' sake, but authentication should really go through kerberos
@@ -178,7 +190,7 @@ public class LdapService {
         return (result.isZeroExitStatus() && result.getStdout().contains("result: 0 Success"));
     }
 
-    private String getAccountDN(String accountName) {
+    public String getAccountDN(String accountName) {
         return "uid=" + accountName + ",ou=People," + configuration.getLdapBaseDN();
     }
 

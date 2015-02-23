@@ -6,6 +6,7 @@ import cloudos.model.AccountGroup;
 import cloudos.model.AccountGroupMember;
 import cloudos.model.support.AccountGroupRequest;
 import cloudos.model.support.AccountGroupView;
+import cloudos.service.LdapService;
 import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class AccountGroupsResource {
     @Autowired private AccountGroupMemberDAO memberDAO;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private RootyService rooty;
+    @Autowired private LdapService ldap;
 
     /**
      * Find all groups. Must be admin.
@@ -82,6 +84,10 @@ public class AccountGroupsResource {
 
         groupName = groupName.toLowerCase();
         final List<String> recipients = groupRequest.getRecipientsLowercase();
+        if (recipients.isEmpty()) {
+            log.warn("Cannot create empty group "+groupName+", adding caller ("+admin.getName()+") as sole member");
+            recipients.add(admin.getName());
+        }
 
         if (!groupName.equalsIgnoreCase(groupRequest.getName())) {
             throw new SimpleViolationException("{err.name.mismatch}", "group name in json was different from uri");
@@ -100,7 +106,9 @@ public class AccountGroupsResource {
         }
 
         // create group, add members
-        final AccountGroup created = groupDAO.create((AccountGroup) new AccountGroup().setName(groupName));
+        final AccountGroup created = groupDAO.create((AccountGroup) new AccountGroup()
+                .setInfo(groupRequest.getInfo())
+                .setName(groupName));
         final List<AccountGroupMember> members = buildGroupMemberList(created, recipients);
         for (AccountGroupMember m : members) memberDAO.create(m.setGroupUuid(created.getUuid()));
 
@@ -144,31 +152,33 @@ public class AccountGroupsResource {
         final AccountGroup group = groupDAO.findByName(groupName.toLowerCase());
         if (group == null) return ResourceUtil.notFound(groupName);
 
-        if (createsCircularReference(groupName, recipients)) {
-            throw new SimpleViolationException("{err.members.circularReference}", "group cannot contain a circular reference");
-        }
-
-        // find current members
-        final List<AccountGroupMember> members = memberDAO.findByGroup(group.getUuid());
-
-        // remove members in DB that are not in the request, and determine which members need to be added
-        final ArrayList<String> newMembers = new ArrayList<>(groupRequest.getRecipients());
-        for (AccountGroupMember m : members) {
-            if (!groupRequest.getRecipients().contains(m.getMemberName())) memberDAO.delete(m.getUuid());
-            newMembers.remove(m.getMemberName()); // already a member, don't need to re-add
-        }
-
-        // update members and announce change
-        final List<AccountGroupMember> toAdd = buildGroupMemberList(group, newMembers);
-        for (AccountGroupMember m : toAdd) memberDAO.create(m.setGroupUuid(group.getUuid()));
-
         // update if quota/description changed
         if (!group.sameInfo(groupRequest.getInfo())) {
             group.setInfo(groupRequest.getInfo());
             groupDAO.update(group);
         }
 
-        announce(groupName, recipients);
+        if (!recipients.isEmpty()) {
+            if (createsCircularReference(groupName, recipients)) {
+                throw new SimpleViolationException("{err.members.circularReference}", "group cannot contain a circular reference");
+            }
+
+            // find current members
+            final List<AccountGroupMember> members = memberDAO.findByGroup(group.getUuid());
+
+            // remove members in DB that are not in the request, and determine which members need to be added
+            final ArrayList<String> newMembers = new ArrayList<>(groupRequest.getRecipients());
+            for (AccountGroupMember m : members) {
+                if (!groupRequest.getRecipients().contains(m.getMemberName())) memberDAO.delete(m.getUuid());
+                newMembers.remove(m.getMemberName()); // already a member, don't need to re-add
+            }
+
+            // update members and announce change
+            final List<AccountGroupMember> toAdd = buildGroupMemberList(group, newMembers);
+            for (AccountGroupMember m : toAdd) memberDAO.create(m.setGroupUuid(group.getUuid()));
+
+            announce(groupName, recipients);
+        }
 
         return Response.ok(group).build();
     }
