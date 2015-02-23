@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.wizard.util.ProxyUtil.proxyResponse;
 
 @Service @Slf4j
 public class InstalledAppLoader {
@@ -79,7 +80,7 @@ public class InstalledAppLoader {
         if (authTransition != null) {
             log.info("loadApp: found pre-existing AuthTransition, verifying...");
             cookieJar = new CookieJar(authTransition.getCookies());
-            response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
+            response = proxyResponse(requestBean, context, appHome, cookieJar);
             response = followRedirects(context, appPath, response, cookieJar);
 
             log.info("loadApp: AuthTransition verification returned response "+response.getStatus()+", ensuring this is not a login page");
@@ -101,7 +102,7 @@ public class InstalledAppLoader {
 
         // request the app home page, will load or will redirect us to a login page
         // this step is often used to set cookies and other tokens
-        response = ProxyUtil.proxyResponse(requestBean, context, appHome, cookieJar);
+        response = proxyResponse(requestBean, context, appHome, cookieJar);
         response = followRedirects(context, appPath, response, cookieJar);
         if (!response.isSuccess() || !app.isLoginPage(response.getDocument())) {
             // error, or user appears to be logged in, simply redirect to app page
@@ -112,11 +113,11 @@ public class InstalledAppLoader {
         log.info("loadApp: attempting login for " + appPath + " account " + account.getName());
         int numCookies = cookieJar.size();
         final HttpRequestBean<String> authRequest = app.buildLoginRequest(account, response, context, appPath);
-        response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
+        response = proxyResponse(authRequest, context, appPath, cookieJar);
         if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
             if (numCookies != cookieJar.size()) {
                 // hmm... let's try again with the new cookies we just got
-                response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
+                response = proxyResponse(authRequest, context, appPath, cookieJar);
                 if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
                     log.warn("loadApp: login failed (even with more cookies), sending to main app page");
                     return sendToApp(pctx);
@@ -144,7 +145,7 @@ public class InstalledAppLoader {
                     // if this is a registration page, register ourselves...
                     if (resolved.isSuccess() && app.isRegistrationPage(resolved.getDocument())) {
                         final HttpRequestBean<String> registrationRequest = app.buildRegistrationRequest(account, resolved, context, appPath);
-                        response = ProxyUtil.proxyResponse(registrationRequest, context, appPath, cookieJar);
+                        response = proxyResponse(registrationRequest, context, appPath, cookieJar);
 
                         if (!response.isSuccess() || app.isRegistrationPage(response.getDocument())) {
                             log.warn("registration failed, sending to main app page");
@@ -253,7 +254,7 @@ public class InstalledAppLoader {
         String location;
         while ((location = response.getRedirectUri()) != null) {
             final HttpRequestBean<String> redirect = new HttpRequestBean<>(appPath + location);
-            response = ProxyUtil.proxyResponse(redirect, context, appPath, cookieJar);
+            response = proxyResponse(redirect, context, appPath, cookieJar);
             if (++redirCount > MAX_REDIRECTS) response = null;
         }
         return response;
