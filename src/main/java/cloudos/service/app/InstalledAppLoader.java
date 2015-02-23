@@ -110,11 +110,21 @@ public class InstalledAppLoader {
 
         // attempt login and see what the app sends back
         log.info("loadApp: attempting login for " + appPath + " account " + account.getName());
+        int numCookies = cookieJar.size();
         final HttpRequestBean<String> authRequest = app.buildLoginRequest(account, response, context, appPath);
         response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
         if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
-            log.warn("loadApp: login failed, sending to main app page");
-            return sendToApp(pctx);
+            if (numCookies != cookieJar.size()) {
+                // hmm... let's try again with the new cookies we just got
+                response = ProxyUtil.proxyResponse(authRequest, context, appPath, cookieJar);
+                if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
+                    log.warn("loadApp: login failed (even with more cookies), sending to main app page");
+                    return sendToApp(pctx);
+                }
+            } else {
+                log.warn("loadApp: login failed, sending to main app page");
+                return sendToApp(pctx);
+            }
         }
 
         String location;

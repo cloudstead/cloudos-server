@@ -233,7 +233,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         final Account target = accountDAO.findByName(name);
 
         try {
-            if (account.isAdmin()) {
+            if (account.isAdmin() && !targetIsSelf) {
                 accountDAO.setPassword(target, request.getNewPassword());
                 if (request.isSendInvite()) {
                     sendInvitation(account, target, request.getNewPassword());

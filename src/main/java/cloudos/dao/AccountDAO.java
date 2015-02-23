@@ -1,10 +1,10 @@
 package cloudos.dao;
 
+import cloudos.appstore.model.AppRuntime;
 import cloudos.model.Account;
+import cloudos.model.auth.AuthenticationException;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
-import cloudos.model.auth.AuthenticationException;
-import cloudos.appstore.model.AppRuntime;
 import cloudos.resources.ApiConstants;
 import cloudos.service.KerberosService;
 import cloudos.service.LdapService;
@@ -48,13 +48,26 @@ public class AccountDAO extends AccountBaseDAO<Account> {
     }
 
     public void changePassword(Account account, String oldPassword, String newPassword) throws AuthenticationException {
-        ldap.changePassword(account.getAccountName(),oldPassword,newPassword);
+        checkAuth(account, oldPassword);
+        ldap.changePassword(account.getAccountName(), oldPassword, newPassword);
         kerberos.changePassword(account.getAccountName(), oldPassword, newPassword);
         account.getHashedPassword().setResetToken(null);
         update(account);
 
         // Tell the rooty subsystems we've changed the password
         broadcastPasswordChange(account, newPassword);
+    }
+
+    public void checkAuth(Account account, String oldPassword) throws AuthenticationException {
+        try {
+            kerberos.authenticate(account.getName(), oldPassword);
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "changePassword: Error authenticating with current password: " + e;
+            log.error(message, e);
+            throw new IllegalStateException(message, e);
+        }
     }
 
     @Override

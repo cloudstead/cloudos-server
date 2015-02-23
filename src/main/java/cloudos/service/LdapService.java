@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static cloudos.model.auth.AuthenticationException.Problem.*;
+import static org.cobbzilla.util.system.CommandShell.okResult;
 
 
 @Service @Slf4j
@@ -56,7 +57,7 @@ public class LdapService {
                         "cn: cloudos-users\n" +
                         "description: CloudOS Users\n" +
                         "uniqueMember: " + accountDN + "\n";
-                CommandResult groupCreateResult = run_ldapadd(ldif);
+                CommandResult groupCreateResult = okResult(run_ldapadd(ldif));
 
             } else {
                 // the group should now exist, add the user.
@@ -90,6 +91,8 @@ public class LdapService {
         }
 
         if (result.getStderr().contains("Invalid credentials")) throw new AuthenticationException(NOT_FOUND);
+
+        okResult(result);
     }
 
     public void changePassword(String accountName, String oldPassword, String newPassword) throws
@@ -98,8 +101,8 @@ public class LdapService {
                 .addArgument("-x")
                 .addArgument("-H")
                 .addArgument("ldapi:///")
-                .addArgument("-A")
-                .addArgument("-S")
+                .addArgument("-a").addArgument(oldPassword)
+                .addArgument("-s").addArgument(newPassword)
                 .addArgument("-D")
                 .addArgument("cn=admin," + configuration.getLdapDomain())
                 .addArgument("-w")
@@ -107,17 +110,13 @@ public class LdapService {
                 .addArgument(getAccountDN(accountName));
         final CommandResult result;
         try{
-            result = CommandShell.exec(command,
-                    oldPassword + "\n" +
-                    oldPassword + "\n" +
-                    newPassword + "\n" +
-                    newPassword + "\n");
+            result = CommandShell.exec(command);
         } catch (Exception e) {
             throw new IllegalStateException("error running ldappasswd: " + e,e);
         }
 
         if (result.getStderr().contains("unwilling to verify old password")) throw new AuthenticationException(INVALID);
-
+        okResult(result);
     }
 
     public void adminChangePassword(String accountName, String newPassword) {
@@ -125,7 +124,7 @@ public class LdapService {
                 .addArgument("-x")
                 .addArgument("-H")
                 .addArgument("ldapi:///")
-                .addArgument("-S")
+                .addArgument("-s").addArgument(newPassword)
                 .addArgument("-D")
                 .addArgument("cn=admin," + configuration.getLdapDomain())
                 .addArgument("-w")
@@ -133,12 +132,11 @@ public class LdapService {
                 .addArgument(getAccountDN(accountName));
         final CommandResult result;
         try{
-            result = CommandShell.exec(command,
-                            newPassword + "\n" +
-                            newPassword + "\n" );
+            result = CommandShell.exec(command);
         } catch (Exception e) {
             throw new IllegalStateException("error running ldappasswd: " + e,e);
         }
+        okResult(result);
     }
 
     // NB: this will also delete the kerberos principal for the account
@@ -158,7 +156,7 @@ public class LdapService {
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapdelete: " + e,e);
         }
-
+        okResult(result);
     }
 
     private Boolean checkForCloudosGroup() {
@@ -199,13 +197,7 @@ public class LdapService {
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapadd: " + e,e);
         }
-
-        if (!result.isZeroExitStatus()) {
-            log.error("ldapadd returned non-zero: "+result.getExitStatus());
-            throw new IllegalArgumentException(result.getStderr());
-        }
-
-        return result;
+        return okResult(result);
     }
 
     private CommandResult run_ldapmodify(String input) {
@@ -223,13 +215,7 @@ public class LdapService {
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapmodify: " + e, e);
         }
-
-        if (!result.isZeroExitStatus()) {
-            log.error("ldapmodify returned non-zero: "+result.getExitStatus());
-            throw new IllegalArgumentException(result.getStderr());
-        }
-
-        return result;
+        return okResult(result);
     }
 }
 
