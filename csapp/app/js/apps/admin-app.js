@@ -108,13 +108,19 @@ App.LogoutRoute = Ember.Route.extend({
 
 App.ApplicationController = Ember.ObjectController.extend({
 
-	cloudos_session: function () {
-		return sessionStorage.getItem('cloudos_session');
-	}.property('cloudos_session'),
+	cloudos_session: function (key, value, oldValue) {
+		if (arguments.length === 1) {
+			return sessionStorage.getItem('cloudos_session');
+		} else {
+			this.set("cloudosSeesionFlag", !this.get("cloudosSeesionFlag"));
+			return value;
+		}
+	}.property(),
 
 	cloudos_account: function () {
 		return CloudOs.account();
 	}.property('cloudos_account'),
+
 	actions: {
 		'select_app': function (app_name) {
 			window.location.replace('/#/app/' + app_name);
@@ -1649,7 +1655,8 @@ App.AppstoreConfigBasicRoute = Ember.Route.extend({
 						}
 						items.push({
 							name: item,
-							value: value
+							value: value,
+							isPassword: (item.indexOf('password') !== -1) ? true : false
 						});
 						item_names.push(item);
 					});
@@ -1672,19 +1679,63 @@ App.AppstoreConfigBasicRoute = Ember.Route.extend({
 
 	hasConfig: function() {
 		return !Ember.isNone(this.get("config")) && !Ember.isEmpty(this.get("config.categories"));
+	},
+
+	actions: {
+		openModal: function(modalName) {
+			this.render(modalName, {
+				into: 'application',
+				outlet: 'modal'
+			});
+		},
+
+		closeModal: function(){
+			this.disconnectOutlet({
+				outlet: 'modal',
+				parentView: 'application'
+			});
+		},
+
+		goToInstall: function(controller) {
+			console.log("go to install");
+			controller.set("taskId", Api.install_cloud_app(this.get("app")).uuid);
+			this.send("openModal", "app_install_modal");
+		},
+
+		transitionToAppStore: function() {
+			this.transitionTo("appstore");
+		},
+
+		refreshInstalledApps: function(){
+			this.send("closeModal");
+
+			var account = Api.account_for_token(sessionStorage.getItem('cloudos_session'));
+			CloudOs.set_account(account);
+			this.controllerFor('application').set('cloudos_account', CloudOs.account());
+
+			this.send('transitionToAppStore');
+		},
 	}
+});
+
+App.AppStoreConfigBasicController = Ember.ArrayController.extend({
+	config: {},
+	app: {},
+	items: [],
+	taskId: "",
+
+	installCaption: function() {
+		return "Installing " + this.get("app.name");
+	}.property("app.name"),
+
 });
 
 App.ConfigAppRoute = App.AppstoreConfigBasicRoute.extend({
 
 	setupController: function(controller, model) {
 		this._super(controller, model);
-		if (Ember.isEmpty(model)){
-			this.transitionTo('install_app', this.get("app.name"));
-		} else {
-			controller.set("config", this.get("config"));
-			controller.set("app", this.get("app"));
-		}
+		controller.set("config", this.get("config"));
+		controller.set("app", this.get("app"));
 	},
 
 	actions: {
@@ -1694,16 +1745,25 @@ App.ConfigAppRoute = App.AppstoreConfigBasicRoute.extend({
 	}
 });
 
-App.ConfigAppController = Ember.ArrayController.extend({
-	config: {},
-	app: {},
-	items: [],
+App.ConfigAppController = App.AppStoreConfigBasicController.extend({
 
 	actions: {
 		doInstall: function() {
 			Api.write_app_config(this.get("app"), this.get("arrangedContent"));
 			this.send("transitionToConfirm");
+		},
+
+		checkForConfig: function() {
+			if (Ember.isEmpty(this.get("arrangedContent"))){
+				this.send("goToInstall", this);
+			}
 		}
+	}
+});
+
+App.ConfigAppView = Ember.View.extend({
+	didInsertElement: function() {
+		this.get('controller').send("checkForConfig");
 	}
 });
 
@@ -1725,116 +1785,71 @@ App.ConfirmConfigAppRoute = App.AppstoreConfigBasicRoute.extend({
 	}
 });
 
-App.ConfirmConfigAppController = Ember.ArrayController.extend({
-	config: {},
-	app: {},
-	items: [],
+App.ConfirmConfigAppController = App.AppStoreConfigBasicController.extend({
+
 	hiddenClass: function() {
 		return this.get("isInstallModalCloseHidden") ? "hide" : "";
 	}.property("isInstallModalCloseHidden"),
 
 	actions: {
 		doInstall: function() {
-			this.send("transitionToInstall");
+			this.send("goToInstall", this);
 		},
 
 		doConfig: function() {
 			this.send("transitionToConfig");
-		}
+		},
 	}
 });
 
-App.InstallAppRoute = Ember.Route.extend({
+App.TaskProgressModalComponent = Ember.Component.extend({
 
-	model: function(params){
-		var m = App.ConfigAppInfo.all.findBy('name', params.appname);
-		console.log("model: ", m);
-		return m;
+	isCloseButtonHidden: true,
+
+	didInsertElement: function() {
+		this.send("watchTaskStatus");
 	},
 
-	afterModel: function(model) {
-		if (Ember.isNone(model)){
-			this.transitionTo('appstore');
-		}
-	},
-
-	setupController: function(controller, model) {
-		this._super(controller, model);
-		controller.set("taskId", Api.install_cloud_app(model).uuid);
-	},
-
-	actions: {
-		openModal: function(modalName){
-			return this.render(modalName, {
-				into: 'application',
-				outlet: 'modal'
-			});
-		},
-		closeModal: function(){
-			this.disconnectOutlet({
-				outlet: 'modal',
-				parentView: 'application'
-			});
-
-			var account = Api.account_for_token(sessionStorage.getItem('cloudos_session'));
-
-			CloudOs.set_account(account);
-
-			this.transitionTo('appstore');
-		},
-		transitionToAppStore: function() {
-			this.transitionTo('appstore');
-		}
-	}
-});
-
-App.InstallAppController = Ember.ObjectController.extend({
-	taskId: "",
-	installStatus: "Initializing",
-	isInstallModalCloseHidden: true,
-
-	statusReportClass: function() {
-		console.log("hidden: ", this.get("isInstallModalCloseHidden"));
+	CloseButtonClass: function() {
 		var cls = "large-12 columns";
-		return cls + (this.get("isInstallModalCloseHidden") ? " hide" : "");
-	}.property("isInstallModalCloseHidden"),
+		return cls + (this.get("isCloseButtonHidden") ? " hide" : "");
+	}.property("isCloseButtonHidden"),
 
 	actions: {
+		closeModal: function() {
+			console.log("action: ", this.get("closeAction"));
+
+			this.sendAction("closeAction");
+		},
+
 		watchTaskStatus: function() {
 			var self = this;
 			var task_id = this.get("taskId");
 
-			self.set('installStatus', "Initializing");
-			self.set('isInstallModalCloseHidden', true);
+			self.set('message', Em.I18n.translations.task.progress_modal.task_starting);
+			self.set('isCloseButtonHidden', true);
 			self.send("openModal", "app_install_modal");
 
 			var statusInterval = setInterval(function(){
 				var status = Api.get_task_results(task_id);
 
 				if (status.success) {
-					self.set('installStatus', "done");
-					self.send("stopWatchingTaskStatus", statusInterval);
+					self.set('message', Em.I18n.translations.task.progress_modal.task_success);
+					self.send("stopWatchingTaskStatus", statusInterval, true);
 				} else if (!Ember.isEmpty(status.events)) {
 					var message_key = status.events[status.events.length-1].messageKey;
-					self.set('installStatus', Em.I18n.translations.task.events[message_key]);
+					self.set('message', Em.I18n.translations.task.events[message_key]);
 					if (status.error !== undefined) {
-						self.send("stopWatchingTaskStatus", statusInterval);
+						self.send("stopWatchingTaskStatus", statusInterval, false);
 					}
 				}
 			}, 5000);
 		},
 
-		stopWatchingTaskStatus: function(interval) {
-			this.set('isInstallModalCloseHidden', false);
+		stopWatchingTaskStatus: function(interval, taskSuccess) {
+			this.set('isCloseButtonHidden', false);
 			window.clearInterval(interval);
 		}
-	}
-});
-
-App.InstallAppView = Ember.View.extend({
-	didInsertElement: function() {
-		console.log("install app view!");
-		this.get('controller').send("watchTaskStatus");
 	}
 });
 
