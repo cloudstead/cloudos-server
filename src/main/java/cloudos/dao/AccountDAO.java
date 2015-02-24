@@ -140,13 +140,18 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
     public void delete(String accountName) {
 
+        try {
+            ldap.deleteUser(accountName);
+        } catch (Exception e) {
+            log.warn("delete: Error calling ldap.deleteUser("+accountName+"): "+e, e);
+        }
+
         final Account account = findByName(accountName);
         if (account == null) {
             log.warn("delete: account not found (silently returning): "+accountName);
             return;
         }
 
-        ldap.deleteUser(accountName);
         try {
             super.delete(account.getUuid());
         } catch (Exception e) {

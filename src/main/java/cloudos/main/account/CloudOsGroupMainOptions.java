@@ -1,5 +1,8 @@
-package cloudos.main;
+package cloudos.main.account;
 
+import cloudos.model.support.AccountGroupRequest;
+import org.cobbzilla.wizard.api.CrudOperation;
+import cloudos.main.CloudOsMainOptions;
 import cloudos.model.AccountGroupInfo;
 import edu.emory.mathcs.backport.java.util.Collections;
 import lombok.Getter;
@@ -38,11 +41,11 @@ public class CloudOsGroupMainOptions extends CloudOsMainOptions {
     @Option(name=OPT_MEMBERS, aliases=LONGOPT_MEMBERS, usage=USAGE_MEMBERS)
     @Getter @Setter private String members;
 
-    public static final String USAGE_OPERATION = "Name of the account to add/remove";
+    public static final String USAGE_OPERATION = "The operation to perform";
     public static final String OPT_OPERATION = "-o";
     public static final String LONGOPT_OPERATION = "--operation";
     @Option(name=OPT_OPERATION, aliases=LONGOPT_OPERATION, usage=USAGE_OPERATION)
-    @Getter @Setter private CloudOsGroupOperation operation = CloudOsGroupOperation.view;
+    @Getter @Setter private CrudOperation operation = CrudOperation.read;
 
     public AccountGroupInfo getInfo() {
         return new AccountGroupInfo().setDescription(description).setStorageQuota(quota);
@@ -51,4 +54,12 @@ public class CloudOsGroupMainOptions extends CloudOsMainOptions {
     public List<String> getRecipients() {
         return empty(members) ? Collections.emptyList() : split(members, ", \t");
     }
+
+    public AccountGroupRequest getGroupRequest() {
+        return new AccountGroupRequest()
+                .setName(getName())
+                .setInfo(getInfo())
+                .setRecipients(getRecipients());
+    }
+
 }

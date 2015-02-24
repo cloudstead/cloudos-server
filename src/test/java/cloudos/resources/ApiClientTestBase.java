@@ -41,6 +41,7 @@ import org.cobbzilla.wizard.util.RestResponse;
 import org.cobbzilla.wizardtest.resources.ApiDocsResourceIT;
 import org.junit.Before;
 import rooty.toots.chef.ChefHandler;
+import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefSolo;
 import rooty.toots.service.ServiceKeyHandler;
 import rooty.toots.ssl.SslCertHandler;
@@ -219,6 +220,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override protected void runChefSolo() throws Exception { /* noop */ }
             @Override protected CommandLine backupCommand(File chefDir, File backup) { return new CommandLine("ls"); }
             @Override protected CommandLine rollbackCommand(File backupDir, File chefDir) { return new CommandLine("ls"); }
+            @Override protected String syncCookbookFilesCommand(ChefMessage chefMessage, String chefPath) {
+                return super._syncCookbooksCommand(chefMessage, chefPath);
+            }
         };
         // write a simple solo.json file
         final ChefSolo chefSolo = new ChefSolo();

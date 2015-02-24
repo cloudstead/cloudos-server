@@ -105,7 +105,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         try {
             created = accountDAO.create(request);
         } catch (Exception e) {
-            log.error("addAccount: error creating admin: "+e, e);
+            log.error("addAccount: error creating account: "+e, e);
             return Response.serverError().build();
         }
 
@@ -322,8 +322,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         }
 
         Account toDelete = accountDAO.findByName(name);
-        if (toDelete == null) return ResourceUtil.notFound(name);
-        if (toDelete.hasAuthId()) remove2factor(toDelete);
+        if (toDelete != null && toDelete.hasAuthId()) remove2factor(toDelete);
 
         try {
             accountDAO.delete(name);

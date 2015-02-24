@@ -18,12 +18,12 @@ public class AccountGroupMemberView {
 
     public AccountGroupMemberView(Account account) {
         this.name = account.getAccountName();
-        this.type = AccountGroupMemberType.ACCOUNT;
+        this.type = AccountGroupMemberType.account;
     }
 
     public AccountGroupMemberView(AccountGroup group) {
         this.name = group.getName();
-        this.type = AccountGroupMemberType.GROUP;
+        this.type = AccountGroupMemberType.group;
     }
 
     public AccountGroupMemberView(AccountGroupMember m) {

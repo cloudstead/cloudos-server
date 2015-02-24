@@ -2,6 +2,7 @@ package cloudos.model;
 
 import com.fasterxml.jackson.databind.JavaType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.cobbzilla.wizard.dao.SearchResults;
@@ -13,8 +14,10 @@ import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity @Accessors(chain=true)
+@Entity @NoArgsConstructor @Accessors(chain=true)
 public class AccountGroup extends UniquelyNamedEntity {
+
+    public AccountGroup (String name) { super(name); }
 
     // jackson helper class
     public static final JavaType searchResultType = SearchResults.jsonType(AccountGroup.class);
@@ -33,6 +36,18 @@ public class AccountGroup extends UniquelyNamedEntity {
     public boolean sameInfo(AccountGroupInfo other) {
         if (other == null) return info == null;
         return info != null && info.equals(other);
+    }
+
+    public AccountGroup setDescription(String description) {
+        if (info == null) info = new AccountGroupInfo();
+        info.setDescription(description);
+        return this;
+    }
+
+    public AccountGroup setStorageQuota(String quota) {
+        if (info == null) info = new AccountGroupInfo();
+        info.setStorageQuota(quota);
+        return this;
     }
 
 }

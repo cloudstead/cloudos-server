@@ -80,7 +80,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         assertEquals(group1.getRecipients().size(), created.getMembers().size());
         for (AccountGroupMemberView m : created.getMembers()) {
             assertTrue(group1.getRecipients().contains(m.getName()));
-            assertEquals(AccountGroupMemberType.ACCOUNT, m.getType());
+            assertEquals(AccountGroupMemberType.account, m.getType());
         }
 
         // create "group2" with 2 other users and group1
@@ -100,9 +100,9 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         for (AccountGroupMemberView m : created.getMembers()) {
             assertTrue(group2.getRecipients().contains(m.getName()));
             if (m.getName().equals(group1.getName())) {
-                assertEquals(AccountGroupMemberType.GROUP, m.getType());
+                assertEquals(AccountGroupMemberType.group, m.getType());
             } else {
-                assertEquals(AccountGroupMemberType.ACCOUNT, m.getType());
+                assertEquals(AccountGroupMemberType.account, m.getType());
             }
         }
 
@@ -134,7 +134,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         assertEquals(2, updated.getMembers().size());
         for (AccountGroupMemberView m : updated.getMembers()) {
             assertTrue(group2.getRecipients().contains(m.getName()));
-            assertEquals(AccountGroupMemberType.ACCOUNT, m.getType());
+            assertEquals(AccountGroupMemberType.account, m.getType());
         }
 
         // delete all groups

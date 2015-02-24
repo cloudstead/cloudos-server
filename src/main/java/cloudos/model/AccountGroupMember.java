@@ -1,6 +1,7 @@
 package cloudos.model;
 
 import cloudos.dao.AccountGroupMemberType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,9 @@ import org.cobbzilla.wizard.model.IdentifiableBase;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
-import static org.cobbzilla.wizard.model.BasicConstraintConstants.UUID_MAXLEN;
-
 @Entity @Accessors(chain=true) @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"groupUuid", "memberUuid"}))
-@EqualsAndHashCode(of={"groupUuid", "memberUuid"}, callSuper=false)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"groupName", "memberName"}))
+@EqualsAndHashCode(of={"groupName", "memberName"}, callSuper=false)
 public class AccountGroupMember extends IdentifiableBase {
 
     // we are a member of the alias below
@@ -41,12 +40,15 @@ public class AccountGroupMember extends IdentifiableBase {
     @Enumerated(EnumType.STRING)
     @Getter @Setter public AccountGroupMemberType type;
 
+    @JsonIgnore @Transient public boolean isAccount () { return type == AccountGroupMemberType.account; }
+    @JsonIgnore @Transient public boolean isGroup   () { return type == AccountGroupMemberType.group; }
+
     public AccountGroupMember (AccountGroup group, Account member) {
         this.groupUuid = group.getUuid();
         this.groupName = group.getName();
         this.memberUuid = member.getUuid();
         this.memberName = member.getAccountName();
-        this.type = AccountGroupMemberType.ACCOUNT;
+        this.type = AccountGroupMemberType.account;
     }
 
     public AccountGroupMember (AccountGroup group, AccountGroup member) {
@@ -54,7 +56,7 @@ public class AccountGroupMember extends IdentifiableBase {
         this.groupName = group.getName();
         this.memberUuid = member.getUuid();
         this.memberName = member.getName();
-        this.type = AccountGroupMemberType.GROUP;
+        this.type = AccountGroupMemberType.group;
     }
 
 }

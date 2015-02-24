@@ -106,11 +106,33 @@ public class AccountGroupsResource {
         }
 
         // create group, add members
-        final AccountGroup created = groupDAO.create((AccountGroup) new AccountGroup()
-                .setInfo(groupRequest.getInfo())
-                .setName(groupName));
-        final List<AccountGroupMember> members = buildGroupMemberList(created, recipients);
-        for (AccountGroupMember m : members) memberDAO.create(m.setGroupUuid(created.getUuid()));
+        AccountGroup created = null;
+        List<AccountGroupMember> members = null;
+        try {
+            created = groupDAO.create((AccountGroup) new AccountGroup()
+                    .setInfo(groupRequest.getInfo())
+                    .setName(groupName));
+            members = buildGroupMemberList(created, recipients);
+            for (AccountGroupMember m : members) memberDAO.create(m.setGroupUuid(created.getUuid()));
+
+            // ensure LDAP creation works before writing to our own DB
+            ldap.createGroupWithMembers(created, members);
+
+        } catch (Exception e) {
+            // Remove group and members from DB, and entry from LDAP
+            log.error("create: Error creating group (cleaning up): "+e, e);
+            try {
+                if (members != null) {
+                    for (AccountGroupMember m : members) memberDAO.delete(m.getUuid());
+                }
+                if (created != null) groupDAO.delete(created.getUuid());
+                ldap.deleteGroup(groupName);
+
+            } catch (Exception e2) {
+                log.warn("create: Error cleaning up after failed creation: "+e2, e2);
+            }
+            throw new IllegalStateException("Error creating group: "+e, e);
+        }
 
         // build view
         final AccountGroupView view = buildAccountGroupView(memberDAO, created, members);
@@ -156,6 +178,7 @@ public class AccountGroupsResource {
         if (!group.sameInfo(groupRequest.getInfo())) {
             group.setInfo(groupRequest.getInfo());
             groupDAO.update(group);
+            ldap.updateGroupInfo(group);
         }
 
         if (!recipients.isEmpty()) {
@@ -169,13 +192,19 @@ public class AccountGroupsResource {
             // remove members in DB that are not in the request, and determine which members need to be added
             final ArrayList<String> newMembers = new ArrayList<>(groupRequest.getRecipients());
             for (AccountGroupMember m : members) {
-                if (!groupRequest.getRecipients().contains(m.getMemberName())) memberDAO.delete(m.getUuid());
+                if (!groupRequest.getRecipients().contains(m.getMemberName())) {
+                    ldap.removeFromGroup(groupName, m);
+                    memberDAO.delete(m.getUuid());
+                }
                 newMembers.remove(m.getMemberName()); // already a member, don't need to re-add
             }
 
             // update members and announce change
             final List<AccountGroupMember> toAdd = buildGroupMemberList(group, newMembers);
-            for (AccountGroupMember m : toAdd) memberDAO.create(m.setGroupUuid(group.getUuid()));
+            for (AccountGroupMember m : toAdd) {
+                ldap.addToGroup(groupName, m);
+                memberDAO.create(m.setGroupUuid(group.getUuid()));
+            }
 
             announce(groupName, recipients);
         }
@@ -264,6 +293,7 @@ public class AccountGroupsResource {
         }
         // delete group
         groupDAO.delete(group.getUuid());
+        ldap.deleteGroup(groupName);
 
         // Announce removed alias on the event bus
         announce(new RemoveEmailAliasEvent(groupName));
