@@ -36,7 +36,7 @@ public class SearchAccountGroupsTest extends SearchTestBase {
         final AccountGroupMemberDAO memberDAO = getBean(AccountGroupMemberDAO.class);
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
 
-        final String groupNameBase = RandomStringUtils.randomAlphanumeric(10).toLowerCase();
+        final String groupNameBase = "aaa"+RandomStringUtils.randomAlphanumeric(10).toLowerCase();
         for (int i=0; i<NUM_GROUPS; i++) {
             final String groupName = groupNameBase + "_" + i;
             final AccountGroup group = (AccountGroup) new AccountGroup().setName(groupName);
@@ -75,11 +75,14 @@ public class SearchAccountGroupsTest extends SearchTestBase {
 
     @Test
     public void testSearchGroupsByName() throws Exception {
-        apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name");
+        apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name (plus the default group)");
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
                 .setSortField("name").setSortOrder(ResultPage.ASC);
-        expectResults(page, NUM_GROUPS, groupNames, searchAccountGroups(page));
+
+        final List<String> expected = new ArrayList<>(groupNames);
+        expected.add(AccountGroup.DEFAULT_GROUP_NAME);
+        expectResults(page, NUM_GROUPS + 1, expected, searchAccountGroups(page));
     }
 
     @Test

@@ -3,16 +3,23 @@ package cloudos.model.support;
 import cloudos.model.AccountGroupInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Accessors(chain=true)
+@NoArgsConstructor @Accessors(chain=true)
 public class AccountGroupRequest {
 
     @Setter private String name;
+
+    public AccountGroupRequest(String groupName, String description) {
+        setName(groupName);
+        setInfo(new AccountGroupInfo().setDescription(description));
+    }
+
     public String getName () { return name == null ? null : name.toLowerCase(); }
 
     @Getter @Setter private List<String> recipients = new ArrayList<>();

@@ -22,8 +22,8 @@ public class AccountGroupView implements NamedEntity {
     public static final JavaType searchResultType = SearchResults.jsonType(AccountGroupView.class);
 
     @Getter @Setter private String name;
+    @Getter @Setter private AccountGroupInfo info;
     @Getter @Setter private List<AccountGroupMemberView> members = new ArrayList<>();
-
     @Setter private Integer memberCount = null;
 
     public AccountGroupView(AccountGroup group) { ReflectionUtil.copy(this, group); }
@@ -43,7 +43,7 @@ public class AccountGroupView implements NamedEntity {
     }
 
     public AccountGroupView addMembers(List<AccountGroupMember> groupMembers) {
-        for (AccountGroupMember m : groupMembers) {
+        for (AccountGroupMember m : new ArrayList<>(groupMembers)) {
             members.add(new AccountGroupMemberView(m));
         }
         return this;
@@ -51,5 +51,6 @@ public class AccountGroupView implements NamedEntity {
 
     public void addMember(AccountGroupMember m) { members.add(new AccountGroupMemberView(m)); }
 
-    @Getter @Setter private AccountGroupInfo info;
+    public void resetMembers() { members = new ArrayList<>(); }
+
 }

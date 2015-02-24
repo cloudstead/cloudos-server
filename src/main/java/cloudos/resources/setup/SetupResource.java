@@ -1,9 +1,11 @@
 package cloudos.resources.setup;
 
 import cloudos.dao.AccountDAO;
+import cloudos.dao.AccountGroupDAO;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
+import cloudos.model.AccountGroup;
 import cloudos.model.support.RestoreRequest;
 import cloudos.model.support.SetupRequest;
 import cloudos.model.support.SetupResponse;
@@ -27,7 +29,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static cloudos.model.AccountGroup.DEFAULT_GROUP_REQUEST;
+import static cloudos.model.AccountGroup.DEFAULT_GROUP_NAME;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +45,7 @@ public class SetupResource {
     public static final long GET_RESTORE_KEY_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
 
     @Autowired private AccountDAO accountDAO;
+    @Autowired private AccountGroupDAO groupDAO;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private SetupSettingsSource setupSettingsSource;
     @Autowired private AppDAO appDAO;
@@ -58,6 +65,12 @@ public class SetupResource {
 
         // only proceed if the setup key file is present and matches the request's setupKey
         final String backupKey = setupSettingsSource.validateFirstTimeSetup(request);
+
+        // assert that there are no other accounts present
+        if (!accountDAO.findAdmins().isEmpty()) {
+            log.error("Cannot setup, admin account(s) present on system");
+            return ResourceUtil.invalid("err.setup.adminsExist");
+        }
 
         // create admin account in kerberos and cloud storage
         request.setAdmin(true);
@@ -86,6 +99,15 @@ public class SetupResource {
 
         account.setPassword(request.getPassword()); // keep the password in the session
         final String sessionId = sessionDAO.create(account);
+
+        if (groupDAO.findByName(DEFAULT_GROUP_NAME) == null) {
+            final List<String> recipients = new ArrayList<>();
+            recipients.add(account.getName());
+            final AccountGroup created = groupDAO.create(DEFAULT_GROUP_REQUEST, recipients);
+            if (created != null) {
+
+            }
+        }
 
         setupSettingsSource.firstTimeSetupCompleted();
 

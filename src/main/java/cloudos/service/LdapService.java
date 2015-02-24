@@ -18,17 +18,10 @@ import java.util.List;
 import static cloudos.model.auth.AuthenticationException.Problem.*;
 import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.cobbzilla.util.system.CommandShell.okResult;
-import static org.cobbzilla.wizard.validation.ValidationMessages.translateMessage;
 
 
 @Service @Slf4j
 public class LdapService {
-
-    public static final String DEFAULT_GROUP_NAME = "cloudos-users";
-
-    public static final AccountGroup DEFAULT_GROUP = (AccountGroup) new AccountGroup()
-            .setDescription(translateMessage("{ldap.defaultGroupDesc}"))
-            .setName(DEFAULT_GROUP_NAME);
 
     @Autowired private CloudOsConfiguration configuration;
 
@@ -73,11 +66,11 @@ public class LdapService {
             // check to see if we've got the cloudos-user group installed. if not, go ahead and create it, then add this
             // user.
             if (!checkForCloudosGroup()) {
-                createGroupWithFirstAccount(DEFAULT_GROUP, accountName);
+                createGroupWithFirstAccount(AccountGroup.defaultGroup(), accountName);
 
             } else {
                 // the group should now exist, add the user.
-                addAccountToGroup(DEFAULT_GROUP_NAME, accountName);
+                addAccountToGroup(AccountGroup.DEFAULT_GROUP_NAME, accountName);
             }
         }
 
@@ -282,10 +275,12 @@ public class LdapService {
 
     public void deleteGroup(String groupName) { deleteDN(groupDN(groupName)); }
 
-    private Boolean checkForCloudosGroup() {
+    private Boolean checkForCloudosGroup() { return groupExists(AccountGroup.DEFAULT_GROUP_NAME); }
+
+    public Boolean groupExists(String groupName) {
         final CommandResult result;
         try {
-            result = CommandShell.exec(ldapAdminSearchCommand(ldapFilterGroup(DEFAULT_GROUP_NAME)));
+            result = CommandShell.exec(ldapAdminSearchCommand(ldapFilterGroup(groupName)));
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapsearch: " + e, e);
         }

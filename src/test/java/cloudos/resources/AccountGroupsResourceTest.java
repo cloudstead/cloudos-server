@@ -115,9 +115,9 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         response = doPut(GROUPS_ENDPOINT +"/"+group3.getName(), toJson(group3));
         assertEquals(HttpStatusCodes.UNPROCESSABLE_ENTITY, response.status);
 
-        apiDocs.addNote("fetch all groups, there should be only 2");
+        apiDocs.addNote("fetch all groups, there should be only 3 (the 2 we created + the default group)");
         AccountGroup[] groups = fromJson(get(GROUPS_ENDPOINT).json, AccountGroup[].class);
-        assertEquals(2, groups.length);
+        assertEquals(3, groups.length);
 
         // update group2, keep one user, add another user, remove everyone else
         group2.getRecipients().remove(testAccounts.get(2).getName());
@@ -141,10 +141,10 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         apiDocs.addNote("delete first group");  delete(GROUPS_ENDPOINT + "/" + group1.getName());
         apiDocs.addNote("delete second group"); delete(GROUPS_ENDPOINT + "/" + group2.getName());
 
-        // should be none left now
-        apiDocs.addNote("fetch all groups, there should be none");
+        apiDocs.addNote("fetch all groups, there should be only the default group");
         groups = fromJson(get(GROUPS_ENDPOINT).json, AccountGroup[].class);
-        assertEquals(0, groups.length);
+        assertEquals(1, groups.length);
+        assertEquals(AccountGroup.DEFAULT_GROUP_NAME, groups[0].getName());
 
         // looking up a single one should return 404
         apiDocs.addNote("fetch one of the old groups, should get a 404");

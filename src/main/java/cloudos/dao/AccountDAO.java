@@ -2,6 +2,7 @@ package cloudos.dao;
 
 import cloudos.appstore.model.AppRuntime;
 import cloudos.model.Account;
+import cloudos.model.AccountGroupMember;
 import cloudos.model.auth.AuthenticationException;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
@@ -33,6 +34,8 @@ public class AccountDAO extends AccountBaseDAO<Account> {
     @Autowired private KerberosService kerberos;
     @Autowired private RootyService rooty;
     @Autowired private AppDAO appDAO;
+    @Autowired private AccountGroupDAO groupDAO;
+    @Autowired private AccountGroupMemberDAO memberDAO;
 
     @Override public Account authenticate(LoginRequest loginRequest) throws AuthenticationException {
 
@@ -85,6 +88,12 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         final List<Account> accounts = findAll();
         Collections.sort(accounts, Account.SORT_ACCOUNT_NAME);
         return accounts;
+    }
+
+    @Override
+    public Account postCreate(Account account, Object context) {
+        groupDAO.addToDefaultGroup(account);
+        return super.postCreate(account, context);
     }
 
     public Account create(AccountRequest request) throws Exception {
