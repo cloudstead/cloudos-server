@@ -126,7 +126,6 @@ public class AccountGroupsResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         groupName = groupName.toLowerCase();
-        final List<String> recipients = groupRequest.getRecipientsLowercase();
 
         if (!groupName.equalsIgnoreCase(groupRequest.getName())) {
             throw new SimpleViolationException("{err.name.mismatch}", "group name in json was different from uri");
@@ -135,22 +134,9 @@ public class AccountGroupsResource {
         final AccountGroup group = groupDAO.findByName(groupName.toLowerCase());
         if (group == null) return ResourceUtil.notFound(groupName);
 
-        // update if quota/description changed
-        if (!group.sameInfo(groupRequest.getInfo())) {
-            group.setInfo(groupRequest.getInfo());
-            groupDAO.update(group);
-        }
+        groupDAO.update(groupRequest);
 
-        if (!recipients.isEmpty()) {
-            if (groupDAO.createsCircularReference(groupName, recipients)) {
-                throw new SimpleViolationException("{err.group.circularReference}", "group cannot contain a circular reference");
-            }
-
-            // update members and announce change
-            groupDAO.mergeMembers(groupRequest, group);
-            announce(groupName, recipients);
-        }
-
+        announce(groupName, groupRequest.getRecipients());
         return Response.ok(group).build();
     }
 

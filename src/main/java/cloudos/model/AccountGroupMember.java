@@ -2,10 +2,7 @@ package cloudos.model;
 
 import cloudos.dao.AccountGroupMemberType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.cobbzilla.wizard.model.IdentifiableBase;
 
@@ -14,6 +11,7 @@ import javax.validation.constraints.Size;
 
 @Entity @Accessors(chain=true) @NoArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"groupName", "memberName"}))
+@ToString(of={"groupName", "memberName"})
 @EqualsAndHashCode(of={"groupName", "memberName"}, callSuper=false)
 public class AccountGroupMember extends IdentifiableBase {
 

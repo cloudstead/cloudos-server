@@ -9,7 +9,7 @@ import java.util.List;
 @Slf4j
 public class CloudOsServer extends RestServerBase<CloudOsConfiguration> {
 
-    private static final String[] API_CONFIG_YML = {"cloudos-config.yml"};
+    public static final String[] API_CONFIG_YML = {"cloudos-config.yml"};
 
     @Override protected String getListenAddress() { return LOCALHOST; }
 
@@ -22,5 +22,4 @@ public class CloudOsServer extends RestServerBase<CloudOsConfiguration> {
     public static List<ConfigurationSource> getConfigurationSources() {
         return getStreamConfigurationSources(CloudOsServer.class, API_CONFIG_YML);
     }
-
 }

@@ -14,7 +14,9 @@ import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.NamedEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Accessors(chain=true) @NoArgsConstructor
 public class AccountGroupView implements NamedEntity {
@@ -23,7 +25,7 @@ public class AccountGroupView implements NamedEntity {
 
     @Getter @Setter private String name;
     @Getter @Setter private AccountGroupInfo info;
-    @Getter @Setter private List<AccountGroupMemberView> members = new ArrayList<>();
+    @Getter @Setter private Set<AccountGroupMemberView> members = new HashSet<>();
     @Setter private Integer memberCount = null;
 
     public AccountGroupView(AccountGroup group) { ReflectionUtil.copy(this, group); }
@@ -51,6 +53,6 @@ public class AccountGroupView implements NamedEntity {
 
     public void addMember(AccountGroupMember m) { members.add(new AccountGroupMemberView(m)); }
 
-    public void resetMembers() { members = new ArrayList<>(); }
+    public void resetMembers() { members = new HashSet<>(); }
 
 }

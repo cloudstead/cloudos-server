@@ -15,7 +15,7 @@ import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_LENGTH;
 import static org.cobbzilla.util.string.StringUtil.BYTES_PATTERN;
 
 @Embeddable @EqualsAndHashCode(callSuper=false)
-@NoArgsConstructor @AllArgsConstructor @Accessors(chain=true)
+@NoArgsConstructor @AllArgsConstructor @Accessors(chain=true) @ToString
 public class AccountGroupInfo {
 
     public AccountGroupInfo (AccountGroupInfo other) { ReflectionUtil.copy(this, other); }

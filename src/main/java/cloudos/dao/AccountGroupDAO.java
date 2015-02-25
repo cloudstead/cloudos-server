@@ -113,25 +113,53 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         return created;
     }
 
+    public AccountGroup update(@Valid AccountGroupRequest request) {
+
+        final String groupName = request.getName();
+        final AccountGroup group = findByName(groupName.toLowerCase());
+        final List<String> recipients = request.getRecipients();
+
+        // update if quota/description changed
+        if (!group.sameInfo(request.getInfo())) {
+            group.setInfo(request.getInfo());
+            update(group);
+        }
+
+        if (!recipients.isEmpty()) {
+            if (createsCircularReference(groupName, recipients)) {
+                throw new SimpleViolationException("{err.group.circularReference}", "group cannot contain a circular reference");
+            }
+
+            // update members and announce change
+            mergeMembers(request, group);
+        }
+
+        return group;
+    }
+
     /**
      * @param group The group to build a member list for.
      * @return a List of members of this group. If this group is a mirror, this also includes (via union) the members of its mirror source group.
      */
     public List<AccountGroupMember> buildGroupMemberList(AccountGroup group) {
 
-        final Set<AccountGroupMember> members = new HashSet<>();
-        for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) members.add(populateByUuid(group, m.getMemberUuid()));
+        final Map<String, AccountGroupMember> members = new HashMap<>();
+        for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
+            members.put(m.getMemberName(), m);
+        }
 
         if (group.hasMirror()) {
             final AccountGroup source = findByName(group.getMirror());
             if (source == null) {
                 log.warn("Mirror broken: "+group.getMirror()+" -> "+group.getName());
             } else {
-                members.addAll(memberDAO.findByGroup(source.getUuid()));
+                for (AccountGroupMember m : memberDAO.findByGroup(source.getUuid())) {
+                    members.put(m.getMemberName(), m);
+                }
             }
         }
 
-        return new ArrayList<>(members);
+        return new ArrayList<>(members.values());
     }
 
     /**
@@ -200,6 +228,11 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         }
 
         final String groupName = groupRequest.getName();
+
+        if (!groupRequest.hasMirror() && (recipients == null || recipients.isEmpty())) {
+            throw new SimpleViolationException("{err.group.empty}", "Cannot create an empty non-mirror group: "+groupName);
+        }
+
         if (findByName(groupName) != null) {
             throw new SimpleViolationException("{err.name.notUnique}", "group with same name already exists");
         }

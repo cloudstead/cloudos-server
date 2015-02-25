@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.UniquelyNamedEntity;
@@ -20,7 +21,7 @@ import java.util.List;
 import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.cobbzilla.wizard.validation.ValidationMessages.translateMessage;
 
-@Entity @NoArgsConstructor @Accessors(chain=true)
+@Entity @NoArgsConstructor @Accessors(chain=true) @ToString
 public class AccountGroup extends UniquelyNamedEntity implements Comparable<AccountGroup> {
 
     // jackson helper class
