@@ -2,7 +2,6 @@ package cloudos.dao;
 
 import cloudos.appstore.model.AppRuntime;
 import cloudos.model.Account;
-import cloudos.model.AccountGroupMember;
 import cloudos.model.auth.AuthenticationException;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
@@ -93,6 +92,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
     @Override
     public Account postCreate(Account account, Object context) {
         groupDAO.addToDefaultGroup(account);
+        if (account.isAdmin()) groupDAO.addToAdminGroup(account);
         return super.postCreate(account, context);
     }
 

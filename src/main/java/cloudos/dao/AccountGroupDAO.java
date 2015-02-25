@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cloudos.model.AccountGroup.ADMIN_GROUP_NAME;
 import static cloudos.model.AccountGroup.DEFAULT_GROUP_NAME;
 
 @Repository @Slf4j
@@ -29,12 +30,19 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
     public AccountGroup findByName(String name) { return findByUniqueField("name", name); }
 
-    public AccountGroup defaultGroup() { return findByName(DEFAULT_GROUP_NAME); }
+    public AccountGroup findDefaultGroup() { return findByName(DEFAULT_GROUP_NAME); }
+    public AccountGroup findAdminGroup() { return findByName(ADMIN_GROUP_NAME); }
 
     public AccountGroupMember addToDefaultGroup(Account account) {
-        AccountGroup defaultGroup = defaultGroup();
+        AccountGroup defaultGroup = findDefaultGroup();
         if (defaultGroup == null) defaultGroup = create(AccountGroup.defaultGroup());
         return memberDAO.createOrUpdate(new AccountGroupMember(defaultGroup, account));
+    }
+
+    public AccountGroupMember addToAdminGroup(Account account) {
+        AccountGroup adminGroup = findAdminGroup();
+        if (adminGroup == null) adminGroup = create(AccountGroup.adminGroup());
+        return memberDAO.createOrUpdate(new AccountGroupMember(adminGroup, account));
     }
 
     @Override public AccountGroup preUpdate(@Valid AccountGroup group) {

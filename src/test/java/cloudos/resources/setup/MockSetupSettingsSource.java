@@ -18,11 +18,13 @@ public class MockSetupSettingsSource extends SetupSettingsSource {
     @Getter private SetupSettings mockSettings
             = new SetupSettings(randomAlphanumeric(10), randomEmail(), BCryptUtil.hash(getPassword()), MOCK_BACKUP_KEY);
 
+    @Override public boolean canSetup() { return mockSettings != null; }
+
     @Override protected SetupSettings getSettings() { return getMockSettings(); }
 
     @Override
     public String validateFirstTimeSetup(SetupRequest request) {
-        if (mockSettings == null) throw new SimpleViolationException("{error.setup.alreadySetup}");
+        if (!canSetup()) throw new SimpleViolationException("{error.setup.alreadySetup}");
         validateSecrets(request, mockSettings);
         return MOCK_BACKUP_KEY;
     }

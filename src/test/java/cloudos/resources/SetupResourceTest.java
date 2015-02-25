@@ -10,6 +10,8 @@ import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SetupResourceTest extends ApiClientTestBase {
 
@@ -20,8 +22,16 @@ public class SetupResourceTest extends ApiClientTestBase {
     @Test
     public void testFirstTimeSetup () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "First-time setup of a new cloudstead");
+
+        apiDocs.addNote("Check to see if first-time setup can be done, should return true");
+        final RestResponse response = get(ApiConstants.SETUP_ENDPOINT);
+        assertTrue(Boolean.valueOf(response.json));
+
         apiDocs.addNote("Send setup request, creates initial admin account");
         doFirstTimeSetup();
+
+        apiDocs.addNote("Check to see if first-time setup can be done, now returns false");
+        assertFalse(Boolean.valueOf(get(ApiConstants.SETUP_ENDPOINT).json));
     }
 
     @Test

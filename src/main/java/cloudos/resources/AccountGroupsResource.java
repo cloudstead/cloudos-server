@@ -23,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,7 @@ public class AccountGroupsResource {
         final List<AccountGroup> groups = groupDAO.findAll();
         final List<AccountGroupView> views = new ArrayList<>();
         for (AccountGroup g : groups) views.add(buildAccountGroupView(memberDAO, g, null));
+        Collections.sort(groups);
         return Response.ok(groups).build();
     }
 

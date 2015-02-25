@@ -19,12 +19,14 @@ public class SetupSettingsSource {
 
     public static final File SETUP_KEY_FILE = new File(USER_HOME, ".first_time_setup");
 
+    public boolean canSetup() { return SETUP_KEY_FILE.exists(); }
+
     protected SetupSettings getSettings() {
         return JsonUtil.fromJsonOrDie(toStringOrDie(SETUP_KEY_FILE), SetupSettings.class);
     }
 
     public String validateFirstTimeSetup(SetupRequest request) {
-        if (!SETUP_KEY_FILE.exists()) throw new SimpleViolationException("{error.setup.alreadySetup}");
+        if (!canSetup()) throw new SimpleViolationException("{error.setup.alreadySetup}");
         final SetupSettings settings = getSettings();
         if (settings == null) throw new SimpleViolationException("{error.setup.alreadySetup}");
         validateSecrets(request, settings);
