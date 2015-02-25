@@ -166,7 +166,11 @@ public class LdapService {
                 "changeType: modify\n" +
                 "replace: description\n" +
                 "description: " + group.getInfo().getDescription() + "\n";
-        return run_ldapmodify(ldif);
+        CommandResult result = run_ldapmodify(ldif, false);
+        if (!result.isZeroExitStatus() && result.getStderr().contains("ldap_modify: No such object")) {
+            result = createGroupWithMembers(group, group.getMembers());
+        }
+        return okResult(result);
     }
 
     // this method is provided for completeness' sake, but authentication should really go through kerberos
@@ -306,6 +310,10 @@ public class LdapService {
     }
 
     private CommandResult run_ldapmodify(String input) {
+        return run_ldapmodify(input, true);
+    }
+
+    private CommandResult run_ldapmodify(String input, boolean checkOk) {
         final CommandLine modifyLdapCommand = new CommandLine("ldapmodify")
                 .addArgument("-x")
                 .addArgument("-H")
@@ -320,7 +328,7 @@ public class LdapService {
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapmodify: " + e, e);
         }
-        return okResult(result);
+        return checkOk ? okResult(result) : result;
     }
 }
 

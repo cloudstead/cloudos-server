@@ -91,10 +91,15 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
             try {
                 groupExists = ldap.groupExists(groupName);
             } catch (Exception e) {
-                log.warn("ldap error, not doing ldap parts: "+e, e);
+                log.warn("create: ldap error, not doing ldap parts: "+e, e);
             }
 
-            for (AccountGroupMember m : members) memberDAO.create(m.setGroup(created));
+            for (AccountGroupMember m : members) {
+                m.setGroup(created).setUuid(null);
+                try { memberDAO.create(m); } catch (Exception e) {
+                    log.warn("create: error adding member: "+m);
+                }
+            }
 
             // ensure LDAP creation works before writing to our own DB
             if (groupExists != null) {
@@ -119,20 +124,19 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         final AccountGroup group = findByName(groupName.toLowerCase());
         final List<String> recipients = request.getRecipients();
 
-        // update if quota/description changed
-        if (!group.sameInfo(request.getInfo())) {
-            group.setInfo(request.getInfo());
-            update(group);
-        }
-
         if (!recipients.isEmpty()) {
             if (createsCircularReference(groupName, recipients)) {
                 throw new SimpleViolationException("{err.group.circularReference}", "group cannot contain a circular reference");
             }
 
-            // update members and announce change
+            // update members
             mergeMembers(request, group);
         }
+
+        // update quota/description and member list in LDAP
+        group.setInfo(request.getInfo());
+        group.setMembers(buildGroupMemberList(group));
+        update(group);
 
         return group;
     }
