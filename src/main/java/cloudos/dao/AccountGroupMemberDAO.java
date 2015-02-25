@@ -34,4 +34,5 @@ public class AccountGroupMemberDAO extends AbstractCRUDDAO<AccountGroupMember> {
         }
         return map;
     }
+
 }

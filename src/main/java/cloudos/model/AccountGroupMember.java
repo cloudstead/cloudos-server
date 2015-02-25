@@ -59,4 +59,9 @@ public class AccountGroupMember extends IdentifiableBase {
         this.type = AccountGroupMemberType.group;
     }
 
+    public AccountGroupMember setGroup(AccountGroup group) {
+        setGroupUuid(group.getUuid());
+        setGroupName(group.getName());
+        return this;
+    }
 }

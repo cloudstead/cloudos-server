@@ -83,7 +83,7 @@ public class AccountGroupsResource {
 
         groupName = groupName.toLowerCase();
         final List<String> recipients = groupRequest.getRecipientsLowercase();
-        if (recipients.isEmpty()) {
+        if (recipients.isEmpty() && !groupRequest.hasMirror()) {
             log.warn("Cannot create empty group "+groupName+", adding caller ("+admin.getName()+") as sole member");
             recipients.add(admin.getName());
         }

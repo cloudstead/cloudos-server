@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static cloudos.model.AccountGroup.ADMIN_GROUP_NAME;
 import static cloudos.model.AccountGroup.DEFAULT_GROUP_NAME;
@@ -32,6 +29,8 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
     public AccountGroup findDefaultGroup() { return findByName(DEFAULT_GROUP_NAME); }
     public AccountGroup findAdminGroup() { return findByName(ADMIN_GROUP_NAME); }
+
+    public List<AccountGroup> findMirrors(String groupName) { return findByField("mirror", groupName); }
 
     public AccountGroupMember addToDefaultGroup(Account account) {
         AccountGroup defaultGroup = findDefaultGroup();
@@ -53,25 +52,40 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
     }
 
     @Override public void delete(String uuid) {
-        try {
-            final AccountGroup group = findByUuid(uuid);
-            if (group != null) ldap.deleteGroup(group.getName());
-        } catch (Exception e) {
+
+        final AccountGroup group = findByUuid(uuid);
+        if (group == null) return;
+
+        final List<AccountGroup> mirrors = findMirrors(group.getName());
+        if (!mirrors.isEmpty()) throw new SimpleViolationException("{err.group.mirrorsExist}", "Cannot delete group, mirrors still exist: "+mirrors);
+
+        try { ldap.deleteGroup(group.getName()); } catch (Exception e) {
             log.error("delete: ldap.deleteGroup failed: "+e, e);
         }
+
         super.delete(uuid);
+    }
+
+    @Override public Object preCreate(@Valid AccountGroup group) {
+        if (group.hasMirror()) {
+            final AccountGroup source = findByName(group.getMirror());
+            if (source == null) throw new SimpleViolationException("err.group.mirror.invalid");
+            return source;
+        }
+        return null;
     }
 
     public AccountGroup create(AccountGroupRequest groupRequest, List<String> recipients) {
         // create group, add members
         final String groupName = groupRequest.getName();
         final AccountGroup created;
-        validate(groupName, recipients);
+        validate(groupRequest, recipients);
         try {
             created = create((AccountGroup) new AccountGroup()
                     .setInfo(groupRequest.getInfo())
+                    .setMirror(groupRequest.getMirror())
                     .setName(groupName));
-            final List<AccountGroupMember> members = buildGroupMemberList(created, recipients);
+            final List<AccountGroupMember> members = buildGroupMemberList(created, recipients, true);
             created.setMembers(members);
             Boolean groupExists = null;
             try {
@@ -80,7 +94,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
                 log.warn("ldap error, not doing ldap parts: "+e, e);
             }
 
-            for (AccountGroupMember m : members) memberDAO.create(m.setGroupUuid(created.getUuid()));
+            for (AccountGroupMember m : members) memberDAO.create(m.setGroup(created));
 
             // ensure LDAP creation works before writing to our own DB
             if (groupExists != null) {
@@ -99,16 +113,45 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         return created;
     }
 
+    /**
+     * @param group The group to build a member list for.
+     * @return a List of members of this group. If this group is a mirror, this also includes (via union) the members of its mirror source group.
+     */
     public List<AccountGroupMember> buildGroupMemberList(AccountGroup group) {
-        final List<AccountGroupMember> members = new ArrayList<>();
+
+        final Set<AccountGroupMember> members = new HashSet<>();
         for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) members.add(populateByUuid(group, m.getMemberUuid()));
-        return members;
+
+        if (group.hasMirror()) {
+            final AccountGroup source = findByName(group.getMirror());
+            if (source == null) {
+                log.warn("Mirror broken: "+group.getMirror()+" -> "+group.getName());
+            } else {
+                members.addAll(memberDAO.findByGroup(source.getUuid()));
+            }
+        }
+
+        return new ArrayList<>(members);
     }
 
-    public List<AccountGroupMember> buildGroupMemberList(AccountGroup group, List<String> recipients) {
-        final List<AccountGroupMember> members = new ArrayList<>();
+    /**
+     * @param group The group to build a member list for.
+     * @param recipients The member names that will comprise the list. They must exist in the DB.
+     * @param includeMirror If true and the group is a mirror, include members from the mirror source too
+     * @return a List of AccountGroupMembers objects
+     */
+    private List<AccountGroupMember> buildGroupMemberList(AccountGroup group, List<String> recipients, boolean includeMirror) {
+        final Set<AccountGroupMember> members = new HashSet<>();
         for (String recipient : recipients) members.add(populateByName(group, recipient));
-        return members;
+        if (includeMirror && group.hasMirror()) {
+            final AccountGroup source = findByName(group.getMirror());
+            if (source == null) {
+                log.warn("Mirror broken: "+group.getMirror()+" -> "+group.getName());
+            } else {
+                members.addAll(buildGroupMemberList(source));
+            }
+        }
+        return new ArrayList<>(members);
     }
 
     public boolean createsCircularReference(String group, List<String> members) {
@@ -128,7 +171,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         return InspectCollection.containsCircularReference(group, map);
     }
 
-    public AccountGroupMember populateByName(AccountGroup group, String recipient) {
+    private AccountGroupMember populateByName(AccountGroup group, String recipient) {
         // Is it an account or another group?
         final Account account = accountDAO.findByName(recipient);
         if (account != null) return new AccountGroupMember(group, account);
@@ -139,7 +182,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         throw new SimpleViolationException("{err.member.notFound}", "group member does not exist");
     }
 
-    public AccountGroupMember populateByUuid(AccountGroup group, String uuid) {
+    private AccountGroupMember populateByUuid(AccountGroup group, String uuid) {
         // Is it an account or another group?
         final Account account = accountDAO.findByUuid(uuid);
         if (account != null) return new AccountGroupMember(group, account);
@@ -150,7 +193,13 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         throw new SimpleViolationException("{err.member.notFound}", "group member does not exist");
     }
 
-    public void validate(String groupName, List<String> recipients) {
+    private void validate(AccountGroupRequest groupRequest, List<String> recipients) {
+
+        if (groupRequest.hasMirror() && findByName(groupRequest.getMirror()) == null) {
+            throw new SimpleViolationException("{err.group.mirror.invalid}", "mirror source does not exist: "+groupRequest.getMirror());
+        }
+
+        final String groupName = groupRequest.getName();
         if (findByName(groupName) != null) {
             throw new SimpleViolationException("{err.name.notUnique}", "group with same name already exists");
         }
@@ -165,32 +214,54 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
     }
 
     public void mergeMembers(AccountGroupRequest groupRequest, AccountGroup group) {
+        addMembers(group, removeMembers(groupRequest, group));
+        for (AccountGroup mirror : findMirrors(group.getName())) {
+            groupRequest.setName(mirror.getName()); // just in case anyone cares later on
+            addMembers(mirror, removeMembers(groupRequest, mirror));
+        }
+    }
 
-        final String groupName = groupRequest.getName();
+    /**
+     * Removes members from a group. The recipients list of the groupRequest is checked against the database.
+     * @param groupRequest Any names not present in the recipients list but found in the DB will be removed from the DB and from LDAP.
+     * @param group The group (from DB with proper UUID)
+     * @return A list of names in the recipient list that were not found in the DB. These can later be added to the group.
+     */
+    public ArrayList<String> removeMembers(AccountGroupRequest groupRequest, AccountGroup group) {
+        // remove members in DB that are not in the request, and determine which members need to be added
+        final ArrayList<String> newMembers = new ArrayList<>(groupRequest.getRecipients());
 
         // find current members
         final List<AccountGroupMember> members = memberDAO.findByGroup(group.getUuid());
 
-        // remove members in DB that are not in the request, and determine which members need to be added
-        final ArrayList<String> newMembers = new ArrayList<>(groupRequest.getRecipients());
         for (AccountGroupMember m : members) {
             if (!groupRequest.getRecipients().contains(m.getMemberName())) {
-                try { ldap.removeFromGroup(groupName, m); } catch (Exception e) {
-                    log.error("mergeMembers: ldap.removeFromGroup failed: "+e, e);
-                }
-                memberDAO.delete(m.getUuid());
+                removeMember(group.getName(), m);
             }
             newMembers.remove(m.getMemberName()); // already a member, don't need to re-add
         }
+        return newMembers;
+    }
 
-        // update members
-        final List<AccountGroupMember> toAdd = buildGroupMemberList(group, newMembers);
+    private void addMembers(AccountGroup group, ArrayList<String> newMembers) {
+        final List<AccountGroupMember> toAdd = buildGroupMemberList(group, newMembers, false);
         for (AccountGroupMember m : toAdd) {
-            try { ldap.addToGroup(groupName, m); } catch (Exception e) {
-                log.error("mergeMembers: ldap.addToGroup failed: "+e, e);
-            }
-            memberDAO.create(m.setGroupUuid(group.getUuid()));
+            addMember(group, m);
         }
+    }
+
+    private void addMember(AccountGroup group, AccountGroupMember m) {
+        try { ldap.addToGroup(group.getName(), m); } catch (Exception e) {
+            log.error("ldap.addToGroup failed: "+e, e);
+        }
+        memberDAO.create(m.setGroupUuid(group.getUuid()));
+    }
+
+    private void removeMember(String groupName, AccountGroupMember m) {
+        try { ldap.removeFromGroup(groupName, m); } catch (Exception e) {
+            log.error("ldap.removeFromGroup failed: "+e, e);
+        }
+        memberDAO.delete(m.getUuid());
     }
 
 }

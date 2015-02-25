@@ -126,7 +126,7 @@ public class LdapService {
         } else if (member.isGroup()) {
             removeGroupFromGroup(groupName, member.getMemberName());
         } else {
-            throw new IllegalArgumentException("removeFromGroup: invalid member type: "+member.getType());
+            throw new IllegalArgumentException("removeMember: invalid member type: "+member.getType());
         }
     }
 
