@@ -24,6 +24,7 @@ public class AccountGroupView implements NamedEntity {
     public static final JavaType searchResultType = SearchResults.jsonType(AccountGroupView.class);
 
     @Getter @Setter private String name;
+    @Getter @Setter private String mirror;
     @Getter @Setter private AccountGroupInfo info;
     @Getter @Setter private Set<AccountGroupMemberView> members = new HashSet<>();
     @Setter private Integer memberCount = null;
