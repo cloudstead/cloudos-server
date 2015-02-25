@@ -135,6 +135,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
         // update quota/description and member list in LDAP
         group.setInfo(request.getInfo());
+        group.setMirror(request.getMirror());
         group.setMembers(buildGroupMemberList(group));
         update(group);
 
