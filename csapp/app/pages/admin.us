@@ -1715,35 +1715,38 @@
 	<section class="deck">
 		<div class="row">
 			<h3>{{app.name}} configuration</h3>
+			{{#link-to "appstore" classNames="button tiny"}}
+				{{ t sections.appstr.configure_app.back_to_appstore }}
+			{{/link-to}}
 		</div>
 		<div class="row">
 			<div class="medium-6 large-5 medium-centered columns">
 				<form>
-					<button {{ action "doInstall" }} type="submit" class="button tiny">Install</button>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
 					{{#each category in arrangedContent itemController="single_config_category"}}
-						{{#if category.isAdminCategory }}
-							<fieldset class="wrap-set">
+						<fieldset class="wrap-set">
+							{{#if category.isAdminCategory }}
 								<legend>{{t forms.app_install.init}}</legend>
-									{{#each item in category.items}}
-										<div class="field-container">
-											<label for="text">{{ item.name }}</label>
-											{{input type="text" value=item.value}}
-										</div>
-									{{/each}}
-							</fieldset>
-						{{else}}
-							<fieldset class="wrap-set">
+							{{else}}
 								<legend>{{ category.name }}</legend>
-									{{#each item in category.items}}
-										<div class="field-container">
-											<label for="text">{{ item.name }}</label>
-											{{input type="text" value=item.value}}
-										</div>
-									{{/each}}
-							</fieldset>
-						{{/if}}
+							{{/if}}
+							{{#each item in category.items}}
+								<div class="field-container">
+									<label for="text">{{ item.name }}</label>
+									{{#if item.isPassword}}
+										{{input type="password" value=item.value}}
+									{{else}}
+										{{input type="text" value=item.value}}
+									{{/if}}
+								</div>
+							{{/each}}
+						</fieldset>
 					{{/each}}
-					<button {{ action "doInstall" }} type="submit" class="button tiny">Install</button>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
 				</form>
 			</div>
 		</div>
@@ -1754,12 +1757,16 @@
 	<section class="deck">
 		<div class="row">
 			<h3>{{app.name}} configuration</h3>
-			{{#link-to "appstore" classNames="button tiny"}}Back to App Store{{/link-to}}
+			{{#link-to "appstore" classNames="button tiny"}}
+				{{ t sections.appstr.configure_app.back_to_appstore }}
+			{{/link-to}}
 		</div>
 		<div class="row">
 			<div class="medium-6 large-5 medium-centered columns">
 				<form>
-					<button {{ action "doInstall" }} type="submit" class="button tiny">Confirm and Install</button>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
 					<button {{ action "doConfig" }} class="button tiny">Back to Configuration</button>
 					{{#each category in arrangedContent itemController="single_config_category"}}
 						{{#if category.isAdminCategory }}
@@ -1782,8 +1789,12 @@
 							</fieldset>
 						{{/if}}
 					{{/each}}
-					<button {{ action "doInstall" }} type="submit" class="button tiny">Confirm and Install</button>
-					<button {{ action "doConfig" }} class="button tiny">Back to Configuration</button>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
+					<button {{ action "doConfig" }} class="button tiny">
+						{{ t sections.appstr.configure_app.back_to_config }}
+					</button>
 				</form>
 			</div>
 		</div>
@@ -1799,6 +1810,27 @@
 	<div class="modal-small">
 		{{yield}}
 	</div>
+</script>
+
+<script type="text/x-handlebars" id="components/task-progress-modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>{{title}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ message }}</p>
+				</div>
+				<div {{bind-attr class="CloseButtonClass"}}>
+					<button {{ action "closeModal" }} class="button tiny right">
+						{{ t task.progress_modal.close_modal }}
+					</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
 </script>
 
 <script type="text/x-handlebars" id="user_message_modal">
@@ -1844,22 +1876,7 @@
 </script>
 
 <script type="text/x-handlebars" id="app_install_modal">
-	{{#modal-dialog small=true}}
-		<div class="row modal-filler">
-			<legend>{{t sections.appstr.action_status.installing}} {{app.name}}</legend>
-		</div>
-		<div class="row modal-content">
-				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
-					<p {{bind-attr class="user_message_priority"}}>{{ installStatus }}</p>
-				</div>
-				<div {{bind-attr class="statusReportClass"}}>
-					<button {{ action "closeModal" }} class="button tiny right">Close</button>
-				</div>
-		</div>
-		<div class="row modal-filler">
-			&nbsp;
-		</div>
-	{{/modal-dialog}}
+	{{task-progress-modal title=installCaption closeAction="refreshInstalledApps" taskId=taskId }}
 </script>
 </body>
 </html>
