@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
@@ -41,8 +40,8 @@ import org.cobbzilla.wizard.util.RestResponse;
 import org.cobbzilla.wizardtest.resources.ApiDocsResourceIT;
 import org.junit.Before;
 import rooty.toots.chef.ChefHandler;
-import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefSolo;
+import rooty.toots.chef.DummyChefHandler;
 import rooty.toots.service.ServiceKeyHandler;
 import rooty.toots.ssl.SslCertHandler;
 import rooty.toots.system.SystemSetTimezoneMessage;
@@ -213,17 +212,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         };
 
         // the chef handler (for AppInstallTest)
-        chefHandler = new ChefHandler() {
-            @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
-            @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
-            @Override protected String initChefUser() { return CHEF_USER; }
-            @Override protected void runChefSolo() throws Exception { /* noop */ }
-            @Override protected CommandLine backupCommand(File chefDir, File backup) { return new CommandLine("ls"); }
-            @Override protected CommandLine rollbackCommand(File backupDir, File chefDir) { return new CommandLine("ls"); }
-            @Override protected String syncCookbookFilesCommand(ChefMessage chefMessage, String chefPath) {
-                return super._syncCookbooksCommand(chefMessage, chefPath);
-            }
-        };
+        chefHandler = new DummyChefHandler(chefHome, CHEF_USER);
         // write a simple solo.json file
         final ChefSolo chefSolo = new ChefSolo();
         chefSolo.setRun_list(new String[] {"recipe[test]", "recipe[test-foo]"});
@@ -361,4 +350,5 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         final RestResponse response = doGet(ApiConstants.SEARCH_ENDPOINT + "/" + type + "/download.csv?page=" + urlEncode(toJson(page)));
         return response.json;
     }
+
 }

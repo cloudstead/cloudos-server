@@ -23,14 +23,13 @@ import org.cobbzilla.util.time.TimeUtil;
 import org.cobbzilla.wizard.cache.redis.RedisService;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.cobbzilla.wizard.util.BufferedResponse;
+import org.cobbzilla.wizard.util.HttpContextUtil;
 import org.cobbzilla.wizard.util.ProxyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -127,7 +126,7 @@ public class AppAdapter {
     public Response filterGet(@Context HttpContext context,
                               @PathParam("app") String appName,
                               @PathParam("uri") String uri) throws IOException {
-        return filter(context, appName, uri, HttpMethods.GET);
+        return filter(context, appName, uri, HttpMethods.GET, null);
     }
 
     /**
@@ -140,29 +139,33 @@ public class AppAdapter {
      */
     @POST
     @Path("/filter/{app}/{uri : .+}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ReturnType("javax.ws.rs.core.StreamingOutput")
     public Response filterPost(@Context HttpContext context,
                                @PathParam("app") String appName,
-                               @PathParam("uri") String uri) throws IOException {
-        return filter(context, appName, uri, HttpMethods.POST);
+                               @PathParam("uri") String uri,
+                               MultivaluedMap<String, String> formData) throws IOException {
+        return filter(context, appName, uri, HttpMethods.POST, formData);
     }
 
     public Response filter(HttpContext context,
                            String appName,
                            String uri,
-                           String method) throws IOException {
+                           String method,
+                           MultivaluedMap<String, String> formData) throws IOException {
 
         final CloudOsApp app = appDAO.findInstalledByName(appName);
-        if (app == null) return ResourceUtil.notFound();
+        if (app == null) return notFound();
 
         final AppManifest manifest = app.getManifest();
         final PortsDatabag ports = configuration.getAppLayout(manifest).getPortsDatabag();
-        if (ports == null) return ResourceUtil.notFound();
+        if (ports == null) return notFound();
 
         final String appUri = "http://127.0.0.1:" + ports.getPrimary() + manifest.getNormalizedLocalMount();
         final String proxyUri = appUri + uri + getQueryParams(context);
         final CookieJar cookieJar = new CookieJar();
         final HttpRequestBean<String> requestBean = new HttpRequestBean<>(method, proxyUri);
+        if (method.equals(HttpMethods.POST)) requestBean.setData(HttpContextUtil.encodeParams(formData));
         final BufferedResponse response = ProxyUtil.proxyResponse(requestBean, context, appUri, cookieJar);
 
         if (manifest.hasFilters()) {
@@ -194,6 +197,10 @@ public class AppAdapter {
         }
 
         return response.getResponse();
+    }
+
+    private static Response notFound() {
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 }

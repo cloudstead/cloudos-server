@@ -68,7 +68,9 @@ public class CloudOsServerMain {
 
         switch (command) {
             case "group":
-                final CloudOsGroupMainOptions options = new CloudOsGroupMainOptions();
+                final CloudOsGroupMainOptions options = new CloudOsGroupMainOptions() {
+                    @Override protected boolean requireAccount() { return false; }
+                };
                 final CmdLineParser parser = new CmdLineParser(options);
                 parser.parseArgument(args);
 
