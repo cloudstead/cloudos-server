@@ -7,8 +7,10 @@ import cloudos.model.support.AccountRequest;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
+import org.cobbzilla.wizard.server.config.LdapConfiguration;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,9 +27,12 @@ public class LdapService {
 
     @Autowired private CloudOsConfiguration configuration;
 
-    public String accountDN(String accountName) { return "uid=" + accountName + ",ou=People," + configuration.getLdapBaseDN(); }
-    public String groupDN  (String groupName)   { return "cn="  + groupName   + ",ou=Groups," + configuration.getLdapBaseDN(); }
-    public String adminDN  ()                   { return "cn=admin,"                          + configuration.getLdapDomain(); }
+    private LdapConfiguration getLdap() { return configuration.getLdap(); }
+    private String password() { return getLdap().getPassword(); }
+
+    public String accountDN(String accountName) { return "uid=" + accountName + ",ou=People," + getLdap().getBaseDN(); }
+    public String groupDN  (String groupName)   { return "cn="  + groupName   + ",ou=Groups," + getLdap().getBaseDN(); }
+    public String adminDN  ()                   { return "cn=admin,"                          + getLdap().getDomain(); }
 
     public String ldapFilterGroup(String groupName) {
         return empty(groupName) ? "(objectClass=groupOfUniqueNames)" : "(&(objectClass=groupOfUniqueNames)(cn="+groupName+"))";
@@ -190,7 +195,7 @@ public class LdapService {
     }
 
     public CommandLine ldapAdminSearchCommand(String filter) {
-        return ldapDnSearchCommand(adminDN(), configuration.getLdapPassword()).addArgument(filter);
+        return ldapDnSearchCommand(adminDN(), password()).addArgument(filter);
     }
 
     public CommandLine ldapSearchCommand(String accountName, String password) {
@@ -219,7 +224,7 @@ public class LdapService {
                 .addArgument("-D")
                 .addArgument(adminDN())
                 .addArgument("-w")
-                .addArgument(configuration.getLdapPassword())
+                .addArgument(password())
                 .addArgument(accountDN(accountName));
         final CommandResult result;
         try{
@@ -241,7 +246,7 @@ public class LdapService {
                 .addArgument("-D")
                 .addArgument(adminDN())
                 .addArgument("-w")
-                .addArgument(configuration.getLdapPassword())
+                .addArgument(password())
                 .addArgument(accountDN(accountName));
         final CommandResult result;
         try{
@@ -260,7 +265,7 @@ public class LdapService {
                 .addArgument("-D")
                 .addArgument(adminDN())
                 .addArgument("-w")
-                .addArgument(configuration.getLdapPassword());
+                .addArgument(password());
     }
 
     public void deleteDN(String dn) {
@@ -299,10 +304,10 @@ public class LdapService {
                 .addArgument("-D")
                 .addArgument(adminDN())
                 .addArgument("-w")
-                .addArgument(configuration.getLdapPassword());
+                .addArgument(password());
         final CommandResult result;
         try {
-            result = CommandShell.exec(ldapAddCommand, input);
+            result = CommandShell.exec(new Command(ldapAddCommand).setInput(input));
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapadd: " + e,e);
         }
@@ -321,14 +326,15 @@ public class LdapService {
                 .addArgument("-D")
                 .addArgument(adminDN())
                 .addArgument("-w")
-                .addArgument(configuration.getLdapPassword());
+                .addArgument(password());
         final CommandResult result;
         try {
-            result = CommandShell.exec(modifyLdapCommand, input);
+            result = CommandShell.exec(new Command(modifyLdapCommand).setInput(input));
         } catch (Exception e) {
             throw new IllegalStateException("error running ldapmodify: " + e, e);
         }
         return checkOk ? okResult(result) : result;
     }
+
 }
 

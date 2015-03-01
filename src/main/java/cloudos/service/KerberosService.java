@@ -1,10 +1,11 @@
 package cloudos.service;
 
-import cloudos.model.support.AccountRequest;
 import cloudos.model.auth.AuthenticationException;
+import cloudos.model.support.AccountRequest;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.TimeUtil;
@@ -12,9 +13,7 @@ import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static cloudos.model.auth.AuthenticationException.Problem.BOOTCONFIG_ERROR;
-import static cloudos.model.auth.AuthenticationException.Problem.INVALID;
-import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
+import static cloudos.model.auth.AuthenticationException.Problem.*;
 
 @Service @Slf4j
 public class KerberosService {
@@ -25,7 +24,7 @@ public class KerberosService {
 
     // kerberizes an existing ldap account ... this assumes we've already created the user in the ldap directory
     public CommandResult createPrincipal (AccountRequest request) {
-        final String accountDN = "uid=" + request.getName() + ",ou=People," + configuration.getLdapBaseDN();
+        final String accountDN = "uid=" + request.getName() + ",ou=People," + configuration.getLdap().getBaseDN();
         final String input = configuration.getKadminPassword()+ "\n" +
                 "addprinc -x dn=\"" + accountDN + "\" " + request.getName() + "\n" +
                 request.getPassword() + "\n" +
@@ -50,7 +49,7 @@ public class KerberosService {
         long start = System.currentTimeMillis();
         CommandResult result;
         try {
-            result = CommandShell.exec(kinit, password);
+            result = CommandShell.exec(new Command(kinit).setInput(password));
         } catch (Exception e) {
             log.error("error running kinit ("+e.toString()+"): " + e, e);
             throw new AuthenticationException(BOOTCONFIG_ERROR);
@@ -76,7 +75,7 @@ public class KerberosService {
         final CommandLine command = new CommandLine("kpasswd").addArgument(accountName);
         final CommandResult result;
         try {
-            result = CommandShell.exec(command, oldPassword+"\n"+newPassword+"\n"+newPassword+"\n");
+            result = CommandShell.exec(new Command(command).setInput(oldPassword+"\n"+newPassword+"\n"+newPassword+"\n"));
         } catch (Exception e) {
             log.error("changePassword: error running kpasswd: " + e, e);
             throw new AuthenticationException(INVALID);
@@ -102,7 +101,7 @@ public class KerberosService {
         final CommandLine createPrincipalCommand = new CommandLine("kadmin").addArgument("-p").addArgument(KADMIN_USER);
         final CommandResult result;
         try {
-            result = CommandShell.exec(createPrincipalCommand, input);
+            result = CommandShell.exec(new Command(createPrincipalCommand).setInput(input));
         } catch (Exception e) {
             throw new IllegalStateException(method + ": error running kadmin: " + e, e);
         }

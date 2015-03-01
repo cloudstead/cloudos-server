@@ -317,7 +317,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         // cannot delete your own account or system mailer account
-        if (name.equals(admin.getName()) || name.equals(configuration.getSmtpMailConfig().getUser())) {
+        if (name.equals(admin.getName()) || name.equals(configuration.getSmtp().getUser())) {
             return ResourceUtil.forbidden();
         }
 

@@ -40,7 +40,7 @@ public class AppInstallTask extends TaskBase {
 
     private static final int DEFAULT_TTL = 3600;
 
-    private static final long INSTALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
+    private static final long INSTALL_TIMEOUT = TimeUnit.MINUTES.toMillis(20);
 
     @Getter @Setter private RootyService rootyService;
     @Getter @Setter private CloudOsAccount account;
@@ -150,17 +150,17 @@ public class AppInstallTask extends TaskBase {
         }
 
         // notify the chef-user that we have some new recipes to add to the run list
-        addEvent("{appInstall.notifyingChefToRun}");
+        addEvent("{appInstall.runningChef}");
         final RootyMessage status;
         try {
             result.setRootyUuid(chefMessage.initUuid());
             status = rootyService.request(chefMessage, INSTALL_TIMEOUT);
         } catch (Exception e) {
             error("{appInstall.error.notifyingChefToRun}", e);
-            return null;
+            return result;
         }
 
-        if (status.isSuccess()) {
+        if (status.isSuccess() && !status.hasError()) {
             addEvent("{appInstall.recordingInstallation}");
             final AppMetadata metadata = new AppMetadata()
                     .setInstalled_by(account.getName())

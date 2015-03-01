@@ -36,7 +36,7 @@ public class RootyService {
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < timeout) {
             final RootyMessage status = getStatusManager().getStatus(message.getUuid());
-            if (status != null) return status;
+            if (status != null && status.isFinished()) return status;
             sleep(250, "waiting for rooty to complete");
         }
         throw new IllegalStateException("request timeout: "+message);

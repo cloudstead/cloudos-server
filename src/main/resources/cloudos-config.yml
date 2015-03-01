@@ -8,15 +8,11 @@ publicUriBase: {{PUBLIC_BASE_URI}}
 
 # Kerberos admin password. For creating and listing accounts with kadmin program.
 kadminPassword: {{KADMIN_PASS}}
-ldapPassword: {{LDAP_PASS}}
-ldapDomain: {{LDAP_DOMAIN}}
-ldapBaseDN: {{LDAP_BASE_DN}}
 
-# Name of the default admin account. The API assumes this is the organization to auth against (we expect this
-defaultAdmin: admin
-
-bcryptRounds: 12
-springContextPath: classpath:/spring.xml
+ldap:
+  password: {{LDAP_PASS}}
+  domain: {{LDAP_DOMAIN}}
+  baseDN: {{LDAP_BASE_DN}}
 
 database:
   driver: org.postgresql.Driver
@@ -65,7 +61,7 @@ cloudConfig:
 
 emailTemplateRoot: {{EMAIL_TEMPLATE_ROOT}}
 
-smtpMailConfig:
+smtp:
   host: 127.0.0.1
   user: {{SYSTEM_MAILER_USERNAME}}
   password: {{SYSTEM_MAILER_PASSWORD}}
@@ -85,6 +81,7 @@ dns:
 rooty:
   queueName: {{ROOTY_QUEUE_NAME}} # matches where rooty reads from, defined in /etc/rooty/*.yml (from cloudos chef recipe)
   secret: {{ROOTY_SECRET}}        # used to generate hashes in request filenames
+  memcachedKey: {{CLOUD_STORAGE_DATA_KEY}}
   handlers:
     rooty.toots.postfix.PostfixHandler:
     rooty.toots.ssl.SslCertHandler:

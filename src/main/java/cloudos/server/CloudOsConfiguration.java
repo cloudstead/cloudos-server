@@ -18,6 +18,7 @@ import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.cache.redis.HasRedisConfiguration;
 import org.cobbzilla.wizard.server.config.DatabaseConfiguration;
 import org.cobbzilla.wizard.server.config.HasDatabaseConfiguration;
+import org.cobbzilla.wizard.server.config.LdapConfiguration;
 import org.cobbzilla.wizard.server.config.RestServerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,8 @@ import java.net.UnknownHostException;
 
 @Configuration @Slf4j
 public class CloudOsConfiguration extends RestServerConfiguration
-        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration, HasRedisConfiguration {
+        implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration,
+                   HasRedisConfiguration {
 
     public static final String DEFAULT_ADMIN = "admin";
     public static final String APP_REPOSITORY = "app-repository";
@@ -48,7 +50,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
 
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 
-    @Getter @Setter private SmtpMailConfig smtpMailConfig;
+    @Getter @Setter private SmtpMailConfig smtp;
     @Getter @Setter private String emailTemplateRoot;
 
     @Getter @Setter private ApiConnectionInfo appStore;
@@ -67,9 +69,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
     }
 
     @Getter @Setter private String kadminPassword;
-    @Getter @Setter private String ldapPassword;
-    @Getter @Setter private String ldapDomain;
-    @Getter @Setter private String ldapBaseDN;
+    @Getter @Setter private LdapConfiguration ldap = new LdapConfiguration();
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;
 
     @Getter @Setter private RootyConfiguration rooty;

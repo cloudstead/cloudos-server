@@ -17,6 +17,7 @@ import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.security.ShaUtil;
+import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.system.PortPicker;
 import org.cobbzilla.wizard.dao.SearchResults;
@@ -89,10 +90,11 @@ public class AppTestBase extends ApiClientTestBase {
         // Roll the tarball into its place under the doc root
         final String tarballName = TEST_APP_TARBALL.replace("@VERSION", appManifest.getVersion());
         final String tarball = testDocRoot.getAbsolutePath() + "/" + tarballName;
-        CommandShell.exec(new CommandLine("tar")
+        final CommandLine commandLine = new CommandLine("tar")
                 .addArgument("czf")
                 .addArgument(tarball)
-                .addArgument("."), bundleDir);
+                .addArgument(".");
+        CommandShell.exec(new Command(commandLine).setDir(bundleDir));
 
         // Save the URL and shasum
         bundleUrl = "http://127.0.0.1:"+testServerPort+"/"+ tarballName;

@@ -171,8 +171,7 @@ public class AppAdapter {
         if (manifest.hasFilters()) {
 
             final AppFilterConfig filterConfig = manifest.getFilterConfig(uri);
-            if (filterConfig != null && filterConfig.hasFilters() && response.hasDocument()) {
-
+            if (filterConfig != null) {
                 final AppFilter[] filters = filterConfig.getFilters();
                 final AppRuntimeDetails runtime = appDAO.findAppRuntime(appName).getDetails().getDetails(configuration.getPublicUriBase());
                 final AppConfiguration appConfig = appDAO.getConfiguration(appName, manifest.getVersion());
@@ -184,14 +183,16 @@ public class AppAdapter {
                 scope.put("databags", appConfig.getDatabagMap());
                 String document = response.getDocument();
 
-                try {
-                    for (AppFilter filter : filters) {
-                        document = filter.getHandler().apply(document, scope);
-                    }
-                    return response.withNewDocument(document);
+                if (filterConfig.hasFilters(scope) && response.hasDocument()) {
+                    try {
+                        for (AppFilter filter : filters) {
+                            document = filter.getHandler().apply(document, scope);
+                        }
+                        return response.withNewDocument(document);
 
-                } catch (Exception e) {
-                    log.error("Error applying filter fields (uri=" + uri + "): " + e, e);
+                    } catch (Exception e) {
+                        log.error("Error applying filter fields (uri=" + uri + "): " + e, e);
+                    }
                 }
             }
         }
