@@ -25,9 +25,10 @@ public class AppConfiguration {
 
     public void add(AppConfigurationCategory category) { categories.add(category); }
 
-    @JsonIgnore
-    public Map<String, Object> getDatabagMap() {
-        final Map<String, Object> databags = new HashMap<>();
+    @JsonIgnore public Map<String, Map<String, String>> getDatabagMap() {
+
+        final Map<String, Map<String, String>> databags = new HashMap<>();
+
         for (AppConfigurationCategory cat : getCategories()) {
             final Map<String, String> values = new HashMap<>();
             if (cat.hasValues()) {
