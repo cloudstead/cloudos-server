@@ -157,7 +157,7 @@ public class AppDownloadTask extends TaskBase {
     }
 
     private TaskResult cleanup(File... files) {
-        for (File f : files) if (f != null && !f.delete()) log.warn("Error deleting: "+f.getAbsolutePath());
+        for (File f : files) if (f != null && f.exists() && !FileUtils.deleteQuietly(f)) log.warn("Error deleting: "+f.getAbsolutePath());
         return null;
     }
 }
