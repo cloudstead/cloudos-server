@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cloudos.appstore.model.app.filter.AppFilterHandler.*;
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.wizard.util.HttpContextUtil.getQueryParams;
 
@@ -173,17 +174,24 @@ public class AppAdapter {
             final AppFilterConfig filterConfig = manifest.getFilterConfig(uri);
             if (filterConfig != null) {
                 final AppFilter[] filters = filterConfig.getFilters();
-                final AppRuntimeDetails runtime = appDAO.findAppRuntime(appName).getDetails().getDetails(configuration.getPublicUriBase());
+                final AppRuntime runtime = appDAO.findAppRuntime(appName);
+                final AppRuntimeDetails runtimeDetails = runtime.getDetails().getDetails(configuration.getPublicUriBase());
                 final AppConfiguration appConfig = appDAO.getConfiguration(appName, manifest.getVersion());
 
-                // these things define the {{ }} language used in a manifest file's web.filter values to insert
+                // these things define the {{ }} vars used in a manifest file's web.filters section, they can also be used by a PluginFilterHandler
                 final Map<String, Object> scope = new HashMap<>();
-                scope.put("config", configuration);
-                scope.put("app", runtime);
-                scope.put("databags", appConfig.getDatabagMap());
+                scope.put(FSCOPE_CONFIG, configuration);
+                scope.put(FSCOPE_RUNTIME, runtime);
+                scope.put(FSCOPE_APP, runtimeDetails);
+                scope.put(FSCOPE_APP_URI, appUri);
+                scope.put(FSCOPE_METHOD, method);
+                scope.put(FSCOPE_DATABAGS, appConfig.getDatabagMap());
+                scope.put(FSCOPE_CONTEXT, context);
+                scope.put(FSCOPE_COOKIE_JAR, cookieJar);
+
                 String document = response.getDocument();
 
-                if (filterConfig.hasFilters(scope) && response.hasDocument()) {
+                if (filterConfig.hasFilters(scope)) {
                     try {
                         for (AppFilter filter : filters) {
                             document = filter.getHandler().apply(document, scope);
