@@ -32,6 +32,10 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends Ma
         return fromJson(response.json, CloudOsAuthResponse.class).getSessionId();
     }
 
+    @Override protected void setSecondFactor(Object loginRequest, String token) {
+        ((LoginRequest) loginRequest).setSecondFactor(token);
+    }
+
     public static final long TIMEOUT = TimeUnit.MINUTES.toMillis(20);
     protected long getTimeout() { return TIMEOUT; }
 

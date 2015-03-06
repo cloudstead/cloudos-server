@@ -6,6 +6,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
 import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
+import cloudos.model.Account;
 import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
 import lombok.Setter;
@@ -119,4 +120,11 @@ public class CloudOsConfiguration extends RestServerConfiguration
         return base + getHttp().getBaseUri() + "/app_assets/";
     }
 
+    public String getLocale(Account admin) {
+        return admin.hasLocale() ? admin.getLocale() : getSystemLocale();
+    }
+
+    public String getSystemLocale () {
+        return CommandShell.execScript("locale | grep LANG= | tr '=.' ' ' | awk '{print $2}'").trim().toLowerCase();
+    }
 }

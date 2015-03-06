@@ -62,6 +62,7 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.string.StringUtil.urlEncode;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
 import static org.junit.Assert.*;
+import static rooty.toots.chef.ChefSolo.SOLO_JSON;
 
 @Slf4j
 public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, CloudOsServer> {
@@ -216,7 +217,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // write a simple solo.json file
         final ChefSolo chefSolo = new ChefSolo();
         chefSolo.setRun_list(new String[] {"recipe[test]", "recipe[test-foo]"});
-        FileUtil.toFile(new File(chefHome, "solo.json"), JsonUtil.toJson(chefSolo));
+        FileUtil.toFile(new File(chefHome, SOLO_JSON), JsonUtil.toJson(chefSolo));
 
         // register mocks with rooty
         final CloudOsConfiguration configuration = (CloudOsConfiguration) serverHarness.getConfiguration();

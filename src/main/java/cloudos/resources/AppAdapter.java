@@ -9,7 +9,7 @@ import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.databag.PortsDatabag;
 import cloudos.model.Account;
-import cloudos.model.app.AppConfiguration;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.model.app.CloudOsApp;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.app.AuthTransition;

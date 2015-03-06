@@ -4,7 +4,7 @@ import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.model.Account;
-import cloudos.model.app.AppConfiguration;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.service.task.TaskResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;

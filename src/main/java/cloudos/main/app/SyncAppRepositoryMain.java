@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static rooty.toots.chef.ChefSolo.SOLO_JSON;
+
 @Slf4j
 public class SyncAppRepositoryMain {
 
@@ -77,7 +79,7 @@ public class SyncAppRepositoryMain {
     public void synchronize(String cloudosUser, CloudOsConfiguration configuration) {
 
         final File chefDir = new File(new ChefHandler().getChefDir());
-        final File soloJsonFile = new File(chefDir, "solo.json");
+        final File soloJsonFile = new File(chefDir, SOLO_JSON);
         if (!soloJsonFile.exists()) throw new IllegalStateException("No solo.json file found: "+soloJsonFile.getAbsolutePath());
 
         JsonUtil.FULL_MAPPER.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);

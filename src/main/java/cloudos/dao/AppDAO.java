@@ -3,13 +3,11 @@ package cloudos.dao;
 import cloudos.appstore.model.AppMutableData;
 import cloudos.appstore.model.AppRuntime;
 import cloudos.appstore.model.AppRuntimeDetails;
-import cloudos.appstore.model.app.AppDatabagDef;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.AppMetadata;
 import cloudos.model.Account;
-import cloudos.model.app.AppConfiguration;
-import cloudos.model.app.AppConfigurationCategory;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.model.app.AppRepositoryState;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
@@ -23,31 +21,23 @@ import cloudos.service.RootyService;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.cobbzilla.util.io.DirFilter;
 import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.json.JsonEdit;
-import org.cobbzilla.util.json.JsonEditOperation;
-import org.cobbzilla.util.json.JsonEditOperationType;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.model.SemanticVersion;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import rooty.toots.vendor.VendorDatabag;
-import rooty.toots.vendor.VendorSettingHandler;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.cobbzilla.util.json.JsonUtil.FULL_MAPPER;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 
 @Repository @Slf4j
@@ -104,68 +94,28 @@ public class AppDAO {
     }
 
     /**
-     * Get configuration settings for a particular app version.
+     * Get configuration settings for a particular app version, using the default locale for label translations
      *
      * @param app     The name of the app
      * @param version The version of the app
      * @return the app configuration
      */
     public AppConfiguration getConfiguration(String app, String version) {
-
         final AppLayout layout = configuration.getAppLayout(app, version);
-
-        if (!layout.exists()) return null;
-
-        final AppManifest manifest = AppManifest.load(layout.getManifest());
-        final AppConfiguration config = new AppConfiguration();
-        if (manifest.hasDatabags()) {
-            for (AppDatabagDef databag : manifest.getDatabags()) {
-
-                final String databagName = databag.getName();
-                final File databagFile = layout.getDatabagFile(databagName);
-                JsonNode node = null;
-                if (databagFile.exists()) {
-                    node = JsonUtil.fromJsonOrDie(FileUtil.toStringOrDie(databagFile), JsonNode.class);
-                }
-
-                final AppConfigurationCategory category = new AppConfigurationCategory(databagName);
-                config.add(category);
-
-                // does this databag define vendor-defaults that should be hidden?
-                final VendorDatabag vendor = getVendorDatabag(node);
-
-                for (String item : databag.getItems()) {
-                    category.add(item);
-                    if (node != null) {
-                        try {
-                            final JsonNode itemNode = JsonUtil.findNode(node, item);
-                            if (itemNode != null) {
-                                String value = itemNode.asText();
-                                if (vendor != null && vendor.isDefault(item, value)) {
-                                    value = VendorSettingHandler.VENDOR_DEFAULT;
-                                }
-                                category.set(item, value);
-                            } else {
-                                category.set(item, VendorSettingHandler.VALUE_NOT_SET);
-                            }
-
-                        } catch (IOException e) {
-                            log.warn("Error loading databag item (" + databagName + "/" + item + "): " + e);
-                        }
-                    }
-                }
-            }
-        }
-        return config;
+        return AppConfiguration.fromLayout(layout, null);
     }
 
-    public VendorDatabag getVendorDatabag(JsonNode node) {
-        try {
-            return JsonUtil.fromJson(node, "vendor", VendorDatabag.class);
-        } catch (Exception e) {
-            log.warn("Error finding 'vendor' section in databag: " + e);
-            return null;
-        }
+    /**
+     * Get configuration settings for a particular app version.
+     *
+     * @param app     The name of the app
+     * @param version The version of the app
+     * @param locale  The locale of the user (configuration may include locale-specific translations for field labels/etc)
+     * @return the app configuration
+     */
+    public AppConfiguration getConfiguration(String app, String version, String locale) {
+        final AppLayout layout = configuration.getAppLayout(app, version);
+        return AppConfiguration.fromLayout(layout, locale);
     }
 
     /**
@@ -181,77 +131,9 @@ public class AppDAO {
         if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
 
         final AppManifest manifest = AppManifest.load(layout.getManifest());
-        if (manifest.hasDatabags()) {
-            for (AppDatabagDef databag : manifest.getDatabags()) {
+        final File databagsDir = layout.getDatabagsDir();
 
-                final String databagName = databag.getName();
-
-                final List<JsonEditOperation> operations = new ArrayList<>();
-                operations.add(new JsonEditOperation()
-                        .setType(JsonEditOperationType.write)
-                        .setPath("id")
-                        .setJson("\"" + databagName + "\""));
-
-                // Did the caller provide config for this category?
-                final AppConfigurationCategory category = config.getCategory(databagName);
-                if (category == null) {
-                    log.warn("No configuration provided for category (" + databagName + "), skipping");
-                    continue;
-                }
-
-                // Does this category exist as a databag? If not create a new JsonNode to represent it
-                final File databagFile = layout.getDatabagFile(databagName);
-                final JsonNode node;
-                if (databagFile.exists()) {
-                    node = layout.getDatabag(databagName);
-                } else {
-                    node = new ObjectNode(FULL_MAPPER.getNodeFactory());
-                }
-
-                // Update config settings via JSON
-                for (String item : databag.getItems()) {
-                    // Did the caller provide a value for this config item?
-                    final String value = category.getValues().get(item);
-                    if (value != null) {
-                        // If the value is the special 'default' value, skip this and do not edit anything
-                        if (value.equals(VendorSettingHandler.VENDOR_DEFAULT)) {
-                            log.info("skipping value (not changed from default): " + item);
-                            continue;
-                        }
-
-                        // If the setting already exists in the data bag, determine the type from there
-                        final JsonEditOperation op = new JsonEditOperation()
-                                .setType(JsonEditOperationType.write)
-                                .setPath(item);
-
-                        try {
-                            final JsonNode existing = JsonUtil.findNode(node, item);
-                            final String json;
-                            if (existing != null) {
-                                json = JsonUtil.toJson(JsonUtil.getValueNode(existing, item, value));
-                            } else {
-                                json = "\"" + value + "\""; // assume String
-                            }
-                            op.setJson(json);
-                            operations.add(op);
-
-                        } catch (Exception e) {
-                            throw new IllegalStateException("Error preparing to write " + databagName + "/" + item + ": " + e);
-                        }
-                    }
-                }
-
-                final String updatedJson;
-                try {
-                    updatedJson = new JsonEdit().setJsonData(node).setOperations(operations).edit();
-                    FileUtil.toFile(databagFile, updatedJson);
-
-                } catch (Exception e) {
-                    throw new IllegalStateException("Error generating updated json: " + e);
-                }
-
-            }
-        }
+        AppConfiguration.setAppConfiguration(manifest, databagsDir, config);
     }
 
     public TaskId install(Account admin, String app, String version, boolean force) {
@@ -291,8 +173,7 @@ public class AppDAO {
     public List<CloudOsApp> findActive() {
         final List<CloudOsApp> apps = new ArrayList<>();
         final File appRepository = configuration.getAppRepository();
-        final File[] appDirs = appRepository.listFiles();
-        if (appDirs == null) throw new IllegalStateException("Error listing app repository");
+        final File[] appDirs = FileUtil.list(appRepository);
         for (File appDir : appDirs) {
             final AppMetadata metadata = AppMetadata.fromJson(appDir);
             if (metadata.isActive()) {

@@ -6,6 +6,6 @@ public enum AccountGroupMemberType {
 
     account, group;
 
-    @JsonCreator public AccountGroupMemberType fromString (String s) { return AccountGroupMemberType.valueOf(s.toLowerCase()); }
+    @JsonCreator public AccountGroupMemberType create(String s) { return AccountGroupMemberType.valueOf(s.toLowerCase()); }
 
 }

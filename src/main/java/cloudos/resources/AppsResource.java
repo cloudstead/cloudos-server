@@ -3,11 +3,12 @@ package cloudos.resources;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
-import cloudos.model.app.AppConfiguration;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.model.app.AppRepositoryState;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppUninstallRequest;
+import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import static cloudos.resources.ApiConstants.H_API_KEY;
 @Service @Slf4j
 public class AppsResource {
 
+    @Autowired private CloudOsConfiguration configuration;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private AppDAO appDAO;
 
@@ -117,7 +119,7 @@ public class AppsResource {
      */
     @GET
     @Path("/apps/{app}/versions/{version}/config")
-    @ReturnType("cloudos.model.app.AppConfiguration")
+    @ReturnType("cloudos.appstore.model.app.config.AppConfiguration")
     public Response getConfiguration (@HeaderParam(H_API_KEY) String apiKey,
                                       @PathParam("app") String app,
                                       @PathParam("version") String version) {
@@ -127,7 +129,8 @@ public class AppsResource {
         // only admins can view app configs
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
-        final AppConfiguration config = appDAO.getConfiguration(app, version);
+        final String locale = configuration.getLocale(admin);
+        final AppConfiguration config = appDAO.getConfiguration(app, version, locale);
         if (config == null) return ResourceUtil.notFound(app+"/"+version);
 
         return Response.ok(config).build();

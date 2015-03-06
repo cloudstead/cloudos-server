@@ -1,8 +1,10 @@
 package cloudos.main;
 
 import cloudos.dao.AccountGroupDAO;
+import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.main.account.CloudOsGroupMainOptions;
 import cloudos.model.AccountGroup;
+import cloudos.model.AccountGroupMember;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import org.cobbzilla.util.collection.ArrayUtil;
@@ -75,14 +77,38 @@ public class CloudOsServerMain {
                 parser.parseArgument(args);
 
                 final AccountGroupDAO groupDAO = applicationContext.getBean(AccountGroupDAO.class);
+                final AccountGroupMemberDAO memberDAO = applicationContext.getBean(AccountGroupMemberDAO.class);
                 final String name = options.getName();
                 AccountGroup group = groupDAO.findByName(name);
-                if (group == null) {
-                    group = groupDAO.create(options.getGroupRequest(), options.getRecipients());
-                    System.out.println("Created group: " + group);
-                } else {
-                    group = groupDAO.update(options.getGroupRequest());
-                    System.out.println("Updated group: " + groupDAO.findByName(name).setMembers(groupDAO.buildGroupMemberList(group)));
+
+                switch (options.getOperation()) {
+                    case read:
+                        System.out.println(group);
+                        break;
+
+                    case create:
+                    case update:
+                        if (group == null) {
+                            group = groupDAO.create(options.getGroupRequest(), options.getRecipients());
+                            System.out.println("Created group: " + group);
+                        } else {
+                            group = groupDAO.update(options.getGroupRequest());
+                            System.out.println("Updated group: " + groupDAO.findByName(name).setMembers(groupDAO.buildGroupMemberList(group)));
+                        }
+                        break;
+
+                    case delete:
+                        if (group == null) throw new IllegalArgumentException("No group found: "+name);
+                        for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
+                            memberDAO.delete(m.getUuid());
+                        }
+                        // delete group
+                        groupDAO.delete(group.getUuid());
+                        System.out.println("Deleted group: "+group);
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException("operation "+options.getOperation()+" not supported");
                 }
                 break;
 
