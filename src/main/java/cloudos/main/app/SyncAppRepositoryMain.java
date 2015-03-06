@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
 import static rooty.toots.chef.ChefSolo.SOLO_JSON;
 
 @Slf4j
@@ -41,7 +43,7 @@ public class SyncAppRepositoryMain {
     }
 
     public static void main (String[] args) {
-        if (!CommandShell.whoami().equals("root")) throw new IllegalStateException("Must run as root");
+        if (!CommandShell.whoami().equals("root")) die("Must run as root");
 
         try {
             final SyncAppRepositoryMain m = new SyncAppRepositoryMain();
@@ -80,14 +82,14 @@ public class SyncAppRepositoryMain {
 
         final File chefDir = new File(new ChefHandler().getChefDir());
         final File soloJsonFile = new File(chefDir, SOLO_JSON);
-        if (!soloJsonFile.exists()) throw new IllegalStateException("No solo.json file found: "+soloJsonFile.getAbsolutePath());
+        if (!soloJsonFile.exists()) die("No solo.json file found: " + abs(soloJsonFile));
 
         JsonUtil.FULL_MAPPER.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
         final ChefSolo chefSolo;
         try {
             chefSolo = JsonUtil.fromJson(FileUtil.toString(soloJsonFile), ChefSolo.class);
         } catch (Exception e) {
-            throw new IllegalStateException("Error reading "+soloJsonFile.getAbsolutePath()+": "+e);
+            die("Error reading "+abs(soloJsonFile)+": "+e); return;
         }
 
         for (String recipe : chefSolo.getRun_list()) {
@@ -97,7 +99,7 @@ public class SyncAppRepositoryMain {
                     final String app = ChefMessage.getCookbook(recipe);
                     if (app != null) {
                         // Look for cloudos-manifest.json in databag dir for app
-                        final File manifestFile = new File(chefDir.getAbsolutePath()+"/data_bags/"+app+"/"+ AppManifest.CLOUDOS_MANIFEST_JSON);
+                        final File manifestFile = new File(abs(chefDir)+"/data_bags/"+app+"/"+ AppManifest.CLOUDOS_MANIFEST_JSON);
                         if (manifestFile.exists()) {
                             // Load the manifest
                             final AppManifest manifest = AppManifest.load(manifestFile);
@@ -122,7 +124,7 @@ public class SyncAppRepositoryMain {
                     CommandShell.chown(cloudosUser+"."+configuration.getRootyGroup(), configuration.getAppRepository(), true);
                     CommandShell.chmod(configuration.getAppRepository(), "750", true);
                 } catch (Exception e) {
-                    throw new IllegalStateException("Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e, e);
+                    die("Error setting ownership/permissions on "+abs(configuration.getAppRepository())+": "+e, e);
                 }
             }
         }
@@ -143,8 +145,8 @@ public class SyncAppRepositoryMain {
         final File appDir = layout.getAppDir();
         final File appVersionDir = layout.getAppVersionDir(version);
 
-        final String chefPath = chefDir.getAbsolutePath();
-        final String repoChefPath = layout.getChefDir().getAbsolutePath();
+        final String chefPath = abs(chefDir);
+        final String repoChefPath = abs(layout.getChefDir());
 
         // Copy: [chefDir]/cookbooks/app/* -> [appVersionDir]/chef/cookbooks/app/
         FileUtils.copyDirectory(new File(chefPath + "/cookbooks/" + app),

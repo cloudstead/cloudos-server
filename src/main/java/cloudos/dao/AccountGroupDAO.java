@@ -17,6 +17,7 @@ import java.util.*;
 
 import static cloudos.model.AccountGroup.ADMIN_GROUP_NAME;
 import static cloudos.model.AccountGroup.DEFAULT_GROUP_NAME;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Repository @Slf4j
 public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
@@ -113,7 +114,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         } catch (Exception e) {
             // Remove group and members from DB, and entry from LDAP
             log.error("create: Error creating group: "+e, e);
-            throw new IllegalStateException("Error creating group: "+e, e);
+            return die("Error creating group: "+e, e);
         }
         return created;
     }

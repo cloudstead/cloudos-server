@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Repository  @Slf4j
 public class AccountDAO extends AccountBaseDAO<Account> {
 
@@ -68,7 +70,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         } catch (Exception e) {
             final String message = "changePassword: Error authenticating with current password: " + e;
             log.error(message, e);
-            throw new IllegalStateException(message, e);
+            die(message, e);
         }
     }
 
@@ -117,7 +119,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         } catch (Exception e) {
             final String message = "create: account created in ldap / kerberos but account not persisted to DB! " + e;
             log.error(message, e);
-            throw new IllegalStateException(message, e);
+            die(message, e);
         }
 
         // Tell the rooty subsystems we have a new account
@@ -166,7 +168,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         } catch (Exception e) {
             final String message = "delete: account deleted in ldap / kerberos but account not deleted in storageEngine! " + e;
             log.error(message, e);
-            throw new IllegalStateException(message, e);
+            die(message, e);
         }
 
         // Tell the rooty subsystems we have removed an account

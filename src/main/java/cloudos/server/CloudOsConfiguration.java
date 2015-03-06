@@ -31,6 +31,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Configuration @Slf4j
 public class CloudOsConfiguration extends RestServerConfiguration
         implements HasDatabaseConfiguration, HasTwoFactorAuthConfiguration, TemplatedMailSenderConfiguration,
@@ -106,7 +108,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
             log.info("initPublicIp: returning ip="+ip);
             return ip;
         } catch (UnknownHostException e) {
-            throw new IllegalStateException("Error getting public ip: "+e ,e);
+            return die("Error getting public ip: " + e, e);
         }
     }
 

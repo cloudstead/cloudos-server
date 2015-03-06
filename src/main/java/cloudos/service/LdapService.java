@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static cloudos.model.auth.AuthenticationException.Problem.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.cobbzilla.util.system.CommandShell.okResult;
 
@@ -230,7 +231,7 @@ public class LdapService {
         try{
             result = CommandShell.exec(command);
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldappasswd: " + e,e);
+            die("error running ldappasswd: " + e,e); return;
         }
 
         if (result.getStderr().contains("unwilling to verify old password")) throw new AuthenticationException(INVALID);
@@ -252,7 +253,7 @@ public class LdapService {
         try{
             result = CommandShell.exec(command);
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldappasswd: " + e,e);
+            die("error running ldappasswd: " + e, e); return;
         }
         okResult(result);
     }
@@ -270,11 +271,11 @@ public class LdapService {
 
     public void deleteDN(String dn) {
         final CommandLine command = ldapDeleteCommand().addArgument(dn);
-        final CommandResult result;
+        CommandResult result = null;
         try{
             result = CommandShell.exec(command);
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldapdelete: " + e,e);
+            die("error running ldapdelete: " + e, e);
         }
         okResult(result);
     }
@@ -291,7 +292,7 @@ public class LdapService {
         try {
             result = CommandShell.exec(ldapAdminSearchCommand(ldapFilterGroup(groupName)));
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldapsearch: " + e, e);
+            return die("error running ldapsearch: " + e, e);
         }
         return result.isZeroExitStatus() && result.getStdout().contains("result: 0 Success") && result.getStdout().contains("numEntries: 1");
     }
@@ -309,7 +310,7 @@ public class LdapService {
         try {
             result = CommandShell.exec(new Command(ldapAddCommand).setInput(input));
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldapadd: " + e,e);
+            return die("error running ldapadd: " + e,e);
         }
         return okResult(result);
     }
@@ -331,7 +332,7 @@ public class LdapService {
         try {
             result = CommandShell.exec(new Command(modifyLdapCommand).setInput(input));
         } catch (Exception e) {
-            throw new IllegalStateException("error running ldapmodify: " + e, e);
+            return die("error running ldapmodify: " + e, e);
         }
         return checkOk ? okResult(result) : result;
     }

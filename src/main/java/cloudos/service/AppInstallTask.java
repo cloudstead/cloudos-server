@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 /**
  * Installs an application from your cloudstead's app library onto your cloudos.
  */
@@ -119,10 +121,10 @@ public class AppInstallTask extends TaskBase {
         final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD).setForceApply(request.isForce());
         final File chefDir = appLayout.getChefDir();
         if (!chefDir.exists()) {
-            error("{appInstall.error.chefDir.notFound", "chefDir not found: "+chefDir.getAbsolutePath());
+            error("{appInstall.error.chefDir.notFound", "chefDir not found: "+abs(chefDir));
             return null;
         }
-        chefMessage.setChefDir(chefDir.getAbsolutePath());
+        chefMessage.setChefDir(abs(chefDir));
 
         for (String recipe : manifest.getChefInstallRunlist()) {
             chefMessage.addRecipe(recipe.trim());
@@ -145,7 +147,7 @@ public class AppInstallTask extends TaskBase {
             }
             CommandShell.chmod(configuration.getAppRepository(), "g+r", true);
         } catch (Exception e) {
-            error("{appInstall.error.perms", "Error setting ownership/permissions on "+configuration.getAppRepository().getAbsolutePath()+": "+e);
+            error("{appInstall.error.perms", "Error setting ownership/permissions on "+abs(configuration.getAppRepository())+": "+e);
             return null;
         }
 

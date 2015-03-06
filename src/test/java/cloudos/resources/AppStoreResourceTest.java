@@ -13,6 +13,7 @@ import org.cobbzilla.wizard.model.ResultPage;
 import org.cobbzilla.wizard.server.RestServer;
 import org.junit.Test;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +34,7 @@ public class AppStoreResourceTest extends ApiClientTestBase {
             appStoreClient.setToken(apiToken.getToken());
             seedData = new AppStoreSeedData(appStoreClient, adminToken, NUM_ACCOUNTS, NUM_APPS, NUM_VERSIONS);
         } catch (Exception e) {
-            throw new IllegalStateException("error populating seed data: "+e, e);
+            die("error populating seed data: " + e, e);
         }
         super.onStart(server);
     }

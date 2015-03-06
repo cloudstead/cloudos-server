@@ -23,6 +23,8 @@ import rooty.toots.chef.ChefOperation;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 @Accessors(chain=true) @Slf4j
 public class AppUninstallTask extends TaskBase {
 
@@ -88,7 +90,7 @@ public class AppUninstallTask extends TaskBase {
 
             final File[] versionDirs = appDir.listFiles(SemanticVersion.DIR_FILTER);
             if (versionDirs == null || versionDirs.length == 0) {
-                log.info("No versions remaining, deleting appDir: "+appDir.getAbsolutePath());
+                log.info("No versions remaining, deleting appDir: "+abs(appDir));
                 FileUtils.deleteDirectory(appDir);
             }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 
+import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.toStringOrDie;
 
 @Service @Slf4j
@@ -47,7 +48,7 @@ public class SetupSettingsSource {
         try {
             FileUtil.truncate(SETUP_KEY_FILE);
         } catch (Exception e) {
-            log.error("Error truncating setup file: "+SETUP_KEY_FILE.getAbsolutePath()+": "+e, e);
+            log.error("Error truncating setup file: "+abs(SETUP_KEY_FILE)+": "+e, e);
         }
     }
 

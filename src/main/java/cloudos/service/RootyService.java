@@ -11,6 +11,7 @@ import rooty.RootyStatusManager;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Service @Slf4j
@@ -39,7 +40,7 @@ public class RootyService {
             if (status != null && status.isFinished()) return status;
             sleep(250, "waiting for rooty to complete");
         }
-        throw new IllegalStateException("request timeout: "+message);
+        return die("request timeout: " + message);
     }
 
 }

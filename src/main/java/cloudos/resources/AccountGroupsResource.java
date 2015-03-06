@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.GROUPS_ENDPOINT)
@@ -93,7 +95,7 @@ public class AccountGroupsResource {
         }
 
         final AccountGroup created = groupDAO.create(groupRequest, recipients);
-        if (created == null) throw new IllegalStateException("create: createAccountGroup returned null!"); //should never happen
+        if (created == null) die("create: createAccountGroup returned null!"); //should never happen
 
         // build view
         final AccountGroupView view = buildAccountGroupView(memberDAO, created, created.getMembers());

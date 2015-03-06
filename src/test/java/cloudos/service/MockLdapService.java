@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cloudos.model.auth.AuthenticationException.Problem.NOT_FOUND;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Slf4j
 public class MockLdapService extends LdapService {
@@ -34,7 +35,7 @@ public class MockLdapService extends LdapService {
     @Override
     public CommandResult createGroupWithMembers(AccountGroup group, List<AccountGroupMember> members) {
         final String name = group.getName();
-        if (groupMap.containsKey(name)) throw new IllegalStateException("already exists: "+name);
+        if (groupMap.containsKey(name)) die("already exists: "+name);
         groupMap.put(name, group);
         groupMembers.put(name, members);
         return CommandResult.OK;

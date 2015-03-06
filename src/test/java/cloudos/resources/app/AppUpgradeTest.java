@@ -17,6 +17,7 @@ import org.cobbzilla.wizard.server.RestServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +36,7 @@ public class AppUpgradeTest extends AppTestBase {
 
     @Override public void onStart(RestServer<CloudOsConfiguration> server) {
         try { initAppStore(); } catch (Exception e) {
-            throw new IllegalStateException("Error initializing app store: "+e, e);
+            die("Error initializing app store: " + e, e);
         }
         super.onStart(server);
     }

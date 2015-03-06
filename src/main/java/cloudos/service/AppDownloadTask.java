@@ -21,6 +21,8 @@ import org.cobbzilla.util.io.Tarball;
 
 import java.io.File;
 
+import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.FileUtil.ensureDirExists;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 /**
@@ -86,13 +88,13 @@ public class AppDownloadTask extends TaskBase {
         // ensure app dir and app-version dirs exist
         final AppLayout layout = configuration.getAppLayout(manifest);
         final File appDir = layout.getAppDir();
-        if (!appDir.exists() && !appDir.mkdirs()) {
-            error("{appDownload.error.mkdir.appDir}", new Exception("error creating appDir: "+appDir.getAbsolutePath()));
+        if (!ensureDirExists(appDir)) {
+            error("{appDownload.error.mkdir.appDir}", new Exception("error creating appDir: "+abs(appDir)));
             return cleanup(tarball, tempDir);
         }
         final File appVersionDir = layout.getAppVersionDir(manifest.getVersion());
-        if (!appVersionDir.exists() && !appVersionDir.mkdirs()) {
-            error("{appDownload.error.mkdir.appVersionDir}", new Exception("error creating appVersionDir: "+appVersionDir.getAbsolutePath()));
+        if (!ensureDirExists(appVersionDir)) {
+            error("{appDownload.error.mkdir.appVersionDir}", new Exception("error creating appVersionDir: "+abs(appVersionDir)));
             return cleanup(tarball, tempDir);
         }
 
@@ -103,14 +105,14 @@ public class AppDownloadTask extends TaskBase {
             return cleanup(tarball, tempDir);
         }
         if (!tarball.renameTo(destTarball)) {
-            error("{appDownload.error.renaming.bundle}", new Exception("the bundle could not be renamed: "+tarball.getAbsolutePath()+" -> "+destTarball.getAbsolutePath()));
+            error("{appDownload.error.renaming.bundle}", new Exception("the bundle could not be renamed: "+abs(tarball)+" -> "+abs(destTarball)));
             return cleanup(tarball, tempDir);
         }
 
         // move unpacked dir into place
         final File[] appFiles = tempDir.listFiles();
         if (appFiles == null) {
-            error("{appDownload.error.noFiles}", new Exception("the bundle did not contain any files: "+tarball.getAbsolutePath()));
+            error("{appDownload.error.noFiles}", new Exception("the bundle did not contain any files: "+abs(tarball)));
             return cleanup(tarball, tempDir);
         }
         for (File f : appFiles) {
@@ -124,14 +126,14 @@ public class AppDownloadTask extends TaskBase {
                         FileUtils.deleteDirectory(dest);
                     } else {
                         if (!dest.delete()) {
-                            error("{appDownload.error.overwriting}", new Exception("could not overwrite: "+dest.getAbsolutePath()));
+                            error("{appDownload.error.overwriting}", new Exception("could not overwrite: "+abs(dest)));
                             return cleanup(tarball, tempDir);
                         }
                     }
                 }
             }
             if (!f.renameTo(dest)) {
-                error("{appDownload.error.renaming.contents}", new Exception("the bundle file/dir could not be moved: "+f.getAbsolutePath()+" -> "+dest.getAbsolutePath()));
+                error("{appDownload.error.renaming.contents}", new Exception("the bundle file/dir could not be moved: "+abs(f)+" -> "+abs(dest)));
                 return cleanup(tarball, tempDir);
             }
         }
@@ -157,7 +159,7 @@ public class AppDownloadTask extends TaskBase {
     }
 
     private TaskResult cleanup(File... files) {
-        for (File f : files) if (f != null && f.exists() && !FileUtils.deleteQuietly(f)) log.warn("Error deleting: "+f.getAbsolutePath());
+        for (File f : files) if (f != null && f.exists() && !FileUtils.deleteQuietly(f)) log.warn("Error deleting: "+abs(f));
         return null;
     }
 }

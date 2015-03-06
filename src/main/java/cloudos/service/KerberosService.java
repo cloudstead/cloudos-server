@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static cloudos.model.auth.AuthenticationException.Problem.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Service @Slf4j
 public class KerberosService {
@@ -103,12 +104,12 @@ public class KerberosService {
         try {
             result = CommandShell.exec(new Command(createPrincipalCommand).setInput(input));
         } catch (Exception e) {
-            throw new IllegalStateException(method + ": error running kadmin: " + e, e);
+            return die(method + ": error running kadmin: " + e, e);
         }
 
         if (!result.isZeroExitStatus()) {
             log.error(method + ": kadmin returned non-zero: "+result.getExitStatus());
-            throw new IllegalArgumentException(result.getStderr());
+            die(result.getStderr());
         }
 
         return result;

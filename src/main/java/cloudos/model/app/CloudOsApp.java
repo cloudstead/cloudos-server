@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Slf4j @Accessors(chain=true)
 public class CloudOsApp {
 
@@ -31,7 +33,7 @@ public class CloudOsApp {
         try {
             return JsonUtil.FULL_MAPPER.reader().readValue(node);
         } catch (IOException e) {
-            throw new IllegalStateException("Error reading databag: "+e, e);
+            return die("Error reading databag: " + e, e);
         }
     }
 

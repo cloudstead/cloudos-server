@@ -17,6 +17,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 public class CloudOsServerMain {
 
     public static void main (String[] args) throws Exception {
@@ -24,7 +27,7 @@ public class CloudOsServerMain {
         if (args.length >= 3 && args[0].equals("--command")) {
             final String command = args[1];
             final File envFile = findEnvFile();
-            if (!envFile.exists() || !envFile.canRead()) throw new IllegalArgumentException("env file is unreadable: "+envFile.getAbsolutePath());
+            if (!envFile.exists() || !envFile.canRead()) throw new IllegalArgumentException("env file is unreadable: "+abs(envFile));
 
             // shift args by 2 to remove --command <command-name>
             args = ArrayUtil.remove(args, 0);
@@ -52,7 +55,7 @@ public class CloudOsServerMain {
                 break;
             }
         }
-        throw new IllegalStateException(".cloudos.env file not found");
+        return die(".cloudos.env file not found");
     }
 
     private static void handleCommand(String command, String[] args, Map<String, String> env) throws Exception {

@@ -38,6 +38,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 
 @Repository @Slf4j
@@ -284,7 +285,7 @@ public class AppDAO {
                     } catch (Exception e) {
                         final String msg = "getAvailableRuntimes: error intializing: " + e;
                         log.error(msg, e);
-                        throw new IllegalStateException(msg, e);
+                        die(msg, e);
                     }
                 }
             }

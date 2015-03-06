@@ -57,6 +57,9 @@ import java.util.Map;
 import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.FileUtil.mkdirOrDie;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.string.StringUtil.urlEncode;
@@ -149,7 +152,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     @Override public void beforeStart(RestServer<CloudOsConfiguration> server) {
         try { _beforeStart(); } catch (Exception e) {
-            throw new IllegalStateException("Error in beforeStart: "+e, e);
+            die("Error in beforeStart: " + e, e);
         }
         super.beforeStart(server);
     }
@@ -159,9 +162,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         chefHome = Files.createTempDir();
 
         // Write default ssl cert to disk and to DB
-        sslKeysDir = new File(chefHome, ".certs");
-        if (!sslKeysDir.exists() && !sslKeysDir.mkdirs()) fail("error creating dir: "+sslKeysDir.getAbsolutePath());
-        final String sslKeysPath = sslKeysDir.getAbsolutePath();
+        sslKeysDir = mkdirOrDie(new File(chefHome, ".certs"));
+        final String sslKeysPath = abs(sslKeysDir);
 
         final File pemFile = new File(sslKeysDir, TEST_PEM);
         final File keyFile = new File(sslKeysDir, TEST_KEY);
@@ -180,25 +182,24 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
         // setup handler for certificate requests (ssl keys)
         certHandler = new SslCertHandler() {
-            @Override protected String getVendorKeyRootPaths() { return chefHome.getAbsolutePath(); }
+            @Override protected String getVendorKeyRootPaths() { return abs(chefHome); }
         };
         certHandler.setPemPath(sslKeysPath);
         certHandler.setKeyPath(sslKeysPath);
-        certHandler.setCacertsFile(cacertsFile.getAbsolutePath());
+        certHandler.setCacertsFile(abs(cacertsFile));
         certHandler.setKeystorePassword(keystorePassword);
 
         // setup handler for service key requests (ssh keys)
         serviceKeyHandler = new ServiceKeyHandler() {
-            @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
-            @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
+            @Override public String getChefUserHome() { return abs(chefHome); }
+            @Override public String getChefDir() { return abs(chefHome); }
             @Override protected String initChefUser() { return CHEF_USER; }
             @Override protected String getVendorKeyRootPaths() { return getChefUserHome(); }
         };
-        final File dotsshDir = new File(chefHome, ".ssh");
-        if (!dotsshDir.mkdirs()) fail("error creating dir: "+dotsshDir.getAbsolutePath());
-        serviceKeyHandler.setDefaultSslFile(keyFile.getAbsolutePath());
+        mkdirOrDie(new File(chefHome, ".ssh"));
+        serviceKeyHandler.setDefaultSslFile(abs(keyFile));
         serviceKeyHandler.setDefaultSslKeySha(ShaUtil.sha256_file(keyFile));
-        serviceKeyHandler.setServiceDir(Files.createTempDir().getAbsolutePath());
+        serviceKeyHandler.setServiceDir(abs(Files.createTempDir()));
 
         // the vendor endpoint is called when a test requests a rootyService key with a recipient of VENDOR
         final String vendorEndpoint = server.getClientUri() + MockServiceRequestsResource.ENDPOINT;
@@ -206,8 +207,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
         // the settings handler
         vendorSettingHandler = new VendorSettingHandler() {
-            @Override public String getChefUserHome() { return chefHome.getAbsolutePath(); }
-            @Override public String getChefDir() { return chefHome.getAbsolutePath(); }
+            @Override public String getChefUserHome() { return abs(chefHome); }
+            @Override public String getChefDir() { return abs(chefHome); }
             @Override protected String initChefUser() { return CHEF_USER; }
             @Override protected String getVendorKeyRootPaths() { return getChefUserHome(); }
         };

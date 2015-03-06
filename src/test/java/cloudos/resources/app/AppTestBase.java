@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.*;
+import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -64,7 +65,7 @@ public class AppTestBase extends ApiClientTestBase {
         testHttpServer = new Server(testServerPort);
 
         final ResourceHandler handler = new ResourceHandler();
-        handler.setResourceBase(testDocRoot.getAbsolutePath());
+        handler.setResourceBase(abs(testDocRoot));
         testHttpServer.setHandler(handler);
 
         testHttpServer.start();
@@ -82,14 +83,14 @@ public class AppTestBase extends ApiClientTestBase {
 
         // Run the bundler on our test manifest
         final BundlerMain main = new BundlerMain(new String[] {
-                BundlerOptions.OPT_MANIFEST, manifestFile.getAbsolutePath(),
-                BundlerOptions.OPT_OUTPUT_DIR, bundleDir.getAbsolutePath()
+                BundlerOptions.OPT_MANIFEST, abs(manifestFile),
+                BundlerOptions.OPT_OUTPUT_DIR, abs(bundleDir)
         });
         main.run();
 
         // Roll the tarball into its place under the doc root
         final String tarballName = TEST_APP_TARBALL.replace("@VERSION", appManifest.getVersion());
-        final String tarball = testDocRoot.getAbsolutePath() + "/" + tarballName;
+        final String tarball = abs(testDocRoot) + "/" + tarballName;
         final CommandLine commandLine = new CommandLine("tar")
                 .addArgument("czf")
                 .addArgument(tarball)
