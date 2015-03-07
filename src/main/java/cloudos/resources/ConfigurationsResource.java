@@ -137,7 +137,7 @@ public class ConfigurationsResource {
 
     private List<String> toFieldList(AppManifest appManifest) {
         final List<String> fields = new ArrayList<>();
-        final AppDatabagDef[] databags = appManifest.getDatabags();
+        final AppDatabagDef[] databags = appManifest.getConfig();
         if (databags != null && databags.length > 0) {
             for (AppDatabagDef def : databags) {
                 for (String item : def.getItems()) {

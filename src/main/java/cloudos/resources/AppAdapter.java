@@ -185,7 +185,7 @@ public class AppAdapter {
                 scope.put(FSCOPE_APP, runtimeDetails);
                 scope.put(FSCOPE_APP_URI, appUri);
                 scope.put(FSCOPE_METHOD, method);
-                scope.put(FSCOPE_DATABAGS, appConfig.getDatabagMap());
+                scope.put(FSCOPE_APP_CONFIG, appConfig.getDatabagMap());
                 scope.put(FSCOPE_CONTEXT, context);
                 scope.put(FSCOPE_COOKIE_JAR, cookieJar);
 

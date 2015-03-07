@@ -69,7 +69,7 @@ public class AppInstallTask extends TaskBase {
 
         // do we have all the required configuration?
         if (manifest.hasDatabags()) {
-            for (AppDatabagDef databag : manifest.getDatabags()) {
+            for (AppDatabagDef databag : manifest.getConfig()) {
                 final JsonNode node = appLayout.getDatabag(databag.getName());
                 for (String item : databag.getItems()) {
                     if (node == null) {
