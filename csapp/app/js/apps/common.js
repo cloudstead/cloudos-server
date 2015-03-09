@@ -1,5 +1,34 @@
 String.prototype.trim = String.prototype.trim || function trim() { return this.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); };
 
+function get_username () {
+	const account = CloudOs.account();
+	return account ? account.name : null;
+}
+
+function initialize_zurb() {
+	Ember.$(document).foundation();
+}
+
+function locate(obj, path) {
+	if (!path) return null;
+	if (path[0] == '{' && path[path.length-1] == '}') {
+		// strip leading/trailing curlies, if present
+		path = path.substring(1, path.length-1);
+	}
+	path = path.split('.');
+	var arrayPattern = /(.+)\[(\d+)\]/;
+	for (var i = 0; i < path.length; i++) {
+		var match = arrayPattern.exec(path[i]);
+		if (match) {
+			obj = obj[match[1]][parseInt(match[2])];
+		} else {
+			obj = obj[path[i]];
+		}
+	}
+
+	return obj;
+}
+
 function setCookie(cname, cvalue, exdays){
 	var d = new Date();
 	d.setTime(d.getTime() + (exdays*24*60*60*1000));
