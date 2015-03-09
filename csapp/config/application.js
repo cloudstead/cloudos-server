@@ -30,6 +30,21 @@ module.exports = function(lineman) {
 						get_feature("two_factor_verification"),
 						get_feature("request_message"),
 						get_feature("using_apps")
+					],
+					"generated/js/apps/admin-app.js": [
+						"app/js/apps/admin-base.js",
+						get_feature("logout"),
+						get_feature("request_message"),
+						get_feature("using_apps"),
+						get_feature("app_store"),
+						get_feature("accounts"),
+						get_feature("email_domains"),
+						get_feature("aliases"),
+						get_feature("ssl_certificates"),
+						get_feature("groups"),
+						get_feature("valet_keys"),
+						get_feature("installed_apps_settings"),
+						get_feature("task_progress"),
 					]
 				}
 			}
