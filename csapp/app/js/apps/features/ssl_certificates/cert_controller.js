@@ -1,0 +1,1 @@
+App.CertController = App.CertsNewController;

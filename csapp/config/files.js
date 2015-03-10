@@ -22,7 +22,8 @@ module.exports = function(lineman) {
       ],
       app: [
         "app/js/apps/api.js",
-        "app/js/apps/common.js"
+        "app/js/apps/common-base.js",
+        "app/js/apps/common/**/*.js"
       ]
     },
     img: {
