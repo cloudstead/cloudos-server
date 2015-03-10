@@ -86,7 +86,7 @@ public class AppTestBase extends ApiClientTestBase {
                 BundlerOptions.OPT_MANIFEST, abs(manifestFile),
                 BundlerOptions.OPT_OUTPUT_DIR, abs(bundleDir)
         });
-        main.run();
+        main.runOrDie();
 
         // Roll the tarball into its place under the doc root
         final String tarballName = TEST_APP_TARBALL.replace("@VERSION", appManifest.getVersion());

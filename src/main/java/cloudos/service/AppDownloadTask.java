@@ -46,6 +46,7 @@ public class AppDownloadTask extends TaskBase {
     @Getter @Setter private RootyService rootyService;
     @Getter @Setter private AppDAO appDAO;
     @Getter @Setter private CloudOsAccount account;
+    @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
 
     @Override
     public TaskResult call() throws Exception {
@@ -149,6 +150,7 @@ public class AppDownloadTask extends TaskBase {
                     .setConfiguration(configuration)
                     .setRequest(new AppInstallRequest(manifest.getName(), manifest.getVersion(), request.isOverwrite()))
                     .setRootyService(rootyService)
+                    .setResolver(resolver)
                     .setResult(result);
             return installTask.call();
         }

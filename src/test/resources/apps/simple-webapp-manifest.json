@@ -11,7 +11,7 @@
         "packaging_copyright": "Copyright 2014 Cloudstead, Inc."
     },
 
-    "databags": [ {
+    "config": [ {
         "name": "init",
         "items": [ "admin.name", "admin.password",
             "test.config1", "test.config2", "test.config3" ]

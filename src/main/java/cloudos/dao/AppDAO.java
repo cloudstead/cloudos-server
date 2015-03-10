@@ -14,13 +14,12 @@ import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.AppDownloadTask;
-import cloudos.service.AppInstallTask;
-import cloudos.service.AppUninstallTask;
-import cloudos.service.RootyService;
+import cloudos.service.*;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskService;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.cobbzilla.util.io.DirFilter;
@@ -47,6 +46,8 @@ public class AppDAO {
     @Autowired private TaskService taskService;
     @Autowired private RootyService rootyService;
     @Autowired private CloudOsConfiguration configuration;
+    @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
+
 
     public AppRepositoryState getAppRepositoryState() {
         final AppRepositoryState state = new AppRepositoryState();
@@ -132,9 +133,9 @@ public class AppDAO {
         if (!layout.exists()) throw new IllegalArgumentException("App/version does not exist: " + app + "/" + version);
 
         final AppManifest manifest = AppManifest.load(layout.getManifest());
-        final File databagsDir = layout.getDatabagsDir();
+        final File appDatabagsDir = new File(layout.getDatabagsDir(), manifest.getName());
 
-        AppConfiguration.setAppConfiguration(manifest, databagsDir, config);
+        config.writeAppConfiguration(manifest, appDatabagsDir);
     }
 
     public TaskId install(Account admin, String app, String version, boolean force) {
@@ -144,6 +145,7 @@ public class AppDAO {
                 .setAppDAO(this)
                 .setRequest(new AppInstallRequest(app, version, force))
                 .setRootyService(rootyService)
+                .setResolver(resolver)
                 .setConfiguration(configuration);
 
         return taskService.execute(task);

@@ -4,6 +4,7 @@ import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppDatabagDef;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.databag.PortsDatabag;
@@ -12,7 +13,6 @@ import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
 import cloudos.service.task.TaskResult;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -28,7 +28,6 @@ import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +48,7 @@ public class AppInstallTask extends TaskBase {
     @Getter @Setter private AppInstallRequest request;
     @Getter @Setter private AppDAO appDAO;
     @Getter @Setter private SessionDAO sessionDAO;
+    @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
     @Getter @Setter private CloudOsConfiguration configuration;
 
     @Override
@@ -64,29 +64,12 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
 
+        // Validate databags. If any violations are related to missing passwords, pick a random password
+        // and email it to the caller.
         final AppManifest manifest = AppManifest.load(appLayout.getVersionDir());
-        final List<ConstraintViolationBean> validationErrors = new ArrayList<>();
+        final AppConfiguration appConfig = AppConfiguration.readAppConfiguration(manifest, appLayout.getDatabagDirForApp(manifest.getName()), null);
+        final List<ConstraintViolationBean> validationErrors = appConfig.validate(resolver);
 
-        // do we have all the required configuration?
-        if (manifest.hasDatabags()) {
-            for (AppDatabagDef databag : manifest.getConfig()) {
-                final JsonNode node = appLayout.getDatabag(databag.getName());
-                for (String item : databag.getItems()) {
-                    if (node == null) {
-                        validationErrors.add(missingConfig(databag, item));
-                    } else {
-                        try {
-                            // validate that all fields are present and have values.
-                            if (JsonUtil.toString(JsonUtil.findNode(node, item)) == null) {
-                                validationErrors.add(missingConfig(databag, item));
-                            }
-                        } catch (Exception e) {
-                            validationErrors.add(missingConfig(databag, item));
-                        }
-                    }
-                }
-            }
-        }
         if (!validationErrors.isEmpty()) {
             error("err.validation", validationErrors);
             return null;
