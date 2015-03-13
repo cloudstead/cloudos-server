@@ -1,0 +1,86 @@
+<script type="text/x-handlebars" id="restore">
+	<section class="deck">
+		<div class="row">
+			{{#link-to "index" classNames="right" }}
+				{{ t forms.restore.back }}
+			{{/link-to}}
+		</div>
+		<div class="medium-7 large-7 medium-centered columns">
+			<form {{action 'doRestore' on="submit"}}>
+				{{#if requestMessages.error.setupKey}}
+					<span class="message error">{{requestMessages.error.setupKey}}</span>
+				{{/if}}
+				<fieldset class="wrap-set">
+					<legend>{{ t sections.restore }}</legend>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-4 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.restore.password }}</label>
+								</div>
+								<div class="small-8 columns">
+									{{#if requestMessages.error.initialPassword}}
+										{{input type="password" value=initialPassword class="error"}}
+										<span class="message error">{{requestMessages.error.initialPassword}}</span>
+									{{else}}
+										{{input type="password" value=initialPassword}}
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-4 columns">
+									<label for="right-label" class="right msg-mod">{{t forms.restore.email }}</label>
+								</div>
+								<div class="small-8 columns">
+									{{#if requestMessages.error.notifyEmail}}
+										{{input type="text" value=notifyEmail class="error"}}
+										<span class="message error">{{requestMessages.error.notifyEmail}}</span>
+									{{else}}
+										{{input type="text" value=notifyEmail}}
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row hide">
+								<div class="small-12 columns">
+									<button class="button tiny right" >{{t forms.restore.upload_as_file }}</button>
+								</div>
+							</div>
+							<div class="row">
+								<div class="small-4 columns">
+									<label for="restore_key" class="right msg-mod">
+										{{ t forms.restore.private_key }}
+									</label>
+								</div>
+								<div class="small-8 columns">
+									{{#if requestMessages.error.restoreKey}}
+										{{ textarea value=restoreKey cols="50" rows="10" class="error" }}
+										<span class="message error">{{requestMessages.error.restoreKey}}</span>
+									{{else}}
+										{{ textarea value=restoreKey cols="50" rows="10" }}
+									{{/if}}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							&nbsp;
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-4 columns">
+									&nbsp;
+								</div>
+								<div class="small-8 columns">
+									<button type="submit" class="expand">
+										{{ t forms.restore.submit }}
+									</button>
+								</div>
+							</div>
+						</div>
+				</fieldset>
+			</form>
+		</div>
+	</section>
+</script>

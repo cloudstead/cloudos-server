@@ -1,0 +1,63 @@
+<script type="text/x-handlebars" id="certs/index">
+	<section class="deck account-deck">
+		<div class="row admin-row">
+			<div class="large-12 medium-centered columns">
+				<h1>{{t sections.sys_settings}}</h1>
+				<div class="button-bar">
+					<ul class="button-group">
+						<li>
+							<a class="button tiny alert">{{t sections.security.certs}}</a>
+						</li>
+						<li>
+							{{#link-to "valet_keys" classNames="button tiny"}}
+								{{t sections.security.valet_keys}}
+							{{/link-to}}
+						</li>
+						<li>
+							{{#link-to "email.domains" classNames="button tiny"}}
+								{{t menu.emaildom}}
+							{{/link-to}}
+						</li>
+						<li>
+							{{#link-to "app_settings" classNames="button tiny"}}
+								{{t sections.security.app_settings}}
+							{{/link-to}}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="medium-10 large-10 medium-centered columns">
+				<table>
+						<thead>
+						<tr><th colspan="6">{{t sections.security.certs}}</th></tr>
+						</thead>
+						<tbody>
+						<tr>
+								<th>Name</th>
+								<th>Description</th>
+								<th>Common name</th>
+								<th>PEM</th>
+								<th>Key</th>
+				<th></th>
+						</tr>
+						{{#each model}}
+						<tr>
+								<td>{{#link-to 'cert' name}}{{name}}{{/link-to}}</td>
+								<td>{{description}}</td>
+								<td>{{commonName}}</td>
+								<td><small>sha256: {{pemSha}}<br/>md5: {{pemMd5}}</small></td>
+								<td><small>sha256: {{keySha}}<br/>md5: {{keyMd5}}</small></td>
+								<td><button {{action 'doRemoveCert' name}}>{{t forms.security.certs.delete_button}}</button></td>
+						</tr>
+						{{/each}}
+						<tr>
+								<td colspan="6">
+										{{#link-to 'certs.new'}}{{t forms.security.certs.add_button}}{{/link-to}}
+								</td>
+						</tr>
+						</tbody>
+				</table>
+		</div>
+	</section>
+</script>

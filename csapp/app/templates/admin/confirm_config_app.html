@@ -1,0 +1,47 @@
+<script type="text/x-handlebars" id="confirm_config_app">
+	<section class="deck">
+		<div class="row">
+			<h3>{{app.name}} configuration</h3>
+			{{#link-to "appstore" classNames="button tiny"}}
+				{{ t sections.appstr.configure_app.back_to_appstore }}
+			{{/link-to}}
+		</div>
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<form>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
+					<button {{ action "doConfig" }} class="button tiny">Back to Configuration</button>
+					{{#each category in arrangedContent itemController="single_config_category"}}
+						{{#if category.isAdminCategory }}
+							<fieldset class="wrap-set">
+								<legend>{{t forms.app_install.init}}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<p>{{ item.name }}: {{item.value}}</p>
+										</div>
+									{{/each}}
+							</fieldset>
+						{{else}}
+							<fieldset class="wrap-set">
+								<legend>{{ category.name }}</legend>
+									{{#each item in category.items}}
+										<div class="field-container">
+											<p>{{ item.name }}: {{item.value}}</p>
+										</div>
+									{{/each}}
+							</fieldset>
+						{{/if}}
+					{{/each}}
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
+					<button {{ action "doConfig" }} class="button tiny">
+						{{ t sections.appstr.configure_app.back_to_config }}
+					</button>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>

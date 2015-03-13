@@ -1,0 +1,22 @@
+<script type="text/x-handlebars" id="app_uninstall_modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>{{t sections.appstr.action_status.uninstalling}} {{app_to_uninstall.name}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ uninstallStatus }}</p>
+				</div>
+				{{#if isUninstallModalCloseHidden}}
+				<div class="large-12 columns hide">
+				{{else}}
+				<div class="large-12 columns">
+				{{/if}}
+					<button {{ action "closeModal" }} class="button tiny right">Close</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>

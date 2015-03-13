@@ -1,0 +1,21 @@
+<script type="text/x-handlebars" id="aliases/new">
+	<div class="row">
+		<br /><br />
+		<table >
+			<thead>
+			<tr><th colspan="2">{{t sections.add_alias}}</th></tr>
+			</thead>
+			<tr>
+				<td>{{t forms.email.alias.name}}:</td>
+				<td>{{input type="text" value=aliasName}}</td>
+			</tr>
+			<tr>
+				<td>{{t forms.email.alias.recipients}}:</td>
+				<td>{{input type="text" value=recipients}}</td>
+			</tr>
+			<tr>
+				<td colspan="2"><button {{action 'doAddAlias'}}>{{t forms.email.alias.add_button}}</button></td>
+			</tr>
+		</table>
+	</div>
+</script>

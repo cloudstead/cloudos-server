@@ -1,0 +1,35 @@
+<script type="text/x-handlebars" id="tasks">
+		<div class="container-fluid">
+				<div class="row-fluid">
+						<div class="span9">
+								<table class='table'>
+										<thead>
+										<tr><th>{{task-description model.result}}</th></tr>
+										</thead>
+										<tbody>
+										{{#if model.result.success}}
+										<tr>
+												<td>success!</td>
+												<td>{{model.result.success}}</td>
+										</tr>
+										{{/if}}
+
+										{{#if model.result.exception}}
+										<tr>
+												<td>exception</td>
+												<td>{{model.result.exception}}</td>
+										</tr>
+										{{/if}}
+
+										{{#each event in model.result.events}}
+										<tr>
+												<td>{{task-event event.messageKey}}</td>
+												<td>{{event.ctime}}</td>
+										</tr>
+										{{/each}}
+										</tbody>
+								</table>
+						</div>
+				</div>
+		</div>
+</script>

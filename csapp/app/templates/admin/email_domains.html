@@ -1,0 +1,49 @@
+<script type="text/x-handlebars" id="email/domains">
+	<div class="row admin-row">
+	<br /><br />
+		<table class='table action_table'>
+			<thead>
+				<tr>
+					<th>{{t sections.email.domains}}</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tr>
+				<td>
+						{{t sections.email.mxrecord}}: {{mxRecord}}
+						<hr/>
+						{{t paragraphs.email.domains}}
+						<hr/>
+				</td>
+				<td></td>
+			</tr>
+			{{#each domain in arrangedContent}}
+				<tr>
+					<td>{{domain.name}} </td>
+					<td>
+						{{#unless domain.readOnly}}
+							<button class="tiny" {{action 'doRemoveDomain' domain.name}}>
+								{{t forms.email.remove_domain}}
+							</button>
+						{{/unless}}
+					</td>
+				</tr>
+			{{/each}}
+		</table>
+		<hr/>
+		<table class='table'>
+			<thead>
+			<tr><th colspan="2">{{t sections.add_domain}}</th></tr>
+			</thead>
+			<tr>
+				<td>{{t forms.email.domain_to_add}}:</td>
+				<td>{{input type="text" value=domain}}</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button {{action 'doAddDomain'}}>{{t forms.email.add_domain}}</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</script>

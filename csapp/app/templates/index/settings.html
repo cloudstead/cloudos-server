@@ -1,0 +1,53 @@
+<script type="text/x-handlebars" id="settings">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<h3 class="text-center">{{t sections.settings}}</h3>
+				<form {{action 'changePassword' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t forms.settings.change_password_header}}</legend>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.current_password}}</label>
+									{{#if requestMessages.error.current_password}}
+										{{input type="password" value=current_password class="error"}}
+									{{else}}
+										{{input type="password" value=current_password}}
+									{{/if}}
+
+									{{#if requestMessages.error.current_password}}
+										<span class="message error">{{requestMessages.error.current_password}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.new_password}}</label>
+									{{#if requestMessages.error.new_password}}
+										{{input type="password" value=new_password class="error"}}
+									{{else}}
+										{{input type="password" value=new_password}}
+									{{/if}}
+
+									{{#if requestMessages.error.new_password}}
+										<span class="message error">{{requestMessages.error.new_password}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<label for="password">{{t forms.settings.new_password2}}</label>
+									{{#if requestMessages.error.new_password2}}
+										{{input type="password" value=new_password2 class="error"}}
+									{{else}}
+										{{input type="password" value=new_password2}}
+									{{/if}}
+
+									{{#if requestMessages.error.new_password2}}
+										<span class="message error">{{requestMessages.error.new_password2}}</span>
+									{{/if}}
+							</div>
+							<div class="field-container">
+								<p><button type="submit" class="expand" {{action 'changePassword'}}>{{t forms.settings.change_password_button}}</button></p>
+							</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>

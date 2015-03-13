@@ -1,0 +1,41 @@
+<script type="text/x-handlebars" id="config_app">
+	<section class="deck">
+		<div class="row">
+			<h3>{{app.name}} configuration</h3>
+			{{#link-to "appstore" classNames="button tiny"}}
+				{{ t sections.appstr.configure_app.back_to_appstore }}
+			{{/link-to}}
+		</div>
+		<div class="row">
+			<div class="medium-6 large-5 medium-centered columns">
+				<form>
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
+					{{#each category in arrangedContent itemController="single_config_category"}}
+						<fieldset class="wrap-set">
+							{{#if category.isAdminCategory }}
+								<legend>{{t forms.app_install.init}}</legend>
+							{{else}}
+								<legend>{{ category.name }}</legend>
+							{{/if}}
+							{{#each item in category.items}}
+								<div class="field-container">
+									<label for="text">{{ item.name }}</label>
+									{{#if item.isPassword}}
+										{{input type="password" value=item.value}}
+									{{else}}
+										{{input type="text" value=item.value}}
+									{{/if}}
+								</div>
+							{{/each}}
+						</fieldset>
+					{{/each}}
+					<button {{ action "doInstall" }} type="submit" class="button tiny">
+						{{ t sections.appstr.configure_app.install }}
+					</button>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>

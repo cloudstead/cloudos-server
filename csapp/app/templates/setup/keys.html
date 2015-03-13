@@ -1,0 +1,58 @@
+<script type="text/x-handlebars" id="keys">
+	<div class="deck">
+		<div class="medium-7 large-7 medium-centered columns">
+			<form {{action 'doComplete' on="submit"}}>
+				<fieldset class="wrap-set">
+					<legend>{{ t sections.keys }}</legend>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-4 columns">
+									<label for="restore_key" class="right msg-mod">
+										{{ t forms.keys.caption }}
+									</label>
+								</div>
+								<div class="small-8 columns">
+									<div class="alert-box">
+										<p>{{t forms.keys.warning}}</p>
+										<p>{{t forms.keys.instructions}}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							<div class="row hide">
+								<div class="small-12 columns">
+									<button class="button tiny right" >{{t forms.restore.download_as_file }}</button>
+								</div>
+							</div>
+							<div class="row">
+								<div class="small-4 columns">
+									<label for="restore_key" class="right msg-mod">
+										{{ t forms.keys.private_key }}
+									</label>
+								</div>
+								<div class="small-8 columns">
+									{{ textarea value=restoreKey cols="50" rows="10" }}
+								</div>
+							</div>
+						</div>
+						<div class="field-container">
+							&nbsp;
+						</div>
+						<div class="field-container">
+							<div class="row">
+								<div class="small-4 columns">
+									&nbsp;
+								</div>
+								<div class="small-8 columns">
+									<button type="submit" class="expand">
+										{{ t forms.keys.submit }}
+									</button>
+								</div>
+							</div>
+						</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</script>

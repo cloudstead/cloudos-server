@@ -1,0 +1,42 @@
+<script type="text/x-handlebars" id="login">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-6 large-5 small-12 medium-centered columns">
+				<form {{action 'doLogin' on="submit"}}>
+					<fieldset class="wrap-set small-12">
+						<legend>{{t sections.login}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.login.username}}</label>
+							{{#if requestMessages.error.username}}
+								{{input type="text" value=username class="error"}}
+							{{else}}
+								{{input type="text" value=username}}
+							{{/if}}
+
+							{{#if requestMessages.error.username}}
+								<span class="message error">{{requestMessages.error.username}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="password">{{t forms.login.password}}</label>
+							{{#if requestMessages.error.password}}
+								{{input type="password" value=password class="error"}}
+							{{else}}
+								{{input type="password" value=password}}
+							{{/if}}
+
+							{{#if requestMessages.error.password}}
+								<span class="message error">{{requestMessages.error.password}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<p><button type="submit" class="expand" {{action 'doLogin'}}>{{t forms.login.login_button}}</button></p>
+						</div>
+						<a href="" {{action "doForgotPassword"}}>{{t forms.login.forgot_password}}</a>
+						<div class="forgot-password-notification">{{notificationForgotPassword}}</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</section>
+</script>

@@ -1,0 +1,86 @@
+<script type="text/x-handlebars" id="profile">
+
+	<section class="deck">
+		<div class="row large-4">
+			<form {{action 'doEditProfile' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.profile}}</legend>
+					<div class="row">
+						<div class="large-4 columns no-padd">
+							<label>{{t forms.profile.username}}
+								<div><span class="permanent-input">{{name}}</span></div>
+							</label>
+						</div>
+						<div class="large-6 columns no-padd">
+							<button class="small right" {{action openChangePassword}} >
+								{{t forms.account.change_password}}
+							</button>
+						</div>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.first_name}}
+						{{#if requestMessages.error.firstName}}
+							{{input type="text" value=firstName class="error"}}
+							<span class="message error">{{requestMessages.error.firstName}}</span>
+						{{else}}
+							{{input type="text" value=firstName}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.last_name}}
+						{{#if requestMessages.error.lastName}}
+							{{input type="text" value=lastName class="error"}}
+							<span class="message error">{{requestMessages.error.lastName}}</span>
+						{{else}}
+							{{input type="text" value=lastName}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>
+							{{t forms.profile.recovery_email}}
+							{{#if emailVerified}}
+								<span class="icon-check success-check"></span>
+							{{/if}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
+								<span class="message error">{{requestMessages.error.email}}</span>
+							{{else}}
+								{{input type="text" value=email}}
+							{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.profile.mobile_phone}}
+						{{#if requestMessages.error.mobilePhone}}
+							{{input type="text" value=mobilePhone class="error"}}
+							<span class="message error">{{requestMessages.error.mobilePhone}}</span>
+						{{else}}
+							{{input type="text" value=mobilePhone}}
+						{{/if}}
+						</label>
+					</div>
+					<div class="row">
+						<label>{{t forms.account.two_factor_auth}}
+							<div class="switch">
+									{{input type="checkbox" id="two_factor_auth_checkbox" checked=twoFactor}}
+									<label for="two_factor_auth_checkbox"></label>
+							</div>
+						</label>
+					</div>
+					<div class="row right">
+						<div class="large-12 columns large-right no-padding">
+							<button type="submit" class="small right left-margin-small">
+								{{t forms.profile.commit_changes}}
+							</button>
+							<button type="submit" class="small right left-margin-small" {{action 'doReset'}}>
+								{{t forms.profile.cancel}}
+							</button>
+						</div>
+					</div>
+			</fieldset>
+		</div>
+	</section>
+	{{outlet change_password}}
+</script>
