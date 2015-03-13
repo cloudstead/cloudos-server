@@ -1,7 +1,7 @@
 package cloudos.service;
 
 import cloudos.appstore.model.CloudOsAccount;
-import cloudos.appstore.model.app.AppDatabagDef;
+import cloudos.appstore.model.app.AppConfigDef;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.config.AppConfiguration;
@@ -161,7 +161,7 @@ public class AppInstallTask extends TaskBase {
         return result;
     }
 
-    private ConstraintViolationBean missingConfig(AppDatabagDef databag, String item) {
+    private ConstraintViolationBean missingConfig(AppConfigDef databag, String item) {
         return new ConstraintViolationBean("err."+databag.getName()+"."+item+".empty");
     }
 

@@ -180,7 +180,7 @@ public class AppAdapter {
 
                 // these things define the {{ }} vars used in a manifest file's web.filters section, they can also be used by a PluginFilterHandler
                 final Map<String, Object> scope = new HashMap<>();
-                scope.put(FSCOPE_COS_CONFIG, configuration);
+                scope.put(FSCOPE_SYSTEM, configuration);
                 scope.put(FSCOPE_RUNTIME, runtime);
                 scope.put(FSCOPE_APP, runtimeDetails);
                 scope.put(FSCOPE_APP_URI, appUri);

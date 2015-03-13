@@ -1,6 +1,6 @@
 package cloudos.resources;
 
-import cloudos.appstore.model.app.AppDatabagDef;
+import cloudos.appstore.model.app.AppConfigDef;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
@@ -137,9 +137,9 @@ public class ConfigurationsResource {
 
     private List<String> toFieldList(AppManifest appManifest) {
         final List<String> fields = new ArrayList<>();
-        final AppDatabagDef[] databags = appManifest.getConfig();
+        final AppConfigDef[] databags = appManifest.getConfig();
         if (databags != null && databags.length > 0) {
-            for (AppDatabagDef def : databags) {
+            for (AppConfigDef def : databags) {
                 for (String item : def.getItems()) {
                     fields.add(def.getName() + "/" + item);
                 }
