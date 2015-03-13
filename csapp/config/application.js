@@ -50,6 +50,12 @@ module.exports = function(lineman) {
 		get_feature("task_progress"),
 	];
 
+	// List of features available in the setup app
+	var setup_app_files = [
+		"app/js/apps/setup-base.js",
+		get_feature("cloudos_restore")
+	];
+
 
 	// List of features templates in the cloudos app
 	var cloudos_app_templates = [
@@ -92,7 +98,8 @@ module.exports = function(lineman) {
 			gen_apps: {
 				files: {
 					"generated/js/apps/cloudos-app.js": cloudos_app_files,
-					"generated/js/apps/admin-app.js": admin_app_files
+					"generated/js/apps/admin-app.js": admin_app_files,
+					"generated/js/apps/setup-app.js": setup_app_files
 				}
 			},
 			gen_templates: {
