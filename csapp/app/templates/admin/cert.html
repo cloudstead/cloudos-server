@@ -1,0 +1,67 @@
+<script type="text/x-handlebars" id="cert">
+	<section class="deck">
+		<div class="row">
+			<div class="medium-8 large-8 medium-centered columns">
+				<form {{action 'doAddCert' on="submit"}}>
+					<fieldset class="wrap-set">
+						<legend>{{t sections.overwrite_cert}}</legend>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.name}}</label>
+							{{#if requestMessages.error.cert_name}}
+								{{input type="text" value=certName class="error"}}
+							{{else}}
+								{{input type="text" value=certName}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_name}}
+								<span class="message error">{{requestMessages.error.cert_name}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.description}}</label>
+							{{#if requestMessages.error.cert_description}}
+								{{input type="text" value=description class="error"}}
+							{{else}}
+								{{input type="text" value=description}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_description}}
+								<span class="message error">{{requestMessages.error.cert_description}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.pem}}</label>
+							<small>sha256: {{pemSha}}<br/>md5: {{pemMd5}}<br/></small>
+							{{#if requestMessages.error.cert_pem}}
+								{{textarea value=pem class="error"}}
+							{{else}}
+								{{textarea value=pem}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_pem}}
+								<span class="message error">{{requestMessages.error.cert_pem}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label for="text">{{t forms.security.certs.key}}</label>
+							<small>sha256: {{keySha}}<br/>md5: {{keyMd5}}<br/></small>
+							{{#if requestMessages.error.cert_key}}
+								{{textarea value=key class="error"}}
+							{{else}}
+								{{textarea value=key}}
+							{{/if}}
+
+							{{#if requestMessages.error.cert_key}}
+								<span class="message error">{{requestMessages.error.cert_key}}</span>
+							{{/if}}
+						</div>
+						<div class="field-container">
+							<label>&nbsp;</label>
+							<p><button type="submit" class="expand" {{action 'doAddCert'}}>{{t forms.security.certs.overwrite_button}}</button></p>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	<section>
+</script>

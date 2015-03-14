@@ -1,0 +1,68 @@
+<script type="text/x-handlebars" id="installedapps">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs" data-tab>
+				<dd class="half-width-tab">
+					{{#link-to 'appstore'}}{{t sections.appstr.available_apps}}{{/link-to}}
+				</dd>
+				<dd class="active half-width-tab">
+					{{#link-to 'installedapps'}}{{t sections.appstr.installed_apps}}{{/link-to}}
+				</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					<div class="large-12 columns no-padd">
+					<table class="action_table" style="width: 100%">
+						<thead>
+							<th {{action 'sortBy' 'name'}}>
+								{{ t sections.installed_apps.app_name }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'version'}}>
+								{{ t sections.installed_apps.version }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'installed'}}>
+								{{ t sections.installed_apps.installed }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'parent'}}>
+								{{ t sections.installed_apps.parent }}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{ t sections.installed_apps.action }}
+							</th>
+						</thead>
+						<tbody>
+							{{#each app in arrangedContent itemController='installedapp'}}
+								<tr>
+									<td>{{app.name}}</td>
+									<td>{{app.version}}</td>
+									<td>
+										{{ app.isInstalledString }}
+									</td>
+									<td>
+										{{ app.parentString }}
+									</td>
+									<td>
+										{{#if app.installed }}
+											<button class="tiny" {{ action "doUninstallApp" app }}>
+												{{ t sections.installed_apps.uninstall_app }}
+											</button>
+										{{/if}}
+									</td>
+								</tr>
+							{{/each}}
+						</tbody>
+					</table>
+				</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</script>

@@ -1,0 +1,56 @@
+<script type="text/x-handlebars" id="appstore">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs" data-tab>
+				<dd class="active half-width-tab">
+					{{#link-to 'appstore'}}{{t sections.appstr.available_apps}}{{/link-to}}
+				</dd>
+				<dd class="half-width-tab">
+					{{#link-to 'installedapps'}}{{t sections.appstr.installed_apps}}{{/link-to}}
+				</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					<div class="circles row text-center">
+						{{#each app in arrangedContent}}
+							<div class="large-4 medium-6 columns app_circle">
+								{{#if app.canBeInstalled }}
+									<button class="button tiny alert" {{ action "doConfigApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.canBeUpgraded }}
+									<button class="button tiny secondary" {{ action "doConfigApp" app }}>
+										{{ app.statusCaption }}
+									</button>
+								{{/if}}
+								{{#if app.isInteractive }}
+									<button class="button tiny" {{ action "doOpenApp" app }}>
+										{{ t sections.appstr.install_status.interactive }}
+									</button>
+								{{else}}
+									{{#if app.isInstalled }}
+										<button class="button tiny disabled">
+											{{ t sections.appstr.install_status.not_interactive }}
+										</button>
+									{{/if}}
+								{{/if}}
+								{{#link-to 'selectedapp' app.name}}
+									<div class="circle"><img {{bind-attr src=app.smallIcon}} alt=""/></div>
+									<h3 class="gamma light">{{app.name}}</h3>
+									<div class="app_short_desc">
+										<p>{{app.description}}</p>
+									</div>
+								{{/link-to}}
+							</div>
+						{{/each}}
+					</div>
+					{{#if morePagesAvailable}}
+						<a {{action 'loadNextPage'}}>More Apps</a>
+					{{/if}}
+				</div>
+			</div>
+		</div>
+		{{outlet modal}}
+	</section>
+</script>

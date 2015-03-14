@@ -1,0 +1,110 @@
+<script type="text/x-handlebars" id="groups">
+	<section class="deck account-deck">
+		<div class="row admin-row">
+			<div class="large-12 medium-centered columns">
+				<h1>{{ t sections.acct.groups }}</h1>
+				<div class="button-bar">
+					<ul class="button-group">
+						<li>
+							{{#link-to "accounts" classNames="button tiny"}}
+								{{t sections.acct.users}}
+							{{/link-to}}
+						</li>
+						<li><a class="button tiny alert">{{t sections.acct.groups}}</a></li>
+						<li><a href="#" class="button tiny">{{t sections.acct.permissions}}</a></li>
+					</ul>
+					<ul class="inline-list accounts-list">
+						<li>
+							{{#link-to 'groupsNew' data-dropdown="" data-options=""}}
+								<span class="icon-plus" title="Add Group" ></span> <span class="show-for-xxlarge-up"></span>
+							{{/link-to}}
+						</li>
+					</ul>
+				</div>
+				<div class="large-12 columns no-padd">
+					<div class="large-2 columns no-padd">
+						<select class="select-small">
+							<option value="edit">{{t sections.acct.bulk.edit}}</option>
+							<option value="toggle_status">{{t sections.acct.bulk.toggle_status}}</option>
+							<option value="delete">{{t sections.acct.bulk.delete}}</option>
+						</select>
+					</div>
+					<div class="large-2 columns no-padd">
+						<a href="#" class="button tiny">Apply</a>
+					</div>
+					<div class="large-8 columns no-padd">
+					</div>
+				</div>
+				<div class="large-12 columns no-padd">
+					<table style="width: 100%">
+						<thead>
+							<th></th>
+							<th>
+								{{t sections.acct.table.group_name}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.description}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.group_email_address}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.group_admin}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.member_count}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.status}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.file_storage_used}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								{{t sections.acct.table.total_storage_available}}
+								<span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th>
+								<span class="icon-sort-down right"></span>
+								<span class="icon-sort-up table-icon table-icon-upper right" style="margin-right: -6px;"></span>
+							</th>
+						</thead>
+						<tbody>
+							{{#each sortedGroups}}
+								<tr>
+									<td>{{input type="checkbox"}}</td>
+									<td>{{#link-to "group" name}}{{name}}{{/link-to}}</td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td><a {{action "doDeleteGroup" name}}>{{t forms.group.delete_button}}</a></td>
+								</tr>
+							{{/each}}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
+		{{outlet}}
+	</section>
+</script>

@@ -1,0 +1,20 @@
+<script type="text/x-handlebars" id="components/task-progress-modal">
+	{{#modal-dialog small=true}}
+		<div class="row modal-filler">
+			<legend>{{title}}</legend>
+		</div>
+		<div class="row modal-content">
+				<div class="large-12 columns user_restore_message" style="padding-bottom:50px; padding-top: 40px;">
+					<p {{bind-attr class="user_message_priority"}}>{{ message }}</p>
+				</div>
+				<div {{bind-attr class="CloseButtonClass"}}>
+					<button {{ action "closeModal" }} class="button tiny right">
+						{{ t task.progress_modal.close_modal }}
+					</button>
+				</div>
+		</div>
+		<div class="row modal-filler">
+			&nbsp;
+		</div>
+	{{/modal-dialog}}
+</script>

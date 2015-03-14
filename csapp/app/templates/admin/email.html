@@ -1,0 +1,32 @@
+<script type="text/x-handlebars" id="email">
+	<section class="deck account-deck">
+		<div class="row admin-row">
+			<div class="large-12 medium-centered columns">
+				<h1>{{ t sections.sys_settings }}</h1>
+				<div class="button-bar">
+					<ul class="button-group">
+						<li>
+							{{#link-to "security" classNames="button tiny"}}
+								{{t sections.security.certs}}
+							{{/link-to}}
+						</li>
+						<li>
+							{{#link-to "valet_keys" classNames="button tiny"}}
+								{{t sections.security.valet_keys}}
+							{{/link-to}}
+						</li>
+						<li>
+							<a class="button tiny alert">{{t menu.emaildom}}</a>
+						</li>
+						<li>
+							{{#link-to "app_settings" classNames="button tiny"}}
+								{{t sections.security.app_settings}}
+							{{/link-to}}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		{{outlet}}
+	</section>
+</script>

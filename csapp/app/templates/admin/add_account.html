@@ -1,0 +1,188 @@
+<script type="text/x-handlebars" id="addAccount">
+	<section class="deck">
+
+		<div class="row">
+			<form {{action 'doCreateAccount' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t forms.account.add_account}}</legend>
+				<div class="row">
+					<div class="large-12 large-centered medium-centered">
+						<div class="large-4 columns">
+							<label>{{t forms.account.username}}
+								{{#if requestMessages.error.name}}
+									{{input type="text" value=accountName class="error"}}
+								{{else}}
+									{{input type="text" value=accountName}}
+								{{/if}}
+
+								{{#if requestMessages.error.name}}
+									<span class="message error">{{requestMessages.error.name}}</span>
+								{{/if}}
+							</label>
+						</div>
+						<div class="large-4 columns">
+							<label>{{t forms.account.password }}
+								{{#if requestMessages.error.password}}
+									{{input type="password" value=password class="error" disabled=generateSysPassword}}
+								{{else}}
+									{{input type="password" value=password disabled=generateSysPassword}}
+								{{/if}}
+
+								{{#if requestMessages.error.password}}
+									<span class="message error">{{requestMessages.error.password}}</span>
+								{{/if}}
+							</label>
+						</div>
+						<div class="large-4 columns">
+							<label>{{t forms.account.retype_password }}
+								{{#if requestMessages.error.passwordConfirm}}
+									{{input type="password" value=passwordConfirm class="error" disabled=generateSysPassword}}
+								{{else}}
+									{{input type="password" value=passwordConfirm disabled=generateSysPassword}}
+								{{/if}}
+
+								{{#if requestMessages.error.passwordConfirm}}
+									<span class="message error">{{requestMessages.error.passwordConfirm}}</span>
+								{{/if}}
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-4 columns">
+					</div>
+					<div class="large-4 columns">
+					</div>
+					<div class="large-4 columns">
+						<input id="sysPassCheck" type="checkbox" {{bind-attr checked=generateSysPassword }}>
+						<label class="label-pass" for="sysPassCheck" {{action toggleSysPassword}}>{{t forms.account.sys_gen_password}}</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-4 columns">
+						<label>{{ t forms.account.first_name}}
+							{{#if requestMessages.error.firstName}}
+								{{input type="text" value=firstName class="error"}}
+							{{else}}
+								{{input type="text" value=firstName}}
+							{{/if}}
+
+							{{#if requestMessages.error.firstName}}
+								<span class="message error">{{requestMessages.error.firstName}}</span>
+							{{/if}}
+						</label>
+					</div>
+					<div class="large-8 columns">
+						<label>{{t forms.account.primary_group}}
+							{{view Ember.Select
+								content=primaryGroups
+								selectionBinding="selectedGroup"
+								}}
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-4 columns">
+						<label>{{ t forms.account.last_name }}
+							{{#if requestMessages.error.lastName}}
+								{{input type="text" value=lastName class="error"}}
+							{{else}}
+								{{input type="text" value=lastName}}
+							{{/if}}
+
+							{{#if requestMessages.error.lastName}}
+								<span class="message error">{{requestMessages.error.lastName}}</span>
+							{{/if}}
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-4 columns">
+						<label>{{t forms.account.recovery_email}}
+							{{#if requestMessages.error.email}}
+								{{input type="text" value=email class="error"}}
+							{{else}}
+								{{input type="text" value=email}}
+							{{/if}}
+
+							{{#if requestMessages.error.email}}
+								<span class="message error">{{requestMessages.error.email}}</span>
+							{{/if}}
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-4 columns">
+						<label for="text">{{t forms.account.mobile_phone_country}}</label>
+						{{view Ember.Select
+								content=countryList
+								optionValuePath="content.code"
+								optionLabelPath="content.country"
+								selection=selectedCountry }}
+					</div>
+					<div class="large-4 columns">
+						<label>{{t forms.account.mobile_phone}}
+							{{#if requestMessages.error.mobilePhone}}
+								{{input type="text" value=mobilePhone class="error"}}
+							{{else}}
+								{{input type="text" value=mobilePhone}}
+							{{/if}}
+
+							{{#if requestMessages.error.mobilePhone}}
+								<span class="message error">{{requestMessages.error.mobilePhone}}</span>
+							{{/if}}
+						</label>
+					</div>
+					<div class="large-4 columns">
+						<label>{{t forms.account.two_factor_auth}}
+							<div class="switch">
+									{{input type="checkbox" id="two_factor_auth_checkbox" checked=twoFactor}}
+									<label for="two_factor_auth_checkbox"></label>
+							</div>
+						</label>
+					</div>
+				</div>
+				<!--<div class="row">
+					<div class="large-4 columns">
+						<label>{{t forms.account.tot_storage_qt}}
+							<select>
+								<option value="unlimited">Unlimited</option>
+								<option value="limited">Limited</option>
+							</select>
+						</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-6 columns">
+						<label>{{ t forms.account.aliases }}
+							<select multiple='multiple' class="form-select-mt">
+								<option value="admin">Alias 1</option>
+								<option value="user">Alias 2</option>
+							</select>
+						</label>
+					</div>
+					<div class="large-6 columns">
+						<label>{{ t forms.account.groups}}
+							<select multiple='multiple' class="form-select-mt">
+								<option value="admin">Users</option>
+								<option value="user">Admin</option>
+							</select>
+						</label>
+					</div>
+				</div>-->
+				<div class="row">
+					<div class="large-6 columns">&nbsp;
+					</div>
+					<div class="large-2 columns">
+						<input id="checkbox1" type="checkbox"><label for="checkbox1">{{t forms.account.add_another}}</label>
+					</div>
+					<div class="large-4 columns form-addacct-btn">
+						<button type="submit" class="small right" {{action 'doCreateAccount'}}>{{t forms.account.add_user}}</button>
+						<button type="submit" class="small right" {{action cancelCreate}}>{{t forms.account.cancel}}</button>
+					</div>
+				</div>
+			</fieldset>
+			</form>
+		</div>
+	</section>
+</script>

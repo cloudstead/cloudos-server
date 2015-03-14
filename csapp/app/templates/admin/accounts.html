@@ -1,0 +1,106 @@
+<script type="text/x-handlebars" id="accounts">
+	<section class="deck account-deck">
+		<div class="row admin-row">
+			<!--<div class="medium-6 large-5 medium-centered columns">
+				<fieldset class="wrap-set">
+					<legend>{{t sections.accounts}}</legend>
+					<div class="field-container">
+						{{#link-to 'addAccount' class='button'}}{{t forms.account.add_account}}{{/link-to}}
+					</div>
+					<div class="field-container">
+						<ul>
+						{{#each account in model.accounts}}
+							<li>{{#link-to 'manageAccount' account.name}}{{account.name}}{{/link-to}}</li>
+						{{else}}
+							<li>{{t paragraphs.no_accounts_found}}</li>
+						{{/each}}
+						</ul>
+					</div>
+				</fieldset>
+			</div>-->
+			<div class="large-12 medium-centered columns">
+				<h1>{{ t sections.accounts }}</h1>
+				<div class="button-bar">
+					<ul class="button-group">
+						<li><a class="button tiny alert">{{t sections.acct.users}}</a></li>
+						<li>
+							{{#link-to "groups" classNames="button tiny"}}
+								{{t sections.acct.groups}}
+							{{/link-to}}
+						</li>
+						<li><a href="#" class="button tiny">{{t sections.acct.permissions}}</a></li>
+					</ul>
+					<ul class="inline-list accounts-list">
+						<li>
+							{{#link-to 'addAccount' data-dropdown="" data-options=""}}
+								<span class="icon-plus" title="Add User" ></span> <span class="show-for-xxlarge-up"></span>
+							{{/link-to}}
+						</li>
+						<li>
+							<a href="#" data-dropdown="" data-options="">
+								<span class="icon-filter" title="Filter By User"></span> <span class="show-for-xxlarge-up" ></span>
+							</a>
+						</li>
+						<li>
+							<a href="#" data-dropdown="acct-col-submenu">
+								<span class="icon-columns" title="Add/Remove Columns"></span> <span class="show-for-xxlarge-up" ></span>
+							</a>
+						</li>
+						<li>
+							<a href="#" data-dropdown="" data-options="">
+								<span class="icon-download" title="Download List"></span> <span class="show-for-xxlarge-up"></span>
+							</a>
+						</li>
+					</ul>
+						{{partial "account-col-toggle"}}
+				</div>
+				<div class="large-12 columns no-padd bulk_action_list">
+					{{#if anySelected}}
+						{{render "bulk_actions"}}
+					{{/if}}
+				</div>
+				<div class="large-12 columns no-padd">
+					<table style="width: 100%">
+						<thead>
+							<th></th>
+							<th {{action 'sortBy' 'lastName'}}>
+								Full Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'lastLogin'}}>
+								Last Login <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'email'}}>
+								Recovery Email <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'mobilePhone'}}>
+								Mobile <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'status'}}>
+								Status <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+						</thead>
+						<tbody>
+							{{#each}}
+								<tr>
+									<td>
+										{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}
+									</td>
+									<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
+									<td>{{fromUTC lastLogin}}</td>
+									<td>{{email}}</td>
+									<td>{{mobilePhone}}</td>
+									<td>{{status}}</td>
+								</tr>
+							{{/each}}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+</script>

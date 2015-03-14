@@ -1,0 +1,123 @@
+<script type="text/x-handlebars" id="valet_keys">
+		<section class="deck account-deck">
+			<div class="row admin-row">
+				<div class="large-12 medium-centered columns">
+					<h1>{{ t sections.sys_settings }}</h1>
+					<div class="button-bar">
+						<ul class="button-group">
+							<li>
+								{{#link-to "security" classNames="button tiny"}}
+									{{t sections.security.certs}}
+								{{/link-to}}
+							</li>
+							<li>
+								<a class="button tiny alert">{{t sections.security.valet_keys}}</a>
+							</li>
+							<li>
+								{{#link-to "email.domains" classNames="button tiny"}}
+									{{t menu.emaildom}}
+								{{/link-to}}
+							</li>
+							<li>
+								{{#link-to "app_settings" classNames="button tiny"}}
+									{{t sections.security.app_settings}}
+								{{/link-to}}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="small-12 columns no_padding">
+					<table class="table full_width">
+						<thead>
+							<th>{{t forms.service_keys.name}}</th>
+							<th>{{t forms.service_keys.key}}</th>
+							<th>{{t forms.service_keys.action}}</th>
+						</thead>
+						<tbody>
+						{{#each serviceKey in content }}
+						<tr>
+							<td>{{ serviceKey.name }}</td>
+							<td class="long_text_content">{{ serviceKey.publicKey }}</td>
+							<td><button class="tiny" {{ action "doDeleteKey" serviceKey }}>X</button></td>
+						</tr>
+						{{/each}}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="small-1 columns">
+					{{#if hasServiceKeys}}
+						<h3>
+							<a href="#" {{action toggleAddServiceKeys}}>
+								<span {{bind-attr class="isAddServiceKeysOpened:icon-minus:icon-plus"}}></span>
+							</a>
+						</h3>
+					{{else}}
+						&nbsp;
+					{{/if}}
+				</div>
+			</div>
+			<div {{bind-attr class=isFormShown}}>
+				<form {{action 'doNewServiceKey' on="submit"}}>
+					<div class="row">
+						<div class="large-4 medium-2 hide-for-small columns">
+							&nbsp;
+						</div>
+						<div class="small-3 columns">
+							<label for="right-label" class="right msg-mod">
+								{{t forms.service_keys.new_name}}
+							</label>
+						</div>
+						<div class="large-5 medium-7 small-9 columns">
+							{{#if requestMessages.error.serviceKeyName}}
+								{{input type="text" value=serviceKeyName class="error"}}
+							{{else}}
+								{{input type="text" value=serviceKeyName}}
+							{{/if}}
+
+							{{#if requestMessages.error.serviceKeyName}}
+								<span class="message error">{{requestMessages.error.serviceKeyName}}</span>
+							{{/if}}
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-4 medium-2 hide-for-small columns">
+							&nbsp;
+						</div>
+						<div class="small-3 columns">
+							<label for="right-label" class="right msg-mod">
+								Key Type
+							</label>
+						</div>
+						<div class="large-5 medium-7 small-9 columns">
+							<label>
+								{{view Ember.Select
+									content=serviceKeyTypes
+									optionValuePath="content.value"
+									optionLabelPath="content.caption"
+									selectionBinding="selectedKeyType"
+									}}
+							</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-4 medium-2 hide-for-small columns">
+							&nbsp;
+						</div>
+						<div class="small-3 columns">
+							&nbsp;
+						</div>
+						<div class="large-5 medium-7 small-9 columns">
+							<button id="cloudOsSubmit" type="submit" class="expand">
+								{{t forms.service_keys.create_button}}
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			</div>
+		</section>
+</script>

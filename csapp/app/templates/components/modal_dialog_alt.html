@@ -1,0 +1,11 @@
+<script type="text/x-handlebars" id="components/modal-dialog">
+	<div class="overlay" {{action "close"}}>
+	</div>
+	{{#if small}}
+		<div class="modal-small">
+	{{else}}
+		<div class="modal">
+	{{/if}}
+		{{yield}}
+	</div>
+</script>

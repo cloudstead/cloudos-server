@@ -1,0 +1,61 @@
+<script type="text/x-handlebars" id="selectedapp">
+	<section class="deck">
+		<div class="row">
+			<dl class="tabs" data-tab>
+				<dd class="active half-width-tab">
+					{{#link-to 'appstore'}}<span class="icon-mail-reply"></span>{{/link-to}}
+				</dd>
+				<dd class="half-width-tab">
+					{{#link-to 'installedapps'}}{{t sections.appstr.installed_apps}}{{/link-to}}
+				</dd>
+			</dl>
+			<div class="tabs-content">
+				<div class="content active">
+					<div class="row event-single no-margin">
+						<div class="large-2 columns">
+							<h4>{{name}} App</h4>single
+						</div>
+						<div class="large-4 columns">
+							<p>by {{publisher.name}}</p>
+						</div>
+						<div class="large-4 columns rating">
+							<p><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span></p>
+							<p>12,340 Cloudstead Users</p>
+						</div>
+						<div class="large-2 columns">
+							{{#if isInstalled}}
+								<button class="tiny secondary expand" {{action 'select_app' name}}>Open</button>
+							{{else}}
+								<button class="tiny primary expand" {{action 'install_app' name}}>Download</button>
+							{{/if}}
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row">
+						<div class="large-4 columns">
+							<div class="circle"><img {{bind-attr src=smallIcon}}></div>
+						</div>
+						<div class="large-8 columns small-only-text-center">
+							<div class="large-12 columns">
+								<p>Overview : </p>
+								<p>{{description}}</p>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						&nbsp;
+					</div>
+					<div class="row event-single no-margin">
+						<div class="large-12 columns text-center rating">
+							<h4>RATE THIS APP</h4>
+							<p><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"><span class="icon-star-o"></p>
+							<p>Install and Provide an App Rating</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</script>

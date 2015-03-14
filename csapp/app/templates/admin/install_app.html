@@ -1,0 +1,5 @@
+<script type="text/x-handlebars" id="installApp">
+	{{t paragraphs.app_cloud_price_quote}} {{priceQuote.preferredCloudPrice.monthlyPrice}} {{priceQuote.isoCurrency}}
+	<hr/>
+	<button {{action 'doInstallApp' priceQuote.preferredCloudPrice}}>{{t forms.installApp.install_button}}</button>
+</script>

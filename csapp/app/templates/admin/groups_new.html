@@ -1,0 +1,55 @@
+<script type="text/x-handlebars" id="groupsNew">
+	<section class="deck">
+		<div class="row large-4">
+			<form {{action 'doAddGroup' on="submit"}}>
+			<fieldset class="wrap-set">
+				<legend>{{t sections.add_group}}</legend>
+				<div class="row">
+					<label>{{t forms.group.name}}
+						{{#if requestMessages.error.name}}
+							{{input type="text" value=name class="error"}}
+							<span class="message error">{{requestMessages.error.name}}</span>
+						{{else}}
+							{{input type="text" value=name}}
+						{{/if}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.recipients}}
+						{{#if requestMessages.error.recipients}}
+							{{input type="text" value=recipients class="error"}}
+							<span class="message error">{{requestMessages.error.recipients}}</span>
+						{{else}}
+							{{input type="text" value=recipients}}
+						{{/if}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.quota}}
+						{{#if requestMessages.error.storageQuota}}
+							{{input type="text" value=storageQuota class="error"}}
+							<span class="message error">{{requestMessages.error.storageQuota}}</span>
+						{{else}}
+							{{input type="text" value=storageQuota}}
+						{{/if}}
+					</label>
+				</div>
+				<div class="row">
+					<label>{{t forms.group.description}}
+						{{input type="text" value=description}}
+					</label>
+				</div>
+				<div class="row right">
+					<div class="large-12 columns large-right no-padding">
+						<button type="submit" class="small right left-margin-small">
+							{{t forms.group.add_button}}
+						</button>
+						<button type="submit" class="small right left-margin-small" {{action 'doCancel'}}>
+							{{t forms.group.cancel}}
+						</button>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</section>
+</script>

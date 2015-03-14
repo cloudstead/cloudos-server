@@ -1,0 +1,26 @@
+<script type="text/x-handlebars" id="aliases/index">
+	<br /><br />
+	<div class="row">
+		<table >
+			<thead>
+				<tr><th>{{t sections.email.aliases}}</th></tr>
+			</thead>
+			<tbody>
+			{{#each model}}
+			<tr>
+			<tr>
+				<td>{{#link-to 'alias' name}}{{name}}{{/link-to}}</td>
+				<td>{{recipients}}</td>
+				<td><button {{action 'doRemoveAlias' name}}>{{t forms.email.alias.delete_button}}</button></td>
+			</tr>
+			{{/each}}
+			<tr>
+				<td>
+						{{#link-to 'aliases.new'}}{{t forms.email.alias.add_button}}{{/link-to}}
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<hr/>
+	</div>
+</script>
