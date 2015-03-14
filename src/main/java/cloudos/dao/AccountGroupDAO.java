@@ -15,8 +15,7 @@ import org.springframework.stereotype.Repository;
 import javax.validation.Valid;
 import java.util.*;
 
-import static cloudos.model.AccountGroup.ADMIN_GROUP_NAME;
-import static cloudos.model.AccountGroup.DEFAULT_GROUP_NAME;
+import static cloudos.model.AccountGroup.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Repository @Slf4j
@@ -57,10 +56,15 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         final AccountGroup group = findByUuid(uuid);
         if (group == null) return;
 
-        final List<AccountGroup> mirrors = findMirrors(group.getName());
+        final String groupName = group.getName();
+        final List<AccountGroup> mirrors = findMirrors(groupName);
         if (!mirrors.isEmpty()) throw new SimpleViolationException("{err.group.mirrorsExist}", "Cannot delete group, mirrors still exist: "+mirrors);
 
-        try { ldap.deleteGroup(group.getName()); } catch (Exception e) {
+        if (groupName.equals(DEFAULT_GROUP_NAME) || groupName.equals(ADMIN_GROUP_NAME)) {
+            throw new SimpleViolationException("{err.group.cannotDeleteDefault}", "Cannot delete default group: "+groupName);
+        }
+
+        try { ldap.deleteGroup(groupName); } catch (Exception e) {
             log.error("delete: ldap.deleteGroup failed: "+e, e);
         }
 
@@ -69,8 +73,17 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
     @Override public Object preCreate(@Valid AccountGroup group) {
         if (group.hasMirror()) {
-            final AccountGroup source = findByName(group.getMirror());
-            if (source == null) throw new SimpleViolationException("err.group.mirror.invalid");
+            final String mirror = group.getMirror();
+            AccountGroup source = findByName(mirror);
+            if (source == null) {
+                if (mirror.equals(DEFAULT_GROUP_NAME)) {
+                    source = create(defaultGroup());
+                } else if (mirror.equals(ADMIN_GROUP_NAME)) {
+                    source = create(adminGroup());
+                } else {
+                    throw new SimpleViolationException("err.group.mirror.invalid");
+                }
+            }
             return source;
         }
         return null;
