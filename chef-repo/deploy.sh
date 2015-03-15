@@ -97,11 +97,6 @@ if [ -z "${SOLO_JSON}" ] ; then
 
   # Add cloudos-validate recipe
   SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos::validate]")"
-else
-  if [ "$(realpath "${SOLO_JSON}")" != "$(realpath "$(pwd)/solo.json")" ] ; then
-    cp ${SOLO_JSON} "$(pwd)/solo.json"
-    SOLO_JSON="$(pwd)/solo.json"
-  fi
 fi
 
 ${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}" ${SOLO_JSON}
