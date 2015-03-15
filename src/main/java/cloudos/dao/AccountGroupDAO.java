@@ -61,7 +61,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         if (!mirrors.isEmpty()) throw new SimpleViolationException("{err.group.mirrorsExist}", "Cannot delete group, mirrors still exist: "+mirrors);
 
         if (groupName.equals(DEFAULT_GROUP_NAME) || groupName.equals(ADMIN_GROUP_NAME)) {
-            throw new SimpleViolationException("{err.group.cannotDeleteDefault}", "Cannot delete default group: "+groupName);
+            throw new SimpleViolationException("{err.group.cannotDeleteDefault}", "Cannot delete default group: "+ groupName);
         }
 
         try { ldap.deleteGroup(groupName); } catch (Exception e) {
@@ -69,24 +69,6 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         }
 
         super.delete(uuid);
-    }
-
-    @Override public Object preCreate(@Valid AccountGroup group) {
-        if (group.hasMirror()) {
-            final String mirror = group.getMirror();
-            AccountGroup source = findByName(mirror);
-            if (source == null) {
-                if (mirror.equals(DEFAULT_GROUP_NAME)) {
-                    source = create(defaultGroup());
-                } else if (mirror.equals(ADMIN_GROUP_NAME)) {
-                    source = create(adminGroup());
-                } else {
-                    throw new SimpleViolationException("err.group.mirror.invalid");
-                }
-            }
-            return source;
-        }
-        return null;
     }
 
     public AccountGroup create(AccountGroupRequest groupRequest, List<String> recipients) {
@@ -101,12 +83,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
                     .setName(groupName));
             final List<AccountGroupMember> members = buildGroupMemberList(created, recipients, true);
             created.setMembers(members);
-            Boolean groupExists = null;
-            try {
-                groupExists = ldap.groupExists(groupName);
-            } catch (Exception e) {
-                log.warn("create: ldap error, not doing ldap parts: "+e, e);
-            }
+            Boolean inLdap = ldapGroupExists(groupName);
 
             for (AccountGroupMember m : members) {
                 m.setGroup(created).setUuid(null);
@@ -115,9 +92,9 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
                 }
             }
 
-            // ensure LDAP creation works before writing to our own DB
-            if (groupExists != null) {
-                if (groupExists) {
+            // if we have members, ensure LDAP creation works before writing to our own DB
+            if (!members.isEmpty()) {
+                if (inLdap != null && inLdap) {
                     mergeMembers(groupRequest, created);
                 } else {
                     ldap.createGroupWithMembers(created, members);
@@ -132,6 +109,15 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         return created;
     }
 
+    protected Boolean ldapGroupExists(String groupName) {
+        try {
+            return ldap.groupExists(groupName);
+        } catch (Exception e) {
+            log.warn("ldapGroupExists: ldap error, not doing ldap parts: "+e, e);
+            return null;
+        }
+    }
+
     public AccountGroup update(@Valid AccountGroupRequest request) {
 
         final String groupName = request.getName();
@@ -144,7 +130,13 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
             }
 
             // update members
-            mergeMembers(request, group);
+            final Boolean inLdap = ldapGroupExists(groupName);
+            if (inLdap != null && !inLdap) {
+                // an empty group was created, so it wasn't added to ldap
+                ldap.createGroupWithMembers(group, buildGroupMemberList(group, recipients, true));
+            } else {
+                mergeMembers(request, group);
+            }
         }
 
         // update quota/description and member list in LDAP
@@ -242,8 +234,18 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
     private void validate(AccountGroupRequest groupRequest, List<String> recipients) {
 
-        if (groupRequest.hasMirror() && findByName(groupRequest.getMirror()) == null) {
-            throw new SimpleViolationException("{err.group.mirror.invalid}", "mirror source does not exist: "+groupRequest.getMirror());
+        if (groupRequest.hasMirror()) {
+            final String mirror = groupRequest.getMirror();
+            AccountGroup source = findByName(mirror);
+            if (source == null) {
+                if (mirror.equals(defaultGroup().getName())) {
+                    create(defaultGroup());
+                } else if (mirror.equals(adminGroup().getName())) {
+                    create(adminGroup());
+                } else {
+                    throw new SimpleViolationException("err.group.mirror.invalid");
+                }
+            }
         }
 
         final String groupName = groupRequest.getName();
