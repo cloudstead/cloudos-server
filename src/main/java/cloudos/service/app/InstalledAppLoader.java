@@ -11,9 +11,9 @@ import org.cobbzilla.util.http.CookieJar;
 import org.cobbzilla.util.http.HttpMethods;
 import org.cobbzilla.util.http.HttpRequestBean;
 import org.cobbzilla.util.http.URIUtil;
+import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.wizard.cache.redis.RedisService;
 import org.cobbzilla.wizard.util.BufferedResponse;
-import org.cobbzilla.wizard.util.ProxyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rooty.toots.app.AppScriptMessage;
@@ -22,6 +22,7 @@ import rooty.toots.app.AppScriptMessageType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
@@ -134,7 +135,7 @@ public class InstalledAppLoader {
             // follow a redirect if the Location matches the registration_redirect or login_redirect regex (if either are set)
             if (appAuth.hasRegistration_redirect() && response.is3xx()) {
                 location = response.getFirstHeaderValue(HttpHeaders.LOCATION);
-                if (appAuth.getRegistrationRedirectPattern().matcher(location).matches()) {
+                if (isRegistrationRedirect(location, appAuth)) {
 
                     final BufferedResponse resolved = followRedirects(context, appPath, response, cookieJar);
                     if (resolved == null) {
@@ -174,6 +175,10 @@ public class InstalledAppLoader {
         }
 
         return sendToApp(pctx);
+    }
+
+    protected boolean isRegistrationRedirect(String location, AppAuthConfig appAuth) {
+        return appAuth.getRegistrationRedirectPattern().matcher(URIUtil.getPath(location)).matches();
     }
 
     private boolean userExists(CloudOsAccount account, AppRuntime app) {
@@ -253,7 +258,16 @@ public class InstalledAppLoader {
         int redirCount = 0;
         String location;
         while ((location = response.getRedirectUri()) != null) {
-            final HttpRequestBean<String> redirect = new HttpRequestBean<>(appPath + location);
+            if (!location.startsWith("http://") && !location.startsWith("https://")) {
+                // relative path
+                final URI uri = URIUtil.toUri(response.getRequestUri());
+                if (location.startsWith("/")) {
+                    location = uri.getScheme()+"://" + uri.getHost() + location;
+                } else {
+                    location = uri.getScheme()+"://" + uri.getHost() + "/" + FileUtil.dirname(uri.getPath()) + "/" + location;
+                }
+            }
+            final HttpRequestBean<String> redirect = new HttpRequestBean<>(location);
             response = proxyResponse(redirect, context, appPath, cookieJar);
             if (++redirCount > MAX_REDIRECTS) response = null;
         }

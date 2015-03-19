@@ -71,6 +71,8 @@ public class AppAdapter {
             // Based on the app, find the base uri
             final AppRuntime app = appDAO.findAppRuntime(appName);
 
+            if (app == null) return ResourceUtil.notFound_blank();
+
             // Hit up that URL -- do we get a login screen?
             return installedAppLoader.loadApp(apiKey, account, app, context);
 
