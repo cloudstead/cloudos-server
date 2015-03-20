@@ -24,9 +24,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.util.string.StringUtil.empty;
 import static org.cobbzilla.wizard.util.ProxyUtil.proxyResponse;
 
 @Service @Slf4j
@@ -85,7 +87,7 @@ public class InstalledAppLoader {
             response = followRedirects(context, appPath, response, cookieJar);
 
             log.info("loadApp: AuthTransition verification returned response "+response.getStatus()+", ensuring this is not a login page");
-            if (response.isSuccess() && !app.isLoginPage(response.getDocument())) {
+            if (response.isSuccess() && !app.isLoginPage(response.getDocument()) && !app.isErrorPage(response.getDocument())) {
                 // success, and user appears to be logged in: redirect to app page
                 log.info("loadApp: pre-existing AuthTransition is OK, sending to app...");
                 pctx.setCookieJar(cookieJar);
@@ -105,8 +107,8 @@ public class InstalledAppLoader {
         // this step is often used to set cookies and other tokens
         response = proxyResponse(requestBean, context, appHome, cookieJar);
         response = followRedirects(context, appPath, response, cookieJar);
-        if (!response.isSuccess() || !app.isLoginPage(response.getDocument())) {
-            // error, or user appears to be logged in, simply redirect to app page
+        if (!app.isLoginPage(response.getDocument()) && !app.isErrorPage(response.getDocument())) {
+            // user appears to be logged in, simply redirect to app page
             return sendToApp(pctx);
         }
 
@@ -115,7 +117,9 @@ public class InstalledAppLoader {
         int numCookies = cookieJar.size();
         final HttpRequestBean<String> authRequest = app.buildLoginRequest(account, response, context, appPath);
         response = proxyResponse(authRequest, context, appPath, cookieJar);
-        if (!response.isSuccess() || app.isLoginPage(response.getDocument())) {
+        log.debug("loadApp: authentication request=\n"+authRequest+"\n\nresponse=\n"+response);
+
+        if (!response.isSuccess() || app.isLoginPage(response.getDocument()) || app.isErrorPage(response.getDocument())) {
             if (numCookies != cookieJar.size()) {
                 // hmm... let's try again with the new cookies we just got
                 response = proxyResponse(authRequest, context, appPath, cookieJar);
@@ -129,14 +133,12 @@ public class InstalledAppLoader {
             }
         }
 
-        String location;
+        final String location = response.getFirstHeaderValue(HttpHeaders.LOCATION);
         AppAuthConfig appAuth = pctx.getAppAuth();
         if (appAuth != null) {
             // follow a redirect if the Location matches the registration_redirect or login_redirect regex (if either are set)
-            if (appAuth.hasRegistration_redirect() && response.is3xx()) {
-                location = response.getFirstHeaderValue(HttpHeaders.LOCATION);
-                if (isRegistrationRedirect(location, appAuth)) {
-
+            if ((appAuth.hasRegistration_redirect() || appAuth.hasLogin_redirect()) && response.is3xx()) {
+                if (matches(appAuth.getRegistrationRedirectPattern(), location)) {
                     final BufferedResponse resolved = followRedirects(context, appPath, response, cookieJar);
                     if (resolved == null) {
                         log.warn("Too many redirects, sending to main app page");
@@ -144,7 +146,7 @@ public class InstalledAppLoader {
                     }
 
                     // if this is a registration page, register ourselves...
-                    if (resolved.isSuccess() && app.isRegistrationPage(resolved.getDocument())) {
+                    if (resolved.isSuccess() && app.isRegistrationPage(resolved.getDocument()) && !app.isErrorPage(resolved.getDocument())) {
                         final HttpRequestBean<String> registrationRequest = app.buildRegistrationRequest(account, resolved, context, appPath);
                         response = proxyResponse(registrationRequest, context, appPath, cookieJar);
 
@@ -154,7 +156,7 @@ public class InstalledAppLoader {
                         return sendToApp(pctx);
                     }
 
-                } else if (appAuth.getLoginRedirectPattern().matcher(location).matches()) {
+                } else if (matches(appAuth.getLoginRedirectPattern(), location)) {
 
                     final BufferedResponse resolved = followRedirects(context, appPath, response, cookieJar);
                     if (resolved == null) {
@@ -174,11 +176,12 @@ public class InstalledAppLoader {
             }
         }
 
+        if (!empty(location)) pctx.setLocation(location);
         return sendToApp(pctx);
     }
 
-    protected boolean isRegistrationRedirect(String location, AppAuthConfig appAuth) {
-        return appAuth.getRegistrationRedirectPattern().matcher(URIUtil.getPath(location)).matches();
+    private boolean matches(Pattern pattern, String location) {
+        return pattern != null && location != null && pattern.matcher(URIUtil.getPath(location)).matches();
     }
 
     private boolean userExists(CloudOsAccount account, AppRuntime app) {
