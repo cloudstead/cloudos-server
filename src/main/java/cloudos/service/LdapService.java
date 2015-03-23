@@ -173,7 +173,7 @@ public class LdapService {
                 "replace: description\n" +
                 "description: " + group.getInfo().getDescription() + "\n";
         CommandResult result = run_ldapmodify(ldif, false);
-        if (!result.isZeroExitStatus() && result.getStderr().contains("ldap_modify: No such object")) {
+        if (result != null && !result.isZeroExitStatus() && result.getStderr().contains("ldap_modify: No such object")) {
             result = createGroupWithMembers(group, group.getMembers());
         }
         return okResult(result);

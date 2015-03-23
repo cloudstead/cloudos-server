@@ -1,6 +1,7 @@
 package cloudos.server;
 
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.server.RestServerBase;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 
@@ -15,6 +16,9 @@ public class CloudOsServer extends RestServerBase<CloudOsConfiguration> {
 
     // args are ignored, config is loaded from the classpath
     public static void main(String[] args) throws Exception {
+
+        log.info("starting with ulimits: \n" + CommandShell.execScript("ulimit -a"));
+
         final List<ConfigurationSource> configSources = getConfigurationSources();
         main(CloudOsServer.class, configSources);
     }

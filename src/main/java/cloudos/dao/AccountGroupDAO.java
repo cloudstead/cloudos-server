@@ -46,7 +46,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
 
     @Override public AccountGroup preUpdate(@Valid AccountGroup group) {
         try { ldap.updateGroupInfo(group); } catch (Exception e) {
-            log.error("preUpdate: ldap.updateGroupInfo failed: "+e, e);
+            log.error("preUpdate: ldap.updateGroupInfo failed: "+e);
         }
         return group;
     }
