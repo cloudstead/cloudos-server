@@ -42,6 +42,8 @@ appStore:
   baseUri: {{APPSTORE_BASE_URI}}
   user: {{APPSTORE_USER}}
 
+appRefreshKey: {{APP_REFRESH_KEY}}
+
 http:
   port: {{CLOUDOS_SERVER_PORT}}
   baseUri: /api

@@ -42,6 +42,8 @@ staticAssets:
 appStore:
   baseUri: {{APPSTORE_BASE_URI}}
 
+appRefreshKey: {{APP_REFRESH_KEY}}
+
 http:
   port: 0
   baseUri: /api

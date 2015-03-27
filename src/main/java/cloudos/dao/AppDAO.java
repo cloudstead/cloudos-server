@@ -48,22 +48,6 @@ public class AppDAO {
     @Autowired private CloudOsConfiguration configuration;
     @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
 
-// todo: re-enable this when we can do it right (watch all directories within repository for any changes)
-//    @Getter private BufferedFilesystemWatcher repositoryWatcher;
-//
-//    @PostConstruct private BufferedFilesystemWatcher initRepoWatcher() {
-//        repositoryWatcher = new BufferedFilesystemWatcher(configuration.getAppRepository(), 10_000, 1000) {
-//            @Override
-//            protected void fire(List<WatchEvent<?>> events) {
-//                Sleep.sleep(1000);
-//                log.info("changes detected, resetting apps: "+events);
-//                resetApps();
-//            }
-//        };
-//        repositoryWatcher.start();
-//        return repositoryWatcher;
-//    }
-
     public AppRepositoryState getAppRepositoryState() {
         final AppRepositoryState state = new AppRepositoryState();
         for (File appDir : configuration.getAppRepository().listFiles(DirFilter.instance)) {

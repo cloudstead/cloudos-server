@@ -51,6 +51,8 @@ public class CloudOsConfiguration extends RestServerConfiguration
     public AppLayout getAppLayout(String name, String version) { return new AppLayout(getAppRepository(), name, version); }
     public AppLayout getAppLayout(AppManifest manifest) { return new AppLayout(getAppRepository(), manifest); }
 
+    @Getter @Setter private String appRefreshKey;
+
     @Getter @Setter private CloudStorageConfiguration cloudConfig = new CloudStorageConfiguration();
 
     @Getter @Setter private SmtpMailConfig smtp;

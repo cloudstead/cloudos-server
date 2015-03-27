@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
+import static org.cobbzilla.util.string.StringUtil.empty;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -83,6 +84,33 @@ public class AppsResource {
         }
 
         return Response.ok(state).build();
+    }
+
+    /**
+     * Refresh the list of apps. Must be admin or supply proper key
+     * @param apiKey The session ID
+     * @param refreshKey The key to refresh the apps
+     * @statuscode 403 if caller is not an admin or key is wrong
+     */
+    @GET
+    @Path("/refresh")
+    @ReturnType("java.lang.Void")
+    public Response refresh (@HeaderParam(H_API_KEY) String apiKey,
+                             @QueryParam("refreshKey") String refreshKey) {
+
+        if (!empty(refreshKey)) {
+            if (!refreshKey.equals(configuration.getAppRefreshKey())) return ResourceUtil.forbidden();
+
+        } else {
+            final Account admin = sessionDAO.find(apiKey);
+            if (admin == null) return ResourceUtil.notFound(apiKey);
+
+            // only admins can refresh apps
+            if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        }
+
+        appDAO.resetApps();
+        return Response.ok().build();
     }
 
     /**
