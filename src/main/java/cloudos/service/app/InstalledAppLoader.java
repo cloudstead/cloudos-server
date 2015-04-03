@@ -188,7 +188,8 @@ public class InstalledAppLoader {
         final AppScriptMessage message = new AppScriptMessage()
                 .setApp(app.getDetails().getName())
                 .setType(AppScriptMessageType.user_exists)
-                .addArg(account.getName());
+                .addArg(account.getName())
+                .addArg(account.getPassword());
         return Boolean.valueOf(rooty.request(message, ROOTY_TIMEOUT).getResults());
     }
 
