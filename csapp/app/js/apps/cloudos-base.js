@@ -24,8 +24,6 @@ App.ApplicationRoute = Ember.Route.extend({
 	},
 	setupController: function(controller, model) {
 
-		console.log("Application route");
-
 		// is HTML5 storage even supported?
 		if (typeof(Storage) == "undefined") {
 			alert('Your browser is not supported. Please use Firefox, Chrome, Safari 4+, or IE8+');
@@ -61,7 +59,21 @@ App.ApplicationRoute = Ember.Route.extend({
 				outlet: 'modal',
 				parentView: 'application'
 			});
-		}
+		},
+		showFlashMessage: function (message) {
+			var cont = this.controllerFor('flashNotification').set('model',message);
+
+			this.render('flashNotification', {
+				into: 'application',
+				outlet: 'notification'
+			});
+		},
+		hideFlashMessage: function () {
+			return this.disconnectOutlet({
+				outlet: 'notification',
+				parentView: 'application'
+			});
+		},
 	}
 });
 
@@ -77,7 +89,6 @@ App.ApplicationController = Ember.ObjectController.extend({
 
 App.IndexRoute = Ember.Route.extend({
 	beforeModel: function() {
-		console.log("Index route");
 		this.transitionTo('app', 'roundcube');
 	}
 });

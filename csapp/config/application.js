@@ -30,7 +30,8 @@ module.exports = function(lineman) {
 		get_feature("reset_password"),
 		get_feature("two_factor_verification"),
 		get_feature("request_message"),
-		get_feature("using_apps")
+		get_feature("using_apps"),
+		get_feature("flash_notification")
 	];
 
 	// List of features available in the admin app
@@ -48,6 +49,7 @@ module.exports = function(lineman) {
 		get_feature("valet_keys"),
 		get_feature("installed_apps_settings"),
 		get_feature("task_progress"),
+		get_feature("flash_notification")
 	];
 
 	// List of features available in the setup app
@@ -61,19 +63,22 @@ module.exports = function(lineman) {
 	var cloudos_app_templates = [
 		get_all_templates_in("index"),
 		get_template("components/task_progress_modal"),
-		get_template("components/modal_dialog")
+		get_template("components/modal_dialog"),
+		get_template("components/flash_notification")
 	];
 
 	// List of features templates in the admin app
 	var admin_app_templates = [
 		get_all_templates_in("admin"),
-		get_template("components/modal_dialog_alt")
+		get_template("components/modal_dialog_alt"),
+		get_template("components/flash_notification")
 	];
 
 	// List of features templates in the setup app
 	var setup_app_templates = [
 		get_all_templates_in("setup"),
-		get_template("components/modal_dialog_alt")
+		get_template("components/modal_dialog_alt"),
+		get_template("components/flash_notification")
 	];
 
 

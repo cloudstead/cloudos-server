@@ -288,3 +288,9 @@ td.long_text_content{
 .icon_bar_link img{
 	vertical-align: middle;
 }
+
+.alert-box {
+	margin-bottom: 0px;
+	text-align: center;
+	font-weight: bold;
+}

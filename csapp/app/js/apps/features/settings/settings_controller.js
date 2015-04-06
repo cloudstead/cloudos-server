@@ -19,7 +19,11 @@ App.SettingsController = Ember.ObjectController.extend({
 				return false;
 			}
 
-			if (Api.change_password(CloudOs.account().name, this.get('current_password'), newPassword)) {
+			var pass_change =
+				Api.change_password(CloudOs.account().name, this.get('current_password'), newPassword);
+
+			if (pass_change.status !== 'error') {
+				this.send('showFlashMessage', Em.I18n.translations.notifications.password_changed_successfully);
 				this.transitionTo('index');
 			} else {
 				this.set('requestMessages',
