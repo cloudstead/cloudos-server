@@ -24,6 +24,8 @@ App.ApplicationRoute = Ember.Route.extend({
 	},
 	setupController: function(controller, model) {
 
+		console.log("Application route");
+
 		// is HTML5 storage even supported?
 		if (typeof(Storage) == "undefined") {
 			alert('Your browser is not supported. Please use Firefox, Chrome, Safari 4+, or IE8+');
@@ -45,13 +47,6 @@ App.ApplicationRoute = Ember.Route.extend({
 		}
 
 		CloudOs.set_account(account);
-		pathArray = window.location.href.split( '/' );
-		if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'index.html')) && (!pathArray[4]))
-		{
-			this.transitionTo('app', 'roundcube');
-		}
-		// this.transitionTo('app', 'files');
-		// this.transitionTo('app', AppRuntime.app_model('email'));
 	},
 	actions:{
 		openModal: function(modalName, model){
@@ -80,7 +75,12 @@ App.ApplicationController = Ember.ObjectController.extend({
 	}
 });
 
-App.IndexRoute = App.ApplicationRoute;
+App.IndexRoute = Ember.Route.extend({
+	beforeModel: function() {
+		console.log("Index route");
+		this.transitionTo('app', 'roundcube');
+	}
+});
 
 App.IndexController = Ember.ObjectController.extend({
 	cloudos_account: CloudOs.account(),
