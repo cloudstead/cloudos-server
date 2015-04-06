@@ -75,7 +75,7 @@ App.AppstoreConfigBasicRoute = Ember.Route.extend({
 		refreshInstalledApps: function(){
 			this.send("closeModal");
 
-			var account = Api.account_for_token(sessionStorage.getItem('cloudos_session'));
+			var account = Api.account_for_token(CloudOsStorage.getItem('cloudos_session'));
 			CloudOs.set_account(account);
 			this.controllerFor('application').set('cloudos_account', CloudOs.account());
 

@@ -3,7 +3,7 @@ function msg_alert (message) {
 }
 
 function get_token() {
-	return sessionStorage.getItem('cloudos_session') || 'no-token';
+	return CloudOsStorage.getItem('cloudos_session') || 'no-token';
 }
 
 function add_api_auth (xhr) {

@@ -51,7 +51,7 @@ App.Router.map(function() {
 App.ApplicationRoute = Ember.Route.extend({
 	model: function() {
 		return {
-			cloudos_session: sessionStorage.getItem('cloudos_session'),
+			cloudos_session: CloudOsStorage.getItem('cloudos_session'),
 			cloudos_account: CloudOs.account()
 		};
 	},
@@ -72,8 +72,8 @@ App.ApplicationRoute = Ember.Route.extend({
 		// is the token valid?
 		var account = Api.account_for_token(model.cloudos_session);
 		if (!account || !account.admin) {
-			sessionStorage.removeItem('cloudos_session');
-			sessionStorage.removeItem('cloudos_account');
+			CloudOsStorage.removeItem('cloudos_session');
+			CloudOsStorage.removeItem('cloudos_account');
 			window.location.replace('/index.html');
 			return;
 		}
@@ -92,7 +92,7 @@ App.ApplicationController = Ember.ObjectController.extend({
 
 	cloudos_session: function (key, value, oldValue) {
 		if (arguments.length === 1) {
-			return sessionStorage.getItem('cloudos_session');
+			return CloudOsStorage.getItem('cloudos_session');
 		} else {
 			this.set("cloudosSeesionFlag", !this.get("cloudosSeesionFlag"));
 			return value;

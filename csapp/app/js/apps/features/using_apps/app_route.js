@@ -2,7 +2,7 @@ App.app_model = function (app_name) {
 	var app_url = "/api/app/load/" + app_name;
 	return {
 			"app_name": app_name,
-			"app_url":  app_url + "?" + Api.API_TOKEN + "=" + sessionStorage.getItem('cloudos_session')
+			"app_url":  app_url + "?" + Api.API_TOKEN + "=" + CloudOsStorage.getItem('cloudos_session')
 		};
 };
 

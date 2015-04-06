@@ -18,7 +18,7 @@ App.Router.map(function() {
 App.ApplicationRoute = Ember.Route.extend({
 	model: function() {
 		return {
-			cloudos_session: sessionStorage.getItem('cloudos_session'),
+			cloudos_session: CloudOsStorage.getItem('cloudos_session'),
 			cloudos_account: CloudOs.account()
 		};
 	},
@@ -78,7 +78,7 @@ App.ApplicationRoute = Ember.Route.extend({
 });
 
 App.ApplicationController = Ember.ObjectController.extend({
-	cloudos_session: sessionStorage.getItem('cloudos_session'),
+	cloudos_session: CloudOsStorage.getItem('cloudos_session'),
 	cloudos_account: CloudOs.account(),
 	actions: {
 		'select_app': function (app_name) {
