@@ -1,6 +1,8 @@
 App.AddAccountController = App.BaseAccountController.extend({
 	content: {},
 
+	createAnother: false,
+
 	actions: {
 		doCreateAccount: function () {
 
@@ -13,12 +15,12 @@ App.AddAccountController = App.BaseAccountController.extend({
 			}
 			else{
 				account.save() ?
-					this.transitionToAccounts() :
+					this._createAnotherAccount() :
 					this._handleAccountUpdateFailed(account);
 			}
 		},
 		cancelCreate: function() {
-			if (confirm("Cancel changes ?") == true) {
+			if (window.confirm(Em.I18n.translations.sections.acct.cancel_create_account) == true) {
 				this.transitionToAccounts();
 			} else {
 				// nada
@@ -32,11 +34,11 @@ App.AddAccountController = App.BaseAccountController.extend({
 
 	twoFactor: true,
 
-	generateSysPassword:true,
+	generateSysPassword: true,
 
-	primaryGroups:["Admin","User"],
+	primaryGroups: ["Admin","User"],
 
-	selectedGroup:"User",
+	selectedGroup: "User",
 
 	countryList: Countries.list,
 
@@ -72,5 +74,24 @@ App.AddAccountController = App.BaseAccountController.extend({
 			passwordConfirm: this.get('passwordConfirm'),
 			generateSysPassword: this.get('generateSysPassword')
 		};
+	},
+
+	_createAnotherAccount: function() {
+		this.set('requestMessages', null);
+		this.get("createAnother") ? this._clearForm() : this.transitionToAccounts();
+	},
+
+	_clearForm: function() {
+		this.set('accountName', "");
+		this.set('firstName', "");
+		this.set('lastName', "");
+		this.set('email', "");
+		this.set('mobilePhone', "");
+		this.set('twoFactor', true);
+		this.set('password', "");
+		this.set('passwordConfirm', "");
+		this.set('generateSysPassword', true);
+		this.set('selectedGroup', "User");
+		this.set("selectedCountry", this.get("countryList")[0]);
 	}
 });

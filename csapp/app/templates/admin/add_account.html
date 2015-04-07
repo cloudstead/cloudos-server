@@ -54,8 +54,8 @@
 					<div class="large-4 columns">
 					</div>
 					<div class="large-4 columns">
-						<input id="sysPassCheck" type="checkbox" {{bind-attr checked=generateSysPassword }}>
-						<label class="label-pass" for="sysPassCheck" {{action toggleSysPassword}}>{{t forms.account.sys_gen_password}}</label>
+						{{input id="sysPassCheck" type="checkbox" name="generateSysPassword" checked=generateSysPassword}}
+						<label for="sysPassCheck">{{t forms.account.sys_gen_password}}</label>
 					</div>
 				</div>
 				<div class="row">
@@ -171,10 +171,11 @@
 					</div>
 				</div>-->
 				<div class="row">
-					<div class="large-6 columns">&nbsp;
+					<div class="large-5 columns">&nbsp;
 					</div>
-					<div class="large-2 columns">
-						<input id="checkbox1" type="checkbox"><label for="checkbox1">{{t forms.account.add_another}}</label>
+					<div class="large-3 columns">
+						{{input id="createAnotherck" type="checkbox" name="createAnother" checked=createAnother}}
+						<label for="createAnotherck">{{t forms.account.add_another}}</label>
 					</div>
 					<div class="large-4 columns form-addacct-btn">
 						<button type="submit" class="small right" {{action 'doCreateAccount'}}>{{t forms.account.add_user}}</button>
