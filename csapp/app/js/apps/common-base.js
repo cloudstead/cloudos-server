@@ -30,3 +30,10 @@ function getParameterByName(name) {
 		results = regex.exec(location.search);
 	return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
+
+
+function timestampToString(time) {
+	var convertedDate = new Date(0);
+	convertedDate.setUTCSeconds(Math.round(time/1000));
+	return convertedDate.toLocaleString();
+}

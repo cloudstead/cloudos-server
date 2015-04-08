@@ -10,6 +10,12 @@ App.Account = Ember.Object.extend(Ember.Copyable, {
 		return this.get("accountName").trim().replace(" ", "_");
 	}.property("accountName"),
 
+	lastLoginTime: function() {
+		return Ember.isNone(this.get("lastLogin")) ?
+			Em.I18n.translations.sections.acct.no_login_time :
+			timestampToString(this.get("lastLogin"));
+	}.property("lastLogin"),
+
 	changeCheckboxSelect: function(){
 		// 'this' here refers to the checkbox object.
 		// it's context is acctually this object.

@@ -44,7 +44,5 @@ Ember.Handlebars.helper('task-event', function(key) {
 });
 
 Ember.Handlebars.helper('fromUTC', function(timeUTC) {
-	var convertedDate = new Date(0);
-	convertedDate.setUTCSeconds(Math.round(timeUTC/1000));
-	return convertedDate.toLocaleString();
+	return timestampToString(timeUTC);
 });
