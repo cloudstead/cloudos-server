@@ -7,6 +7,6 @@ App.EappController = Ember.ObjectController.extend({
 
 	taskbarIconCaption: function(){
 		var text = this.get('assets.taskbarIconAltText');
-		return text === undefined ? this.get('name') : text;
+		return Ember.isNone(text) ? this.get('name') : text;
 	}.property()
 });
