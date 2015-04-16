@@ -70,9 +70,11 @@ App.Group.reopenClass({
 	findAll: function() {
 		var data = Api.get_all_groups();
 		App.Group.all.clear();
-		data.forEach(function(datum) {
-			App.Group.all.pushObject(App.Group.create(datum));
-		});
+		if (!Ember.isEmpty(data)){
+			data.forEach(function(datum) {
+				App.Group.all.pushObject(App.Group.create(datum));
+			});
+		}
 		return App.Group.all;
 	},
 

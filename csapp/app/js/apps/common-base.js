@@ -37,6 +37,17 @@ function timestampToString(time) {
 	convertedDate.setUTCSeconds(Math.round(time/1000));
 	return convertedDate.toLocaleString();
 }
+
+function getParameterByName(name) {
+	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"), results = regex.exec(location.search);
+	return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function getAlertMessage(key) {
+	return Em.I18n.translations.alerts[key];
+}
+
 CloudOSProtectedRoute = Ember.Route.extend({
 	beforeModel: function(transition) {
 		if (Ember.isEmpty(CloudOsStorage.getItem('cloudos_session'))){

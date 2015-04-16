@@ -45,3 +45,29 @@ function get_username () {
 	const account = CloudOs.account();
 	return account ? account.name : null;
 }
+
+
+NotificationStack = {
+
+	getStack: function() {
+		var stack = Ember.isEmpty(CloudOsStorage.getItem('notifications')) ? [] : JSON.parse(CloudOsStorage.getItem('notifications'));
+		return Ember.isNone(stack) ? [] : stack;
+	},
+
+	push: function (messageKey) {
+		var stack = this.getStack();
+		stack.push(messageKey);
+		this.refresh(stack);
+	},
+
+	pop: function () {
+		var stack = this.getStack();
+		var msg = stack.pop();
+		this.refresh(stack);
+		return msg
+	},
+
+	refresh: function(stack) {
+		CloudOsStorage.setItem('notifications', JSON.stringify(stack));
+	}
+};

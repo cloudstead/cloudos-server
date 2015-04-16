@@ -42,7 +42,8 @@ App.LoginController = Ember.ObjectController.extend({
 
 			if (auth_response && auth_response.account) {
 				CloudOs.login(auth_response);
-				window.location.replace('/index.html');
+				this._transitionToNextRoute();
+				// window.location.replace('/index.html');
 			}
 			else if (auth_response && auth_response.sessionId){
 				this.send('openModal','twoFactorVerification', creds );
@@ -100,5 +101,24 @@ App.LoginController = Ember.ObjectController.extend({
 				}
 			})
 		);
-	}
+	},
+
+	_transitionToNextRoute: function(){
+		var previousTransition = this.get('previousTransition');
+
+		if (Ember.isNone(previousTransition)){
+			this.transitionToRoute('index');
+		}
+		else{
+			this._retryPreviousTransition();
+		}
+	},
+
+	_retryPreviousTransition: function() {
+		var previousTransition = this.get('previousTransition');
+		this.set('previousTransition', null);
+		previousTransition.retry();
+	},
+
+	previousTransition: null,
 });

@@ -5,6 +5,7 @@ App = Ember.Application.create({
 });
 
 App.Router.map(function() {
+	this.resource('login');
 	this.resource('logout');
 	// this.resource('apps');
 	this.resource('appstore');
@@ -65,15 +66,23 @@ App.ApplicationRoute = Ember.Route.extend({
 
 		// do we have an API token?
 		if (!model.cloudos_session) {
-			window.location.replace('/index.html');
+			this.transitionTo('login');
+			// window.location.replace('/index.html');
 			return;
 		}
 
 		// is the token valid?
 		var account = Api.account_for_token(model.cloudos_session);
-		if (!account || !account.admin) {
-			CloudOsStorage.removeItem('cloudos_session');
-			CloudOsStorage.removeItem('cloudos_account');
+		if (Ember.isNone(account)) {
+			CloudOs.logout();
+			this.transitionTo('login');
+			// window.location.replace('/index.html');
+			return;
+		}
+
+		// is not an admin
+		if (!account.admin) {
+			NotificationStack.push('not_authorized');
 			window.location.replace('/index.html');
 			return;
 		}
@@ -90,24 +99,22 @@ App.ApplicationRoute = Ember.Route.extend({
 
 App.ApplicationController = Ember.ObjectController.extend({
 
-	cloudos_session: function (key, value, oldValue) {
-		if (arguments.length === 1) {
-			return CloudOsStorage.getItem('cloudos_session');
-		} else {
-			this.set("cloudosSeesionFlag", !this.get("cloudosSeesionFlag"));
-			return value;
-		}
-	}.property(),
-
-	cloudos_account: function () {
-		return CloudOs.account();
-	}.property('cloudos_account'),
+	cloudos_session: CloudOsStorage.getItem('cloudos_session'),
+	cloudos_account: CloudOs.account(),
 
 	actions: {
 		'select_app': function (app_name) {
 			window.location.replace('/#/app/' + app_name);
 		}
-	}
+	},
+	refreshAuthStatus: function() {
+		this.set('cloudos_session', CloudOsStorage.getItem('cloudos_session'));
+		this.set('cloudos_account', CloudOs.account());
+	},
+
+	reInitializeZurb: function() {
+		Ember.run.scheduleOnce('afterRender', initialize_zurb);
+	}.observes("cloudos_session", "cloudos_account")
 
 });
 

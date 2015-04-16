@@ -23,6 +23,7 @@ App.ApplicationRoute = Ember.Route.extend({
 		};
 	},
 	setupController: function(controller, model) {
+		controller.set('message', getAlertMessage(NotificationStack.pop()));
 
 		// is HTML5 storage even supported?
 		if (typeof(Storage) == "undefined") {
@@ -61,12 +62,16 @@ App.ApplicationRoute = Ember.Route.extend({
 			});
 		},
 		showFlashMessage: function (message) {
-			var cont = this.controllerFor('flashNotification').set('model',message);
+			console.log('MESSAGE');
+			// var cont = this.controllerFor('flashNotification').set('model',message);
 
-			this.render('flashNotification', {
-				into: 'application',
-				outlet: 'notification'
-			});
+			// this.render('flashNotification', {
+			// 	into: 'application',
+			// 	outlet: 'notification'
+			// });
+			// alertify.set('notifier','position', 'bottom-right');
+			// alertify.error(message, 0);
+			$.notify(message, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 		},
 		hideFlashMessage: function () {
 			return this.disconnectOutlet({
@@ -80,11 +85,20 @@ App.ApplicationRoute = Ember.Route.extend({
 App.ApplicationController = Ember.ObjectController.extend({
 	cloudos_session: CloudOsStorage.getItem('cloudos_session'),
 	cloudos_account: CloudOs.account(),
+	message: "",
 	actions: {
 		'select_app': function (app_name) {
 			this.transitionToRoute('app', app_name);
 		}
-	}
+	},
+	refreshAuthStatus: function() {
+		this.set('cloudos_session', CloudOsStorage.getItem('cloudos_session'));
+		this.set('cloudos_account', CloudOs.account());
+	},
+
+	reInitializeZurb: function() {
+		Ember.run.scheduleOnce('afterRender', initialize_zurb);
+	}.observes("cloudos_session", "cloudos_account"),
 });
 
 App.IndexRoute = Ember.Route.extend({
@@ -99,5 +113,13 @@ App.IndexController = Ember.ObjectController.extend({
 });
 
 App.ApplicationView = Ember.View.extend({
-	initFoundation: initialize_zurb.on('didInsertElement')
+	initFoundation: function () {
+		var controller = this.get('controller');
+		var message = controller.get("message");
+		console.log("msg: ", message);
+		if (!Ember.isEmpty(message)){
+			controller.send('showFlashMessage', message);
+		}
+		initialize_zurb();
+	}.on('didInsertElement')
 });

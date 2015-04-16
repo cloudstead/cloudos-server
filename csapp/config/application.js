@@ -37,6 +37,7 @@ module.exports = function(lineman) {
 	// List of features available in the admin app
 	var admin_app_files = [
 		"app/js/apps/admin-base.js",
+		get_feature("login"),
 		get_feature("logout"),
 		get_feature("request_message"),
 		get_feature("using_apps"),
