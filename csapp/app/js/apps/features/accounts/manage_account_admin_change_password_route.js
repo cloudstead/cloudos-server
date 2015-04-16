@@ -1,4 +1,4 @@
-App.ManageAccountAdminChangePasswordRoute = Ember.Route.extend({
+App.ManageAccountAdminChangePasswordRoute = CloudOSProtectedRoute.extend({
 	model: function () {
 		return this.modelFor('manageAccount');
 	},

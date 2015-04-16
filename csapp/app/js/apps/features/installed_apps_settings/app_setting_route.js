@@ -1,4 +1,4 @@
-App.AppSettingRoute = Ember.Route.extend({
+App.AppSettingRoute = CloudOSProtectedRoute.extend({
 	params: {},
 
 	model: function(params){

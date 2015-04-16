@@ -37,3 +37,15 @@ function timestampToString(time) {
 	convertedDate.setUTCSeconds(Math.round(time/1000));
 	return convertedDate.toLocaleString();
 }
+CloudOSProtectedRoute = Ember.Route.extend({
+	beforeModel: function(transition) {
+		if (Ember.isEmpty(CloudOsStorage.getItem('cloudos_session'))){
+			var loginController = this.controllerFor('login');
+			loginController.set('previousTransition', transition);
+			this.transitionTo('login');
+		}
+		else {
+			this.controllerFor('application').refreshAuthStatus();
+		}
+	}
+});

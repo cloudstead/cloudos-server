@@ -1,5 +1,5 @@
 
-App.AccountsRoute = Ember.Route.extend({
+App.AccountsRoute = CloudOSProtectedRoute.extend({
 	model: function () {
 		return App.Account.findAll();
 	}

@@ -6,7 +6,7 @@ App.app_model = function (app_name) {
 		};
 };
 
-App.AppRoute = Ember.Route.extend({
+App.AppRoute = CloudOSProtectedRoute.extend({
 	model: function(params) {
 		return App.app_model(params.app_name);
 	}

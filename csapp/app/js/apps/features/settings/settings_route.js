@@ -1,4 +1,4 @@
-App.SettingsRoute = Ember.Route.extend({
+App.SettingsRoute = CloudOSProtectedRoute.extend({
 	model: function () {
 		return {
 			"current_password": "",

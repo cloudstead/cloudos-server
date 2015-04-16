@@ -1,4 +1,4 @@
-App.ProfileRoute = Ember.Route.extend({
+App.ProfileRoute = CloudOSProtectedRoute.extend({
 	model: function() {
 		return App.Profile.findByName(CloudOs.account().name);
 	},

@@ -1,4 +1,4 @@
-App.ProfileChangePasswordRoute = Ember.Route.extend({
+App.ProfileChangePasswordRoute = CloudOSProtectedRoute.extend({
 	model: function () {
 		return this.modelFor('profile');
 	},

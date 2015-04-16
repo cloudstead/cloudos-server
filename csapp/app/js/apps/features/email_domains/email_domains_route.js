@@ -1,4 +1,4 @@
-App.EmailDomainsRoute = Ember.Route.extend({
+App.EmailDomainsRoute = CloudOSProtectedRoute.extend({
 	model: function () {
 		return Api.list_email_domains();
 	},

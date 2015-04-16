@@ -1,4 +1,4 @@
-App.AliasRoute = Ember.Route.extend({
+App.AliasRoute = CloudOSProtectedRoute.extend({
 	model: function (params) {
 		var alias = Api.find_email_alias(params['alias_name']);
 		var recipients = [];

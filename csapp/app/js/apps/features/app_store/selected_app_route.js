@@ -1,4 +1,4 @@
-App.SelectedappRoute = Ember.Route.extend({
+App.SelectedappRoute = CloudOSProtectedRoute.extend({
 	model: function(params) {
 		return App.CloudOsApp.all.findBy('name', params.appname);
 	},

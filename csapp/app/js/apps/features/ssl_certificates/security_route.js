@@ -1,4 +1,4 @@
-App.SecurityRoute = Ember.Route.extend({
+App.SecurityRoute = CloudOSProtectedRoute.extend({
 	setupController: function(controller, model) {
 		this.transitionTo('certs.index');
 	}

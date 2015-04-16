@@ -1,4 +1,4 @@
-App.AppstoreRoute = Ember.Route.extend({
+App.AppstoreRoute = CloudOSProtectedRoute.extend({
 	model: function() {
 		return App.CloudOsApp.findPaginated(DefaultPagination);
 	},

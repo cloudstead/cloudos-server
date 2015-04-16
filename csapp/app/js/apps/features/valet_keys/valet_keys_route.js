@@ -1,4 +1,4 @@
-App.ValetKeysRoute = Ember.Route.extend({
+App.ValetKeysRoute = CloudOSProtectedRoute.extend({
 	model: function (params) {
 		return Api.get_service_keys();
 	},

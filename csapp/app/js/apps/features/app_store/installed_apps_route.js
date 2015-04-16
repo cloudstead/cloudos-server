@@ -1,4 +1,4 @@
-App.InstalledappsRoute = Ember.Route.extend({
+App.InstalledappsRoute = CloudOSProtectedRoute.extend({
 	model: function() {
 		var installed_apps_info = Api.find_installed_apps();
 		var app_names = installed_apps_info.appNames;

@@ -1,4 +1,4 @@
-App.GroupRoute = Ember.Route.extend({
+App.GroupRoute = CloudOSProtectedRoute.extend({
 	model: function (params) {
 		var group_data = App.Group.findByName(params['group_name']);
 
