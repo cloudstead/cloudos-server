@@ -1,0 +1,45 @@
+<script type="text/x-handlebars" id="index">
+list of available apps
+	<section class="deck">
+		<div class="row">
+			<div class="circles row text-center">
+				{{#each app in arrangedContent}}
+					<div class="large-4 medium-6 columns app_circle">
+						{{#if app.canBeInstalled }}
+							<button class="button tiny alert" {{ action "doConfigApp" app }}>
+								{{ app.statusCaption }}
+							</button>
+						{{/if}}
+						{{#if app.canBeUpgraded }}
+							<button class="button tiny secondary" {{ action "doConfigApp" app }}>
+								{{ app.statusCaption }}
+							</button>
+						{{/if}}
+						{{#if app.isInteractive }}
+							<button class="button tiny" {{ action "doOpenApp" app }}>
+								{{ t sections.appstr.install_status.interactive }}
+							</button>
+						{{else}}
+							{{#if app.isInstalled }}
+								<button class="button tiny disabled">
+									{{ t sections.appstr.install_status.not_interactive }}
+								</button>
+							{{/if}}
+						{{/if}}
+						{{#link-to 'selectedapp' app.name}}
+							<div class="circle"><img {{bind-attr src=app.smallIcon}} alt=""/></div>
+							<h3 class="gamma light">{{app.name}}</h3>
+							<div class="app_short_desc">
+								<p>{{app.description}}</p>
+							</div>
+						{{/link-to}}
+					</div>
+				{{/each}}
+			</div>
+			{{#if morePagesAvailable}}
+				<a {{action 'loadNextPage'}}>More Apps</a>
+			{{/if}}
+		</div>
+		{{outlet modal}}
+	</section>
+</script>

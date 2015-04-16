@@ -31,7 +31,7 @@ module.exports = function(lineman) {
 		get_feature("two_factor_verification"),
 		get_feature("request_message"),
 		get_feature("using_apps"),
-		get_feature("flash_notification")
+		"app/js/apps/features/app_store/cloudos_app_model.js"
 	];
 
 	// List of features available in the admin app
@@ -49,8 +49,7 @@ module.exports = function(lineman) {
 		get_feature("groups"),
 		get_feature("valet_keys"),
 		get_feature("installed_apps_settings"),
-		get_feature("task_progress"),
-		get_feature("flash_notification")
+		get_feature("task_progress")
 	];
 
 	// List of features available in the setup app

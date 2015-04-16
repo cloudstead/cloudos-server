@@ -16,12 +16,14 @@ App.Router.map(function() {
 });
 
 App.ApplicationRoute = Ember.Route.extend({
+
 	model: function() {
 		return {
 			cloudos_session: CloudOsStorage.getItem('cloudos_session'),
 			cloudos_account: CloudOs.account()
 		};
 	},
+
 	setupController: function(controller, model) {
 		controller.set('message', getAlertMessage(NotificationStack.pop()));
 
@@ -102,12 +104,15 @@ App.ApplicationController = Ember.ObjectController.extend({
 });
 
 App.IndexRoute = Ember.Route.extend({
+	model: function() {
+		// return App.CloudOsApp.findPaginated(10);
+	},
 	beforeModel: function() {
 		this.transitionTo('app', 'roundcube');
 	}
 });
 
-App.IndexController = Ember.ObjectController.extend({
+App.IndexController = Ember.ArrayController.extend({
 	cloudos_account: CloudOs.account(),
 	username: get_username()
 });
