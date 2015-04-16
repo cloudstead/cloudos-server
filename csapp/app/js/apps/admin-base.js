@@ -49,6 +49,26 @@ App.Router.map(function() {
 	// this.resource('configCloud', { path: '/cloud/:cloud_name' });
 });
 
+CloudOSProtectedRoute = Ember.Route.extend({
+	beforeModel: function(transition) {
+		var account = CloudOs.account();
+
+		if (Ember.isEmpty(CloudOsStorage.getItem('cloudos_session'))){
+			var loginController = this.controllerFor('login');
+			loginController.set('previousTransition', transition);
+			this.transitionTo('login');
+		}
+		else if (!Ember.isEmpty(account) && !account.admin) {
+			NotificationStack.push('not_authorized');
+			window.location.replace('/index.html');
+			transition.abort();
+		}
+		else {
+			this.controllerFor('application').refreshAuthStatus();
+		}
+	}
+});
+
 App.ApplicationRoute = Ember.Route.extend({
 	model: function() {
 		return {
@@ -56,45 +76,6 @@ App.ApplicationRoute = Ember.Route.extend({
 			cloudos_account: CloudOs.account()
 		};
 	},
-	setupController: function(controller, model) {
-
-		// is HTML5 storage even supported?
-		if (typeof(Storage) == "undefined") {
-			alert('Your browser is not supported. Please use Firefox, Chrome, Safari 4+, or IE8+');
-			return;
-		}
-
-		// do we have an API token?
-		if (!model.cloudos_session) {
-			this.transitionTo('login');
-			// window.location.replace('/index.html');
-			return;
-		}
-
-		// is the token valid?
-		var account = Api.account_for_token(model.cloudos_session);
-		if (Ember.isNone(account)) {
-			CloudOs.logout();
-			this.transitionTo('login');
-			// window.location.replace('/index.html');
-			return;
-		}
-
-		// is not an admin
-		if (!account.admin) {
-			NotificationStack.push('not_authorized');
-			window.location.replace('/index.html');
-			return;
-		}
-
-		CloudOs.set_account(account);
-		pathArray = window.location.href.split( '/' );
-		if (((pathArray[3] == '') || (pathArray[3] == '#') || (pathArray[3] == 'admin.html')) && (!pathArray[4]))
-		{
-			this.transitionTo('accounts');
-		}
-
-	}
 });
 
 App.ApplicationController = Ember.ObjectController.extend({
@@ -122,4 +103,8 @@ App.ApplicationView = Ember.View.extend({
 	initFoundation: initialize_zurb.on('didInsertElement')
 });
 
-App.IndexRoute = App.ApplicationRoute;
+App.IndexRoute = Ember.Route.extend({
+	beforeModel: function() {
+		this.transitionTo('accounts');
+	}
+});
