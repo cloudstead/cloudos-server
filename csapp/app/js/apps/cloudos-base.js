@@ -105,11 +105,11 @@ App.ApplicationController = Ember.ObjectController.extend({
 
 App.IndexRoute = Ember.Route.extend({
 	model: function() {
-		// return App.CloudOsApp.findPaginated(10);
+		return CloudOs.account().availableApps;
 	},
-	beforeModel: function() {
-		this.transitionTo('app', 'roundcube');
-	}
+	// beforeModel: function() {
+	// 	this.transitionTo('app', 'roundcube');
+	// }
 });
 
 App.IndexController = Ember.ArrayController.extend({
@@ -127,4 +127,20 @@ App.ApplicationView = Ember.View.extend({
 		}
 		initialize_zurb();
 	}.on('didInsertElement')
+});
+
+App.AvailableAppController = Ember.ObjectController.extend({
+	icon: function() {
+		return this.get('assets.taskbarIconUrl');
+	}.property("assets.taskbarIconUrl"),
+
+	appName: function() {
+		var appName = this.get("name");
+		var appCaption = this.get("assets.taskbarIconAltText");
+		console.log("a: ", appName, appCaption);
+		if (Ember.isEmpty(appCaption)){
+			appCaption = appName;
+		}
+		return appCaption;
+	}.property("assets.taskbarIconAltText")
 });
