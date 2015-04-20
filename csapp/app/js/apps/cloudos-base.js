@@ -105,7 +105,7 @@ App.ApplicationController = Ember.ObjectController.extend({
 
 App.IndexRoute = Ember.Route.extend({
 	model: function() {
-		return CloudOs.account().availableApps;
+		return Ember.isNone(CloudOs.account()) ? [] : CloudOs.account().availableApps;
 	},
 	// beforeModel: function() {
 	// 	this.transitionTo('app', 'roundcube');
