@@ -79,6 +79,9 @@
 									<span class="show-for-small">{{app-name app.taskbarIconCaption}}</span>
 								</a>
 							</li>
+							{{#if addSeparator}}
+								<li><span class="apps-icon-divider hide-for-small">|</span></li>
+							{{/if}}
 						{{/each}}
 					</ul>
 				</section>

@@ -294,3 +294,10 @@ td.long_text_content{
 	text-align: center;
 	font-weight: bold;
 }
+
+.apps-icon-divider{
+	line-height: 45px;
+	color: #fff;
+	margin-left: 5px;
+	margin-right: 5px;
+}

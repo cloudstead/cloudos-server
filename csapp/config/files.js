@@ -13,6 +13,7 @@ module.exports = function(lineman) {
 				"vendor/js/jquery-1.11.0.js",
 				"vendor/js/foundation.min.js",
 				"vendor/js/handlebars-v1.3.0.js",
+				"vendor/js/underscore.js",
 				"vendor/js/ember-1.5.1.js",
 				"vendor/js/modernizr.js",
 				"vendor/js/purl.js",
