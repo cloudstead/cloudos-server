@@ -66,16 +66,23 @@ CloudOSProtectedRoute = Ember.Route.extend({
 		else {
 			this.controllerFor('application').refreshAuthStatus();
 		}
+	},
+	actions: {
+		didTransition: function() {
+			var appController = this.controllerFor('application');
+
+			appController.refreshAuthStatus();
+		}
 	}
 });
 
 App.ApplicationRoute = Ember.Route.extend({
-	model: function() {
-		return {
-			cloudos_session: CloudOsStorage.getItem('cloudos_session'),
-			cloudos_account: CloudOs.account()
-		};
-	},
+	// model: function() {
+	// 	return {
+	// 		cloudos_session: CloudOsStorage.getItem('cloudos_session'),
+	// 		cloudos_account: CloudOs.account()
+	// 	};
+	// },
 });
 
 App.ApplicationController = Ember.ObjectController.extend({

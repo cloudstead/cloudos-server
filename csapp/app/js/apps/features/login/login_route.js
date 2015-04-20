@@ -7,5 +7,13 @@ App.LoginRoute = Ember.Route.extend({
 		var loginController = this.controllerFor('login');
 		loginController.set('notificationForgotPassword', null);
 		loginController.set('requestMessages', null);
+	},
+	actions: {
+		didTransition: function() {
+			if(!Ember.isNone(CloudOs.account())){
+				this.transitionTo('index');
+			}
+		}
 	}
+
 });
