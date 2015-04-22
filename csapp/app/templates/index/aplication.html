@@ -15,7 +15,7 @@
 			</ul>
 			{{#if cloudos_account}}
 				<section class="top-bar-section">
-					<ul class="right">
+					<ul class="right menu-separator">
 						<li class="has-dropdown">
 							<a href="#">
 								<span class="icon-question-circle">
@@ -54,7 +54,9 @@
 						{{/if}}
 						<li class="has-dropdown">
 							<a href="#" data-dropdown="user-submenu" data-options="align:left">
-								<span class="icon-user"><span class="caption-for-icon show-for-small">User</span></span>
+								<span class="icon-user">
+									<span class="caption-for-icon show-for-small">User</span>
+								</span>
 								<span class="show-for-xxlarge-up">User</span>
 							</a>
 							<ul class="dropdown">
@@ -68,15 +70,18 @@
 					<ul class="nav-apps">
 						{{#each app in cloudos_account.availableApps itemController="eapp"}}
 							<li>
-								<a {{action 'select_app' app.name}} {{bind-attr title=app.taskbarIconCaption}} class="toolbar_link">
+								<a {{action 'select_app' app.name}} {{bind-attr title=app.taskbarIconCaption}} class="toolbar_link test-border3">
 									{{#if hasTaskbarIcon}}
-										<span class="icon_bar_link">
-											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon hide-for-small" />
+										<span class="icon_bar_link hide-for-small">
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon" />
+										</span>
+										<span class="icon_bar_link show-for-small test-border">
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon" />
 										</span>
 									{{else}}
 										<span class="hide-for-small">{{app-name app.taskbarIconCaption}}</span>
 									{{/if}}
-									<span class="show-for-small">{{app-name app.taskbarIconCaption}}</span>
+									<span class="show-for-small header-nav-item test-border2">{{app-name app.taskbarIconCaption}}</span>
 								</a>
 							</li>
 							{{#if addSeparator}}

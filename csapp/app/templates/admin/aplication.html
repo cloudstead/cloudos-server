@@ -15,7 +15,7 @@
 			</ul>
 			{{#if cloudos_account}}
 				<section class="top-bar-section">
-					<ul class="right">
+					<ul class="right menu-separator">
 						<li class="has-dropdown">
 							<a href="#">
 								<span class="icon-question-circle">
@@ -71,12 +71,12 @@
 								<a {{action 'select_app' app.name}} {{bind-attr title=app.taskbarIconCaption}} class="toolbar_link">
 									{{#if hasTaskbarIcon}}
 										<span class="icon_bar_link">
-											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon hide-for-small" />
+											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon" />
 										</span>
 									{{else}}
 										<span class="hide-for-small">{{app-name taskbarIconCaption}}</span>
 									{{/if}}
-									<span class="show-for-small">{{app-name taskbarIconCaption}}</span>
+									<span class="show-for-small header-nav-item">{{app-name taskbarIconCaption}}</span>
 								</a>
 							</li>
 							{{#if addSeparator}}

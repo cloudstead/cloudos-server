@@ -63,7 +63,7 @@ module.exports = function(lineman) {
 	var cloudos_app_templates = [
 		get_all_templates_in("index"),
 		get_template("components/task_progress_modal"),
-		get_template("components/modal_dialog"),
+		get_template("components/modal_dialog_alt"),
 		get_template("components/flash_notification")
 	];
 

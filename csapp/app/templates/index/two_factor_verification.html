@@ -9,7 +9,7 @@
 				</div>
 				<div class="large-12 columns" style="padding-bottom:50px; padding-top: 40px;">
 					<form {{action 'verifyFactor' on="submit"}}>
-						<div class="field-container">
+						<div class="field-container hide-for-small">
 							<div class="row">
 								<div class="small-7 columns">
 									<label for="right-label" class="right">{{t forms.verification.verify_code}}</label>
@@ -27,6 +27,28 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="field-container show-for-small">
+							<div class="row">
+								<div class="small-12 columns">
+									<label for="right-label" class="right">{{t forms.verification.verify_code}}</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="small-12 columns">
+									{{#if requestMessages.error.verifyCode}}
+										{{ input type="text" value=verifyCode class="error" }}
+									{{else}}
+										{{ input type="text" value=verifyCode }}
+									{{/if}}
+
+									{{#if requestMessages.error.verifyCode}}
+										<span class="message error">{{requestMessages.error.verifyCode}}</span>
+									{{/if}}
+								</div>
+							</div>
+						</div>
+
 						<div class="field-container">
 							<div class="row">
 								<div class="large-7 medium-5 hide-for-small columns">
