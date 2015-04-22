@@ -327,15 +327,10 @@ iframe {
 .icon-user .caption-for-icon.show-for-small{
 	margin-left:12px;
 }
-
-.test-border{
-	border: 1px solid white;
-}
-
-.test-border2{
-	border: 1px solid red;
-}
-
-.test-border3{
-	border: 1px solid yellow;
+/*
+Fixing issue with page rendering on iOS devices. Checkout link:
+http://stackoverflow.com/questions/9807620/ipad-safari-scrolling-causes-html-elements-to-disappear-and-reappear-with-a-dela
+*/ 
+*:not(html) {
+    -webkit-transform: translate3d(0, 0, 0);
 }

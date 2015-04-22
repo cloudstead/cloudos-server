@@ -70,18 +70,18 @@
 					<ul class="nav-apps">
 						{{#each app in cloudos_account.availableApps itemController="eapp"}}
 							<li>
-								<a {{action 'select_app' app.name}} {{bind-attr title=app.taskbarIconCaption}} class="toolbar_link test-border3">
+								<a {{action 'select_app' app.name}} {{bind-attr title=app.taskbarIconCaption}} class="toolbar_link">
 									{{#if hasTaskbarIcon}}
 										<span class="icon_bar_link hide-for-small">
 											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon" />
 										</span>
-										<span class="icon_bar_link show-for-small test-border">
+										<span class="icon_bar_link show-for-small">
 											<img {{bind-attr src="app.assets.taskbarIconUrl"}} {{bind-attr alt=app.taskbarIconCaption}} class="toolbar_icon" />
 										</span>
 									{{else}}
 										<span class="hide-for-small">{{app-name app.taskbarIconCaption}}</span>
 									{{/if}}
-									<span class="show-for-small header-nav-item test-border2">{{app-name app.taskbarIconCaption}}</span>
+									<span class="show-for-small header-nav-item">{{app-name app.taskbarIconCaption}}</span>
 								</a>
 							</li>
 							{{#if addSeparator}}
