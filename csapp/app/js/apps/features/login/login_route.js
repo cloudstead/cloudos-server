@@ -13,6 +13,11 @@ App.LoginRoute = Ember.Route.extend({
 			if(!Ember.isNone(CloudOs.account())){
 				this.transitionTo('index');
 			}
+		},
+		willTransition: function(transition) {
+			var appController = this.controllerFor('application');
+
+			appController.refreshAuthStatus();
 		}
 	}
 
