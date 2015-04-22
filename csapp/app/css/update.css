@@ -331,6 +331,6 @@ iframe {
 Fixing issue with page rendering on iOS devices. Checkout link:
 http://stackoverflow.com/questions/9807620/ipad-safari-scrolling-causes-html-elements-to-disappear-and-reappear-with-a-dela
 */ 
-*:not(html) {
+.nav-apps {
     -webkit-transform: translate3d(0, 0, 0);
 }
