@@ -1,5 +1,6 @@
 package cloudos.service;
 
+import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.model.AccountGroup;
 import cloudos.model.AccountGroupMember;
 import cloudos.model.auth.AuthenticationException;
@@ -7,6 +8,7 @@ import cloudos.model.support.AccountRequest;
 import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.cobbzilla.util.collection.ArrayUtil;
 import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
@@ -27,6 +29,7 @@ import static org.cobbzilla.util.system.CommandShell.okResult;
 public class LdapService {
 
     @Autowired private CloudOsConfiguration configuration;
+    @Autowired private AccountGroupMemberDAO memberDAO;
 
     private LdapConfiguration getLdap() { return configuration.getLdap(); }
     private String password() { return getLdap().getPassword(); }
@@ -147,6 +150,10 @@ public class LdapService {
     }
 
     public CommandResult createGroupWithMembers(AccountGroup group, List<AccountGroupMember> members) {
+        return createGroupWithMembers(group, members.toArray(new AccountGroupMember[members.size()]));
+    }
+
+    public CommandResult createGroupWithMembers(AccountGroup group, AccountGroupMember[] members) {
 
         final String groupName = group.getName();
         String ldif = "dn: " + groupDN(groupName) + "\n" +
@@ -174,10 +181,17 @@ public class LdapService {
                 "description: " + group.getInfo().getDescription() + "\n";
         CommandResult result = run_ldapmodify(ldif, false);
         if (result != null && !result.isZeroExitStatus() && result.getStderr().contains("ldap_modify: No such object")) {
-            result = createGroupWithMembers(group, group.getMembers());
+            final AccountGroupMember[] members = mergeLists(group.getMembers(), group.getMirror());
+            result = createGroupWithMembers(group, members);
         }
         return okResult(result);
     }
+
+    private AccountGroupMember[] mergeLists(List<AccountGroupMember> members, String mirror) {
+        if (empty(mirror)) return (AccountGroupMember[]) members.toArray();
+        return (AccountGroupMember[]) ArrayUtil.merge(members, memberDAO.findByGroupName(mirror)).toArray();
+    }
+
 
     // this method is provided for completeness' sake, but authentication should really go through kerberos
     public void authenticate(String accountName, String password) throws AuthenticationException {
