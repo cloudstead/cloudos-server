@@ -6,6 +6,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
 import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
+import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
 import cloudos.service.TwoFactorAuthService;
 import lombok.Getter;
@@ -87,7 +88,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
     @Setter private DnsManager dnsManager;
     public DnsManager getDnsManager() {
         if (dnsManager == null) {
-            dnsManager = dns.isDynDns() ? new DynDnsManager(dns) : new DnsClient(dns);
+            dnsManager = !dns.isEnabled() ? new MockDnsManager() : dns.isDynDns() ? new DynDnsManager(dns) : new DnsClient(dns);
         }
         return dnsManager;
     }

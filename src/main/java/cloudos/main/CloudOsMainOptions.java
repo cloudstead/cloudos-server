@@ -2,12 +2,13 @@ package cloudos.main;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.main.MainApiOptionsBase;
 import org.kohsuke.args4j.Option;
 
 public class CloudOsMainOptions extends MainApiOptionsBase {
 
-    @Override protected String getDefaultApiBaseUri() { return "http://127.0.0.1:3001/api"; }
+    @Override protected String getDefaultApiBaseUri() { return "http://"+CommandShell.hostname()+"/api"; }
 
     public static final String PASSWORD_ENV_VAR = "CLOUDOS_PASS";
 
