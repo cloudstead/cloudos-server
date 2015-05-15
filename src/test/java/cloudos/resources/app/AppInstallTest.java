@@ -90,7 +90,7 @@ public class AppInstallTest extends AppTestBase {
         appConfig.getCategory("init").set("test.loc1", "en");
         appConfig.getCategory("custom").set("c1", "custom-" + rand);
         appConfig.getCategory("custom").set("c2", "custom-" + rand);
-        appConfig.getCategory("custom").set("loc2", "fr");
+        appConfig.getCategory("custom").set("loc2", "zh_TW");
 
         apiDocs.addNote("write configuration information for the app");
         assertEquals(200, doPost(configUri, toJson(appConfig)).status);
