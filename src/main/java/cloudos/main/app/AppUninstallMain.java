@@ -10,8 +10,6 @@ import org.cobbzilla.wizard.util.RestResponse;
 
 public class AppUninstallMain extends CloudOsMainBase<AppUninstallMainOptions> {
 
-    @Override protected AppUninstallMainOptions initOptions() { return new AppUninstallMainOptions(); }
-
     public static void main (String[] args) { main(AppUninstallMain.class, args); }
 
     @Override protected void run() throws Exception {

@@ -6,8 +6,6 @@ import static cloudos.resources.ApiConstants.CONFIGS_ENDPOINT;
 
 public class SysConfigMain extends CloudOsMainBase<SysConfigMainOptions> {
 
-    @Override protected SysConfigMainOptions initOptions() { return new SysConfigMainOptions(); }
-
     public static void main (String[] args) {
         main(SysConfigMain.class, args);
     }

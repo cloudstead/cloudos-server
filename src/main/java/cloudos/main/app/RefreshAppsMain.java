@@ -6,8 +6,6 @@ import org.cobbzilla.wizard.client.ApiClientBase;
 
 public class RefreshAppsMain extends CloudOsMainBase<RefreshAppsMainOptions>{
 
-    @Override protected RefreshAppsMainOptions initOptions() { return new RefreshAppsMainOptions(); }
-
     public static void main (String[] args) { main(RefreshAppsMain.class, args); }
 
     @Override protected void run() throws Exception {

@@ -7,8 +7,6 @@ import org.cobbzilla.wizard.util.RestResponse;
 
 public class AppManagementMain extends CloudOsMainBase<AppManagementMainOptions> {
 
-    @Override protected AppManagementMainOptions initOptions() { return new AppManagementMainOptions(); }
-
     public static void main (String[] args) { main(AppManagementMain.class, args); }
 
     @Override

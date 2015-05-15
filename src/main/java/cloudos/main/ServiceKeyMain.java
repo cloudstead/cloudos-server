@@ -11,8 +11,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 public class ServiceKeyMain extends CloudOsMainBase<ServiceKeyMainOptions> {
 
-    @Override protected ServiceKeyMainOptions initOptions() { return new ServiceKeyMainOptions(); }
-
     public static void main (String[] args) { main(ServiceKeyMain.class, args); }
 
     @Override protected void run() throws Exception {

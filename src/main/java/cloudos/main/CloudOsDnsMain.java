@@ -11,8 +11,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 public class CloudOsDnsMain extends CloudOsMainBase<CloudOsDnsMainOptions> {
 
-    @Override protected CloudOsDnsMainOptions initOptions() { return new CloudOsDnsMainOptions(); }
-
     public static void main (String[] args) { main(CloudOsDnsMain.class, args); }
 
     @Override protected void run() throws Exception {

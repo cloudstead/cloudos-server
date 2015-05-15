@@ -11,8 +11,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Slf4j
 public class SearchAppStoreMain extends CloudOsMainBase<SearchAppStoreOptions> {
 
-    @Override protected SearchAppStoreOptions initOptions() { return new SearchAppStoreOptions(); }
-
     public static void main (String[] args) throws Exception { main(SearchAppStoreMain.class, args); }
 
     @Override protected void run() throws Exception {

@@ -11,8 +11,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 public class CloudOsGroupMain extends CloudOsMainBase<CloudOsGroupMainOptions> {
 
-    @Override protected CloudOsGroupMainOptions initOptions() { return new CloudOsGroupMainOptions(); }
-
     public static void main (String[] args) { main(CloudOsGroupMain.class, args); }
 
     @Override protected void run() throws Exception {

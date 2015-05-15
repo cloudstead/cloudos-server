@@ -6,8 +6,6 @@ import static cloudos.resources.ApiConstants.SETUP_ENDPOINT;
 
 public class GetBackupKeyMain extends CloudOsMainBase<CloudOsMainOptions> {
 
-    @Override protected CloudOsMainOptions initOptions() { return new CloudOsMainOptions(); }
-
     public static void main (String[] args) { main(GetBackupKeyMain.class, args); }
 
     @Override

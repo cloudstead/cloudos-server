@@ -15,8 +15,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Slf4j
 public class RestoreCloudsteadMain extends CloudOsMainBase<RestoreCloudsteadOptions> {
 
-    @Override protected RestoreCloudsteadOptions initOptions() { return new RestoreCloudsteadOptions(); }
-
     public static void main (String[] args) { main(RestoreCloudsteadMain.class, args); }
 
     @Override

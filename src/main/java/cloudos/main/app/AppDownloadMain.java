@@ -14,8 +14,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Slf4j
 public class AppDownloadMain extends CloudOsMainBase<AppDownloadOptions> {
 
-    @Override protected AppDownloadOptions initOptions() { return new AppDownloadOptions(); }
-
     public static void main (String[] args) throws Exception { main(AppDownloadMain.class, args); }
 
     @Override protected void run() throws Exception {

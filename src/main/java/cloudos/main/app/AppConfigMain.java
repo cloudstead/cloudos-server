@@ -10,8 +10,6 @@ import static cloudos.resources.ApiConstants.APPS_ENDPOINT;
 @Slf4j
 public class AppConfigMain extends CloudOsMainBase<AppConfigOptions> {
 
-    @Override protected AppConfigOptions initOptions() { return new AppConfigOptions(); }
-
     public static void main (String[] args) throws Exception { main(AppConfigMain.class, args); }
 
     @Override protected void run() throws Exception {

@@ -13,8 +13,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Slf4j
 public class AppInstallMain extends CloudOsMainBase<AppInstallOptions> {
 
-    @Override protected AppInstallOptions initOptions() { return new AppInstallOptions(); }
-
     public static void main (String[] args) throws Exception {
         main(AppInstallMain.class, args);
     }

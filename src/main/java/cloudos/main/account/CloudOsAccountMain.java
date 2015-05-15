@@ -11,8 +11,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 public class CloudOsAccountMain extends CloudOsMainBase<CloudOsAccountMainOptions> {
 
-    @Override protected CloudOsAccountMainOptions initOptions() { return new CloudOsAccountMainOptions(); }
-
     public static void main (String[] args) { main(CloudOsAccountMain.class, args); }
 
     @Override protected void run() throws Exception {

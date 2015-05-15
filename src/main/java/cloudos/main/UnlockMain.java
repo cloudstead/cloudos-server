@@ -16,8 +16,6 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
 @Slf4j
 public class UnlockMain extends CloudOsMainBase<UnlockMainOptions> {
 
-    @Override protected UnlockMainOptions initOptions() { return new UnlockMainOptions(); }
-
     public static void main (String[] args) { main(UnlockMain.class, args); }
 
     @Override protected void run() throws Exception {
