@@ -32,7 +32,7 @@ public class AppUpgradeTest extends AppTestBase {
     private CloudApp app;
     private CloudAppVersion appVersion;
 
-    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH); }
+    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH, null); }
 
     @Override public void onStart(RestServer<CloudOsConfiguration> server) {
         try { initAppStore(); } catch (Exception e) {
@@ -92,7 +92,7 @@ public class AppUpgradeTest extends AppTestBase {
 
         // update app in app store to new version
         apiDocs.addNote("...behind the scenes, update app store with new version, and publish the new version...");
-        buildAppTarball(UPGRADED_MANIFEST_RESOURCE_PATH);
+        buildAppTarball(UPGRADED_MANIFEST_RESOURCE_PATH, null);
         defineAppVersion();
         expectedVersion = appManifest.getVersion();
 

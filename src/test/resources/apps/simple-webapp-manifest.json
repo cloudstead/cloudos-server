@@ -14,10 +14,10 @@
     "config": [ {
         "name": "init",
         "items": [ "admin.name", "admin.password",
-            "test.config1", "test.config2", "test.config3" ]
+            "test.config1", "test.config2", "test.config3", "test.loc1" ]
     }, {
         "name": "custom",
-        "items": [ "c1", "c2" ]
+        "items": [ "c1", "c2", "loc2" ]
     } ],
 
     "web": { "type": "apache", "mode": "proxy_service", "mount": "bogus" },

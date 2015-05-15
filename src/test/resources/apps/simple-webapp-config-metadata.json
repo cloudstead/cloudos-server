@@ -1,0 +1,22 @@
+{
+  "id": "config-metadata",
+  "categories": {
+    "init": {
+      "fields": {
+        "admin.name": { "required": true },
+        "admin.password": { "required": true, "type": "password", "login": "admin.login" },
+        "test.config1": { "required": true, "type": "field" },
+        "test.config2": { "required": true, "type": "field" },
+        "test.config3": { "required": true, "type": "field" },
+        "test.loc1": { "required": true, "type": "locale", "choices": ["af", "en", "es", "ja", "kk"] } }
+    },
+    "custom": {
+      "advanced": true,
+      "fields": {
+        "c1": { "required": true, "type": "field" },
+        "c2": { "required": true, "type": "field" },
+        "loc2": { "required": true, "type": "locale", "choices": ["af", "en", "fr", "zh", "zh-tw"] }
+      }
+    }
+  }
+}

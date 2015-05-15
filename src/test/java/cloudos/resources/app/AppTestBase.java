@@ -4,6 +4,7 @@ import cloudos.appstore.bundler.BundlerMain;
 import cloudos.appstore.bundler.BundlerOptions;
 import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.config.AppConfigMetadata;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.resources.ApiClientTestBase;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.*;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.StreamUtil.loadResourceAsString;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -54,12 +56,12 @@ public class AppTestBase extends ApiClientTestBase {
     protected static String bundleUrlSha;
     protected static AppManifest appManifest;
 
-    public static void setupTestWebApp(String manifestResourcePath) throws Exception {
+    public static void setupTestWebApp(String manifestResourcePath, String appConfigMetadataPath) throws Exception {
 
         testServerPort = PortPicker.pick();
         testDocRoot = FileUtil.createTempDir(AppInstallTest.class.getName());
 
-        buildAppTarball(manifestResourcePath);
+        buildAppTarball(manifestResourcePath, appConfigMetadataPath);
 
         // Set up jetty server to serve tarball and icon png
         testHttpServer = new Server(testServerPort);
@@ -71,13 +73,19 @@ public class AppTestBase extends ApiClientTestBase {
         testHttpServer.start();
     }
 
-    public static void buildAppTarball(String manifestResourcePath) throws Exception {
+    public static void buildAppTarball(String manifestResourcePath, String appConfigMetadataPath) throws Exception {
         // Write manifest for test app to a temp dir
         final File appTemp = FileUtil.createTempDir("appTemp");
         final File manifestFile = new File(appTemp, AppManifest.CLOUDOS_MANIFEST_JSON);
-        final String manifestData = StreamUtil.loadResourceAsString(manifestResourcePath).replace("@@PORT@@", String.valueOf(testServerPort));
+        final String manifestData = loadResourceAsString(manifestResourcePath).replace("@@PORT@@", String.valueOf(testServerPort));
         FileUtil.toFile(manifestFile, manifestData);
         appManifest = AppManifest.load(manifestFile);
+
+        if (appConfigMetadataPath != null) {
+            final String configMetadata = loadResourceAsString(appConfigMetadataPath);
+            final File configDir = new File(appTemp, "config");
+            FileUtil.toFile(new File(configDir, AppConfigMetadata.CONFIG_METADATA_JSON), configMetadata);
+        }
 
         File bundleDir = new File(testDocRoot, "scratch");
 
@@ -155,7 +163,7 @@ public class AppTestBase extends ApiClientTestBase {
         long start = System.currentTimeMillis();
         TaskResult result = null;
         while (System.currentTimeMillis() - start < TIMEOUT) {
-            sleep(250, "getTaskResult");
+            sleep(1000, "getTaskResult");
             apiDocs.addNote("check status of task " + taskId.getUuid());
             final String json = doGet(TASKS_ENDPOINT + "/" + taskId.getUuid()).json;
             result = fromJson(json, TaskResult.class);

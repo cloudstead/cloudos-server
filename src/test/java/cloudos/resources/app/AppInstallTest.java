@@ -3,6 +3,8 @@ package cloudos.resources.app;
 import cloudos.appstore.model.AppRuntimeDetails;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.config.AppConfigMetadataDatabag;
+import cloudos.appstore.model.app.config.AppConfigTranslationCategory;
 import cloudos.model.Account;
 import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.service.task.TaskResult;
@@ -30,8 +32,9 @@ public class AppInstallTest extends AppTestBase {
 
     private static final String DOC_TARGET = "App Installation";
     public static final String MANIFEST_RESOURCE_PATH = "apps/simple-webapp-manifest.json";
+    public static final String APPCONFIG_RESOURCE_PATH = "apps/simple-webapp-config-metadata.json";
 
-    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH); }
+    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH, APPCONFIG_RESOURCE_PATH); }
 
     @Test
     public void testInstallApp () throws Exception {
@@ -55,11 +58,28 @@ public class AppInstallTest extends AppTestBase {
         appConfig = fromJson(doGet(configUri).json, AppConfiguration.class);
         assertEquals(2, appConfig.getCategories().size());
         assertEquals("init", appConfig.getCategories().get(0).getName());
-        assertEquals(5, appConfig.getCategory("init").getItems().size());
+        assertEquals(6, appConfig.getCategory("init").getItems().size());
         assertEquals("custom", appConfig.getCategories().get(1).getName());
-        assertEquals(2, appConfig.getCategory("custom").getItems().size());
+        assertEquals(3, appConfig.getCategory("custom").getItems().size());
         assertTrue(appConfig.getCategory("init").getValues().isEmpty());
         assertTrue(appConfig.getCategory("custom").getValues().isEmpty());
+
+        // ensure metadata and locale fields were populated appropriately
+        assertTrue(appConfig.getTranslations().getCategories().containsKey("init"));
+        final AppConfigTranslationCategory init = appConfig.getTranslations().getCategories().get("init");
+        final AppConfigMetadataDatabag initConfig = appConfig.getMetadata().getCategories().get("init");
+        assertFalse(initConfig.isAdvanced());
+        for (String choice : initConfig.getFields().get("test.loc1").getChoices()) {
+            assertNotNull(init.get("test.loc1.choice."+choice));
+        }
+
+        assertTrue(appConfig.getTranslations().getCategories().containsKey("custom"));
+        final AppConfigTranslationCategory custom = appConfig.getTranslations().getCategories().get("custom");
+        final AppConfigMetadataDatabag customConfig = appConfig.getMetadata().getCategories().get("custom");
+        assertTrue(customConfig.isAdvanced());
+        for (String choice : customConfig.getFields().get("loc2").getChoices()) {
+            assertNotNull(custom.get("loc2.choice."+choice));
+        }
 
         final String rand = RandomStringUtils.randomAlphanumeric(10);
         appConfig.getCategory("init").set("admin.name", rand);
@@ -67,8 +87,10 @@ public class AppInstallTest extends AppTestBase {
         appConfig.getCategory("init").set("test.config1", rand);
         appConfig.getCategory("init").set("test.config2", rand);
         appConfig.getCategory("init").set("test.config3", rand);
+        appConfig.getCategory("init").set("test.loc1", "en");
         appConfig.getCategory("custom").set("c1", "custom-" + rand);
         appConfig.getCategory("custom").set("c2", "custom-" + rand);
+        appConfig.getCategory("custom").set("loc2", "fr");
 
         apiDocs.addNote("write configuration information for the app");
         assertEquals(200, doPost(configUri, toJson(appConfig)).status);

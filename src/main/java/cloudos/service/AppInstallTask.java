@@ -67,7 +67,7 @@ public class AppInstallTask extends TaskBase {
         // Validate databags. If any violations are related to missing passwords, pick a random password
         // and email it to the caller.
         final AppManifest manifest = AppManifest.load(appLayout.getVersionDir());
-        final AppConfiguration appConfig = AppConfiguration.readAppConfiguration(manifest, appLayout.getDatabagDirForApp(manifest.getName()), null);
+        final AppConfiguration appConfig = AppConfiguration.readAppConfiguration(manifest, appLayout.getDatabagsDir(), configuration.getSystemLocale());
         final List<ConstraintViolationBean> validationErrors = appConfig.validate(resolver);
 
         if (!validationErrors.isEmpty()) {
