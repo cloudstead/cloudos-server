@@ -6,7 +6,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.support.ApiToken;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
-import cloudos.appstore.model.support.CloudAppVersion;
+import cloudos.appstore.model.CloudAppVersion;
 import cloudos.appstore.test.AppStoreTestUtil;
 import cloudos.appstore.test.TestApp;
 import cloudos.server.CloudOsConfiguration;
