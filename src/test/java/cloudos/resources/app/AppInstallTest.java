@@ -5,6 +5,7 @@ import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.config.AppConfigMetadataDatabag;
 import cloudos.appstore.model.app.config.AppConfigTranslationCategory;
+import cloudos.appstore.test.TestApp;
 import cloudos.model.Account;
 import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.service.task.TaskResult;
@@ -31,20 +32,25 @@ import static org.junit.Assert.*;
 public class AppInstallTest extends AppTestBase {
 
     private static final String DOC_TARGET = "App Installation";
-    public static final String MANIFEST_RESOURCE_PATH = "apps/simple-webapp-manifest.json";
-    public static final String APPCONFIG_RESOURCE_PATH = "apps/simple-webapp-config-metadata.json";
 
-    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH, APPCONFIG_RESOURCE_PATH); }
+    public static final String TEST_CONFIG_MANIFEST = "apps/simple-webapp-config-metadata.json";
+    public static final String TEST_MANIFEST = "apps/simple-webapp-manifest.json";
+    public static final String TEST_ICON = "apps/some-icon.png";
 
-    @Test
-    public void testInstallApp () throws Exception {
+    private static TestApp testApp;
+
+    @BeforeClass public static void setupTestWebApp() throws Exception {
+        testApp = webServer.buildAppTarball(TEST_MANIFEST, TEST_CONFIG_MANIFEST, TEST_ICON);
+    }
+
+    @Test public void testInstallApp () throws Exception {
 
         TaskResult result;
 
         apiDocs.startRecording(DOC_TARGET, "Download, configure and install an application");
 
         apiDocs.addNote("download the 'test' app");
-        result = downloadApp(bundleUrl);
+        result = downloadApp(testApp.getBundleUrl());
 
         // Validate that default taskbar icon image was downloaded and installed
         final File installedIcon = new File(new AppLayout(appRepository, "simple-webapp", "0.1.0").getChefFilesDir(), "taskbarIcon.png");
@@ -124,7 +130,7 @@ public class AppInstallTest extends AppTestBase {
         apiDocs.addNote("request the taskbarIcon for the app, this should now work");
         final HttpResponseBean responseBean = HttpUtil.getResponse(details.getAssets().getTaskbarIconUrl());
         assertEquals(200, responseBean.getStatus());
-        assertEquals(iconFile.length(), Long.parseLong(responseBean.getFirstHeaderValue(HttpHeaders.CONTENT_LENGTH)));
+        assertEquals(testApp.getIconFile().length(), Long.parseLong(responseBean.getFirstHeaderValue(HttpHeaders.CONTENT_LENGTH)));
     }
 
     private AppRuntimeDetails findRuntime(Account account, String name) {

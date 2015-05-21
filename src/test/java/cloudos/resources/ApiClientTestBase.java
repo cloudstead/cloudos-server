@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import cloudos.appstore.test.AssetWebServer;
 import cloudos.appstore.test.MockAppStoreApiClient;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.dns.service.mock.MockDnsManager;
@@ -38,7 +39,9 @@ import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.cobbzilla.wizardtest.resources.ApiDocsResourceIT;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import rooty.toots.chef.ChefHandler;
 import rooty.toots.chef.ChefSolo;
 import rooty.toots.chef.DummyChefHandler;
@@ -78,7 +81,11 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public static final String CHEF_USER = System.getProperty("user.name");
 
     private MockDnsManager dnsManager = new MockDnsManager();
-    private MockAppStoreApiClient appStoreClient = new MockAppStoreApiClient();
+    protected MockAppStoreApiClient appStoreClient = new MockAppStoreApiClient(webServer);
+
+    protected static AssetWebServer webServer = new AssetWebServer();
+    @BeforeClass public static void startTestWebserver() throws Exception { webServer.start(); }
+    @AfterClass public static void stopTestWebserver() throws Exception { webServer.stop(); }
 
     public boolean shouldCacheServer () { return false; }
 

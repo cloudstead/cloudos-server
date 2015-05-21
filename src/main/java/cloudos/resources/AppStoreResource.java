@@ -1,6 +1,7 @@
 package cloudos.resources;
 
 import cloudos.appstore.client.AppStoreApiClient;
+import cloudos.appstore.model.PublishedApp;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.dao.AppDAO;
@@ -57,17 +58,18 @@ public class AppStoreResource {
         }
 
         for (AppListing listing : results.getResults()) {
-            CloudOsApp found = appDAO.findInstalledByName(listing.getName());
+            final PublishedApp app = listing.getApp();
+            CloudOsApp found = appDAO.findInstalledByName(app.getAppName());
             if (found != null) {
-                if (listing.getAppVersion().getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                if (app.getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
                     listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
                 } else {
                     listing.setInstallStatus(AppInstallStatus.installed);
                 }
             } else {
-                found = appDAO.findLatestVersionByName(listing.getName());
+                found = appDAO.findLatestVersionByName(app.getAppName());
                 if (found != null) {
-                    if (listing.getAppVersion().getSemanticVersion().compareTo(found.getManifest().getSemanticVersion()) > 0) {
+                    if (app.getSemanticVersion().compareTo(found.getManifest().getSemanticVersion()) > 0) {
                         listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
                     } else {
                         listing.setInstallStatus(AppInstallStatus.available_local);

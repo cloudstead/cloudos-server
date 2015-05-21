@@ -1,15 +1,14 @@
 package cloudos.resources.app;
 
-import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.AppStoreAccount;
-import cloudos.appstore.model.CloudApp;
 import cloudos.appstore.model.CloudAppStatus;
-import cloudos.appstore.model.CloudAppVersion;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.support.ApiToken;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
+import cloudos.appstore.model.support.CloudAppVersion;
 import cloudos.appstore.test.AppStoreTestUtil;
+import cloudos.appstore.test.TestApp;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskResult;
 import org.cobbzilla.wizard.dao.SearchResults;
@@ -24,15 +23,23 @@ import static org.junit.Assert.assertEquals;
 public class AppUpgradeTest extends AppTestBase {
 
     private static final String DOC_TARGET = "App Upgrading";
+
     public static final String MANIFEST_RESOURCE_PATH = "apps/noconfig-webapp-manifest.json";
     public static final String UPGRADED_MANIFEST_RESOURCE_PATH = "apps/noconfig-upgrade-manifest.json";
+    public static final String TEST_ICON = "apps/some-icon.png";
+
+    private static TestApp testApp;
+    private static TestApp upgradedApp;
 
     private ApiToken token;
     private AppStoreAccount publisher;
-    private CloudApp app;
-    private CloudAppVersion appVersion;
+    private CloudAppVersion version;
+    private CloudAppVersion upgradedVersion;
 
-    @BeforeClass public static void setupTestWebApp() throws Exception { setupTestWebApp(MANIFEST_RESOURCE_PATH, null); }
+    @BeforeClass
+    public static void setupTestWebApp() throws Exception {
+        testApp = webServer.buildAppTarball(MANIFEST_RESOURCE_PATH, null, TEST_ICON);
+    }
 
     @Override public void onStart(RestServer<CloudOsConfiguration> server) {
         try { initAppStore(); } catch (Exception e) {
@@ -46,31 +53,25 @@ public class AppUpgradeTest extends AppTestBase {
      */
     private void initAppStore() throws Exception {
         // register an app publisher
-        final AppStoreApiClient appStoreClient = getAppStoreClient();
         token = AppStoreTestUtil.registerPublisher(appStoreClient);
         appStoreClient.pushToken(token.getToken());
         publisher = appStoreClient.findAccount();
 
         // as the publisher, create an app and an active appVersion
-        app = AppStoreTestUtil.newCloudApp(appStoreClient, publisher.getUuid(), appManifest.getName());
-        defineAppVersion();
+        version = AppStoreTestUtil.newCloudApp(appStoreClient, publisher.getName(), testApp.getBundleUrl(), testApp.getBundleUrlSha());
+
+        publishApp(version);
     }
 
-    private void defineAppVersion() throws Exception {
-        appVersion = AppStoreTestUtil.buildCloudAppVersion(app);
-        appVersion.setVersion(appManifest.getVersion());
-        appVersion.setBundleUrl(bundleUrl);
-        appVersion.setBundleUrlSha(bundleUrlSha);
-        getAppStoreClient().defineAppVersion(appVersion);
-
-        // publish the appVersion
-        appVersion.setAppStatus(CloudAppStatus.PUBLISHED);
-        getAppStoreClient().updateAppVersion(appVersion);
+    private void publishApp(CloudAppVersion version) throws Exception {
+        appStoreClient.pushToken(adminToken);
+        appStoreClient.updateAppStatus(version.getApp(), version.getVersion(), CloudAppStatus.published);
+        appStoreClient.popToken();
     }
 
     @Test public void testAppUpgrade () throws Exception {
 
-        String expectedVersion = appManifest.getVersion();
+        String expectedVersion = version.getVersion();
         apiDocs.startRecording(DOC_TARGET, "upgrade an app to the next version");
 
         apiDocs.addNote("query app store, should see app version " + expectedVersion + " as available");
@@ -78,7 +79,7 @@ public class AppUpgradeTest extends AppTestBase {
 
         // download/install initial version
         apiDocs.addNote("download the 'noconfig' app to local app repository...");
-        TaskResult result = downloadApp(bundleUrl);
+        TaskResult result = downloadApp(testApp.getBundleUrl());
 
         apiDocs.addNote("query app store, should see app version " + expectedVersion + " as " + AppInstallStatus.available_local);
         expectVersionAndStatus(expectedVersion, AppInstallStatus.available_local);
@@ -92,16 +93,19 @@ public class AppUpgradeTest extends AppTestBase {
 
         // update app in app store to new version
         apiDocs.addNote("...behind the scenes, update app store with new version, and publish the new version...");
-        buildAppTarball(UPGRADED_MANIFEST_RESOURCE_PATH, null);
-        defineAppVersion();
-        expectedVersion = appManifest.getVersion();
+        upgradedApp = webServer.buildAppTarball(UPGRADED_MANIFEST_RESOURCE_PATH, null, TEST_ICON);
+
+        // as the publisher, create an app and an active appVersion
+        upgradedVersion = AppStoreTestUtil.newCloudApp(appStoreClient, publisher.getName(), upgradedApp.getBundleUrl(), upgradedApp.getBundleUrlSha());
+        publishApp(upgradedVersion);
+        expectedVersion = upgradedVersion.getVersion();
 
         apiDocs.addNote("query app store, should see app version " + expectedVersion + " as " + AppInstallStatus.upgrade_available_installed);
         expectVersionAndStatus(expectedVersion, AppInstallStatus.upgrade_available_installed);
 
         // download upgraded version
         apiDocs.addNote("download the upgraded version of 'noconfig' to local app repository...");
-        result = downloadApp(bundleUrl);
+        result = downloadApp(upgradedApp.getBundleUrl());
 
         apiDocs.addNote("query app store, should see app version " + expectedVersion + " as " + AppInstallStatus.upgrade_available_installed);
         expectVersionAndStatus(expectedVersion, AppInstallStatus.upgrade_available_installed);
@@ -120,8 +124,8 @@ public class AppUpgradeTest extends AppTestBase {
         results = queryAppStore();
         assertEquals(1, results.size());
         appListing = results.getResult(0);
-        assertEquals(app.getName(), appListing.getName());
-        assertEquals(expectedVersion, appListing.getAppVersion().getVersion());
+        assertEquals(version.getApp(), appListing.getApp().getAppName());
+        assertEquals(expectedVersion, appListing.getApp().getVersion());
         assertEquals(status, appListing.getInstallStatus());
     }
 

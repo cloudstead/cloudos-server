@@ -1,40 +1,27 @@
 package cloudos.resources.app;
 
-import cloudos.appstore.bundler.BundlerMain;
-import cloudos.appstore.bundler.BundlerOptions;
 import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.app.AppManifest;
-import cloudos.appstore.model.app.config.AppConfigMetadata;
 import cloudos.appstore.model.support.AppListing;
+import cloudos.appstore.test.AssetWebServer;
+import cloudos.appstore.test.TestApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.resources.ApiClientTestBase;
 import cloudos.resources.ApiConstants;
 import cloudos.service.task.TaskId;
 import cloudos.service.task.TaskResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.io.FileUtils;
-import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.JsonUtil;
-import org.cobbzilla.util.security.ShaUtil;
-import org.cobbzilla.util.system.Command;
-import org.cobbzilla.util.system.CommandShell;
-import org.cobbzilla.util.system.PortPicker;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.cobbzilla.wizard.util.RestResponse;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import rooty.toots.chef.ChefMessage;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.*;
-import static org.cobbzilla.util.io.FileUtil.abs;
-import static org.cobbzilla.util.io.StreamUtil.loadResourceAsString;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -43,85 +30,7 @@ import static org.junit.Assert.*;
 @Slf4j
 public class AppTestBase extends ApiClientTestBase {
 
-    protected static final String TEST_APP_TARBALL = "test-bundle-@VERSION.tar.gz";
-
-    protected static final String TEST_ICON = "apps/some-icon.png";
     protected static final long TIMEOUT = TimeUnit.SECONDS.toMillis(1000);
-
-    protected static Server testHttpServer;
-    protected static int testServerPort;
-    protected static File testDocRoot;
-    protected static File iconFile;
-    protected static String bundleUrl;
-    protected static String bundleUrlSha;
-    protected static AppManifest appManifest;
-
-    public static void setupTestWebApp(String manifestResourcePath, String appConfigMetadataPath) throws Exception {
-
-        testServerPort = PortPicker.pick();
-        testDocRoot = FileUtil.createTempDir(AppInstallTest.class.getName());
-
-        buildAppTarball(manifestResourcePath, appConfigMetadataPath);
-
-        // Set up jetty server to serve tarball and icon png
-        testHttpServer = new Server(testServerPort);
-
-        final ResourceHandler handler = new ResourceHandler();
-        handler.setResourceBase(abs(testDocRoot));
-        testHttpServer.setHandler(handler);
-
-        testHttpServer.start();
-    }
-
-    public static void buildAppTarball(String manifestResourcePath, String appConfigMetadataPath) throws Exception {
-        // Write manifest for test app to a temp dir
-        final File appTemp = FileUtil.createTempDir("appTemp");
-        final File manifestFile = new File(appTemp, AppManifest.CLOUDOS_MANIFEST_JSON);
-        final String manifestData = loadResourceAsString(manifestResourcePath).replace("@@PORT@@", String.valueOf(testServerPort));
-        FileUtil.toFile(manifestFile, manifestData);
-        appManifest = AppManifest.load(manifestFile);
-
-        if (appConfigMetadataPath != null) {
-            final String configMetadata = loadResourceAsString(appConfigMetadataPath);
-            final File configDir = new File(appTemp, "config");
-            FileUtil.toFile(new File(configDir, AppConfigMetadata.CONFIG_METADATA_JSON), configMetadata);
-        }
-
-        File bundleDir = new File(testDocRoot, "scratch");
-
-        // Run the bundler on our test manifest
-        final BundlerMain main = new BundlerMain(new String[] {
-                BundlerOptions.OPT_MANIFEST, abs(manifestFile),
-                BundlerOptions.OPT_OUTPUT_DIR, abs(bundleDir)
-        });
-        main.runOrDie();
-
-        // Roll the tarball into its place under the doc root
-        final String tarballName = TEST_APP_TARBALL.replace("@VERSION", appManifest.getVersion());
-        final String tarball = abs(testDocRoot) + "/" + tarballName;
-        final CommandLine commandLine = new CommandLine("tar")
-                .addArgument("czf")
-                .addArgument(tarball)
-                .addArgument(".");
-        CommandShell.exec(new Command(commandLine).setDir(bundleDir));
-
-        // Save the URL and shasum
-        bundleUrl = "http://127.0.0.1:"+testServerPort+"/"+ tarballName;
-        bundleUrlSha = ShaUtil.sha256_file(tarball);
-
-        // Copy icon png to doc root
-        iconFile = new File(testDocRoot, new File(TEST_ICON).getName());
-        FileUtils.copyFile(StreamUtil.loadResourceAsFile(TEST_ICON), iconFile);
-    }
-
-    @AfterClass public static void teardownTestApp () throws Exception {
-        testHttpServer.stop();
-        FileUtils.deleteDirectory(testDocRoot);
-    }
-
-    protected AppStoreApiClient getAppStoreClient() {
-        return getConfiguration().getAppStoreClient();
-    }
 
     public SearchResults<AppListing> queryAppStore() throws Exception {
         return JsonUtil.fromJson(post(ApiConstants.APPSTORE_ENDPOINT, toJson(ResultPage.DEFAULT_PAGE)).json, SearchResults.jsonType(AppListing.class));
