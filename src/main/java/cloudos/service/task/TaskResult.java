@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import rooty.RootyMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @ToString
 public class TaskResult {
@@ -17,7 +19,7 @@ public class TaskResult {
     @Getter @Setter private String target;
 
     @Getter @Setter private String rootyUuid;
-    @JsonIgnore public boolean hasRootyUuid () { return !StringUtil.empty(rootyUuid); }
+    @JsonIgnore public boolean hasRootyUuid () { return !empty(rootyUuid); }
 
     @Getter @Setter private String returnValue;
 

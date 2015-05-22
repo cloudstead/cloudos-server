@@ -3,9 +3,9 @@ package cloudos.resources;
 import cloudos.model.ServiceKey;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.HttpStatusCodes;
 import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Test;
 import rooty.toots.service.ServiceKeyHandler;
@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.*;
@@ -64,7 +65,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         apiDocs.addNote("request a service key to be sent to vendor, this is allowed");
         response = doPost(serviceKeyUri(keyName), toJson(vendorKeyRequest));
         assertEquals(HttpStatusCodes.OK, response.status);
-        assertTrue(StringUtil.empty(response.json));
+        assertTrue(empty(response.json));
 
         apiDocs.addNote("list all service keys -- should be one");
         assertEquals(1, getServiceKeys().length);

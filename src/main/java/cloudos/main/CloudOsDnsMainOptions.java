@@ -3,14 +3,16 @@ package cloudos.main;
 import cloudos.dns.main.DnsOperation;
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.dns.DnsType;
-import org.cobbzilla.util.string.StringUtil;
 import org.kohsuke.args4j.Option;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class CloudOsDnsMainOptions extends CloudOsMainOptions {
 
@@ -37,7 +39,7 @@ public class CloudOsDnsMainOptions extends CloudOsMainOptions {
     public static final String LONGOPT_SUBDOMAIN = "--subdomain";
     @Option(name=OPT_SUBDOMAIN, aliases=LONGOPT_SUBDOMAIN, usage=USAGE_SUBDOMAIN, required=false)
     @Getter @Setter private String subdomain;
-    public boolean hasSubdomain() { return !StringUtil.empty(subdomain); }
+    public boolean hasSubdomain() { return !empty(subdomain); }
 
     public static final String USAGE_VALUE = "The value of the DNS record. Required for 'add' operations.";
     public static final String OPT_VALUE = "-v";

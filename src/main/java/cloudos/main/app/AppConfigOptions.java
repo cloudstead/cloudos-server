@@ -2,9 +2,11 @@ package cloudos.main.app;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.io.FileUtil;
-import org.cobbzilla.util.string.StringUtil;
 import org.kohsuke.args4j.Option;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class AppConfigOptions extends AppVersionOptions {
 
@@ -16,7 +18,7 @@ public class AppConfigOptions extends AppVersionOptions {
     @Option(name=OPT_CONFIG, aliases=LONGOPT_CONFIG, usage=USAGE_CONFIG)
     @Getter @Setter private String config;
 
-    public boolean hasConfig () { return !StringUtil.empty(config); }
+    public boolean hasConfig () { return !empty(config); }
     public boolean isFileConfig () { return config != null && (config.startsWith("/") || config.startsWith("./")); }
 
     public String getConfigJson () { return isFileConfig() ? FileUtil.toStringOrDie(config) : config; }

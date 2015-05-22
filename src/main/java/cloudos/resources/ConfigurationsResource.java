@@ -14,6 +14,7 @@ import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.HttpStatusCodes;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.resources.ResourceUtil;
@@ -33,7 +34,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.wizard.resources.ResourceUtil.forbidden;
 import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
 import static rooty.toots.service.ServiceKeyRequest.Operation.ALLOW_SSH;

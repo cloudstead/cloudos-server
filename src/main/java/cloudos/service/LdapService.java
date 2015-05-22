@@ -9,6 +9,7 @@ import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.cobbzilla.util.collection.ArrayUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
@@ -21,7 +22,7 @@ import java.util.List;
 
 import static cloudos.model.auth.AuthenticationException.Problem.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.system.CommandShell.okResult;
 
 

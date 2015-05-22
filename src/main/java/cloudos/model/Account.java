@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.filters.Scrubbable;
 import org.cobbzilla.wizard.filters.ScrubbableField;
@@ -25,6 +25,7 @@ import java.util.List;
 
 import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_INVALID;
 import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_LENGTH;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.string.StringUtil.BYTES_PATTERN;
 
 @Entity @NoArgsConstructor @Accessors(chain=true)
@@ -61,7 +62,7 @@ public class Account extends AccountBase implements CloudOsAccount, Scrubbable {
 
     // validated at login (against kerberos) and placed into the session. Not stored in DB.
     @Transient @Getter @Setter private String password;
-    @JsonIgnore public boolean hasPassword() { return !StringUtil.empty(password); }
+    @JsonIgnore public boolean hasPassword() { return !empty(password); }
 
     @Pattern(regexp=BYTES_PATTERN, message=ERR_STORAGE_QUOTA_INVALID)
     @Column(length=10) @Size(max=10, message=ERR_STORAGE_QUOTA_LENGTH)

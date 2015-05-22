@@ -10,7 +10,7 @@ import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.openssl.PEMParser;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,8 @@ import javax.ws.rs.core.Response;
 import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -130,7 +132,7 @@ public class SslCertificatesResource {
             log.warn("Error parsing PEM: "+e);
             return Response.serverError().build();
         }
-        if (StringUtil.empty(commonName)) {
+        if (empty(commonName)) {
             log.warn("{err.cert.pem.invalid}", "The PEM data did not contain a valid Common Name");
         }
 

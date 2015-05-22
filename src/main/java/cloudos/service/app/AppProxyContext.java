@@ -8,11 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Base64;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.CookieJar;
 import org.cobbzilla.util.http.HttpAuthType;
 import org.cobbzilla.util.string.StringUtil;
 
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @Accessors(chain=true)
 public class AppProxyContext {

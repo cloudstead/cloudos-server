@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.UniquelyNamedEntity;
 
@@ -18,7 +19,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.wizard.validation.ValidationMessages.translateMessage;
 
 @Entity @NoArgsConstructor @Accessors(chain=true) @ToString
