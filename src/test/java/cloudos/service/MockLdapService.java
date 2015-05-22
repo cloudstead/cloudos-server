@@ -61,6 +61,8 @@ public class MockLdapService extends LdapService {
     @Override public void deleteUser(String accountName) { passwordMap.remove(accountName); }
     @Override public void deleteGroup(String groupName) { groupMap.remove(groupName); }
 
+    @Override public Boolean groupExists(String groupName) { return groupMap.containsKey(groupName); }
+
     @Override
     public void addToGroup(String groupName, AccountGroupMember member) {
         List<AccountGroupMember> members = groupMembers.get(groupName);

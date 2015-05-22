@@ -49,8 +49,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         }
     }
 
-    @Test
-    public void testGroupCrud() throws Exception {
+    @Test public void testGroupCrud() throws Exception {
         apiDocs.startRecording(DOC_TARGET, "create, read, update, delete");
 
         // get users, expect to see the ones we've created, plus ourselves
@@ -159,8 +158,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         assertEquals(HttpStatusCodes.NOT_FOUND, doGet(GROUPS_ENDPOINT +"/"+group2.getName()).status);
     }
 
-    @Test
-    public void testMirrorGroup () throws Exception {
+    @Test public void testMirrorGroup () throws Exception {
 
         RestResponse response;
         final String sourceName = randomAlphanumeric(10).toLowerCase();

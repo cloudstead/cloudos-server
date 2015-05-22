@@ -60,7 +60,7 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         final List<AccountGroup> mirrors = findMirrors(groupName);
         if (!mirrors.isEmpty()) throw new SimpleViolationException("{err.group.mirrorsExist}", "Cannot delete group, mirrors still exist: "+mirrors);
 
-        if (groupName.equals(DEFAULT_GROUP_NAME) || groupName.equals(ADMIN_GROUP_NAME)) {
+        if (isDefaultGroup(groupName)) {
             throw new SimpleViolationException("{err.group.cannotDeleteDefault}", "Cannot delete default group: "+ groupName);
         }
 
@@ -69,6 +69,10 @@ public class AccountGroupDAO extends AbstractCRUDDAO<AccountGroup> {
         }
 
         super.delete(uuid);
+    }
+
+    public static boolean isDefaultGroup(String groupName) {
+        return groupName.equals(DEFAULT_GROUP_NAME) || groupName.equals(ADMIN_GROUP_NAME);
     }
 
     public AccountGroup create(AccountGroupRequest groupRequest, List<String> recipients) {

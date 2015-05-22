@@ -65,7 +65,9 @@ public class SearchAccountGroupsTest extends SearchTestBase {
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
 
         for (AccountGroupMember m : memberDAO.findAll()) memberDAO.delete(m.getUuid());
-        for (AccountGroup g : groupDAO.findAll()) groupDAO.delete(g.getUuid());
+        for (AccountGroup g : groupDAO.findAll()) {
+            if (!AccountGroupDAO.isDefaultGroup(g.getName())) groupDAO.delete(g.getUuid());
+        }
         groups.clear();
         groupNames.clear();
         groupsByName.clear();
@@ -73,20 +75,18 @@ public class SearchAccountGroupsTest extends SearchTestBase {
         super.resetAccounts();
     }
 
-    @Test
-    public void testSearchGroupsByName() throws Exception {
-        apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name (plus the default group)");
+    @Test public void testSearchGroupsByName() throws Exception {
+        apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name (plus the 2 default groups)");
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
                 .setSortField("name").setSortOrder(ResultPage.ASC);
 
         final List<String> expected = new ArrayList<>(groupNames);
         expected.add(AccountGroup.DEFAULT_GROUP_NAME);
-        expectResults(page, NUM_GROUPS + 1, expected, searchAccountGroups(page));
+        expectResults(page, NUM_GROUPS + 2, expected, searchAccountGroups(page));
     }
 
-    @Test
-    public void testDownloadCsv () throws Exception {
+    @Test public void testDownloadCsv () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "download a CSV of the results of a search");
         apiDocs.addNote("download all groups as a CSV");
         final String csv = downloadAccountGroups(ResultPage.INFINITE_PAGE);
