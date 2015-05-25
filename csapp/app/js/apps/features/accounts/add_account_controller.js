@@ -40,7 +40,11 @@ App.AddAccountController = App.BaseAccountController.extend({
 
 	selectedGroup: "User",
 
-	countryList: Countries.list,
+	selectedCountry: function() {
+		return Countries.findByCode(1);
+	}.property("selectedCountryCode", "model"),
+
+	countryList: Countries.sortedList(),
 
 	_handleAccountValidationErrors: function(errors){
 		this.set('requestMessages',
@@ -92,6 +96,6 @@ App.AddAccountController = App.BaseAccountController.extend({
 		this.set('passwordConfirm', "");
 		this.set('generateSysPassword', true);
 		this.set('selectedGroup', "User");
-		this.set("selectedCountry", this.get("countryList")[0]);
+		this.set("selectedCountry", Countries.findByCode(1));
 	}
 });
