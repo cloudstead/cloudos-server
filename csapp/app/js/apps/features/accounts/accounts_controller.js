@@ -31,5 +31,8 @@ App.AccountsController = Ember.ArrayController.extend({
 
 	anySelected: function(){
 		return App.AccountFilter.anySelected(this.get('arrangedContent'));
-	}.property("arrangedContent.@each.isSelected")
+	}.property("arrangedContent.@each.isSelected"),
+
+	sortProperties: ['firstName'],
+	sortAscending: true
 });

@@ -9,6 +9,14 @@ Countries = {
         }
     },
 
+    sortedList: function() {
+      return this.list.sort(function(a, b){
+        if(a.country < b.country) return -1;
+        if(a.country > b.country) return 1;
+        return 0;
+      });
+    },
+
     list: [
           {
             "country": "United States of America/Canada (+1)",

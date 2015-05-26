@@ -34,7 +34,7 @@ App.ManageAccountController = App.BaseAccountController.extend({
 
 	primaryGroups: ["Admin","User"],
 
-	countryList: Countries.list,
+	countryList: Countries.sortedList(),
 
 	selectedGroup: function() {
 		return this.get('model').admin ? this.primaryGroups[0] : this.primaryGroups[1];
