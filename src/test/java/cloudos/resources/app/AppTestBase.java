@@ -1,10 +1,7 @@
 package cloudos.resources.app;
 
-import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.support.AppListing;
-import cloudos.appstore.test.AssetWebServer;
-import cloudos.appstore.test.TestApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.resources.ApiClientTestBase;
 import cloudos.resources.ApiConstants;
@@ -15,8 +12,6 @@ import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.cobbzilla.wizard.util.RestResponse;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import rooty.toots.chef.ChefMessage;
 
 import java.util.concurrent.TimeUnit;

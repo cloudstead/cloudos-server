@@ -81,7 +81,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public static final String CHEF_USER = System.getProperty("user.name");
 
     private MockDnsManager dnsManager = new MockDnsManager();
-    protected MockAppStoreApiClient appStoreClient = new MockAppStoreApiClient(webServer);
+    protected MockAppStoreApiClient appStoreClient;
 
     protected static AssetWebServer webServer = new AssetWebServer();
     @BeforeClass public static void startTestWebserver() throws Exception { webServer.start(); }
@@ -109,8 +109,6 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     protected String getTestConfig() { return "cloudos-config-test.yml"; }
-
-    @Before public void setupMocks() throws Exception {}
 
     public MockTemplatedMailService getTemplatedMailService() { return getBean(MockTemplatedMailService.class); }
     public MockTemplatedMailSender getTemplatedMailSender() { return (MockTemplatedMailSender) getTemplatedMailService().getMailSender(); }
@@ -236,6 +234,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         configuration.getRooty().addHandler(chefHandler);
 
         // mock app store and DNS manager
+        appStoreClient = new MockAppStoreApiClient(webServer, getConfiguration().getAppStore());
         configuration.setAppStoreClient(appStoreClient);
         configuration.setDnsManager(dnsManager);
 

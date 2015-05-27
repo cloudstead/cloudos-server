@@ -303,7 +303,6 @@ public class AppDAO {
         for (CloudOsApp app : findActive()) {
             final AppManifest manifest = app.getManifest();
             final AppLayout layout = configuration.getAppLayout(manifest.getName());
-            final File versionDir = layout.getAppActiveVersionDir(manifest);
             final File pluginJar = layout.getPluginJar();
 
             final Class<? extends AppRuntime> appClass;

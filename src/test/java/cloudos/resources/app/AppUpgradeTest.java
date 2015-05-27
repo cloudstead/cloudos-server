@@ -65,7 +65,7 @@ public class AppUpgradeTest extends AppTestBase {
 
     private void publishApp(CloudAppVersion version) throws Exception {
         appStoreClient.pushToken(adminToken);
-        appStoreClient.updateAppStatus(version.getApp(), version.getVersion(), CloudAppStatus.published);
+        appStoreClient.updateAppStatus(publisher.getName(), version.getApp(), version.getVersion(), CloudAppStatus.published);
         appStoreClient.popToken();
     }
 
