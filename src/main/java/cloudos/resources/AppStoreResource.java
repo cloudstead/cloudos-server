@@ -13,7 +13,6 @@ import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
-import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -44,13 +45,18 @@ public class AppStoreResource {
     public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, ResultPage query) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
 
         final AppStoreApiClient client = configuration.getAppStoreClient();
         final SearchResults<AppListing> results;
 
         try {
+            // ctime is default but kinda meaningless. change it to name
+            if ("ctime".equals(query.getSortField())) {
+                query.setSortField("name").sortAscending();
+            }
             results = client.searchAppStore(query);
+            if (empty(results)) return notFound();
 
         } catch (Exception e) {
             log.error("Error searching app store: "+e, e);
