@@ -95,13 +95,14 @@ App.IndexController = Ember.ObjectController.extend({
 			// this.transitionToRoute('keys');
 
 			var auth_response = Api.setup(setupKey, name, initial_password, password, tzone, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName);
-			if (auth_response) {
+			if (Ember.isNone(auth_response.statusCode)) {
 				CloudOs.login(auth_response);
 				this.set("setup_response", { restoreKey: auth_response.restoreKey });
 				this.transitionToRoute('keys');
 				// window.location.replace('/admin.html');
 			} else {
-				alert('error, perhaps the key was not correct. check your email again.');
+				var errorMessage = Ember.isEmpty(auth_response.errorMessage) ? 'error, perhaps the key was not correct. check your email again.' : auth_response.errorMessage;
+				$.notify(errorMessage, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 			}
 		}
 	},
