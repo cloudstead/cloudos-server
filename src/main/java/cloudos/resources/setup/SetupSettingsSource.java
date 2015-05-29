@@ -27,19 +27,19 @@ public class SetupSettingsSource {
     }
 
     public String validateFirstTimeSetup(SetupRequest request) {
-        if (!canSetup()) throw new SimpleViolationException("{error.setup.alreadySetup}");
+        if (!canSetup()) throw new SimpleViolationException("{err.setup.alreadySetup}");
         final SetupSettings settings = getSettings();
-        if (settings == null) throw new SimpleViolationException("{error.setup.alreadySetup}");
+        if (settings == null) throw new SimpleViolationException("{err.setup.alreadySetup}");
         validateSecrets(request, settings);
         return settings.getBackupKey();
     }
 
     protected void validateSecrets(SetupRequest request, SetupSettings settings) {
-        if (!settings.getSecret().equals(request.getSetupKey())) throw new SimpleViolationException("{error.setup.key.invalid}");
+        if (!settings.getSecret().equals(request.getSetupKey())) throw new SimpleViolationException("{err.setup.key.invalid}");
 
         // compare password...
         if (!BCrypt.checkpw(request.getInitialPassword(), settings.getPasswordHash())) {
-            throw new SimpleViolationException("{error.setup.initialPassword.invalid}");
+            throw new SimpleViolationException("{err.setup.initialPassword.invalid}");
         }
     }
 
