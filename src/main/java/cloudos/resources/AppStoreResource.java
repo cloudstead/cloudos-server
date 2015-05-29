@@ -1,9 +1,9 @@
 package cloudos.resources;
 
 import cloudos.appstore.client.AppStoreApiClient;
-import cloudos.appstore.model.PublishedApp;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
+import cloudos.appstore.model.support.AppStoreQuery;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
@@ -12,7 +12,7 @@ import cloudos.server.CloudOsConfiguration;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.dao.SearchResults;
-import org.cobbzilla.wizard.model.ResultPage;
+import org.cobbzilla.wizard.model.SemanticVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +42,7 @@ public class AppStoreResource {
      */
     @POST
     @ReturnType("org.cobbzilla.wizard.dao.SearchResults<cloudos.appstore.model.support.AppListing>")
-    public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, ResultPage query) {
+    public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, AppStoreQuery query) {
 
         final Account admin = sessionDAO.find(apiKey);
         if (admin == null) return notFound(apiKey);
@@ -51,10 +51,6 @@ public class AppStoreResource {
         final SearchResults<AppListing> results;
 
         try {
-            // ctime is default but kinda meaningless. change it to name
-            if ("ctime".equals(query.getSortField())) {
-                query.setSortField("name").sortAscending();
-            }
             results = client.searchAppStore(query);
             if (empty(results)) return notFound();
 
@@ -64,18 +60,18 @@ public class AppStoreResource {
         }
 
         for (AppListing listing : results.getResults()) {
-            final PublishedApp app = listing.getApp();
-            CloudOsApp found = appDAO.findInstalledByName(app.getAppName());
+            CloudOsApp found = appDAO.findInstalledByName(listing.getName());
+            final SemanticVersion semanticVersion = listing.getSemanticVersion();
             if (found != null) {
-                if (app.getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                if (semanticVersion.compareTo(found.getMetadata().getSemanticVersion()) > 0) {
                     listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
                 } else {
                     listing.setInstallStatus(AppInstallStatus.installed);
                 }
             } else {
-                found = appDAO.findLatestVersionByName(app.getAppName());
+                found = appDAO.findLatestVersionByName(listing.getName());
                 if (found != null) {
-                    if (app.getSemanticVersion().compareTo(found.getManifest().getSemanticVersion()) > 0) {
+                    if (semanticVersion.compareTo(found.getManifest().getSemanticVersion()) > 0) {
                         listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
                     } else {
                         listing.setInstallStatus(AppInstallStatus.available_local);
