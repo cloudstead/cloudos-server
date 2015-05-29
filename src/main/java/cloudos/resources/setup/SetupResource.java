@@ -29,6 +29,9 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
+
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.SETUP_ENDPOINT)
@@ -55,7 +58,7 @@ public class SetupResource {
     @GET
     @ReturnType("java.lang.Booolean")
     public Response canSetup () throws Exception {
-        return Response.ok(setupSettingsSource.canSetup() && !adminsExist()).build();
+        return ok(setupSettingsSource.canSetup() && !adminsExist());
     }
 
     /**
@@ -84,7 +87,7 @@ public class SetupResource {
             account = accountDAO.create(request);
         } catch (Exception e) {
             log.error("Error saving admin account: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         // initial account does not require email validation
@@ -94,7 +97,7 @@ public class SetupResource {
             accountDAO.update(account);
         } catch (Exception e) {
             log.error("Error activating admin account: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         if (request.hasSystemTimeZone()) {
@@ -114,7 +117,7 @@ public class SetupResource {
         final SetupResponse response = new SetupResponse(sessionId, account, configuration, backupKey);
         log.debug("restore key is:" + response.getRestoreKey());
 
-        return Response.ok(response).build();
+        return ok(response);
     }
 
     /**
@@ -135,7 +138,7 @@ public class SetupResource {
 
         final String backupKey = rootyService.request(new GetRestoreKeyMessage(), GET_RESTORE_KEY_TIMEOUT).getResults();
         final String restoreKey = SetupResponse.generateRestoreKey(configuration, backupKey);
-        return Response.ok(restoreKey).build();
+        return ok(restoreKey);
     }
 
     /**
@@ -162,7 +165,7 @@ public class SetupResource {
 
         final TaskId taskId = taskService.execute(restoreTask);
 
-        return Response.ok(taskId).build();
+        return ok(taskId);
 
     }
 }

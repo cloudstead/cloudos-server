@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 
 import static cloudos.resources.AccountGroupsResource.buildAccountGroupView;
 import static cloudos.resources.DefaultSearchScrubber.DEFAULT_SEARCH_SCRUBBER;
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -111,7 +112,7 @@ public class SearchResource {
         final Account account = sessionDAO.find(apiKey);
         if (account == null) return ResourceUtil.notFound(apiKey);
 
-        return Response.ok(search(type, page, account)).build();
+        return ok(search(type, page, account));
     }
 
     public SearchResults search(String type, ResultPage page, Account account) {

@@ -23,6 +23,8 @@ import javax.ws.rs.core.Response;
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -56,7 +58,7 @@ public class AppStoreResource {
 
         } catch (Exception e) {
             log.error("Error searching app store: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         for (AppListing listing : results.getResults()) {
@@ -84,7 +86,7 @@ public class AppStoreResource {
             // todo: check for apps that are actively installing, set status=installing
         }
 
-        return Response.ok(results).build();
+        return ok(results);
     }
 
 }

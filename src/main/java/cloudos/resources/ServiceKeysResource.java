@@ -20,6 +20,8 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 import static rooty.toots.service.ServiceKeyRequest.Operation.DESTROY;
 import static rooty.toots.service.ServiceKeyRequest.Operation.GENERATE;
 import static rooty.toots.service.ServiceKeyRequest.Recipient.CUSTOMER;
@@ -49,7 +51,7 @@ public class ServiceKeysResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         final List<ServiceKey> keys = serviceKeyDAO.findAll();
-        return Response.ok(keys).build();
+        return ok(keys);
     }
 
     /**
@@ -72,7 +74,7 @@ public class ServiceKeysResource {
         ServiceKey found = serviceKeyDAO.findByName(name);
         if (found == null) return ResourceUtil.notFound(name);
 
-        return Response.ok(found).build();
+        return ok(found);
     }
 
     private static final long GEN_KEY_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
@@ -111,9 +113,9 @@ public class ServiceKeysResource {
         if (message != null) {
             if (message.isSuccess() && message.getErrorCount() == 0) {
                 if (request.getRecipient() == CUSTOMER) {
-                    return Response.ok(new ServiceKeyVendorMessage().setKey(message.getResults())).build();
+                    return ok(new ServiceKeyVendorMessage().setKey(message.getResults()));
                 } else {
-                    return Response.ok().build();
+                    return ok();
                 }
             } else {
                 // key request failed -- perhaps because cloudstead is still locked
@@ -123,7 +125,7 @@ public class ServiceKeysResource {
         }
 
         log.error("Timeout generating service key, message UUID: "+message.getUuid());
-        return Response.serverError().build();
+        return serverError();
     }
 
     /**
@@ -148,9 +150,9 @@ public class ServiceKeysResource {
         try {
             rooty.request(new ServiceKeyRequest().setName(name).setOperation(DESTROY));
         } catch (Exception e) {
-            return Response.serverError().entity("request timed out:"+e).build();
+            return serverError();
         }
-        return Response.ok().build();
+        return ok();
     }
 
 }

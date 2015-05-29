@@ -18,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(ApiConstants.EP_DOMAINS)
@@ -46,7 +48,7 @@ public class EmailDomainsResource {
         final EmailDomain localDomain = new EmailDomain(configuration.getHostname(), true);
         if (!emailDomains.contains(localDomain)) emailDomains.add(localDomain);
 
-        return Response.ok(emailDomains).build();
+        return ok(emailDomains);
     }
 
     /**
@@ -71,7 +73,7 @@ public class EmailDomainsResource {
 
         final EmailDomain emailDomain = new EmailDomain();
         emailDomain.setName(name);
-        return Response.ok(emailDomainDAO.create(emailDomain)).build();
+        return ok(emailDomainDAO.create(emailDomain));
     }
 
     /**
@@ -100,7 +102,7 @@ public class EmailDomainsResource {
 
         emailDomainDAO.delete(emailDomain.getUuid());
 
-        return Response.ok(Boolean.TRUE).build();
+        return ok(Boolean.TRUE);
     }
 
 }

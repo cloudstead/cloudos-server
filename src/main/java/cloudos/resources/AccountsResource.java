@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.TemplatedMail;
 import org.cobbzilla.mail.service.TemplatedMailService;
 import org.cobbzilla.util.time.TimeUtil;
-import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 
 import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +52,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         return new CloudOsAuthResponse(sessionId, account);
     }
 
-    private Response serverError() { return Response.serverError().build(); }
+    private Response serverError() { return serverError(); }
 
     @Autowired private AccountDAO accountDAO;
     @Autowired private AppDAO appDAO;
@@ -70,12 +70,12 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
     public Response findAll (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
 
         // only admins can list all accounts
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (!admin.isAdmin()) return forbidden();
 
-        return Response.ok(accountDAO.findAll()).build();
+        return ok(accountDAO.findAll());
     }
 
     /**
@@ -94,10 +94,10 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                                @Valid AccountRequest request) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
 
         // only admins can create new accounts
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (!admin.isAdmin()) return forbidden();
 
         if (request.isTwoFactor()) set2factor(request);
 
@@ -106,12 +106,12 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             created = accountDAO.create(request);
         } catch (Exception e) {
             log.error("addAccount: error creating account: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         sendInvitation(admin, created, request.getPassword());
 
-        return Response.ok(created).build();
+        return ok(created);
     }
 
     public void sendInvitation(Account admin, Account created, String password) {
@@ -153,11 +153,11 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                             @Valid AccountRequest request) {
 
         final Account account = sessionDAO.find(apiKey);
-        if (account == null) return ResourceUtil.notFound(apiKey);
+        if (account == null) return notFound(apiKey);
 
         // admins can update anyone, others can only update themselves
         if (!account.isAdmin() && !account.getName().equals(name)) {
-            return ResourceUtil.forbidden();
+            return forbidden();
         }
 
         // if the caller is not an admin, ensure the request is not an admin
@@ -165,11 +165,11 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
 
         // if caller is an admin suspending a user, ensure they are not suspending themselves
         if (account.isAdmin() && request.isSameName(account) && request.isSuspended()) {
-            return ResourceUtil.invalid("err.admin.cannotSuspendSelf");
+            return invalid("err.admin.cannotSuspendSelf");
         }
 
         final Account found = accountDAO.findByName(name);
-        if (found == null) return ResourceUtil.notFound(name);
+        if (found == null) return notFound(name);
 
         if (!request.isTwoFactor() && found.isTwoFactor()) {
             // they are turning off two-factor auth
@@ -198,7 +198,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             sessionDAO.update(apiKey, account);
         }
 
-        return Response.ok(account).build();
+        return ok(account);
     }
 
     private AccountBase set2factor(AccountRequest request) {
@@ -224,11 +224,11 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                                    @Valid ChangePasswordRequest request) {
 
         final Account account = sessionDAO.find(apiKey);
-        if (account == null) return ResourceUtil.notFound(apiKey);
+        if (account == null) return notFound(apiKey);
 
         // non-admins cannot change anyone's password but their own
         final boolean targetIsSelf = account.getName().equals(name);
-        if ( !( account.isAdmin() || targetIsSelf) ) return ResourceUtil.forbidden();
+        if ( !( account.isAdmin() || targetIsSelf) ) return forbidden();
 
         final Account target = accountDAO.findByName(name);
 
@@ -243,14 +243,14 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             }
 
         } catch (AuthenticationException e) {
-            return ResourceUtil.forbidden();
+            return forbidden();
 
         } catch (Exception e) {
             log.error("Error calling AccountDAO.changePassword: "+e, e);
             return serverError();
         }
 
-        return Response.ok(account).build();
+        return ok(account);
     }
 
     /**
@@ -270,25 +270,25 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         name = name.toLowerCase();
 
         final Account account = sessionDAO.find(apiKey);
-        if (account == null) return ResourceUtil.notFound(apiKey);
+        if (account == null) return notFound(apiKey);
 
         // non-admins are only allowed to lookup their own account
-        if (!account.isAdmin() && !account.getName().equals(name)) return ResourceUtil.forbidden();
+        if (!account.isAdmin() && !account.getName().equals(name)) return forbidden();
 
         try {
             final Account found = accountDAO.findByName(name);
-            if (found == null) return ResourceUtil.notFound(name);
+            if (found == null) return notFound(name);
 
             if (found.isSuspended() && !account.isAdmin()) {
                 // suspended accounts cannot be looked up, except by admins
-                return ResourceUtil.notFound(name);
+                return notFound(name);
             }
 
-            return Response.ok(found).build();
+            return ok(found);
 
         } catch (Exception e) {
             log.error("Error looking up account: "+e, e);
-            return Response.serverError().build();
+            return serverError();
 
         } finally {
             log.info("find executed in "+ TimeUtil.formatDurationFrom(start));
@@ -310,15 +310,15 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                            @PathParam("name") String name) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
         name = name.toLowerCase();
 
         // only admins can delete accounts
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (!admin.isAdmin()) return forbidden();
 
         // cannot delete your own account or system mailer account
         if (name.equals(admin.getName()) || name.equals(configuration.getSmtp().getUser())) {
-            return ResourceUtil.forbidden();
+            return forbidden();
         }
 
         Account toDelete = accountDAO.findByName(name);
@@ -328,10 +328,10 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             accountDAO.delete(name);
         } catch (Exception e) {
             log.error("delete: error deleting account "+name+": "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
-        return Response.ok(Boolean.TRUE).build();
+        return ok(Boolean.TRUE);
     }
 
 }

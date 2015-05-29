@@ -1,9 +1,9 @@
 package cloudos.resources;
 
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
-import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.model.app.AppRepositoryState;
 import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
@@ -12,7 +12,6 @@ import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,8 @@ import java.util.List;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +53,7 @@ public class AppsResource {
             apps = appDAO.findActive();
         } catch (Exception e) {
             log.error("Error finding installed apps: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         // if account is not admin, scrub out databags
@@ -60,7 +61,7 @@ public class AppsResource {
             for (CloudOsApp app : apps) app.setDatabags(null);
         }
 
-        return Response.ok(apps).build();
+        return ok(apps);
     }
 
     /**
@@ -81,10 +82,10 @@ public class AppsResource {
             state = appDAO.getAppRepositoryState();
         } catch (Exception e) {
             log.error("Error finding installed apps: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
-        return Response.ok(state).build();
+        return ok(state);
     }
 
     /**
@@ -111,7 +112,7 @@ public class AppsResource {
         }
 
         appDAO.resetApps();
-        return Response.ok().build();
+        return ok();
     }
 
     /**
@@ -135,7 +136,7 @@ public class AppsResource {
 
         final TaskId taskId = appDAO.download(admin, request);
 
-        return Response.ok(taskId).build();
+        return ok(taskId);
     }
 
     /**
@@ -162,7 +163,7 @@ public class AppsResource {
         final AppConfiguration config = appDAO.getConfiguration(app, version, locale);
         if (config == null) return ResourceUtil.notFound(app+"/"+version);
 
-        return Response.ok(config).build();
+        return ok(config);
     }
 
     /**
@@ -188,7 +189,7 @@ public class AppsResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         appDAO.setConfiguration(app, version, config);
-        return Response.ok().build();
+        return ok();
     }
 
     /**
@@ -216,7 +217,7 @@ public class AppsResource {
 
         final TaskId taskId = appDAO.install(admin, app, version, force == null ? false : force);
 
-        return Response.ok(taskId).build();
+        return ok(taskId);
     }
 
     /**
@@ -248,6 +249,6 @@ public class AppsResource {
 
         final TaskId taskId = appDAO.uninstall(admin, app, version, request);
 
-        return Response.ok(taskId).build();
+        return ok(taskId);
     }
 }
