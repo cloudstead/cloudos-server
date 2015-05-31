@@ -9,6 +9,7 @@ import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.TimeUtil;
+import org.cobbzilla.wizard.server.config.LdapConfiguration;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,11 @@ public class KerberosService {
 
     @Autowired private CloudOsConfiguration configuration;
 
+    private LdapConfiguration ldap() { return configuration.getLdap(); }
+
     // kerberizes an existing ldap account ... this assumes we've already created the user in the ldap directory
     public CommandResult createPrincipal (AccountRequest request) {
-        final String accountDN = "uid=" + request.getName() + ",ou=People," + configuration.getLdap().getBaseDN();
+        final String accountDN = ldap().userDN(request.getName());
         final String input = configuration.getKadminPassword()+ "\n" +
                 "addprinc -x dn=\"" + accountDN + "\" " + request.getName() + "\n" +
                 request.getPassword() + "\n" +

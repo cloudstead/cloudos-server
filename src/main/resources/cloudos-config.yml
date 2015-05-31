@@ -7,12 +7,10 @@ serverName: cloudos-api
 publicUriBase: {{PUBLIC_BASE_URI}}
 
 # Kerberos admin password. For creating and listing accounts with kadmin program.
-kadminPassword: {{KADMIN_PASS}}
+kadminPassword: {{KADMIN_PASSWORD}}
 
 ldap:
-  password: {{LDAP_PASS}}
-  domain: {{LDAP_DOMAIN}}
-  baseDN: {{LDAP_BASE_DN}}
+  json: '{{LDAP_JSON}}'
 
 database:
   driver: org.postgresql.Driver
