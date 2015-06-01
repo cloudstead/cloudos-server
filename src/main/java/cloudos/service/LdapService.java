@@ -52,7 +52,7 @@ public class LdapService {
                 "objectClass: "+ ldap().getUser_class()+"\n" +
                 ldap().getUser_username()+": " + request.getName() + "\n" +
                 ldap().getUser_lastname()+": " + request.getLastName() + "\n" +
-                ldap().getUser_filter()+": " + request.getFirstName() + "\n" +
+                ldap().getUser_firstname()+": " + request.getFirstName() + "\n" +
                 ldap().getUser_username_rdn()+": " + request.getFullName() + "\n" +
                 ldap().getUser_displayname()+": " + request.getFullName() + "\n" +
                 ldap().getUser_email()+": " + request.getEmail() + "\n" +
