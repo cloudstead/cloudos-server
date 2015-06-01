@@ -8,7 +8,6 @@ import cloudos.model.AccountGroupMember;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import org.cobbzilla.util.collection.ArrayUtil;
-import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.wizard.server.RestServerHarness;
 import org.kohsuke.args4j.CmdLineParser;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,23 +18,34 @@ import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.system.CommandShell.isRoot;
+import static org.cobbzilla.util.system.CommandShell.loadShellExports;
 
 public class CloudOsServerMain {
 
+    private static final File SYSTEM_ENV_FILE = new File("/etc/apache2/envvars");
+
     public static void main (String[] args) throws Exception {
 
+        if (!isRoot()) die("must be root");
+
         if (args.length >= 3 && args[0].equals("--command")) {
-            final String command = args[1];
+
+            final Map<String, String> env = loadShellExports(SYSTEM_ENV_FILE);
+
             final File envFile = findEnvFile();
-            if (!envFile.exists() || !envFile.canRead()) throw new IllegalArgumentException("env file is unreadable: "+abs(envFile));
+            if (!envFile.exists() || !envFile.canRead()) die("env file is unreadable: "+abs(envFile));
+            env.putAll(loadShellExports(envFile));
+
+            final String command = args[1];
 
             // shift args by 2 to remove --command <command-name>
             args = ArrayUtil.remove(args, 0);
             args = ArrayUtil.remove(args, 0);
-            handleCommand(command, args, CommandShell.loadShellExports(envFile));
+            handleCommand(command, args, env);
 
         } else {
-            throw new IllegalArgumentException("Invalid arguments: "+Arrays.toString(args));
+            die("Invalid arguments: "+Arrays.toString(args));
         }
 
     }
@@ -101,7 +111,7 @@ public class CloudOsServerMain {
                         break;
 
                     case delete:
-                        if (group == null) throw new IllegalArgumentException("No group found: "+name);
+                        if (group == null) die("No group found: "+name);
                         for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
                             memberDAO.delete(m.getUuid());
                         }
@@ -116,7 +126,7 @@ public class CloudOsServerMain {
                 break;
 
             default:
-                throw new IllegalArgumentException("Invalid command: "+command);
+                die("Invalid command: "+command);
         }
     }
 
