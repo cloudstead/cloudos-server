@@ -28,6 +28,7 @@ import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
+import org.cobbzilla.util.io.TempDir;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.security.ShaUtil;
 import org.cobbzilla.util.system.CommandShell;
@@ -152,8 +153,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     protected SslCertHandler certHandler;
     protected VendorSettingHandler vendorSettingHandler;
     protected ChefHandler chefHandler;
-    protected File chefHome;
-    protected File appRepository;
+    protected TempDir chefHome;
+    protected TempDir appRepository;
 
     @Override public void beforeStart(RestServer<CloudOsConfiguration> server) {
         try { _beforeStart(); } catch (Exception e) {
@@ -162,9 +163,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         super.beforeStart(server);
     }
 
+    @Override public void onStop(RestServer<CloudOsConfiguration> server) {
+        if (chefHome != null) chefHome.delete();
+        if (appRepository != null) appRepository.delete();
+    }
+
     protected void _beforeStart() throws Exception {
 
-        chefHome = Files.createTempDir();
+        chefHome = new TempDir();
 
         // Write default ssl cert to disk and to DB
         sslKeysDir = mkdirOrDie(new File(chefHome, ".certs"));
@@ -239,7 +245,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         configuration.setDnsManager(dnsManager);
 
         // use scratch dir for app repository, set rooty group to null (skip chgrp)
-        appRepository = Files.createTempDir();
+        appRepository = new TempDir();
         configuration.setAppRepository(appRepository);
         configuration.setRootyGroup(null);
     }
