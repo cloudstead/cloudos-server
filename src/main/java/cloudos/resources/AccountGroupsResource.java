@@ -11,7 +11,6 @@ import cloudos.model.support.AccountGroupView;
 import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,14 +51,14 @@ public class AccountGroupsResource {
     public Response findAll(@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         final List<AccountGroup> groups = groupDAO.findAll();
         final List<AccountGroupView> views = new ArrayList<>();
         for (AccountGroup g : groups) views.add(buildAccountGroupView(memberDAO, g, null));
         Collections.sort(groups);
-        return Response.ok(groups).build();
+        return ok(groups);
     }
 
     /**
@@ -78,10 +78,10 @@ public class AccountGroupsResource {
                            AccountGroupRequest groupRequest) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
 
         // todo: more sophisticated authz check (perhaps for "create group" permission?)
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (!admin.isAdmin()) return forbidden();
 
         groupName = groupName.toLowerCase();
         final List<String> recipients = groupRequest.getRecipientsLowercase();
@@ -103,7 +103,7 @@ public class AccountGroupsResource {
         // tell rooty. this will create email mailbox and other per-user stuffs. apps can listen on this MQ as well.
         announce(groupName, recipients);
 
-        return Response.ok(view).build();
+        return ok(view);
     }
 
     /**
@@ -124,8 +124,8 @@ public class AccountGroupsResource {
                            AccountGroupRequest groupRequest) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         groupName = groupName.toLowerCase();
 
@@ -134,12 +134,12 @@ public class AccountGroupsResource {
         }
 
         final AccountGroup group = groupDAO.findByName(groupName.toLowerCase());
-        if (group == null) return ResourceUtil.notFound(groupName);
+        if (group == null) return notFound(groupName);
 
         groupDAO.update(groupRequest);
 
         announce(groupName, groupRequest.getRecipients());
-        return Response.ok(group).build();
+        return ok(group);
     }
 
     /**
@@ -177,18 +177,18 @@ public class AccountGroupsResource {
                          @PathParam("group") String groupName) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         groupName = groupName.toLowerCase();
 
         final AccountGroup group = groupDAO.findByName(groupName);
-        if (group == null) return ResourceUtil.notFound(groupName);
+        if (group == null) return notFound(groupName);
 
         final List<AccountGroupMember> members = groupDAO.buildGroupMemberList(group);
         final AccountGroupView view = buildAccountGroupView(memberDAO, group, members);
 
-        return Response.ok(view).build();
+        return ok(view);
     }
 
     /**
@@ -204,13 +204,13 @@ public class AccountGroupsResource {
                            @PathParam("group") String groupName) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         groupName = groupName.toLowerCase();
 
         final AccountGroup group = groupDAO.findByName(groupName);
-        if (group == null) return ResourceUtil.notFound(groupName);
+        if (group == null) return notFound(groupName);
 
         // delete members
         for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
@@ -222,7 +222,7 @@ public class AccountGroupsResource {
         // Announce removed alias on the event bus
         announce(new RemoveEmailAliasEvent(groupName));
 
-        return Response.ok(Boolean.TRUE).build();
+        return ok(Boolean.TRUE);
     }
 
     private void announce(String groupName, List<String> recipients) {

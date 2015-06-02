@@ -298,12 +298,12 @@ public class AppDAO {
 
         final Map<String, CloudOsApp> appCache = new HashMap<>();
         final Map<String, AppRuntime> runtimes = new HashMap<>();
+        final String assetUrlBase = configuration.getAssetUrlBase();
 
         // load runtimes
         for (CloudOsApp app : findActive()) {
             final AppManifest manifest = app.getManifest();
             final AppLayout layout = configuration.getAppLayout(manifest.getName());
-            final File versionDir = layout.getAppActiveVersionDir(manifest);
             final File pluginJar = layout.getPluginJar();
 
             final Class<? extends AppRuntime> appClass;
@@ -314,7 +314,11 @@ public class AppDAO {
             }
 
             final AppRuntime appRuntime = appClass.newInstance();
-            AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase());
+            try {
+                AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, assetUrlBase + app.getName() + "/");
+            } catch (Exception e) {
+                log.warn("Error downloading/checking assets for app "+app.getName()+": "+e, e);
+            }
             appRuntime.setDetails(manifest.getInstalledAppDetails());
             appRuntime.setAuthentication(manifest.getAuth());
 

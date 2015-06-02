@@ -13,7 +13,7 @@
 
     "appstore": {
         "user": "dummy-user (set to your appstore account name)",
-        "base_uri": "https://css20.cloudstead.io/appstore"
+        "base_uri": "https://cloudstead.io/appstore"
     },
 
     "authy": {

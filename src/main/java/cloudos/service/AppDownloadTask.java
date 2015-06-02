@@ -140,7 +140,7 @@ public class AppDownloadTask extends TaskBase {
         }
 
         // If assets are defined, ensure they will be accessible via https from local cloudstead
-        AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase());
+        AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase()+manifest.getScrubbedName()+"/");
 
         if (request.isAutoInstall() && !manifest.hasConfig()) {
             // submit another job to do the install

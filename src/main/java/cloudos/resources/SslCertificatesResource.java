@@ -10,7 +10,6 @@ import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.openssl.PEMParser;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,9 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -55,7 +56,7 @@ public class SslCertificatesResource {
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
         final List<SslCertificate> certs = certificateDAO.findAll();
-        return Response.ok(certs).build();
+        return ok(certs);
     }
 
     /**
@@ -79,7 +80,7 @@ public class SslCertificatesResource {
         SslCertificate found = certificateDAO.findByName(name);
         if (found == null) return ResourceUtil.notFound(name);
 
-        return Response.ok(found).build();
+        return ok(found);
     }
 
     /**
@@ -130,7 +131,7 @@ public class SslCertificatesResource {
 
         } catch (Exception e) {
             log.warn("Error parsing PEM: "+e);
-            return Response.serverError().build();
+            return serverError();
         }
         if (empty(commonName)) {
             log.warn("{err.cert.pem.invalid}", "The PEM data did not contain a valid Common Name");
@@ -153,7 +154,7 @@ public class SslCertificatesResource {
         final InstallSslCertData data = new InstallSslCertData().setKey(request.getKey()).setPem(request.getPem());
         rooty.request(new InstallSslCertMessage(data).setName(name), SSL_CERT_TIMEOUT);
 
-        return Response.ok(dbCert).build();
+        return ok(dbCert);
     }
 
     /**
@@ -179,6 +180,6 @@ public class SslCertificatesResource {
         rooty.getSender().write(new RemoveSslCertMessage(name));
 
         certificateDAO.delete(found.getUuid());
-        return Response.ok().build();
+        return ok();
     }
 }

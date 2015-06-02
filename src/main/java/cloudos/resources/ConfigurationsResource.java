@@ -14,7 +14,6 @@ import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.HttpStatusCodes;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.resources.ResourceUtil;
@@ -35,8 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
-import static org.cobbzilla.wizard.resources.ResourceUtil.forbidden;
-import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 import static rooty.toots.service.ServiceKeyRequest.Operation.ALLOW_SSH;
 
 @Consumes(MediaType.APPLICATION_JSON)
@@ -72,11 +70,11 @@ public class ConfigurationsResource {
         try {
             configs.addAll(Arrays.asList(getAllConfigurations()));
             configs.add(SYSTEM_APP);
-            return Response.ok(configs).build();
+            return ok(configs);
 
         } catch (Exception e) {
             log.error("Error getting configurations: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
     }
 
@@ -103,14 +101,14 @@ public class ConfigurationsResource {
         if (!admin.isAdmin()) return forbidden();
 
         if (empty(app) || app.equals("undefined") || app.equals(SYSTEM_APP)) {
-            return Response.ok(getSystemOptions()).build();
+            return ok(getSystemOptions());
         }
 
         try {
-            return Response.ok(getConfiguration(app)).build();
+            return ok(getConfiguration(app));
         } catch (Exception e) {
             log.error("Error getting options for app "+app+": "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
     }
 
@@ -179,10 +177,10 @@ public class ConfigurationsResource {
                 value = getOption(category+"/"+option, getConfiguration(app));
             } catch (Exception e) {
                 log.error("Error reading config: " + e, e);
-                return Response.serverError().build();
+                return serverError();
             }
         }
-        return value == null ? notFound(option) : Response.ok(value).build();
+        return value == null ? notFound(option) : ok(value);
     }
 
     private VendorSettingDisplayValue getOption(String name, VendorSettingDisplayValue[] values) {
@@ -218,11 +216,11 @@ public class ConfigurationsResource {
         if (value.equals(VendorSettingHandler.VENDOR_DEFAULT)) return ResourceUtil.invalid("{err.setConfig.invalidValue}");
 
         try {
-            return Response.ok(Boolean.valueOf(updateConfig(app, category+"/"+option, value).getResults())).build();
+            return ok(Boolean.valueOf(updateConfig(app, category+"/"+option, value).getResults()));
 
         } catch (Exception e) {
             log.error("Error handling setConfig ("+ app +"): "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
     }
 
@@ -260,11 +258,11 @@ public class ConfigurationsResource {
 
             } catch (Exception e) {
                 log.error("Error handling setConfig ("+name+"): "+e, e);
-                return Response.serverError().build();
+                return serverError();
             }
         }
 
-        return getAllowSsh() ? Response.ok().build() : ResourceUtil.invalid("{err.unlock.stillLocked}");
+        return getAllowSsh() ? ok() : ResourceUtil.invalid("{err.unlock.stillLocked}");
     }
 
 }

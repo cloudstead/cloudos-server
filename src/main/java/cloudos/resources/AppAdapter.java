@@ -36,6 +36,9 @@ import java.util.Map;
 
 import static cloudos.appstore.model.app.filter.AppFilterHandler.*;
 import static cloudos.resources.ApiConstants.H_API_KEY;
+import static javax.ws.rs.core.Response.temporaryRedirect;
+import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 import static org.cobbzilla.wizard.util.HttpContextUtil.getQueryParams;
 
 @Path(ApiConstants.APP_ADAPTER_ENDPOINT)
@@ -79,7 +82,7 @@ public class AppAdapter {
         } catch (Exception e) {
             // todo: better error reporting
             log.error("loadApp: error loading: " + e, e);
-            return Response.serverError().build();
+            return serverError();
 
         } finally {
             log.info("loadApp executed in " + TimeUtil.formatDurationFrom(start));
@@ -103,10 +106,10 @@ public class AppAdapter {
         } catch (Exception e) {
             redis.del(uuid);
             log.error("authRelay: error looking up AuthTransition: "+e);
-            return Response.temporaryRedirect(URIUtil.toUri(configuration.getPublicUriBase())).build();
+            return temporaryRedirect(URIUtil.toUri(configuration.getPublicUriBase())).build();
         }
 
-        Response.ResponseBuilder responseBuilder = Response.temporaryRedirect(URIUtil.toUri(auth.getRedirectUri()));
+        Response.ResponseBuilder responseBuilder = temporaryRedirect(URIUtil.toUri(auth.getRedirectUri()));
         for (HttpCookieBean cookie : auth.getCookies()) {
             cookie.setPath("/"); // ensure all cookies get sent
             responseBuilder = responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toHeaderValue());
@@ -208,10 +211,6 @@ public class AppAdapter {
         }
 
         return response.getResponse();
-    }
-
-    private static Response notFound() {
-        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 }

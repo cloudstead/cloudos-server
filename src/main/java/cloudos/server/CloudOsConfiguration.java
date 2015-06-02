@@ -94,7 +94,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
     }
 
     @Getter(lazy=true) private final String hostname = initHostname();
-    private String initHostname() { return CommandShell.toString("hostname"); }
+    private String initHostname() { return CommandShell.hostname(); }
 
     @Getter(lazy=true) private final String shortHostname = initShortHostname();
     private String initShortHostname () {

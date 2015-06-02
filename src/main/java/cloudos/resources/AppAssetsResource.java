@@ -37,7 +37,7 @@ public class AppAssetsResource {
         final AppLayout layout = configuration.getAppLayout(app);
         if (!layout.getVersionDir().exists()) return ResourceUtil.notFound(asset);
 
-        final File assetFile = layout.findDefaultAsset(asset);
+        final File assetFile = layout.findLocalAsset(asset);
         if (assetFile == null || !assetFile.exists()) return ResourceUtil.notFound(asset);
 
         return ResourceUtil.streamFile(assetFile);

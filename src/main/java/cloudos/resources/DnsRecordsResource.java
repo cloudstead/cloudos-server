@@ -19,8 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
-import static org.cobbzilla.wizard.resources.ResourceUtil.forbidden;
-import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -59,10 +58,10 @@ public class DnsRecordsResource {
 
         } catch (Exception e) {
             log.error("Error listing DNS records: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
-        return Response.ok(records).build();
+        return ok(records);
     }
 
     /**
@@ -91,9 +90,9 @@ public class DnsRecordsResource {
 
         } catch (Exception e) {
             log.error("Error writing DNS record: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
-        return Response.ok(written).build();
+        return ok(written);
     }
 
     /**
@@ -125,9 +124,9 @@ public class DnsRecordsResource {
 
         } catch (Exception e) {
             log.error("Error removing DNS record: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
-        return Response.ok(removed).build();
+        return ok(removed);
     }
 
 }

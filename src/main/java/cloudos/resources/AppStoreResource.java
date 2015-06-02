@@ -1,9 +1,9 @@
 package cloudos.resources;
 
 import cloudos.appstore.client.AppStoreApiClient;
-import cloudos.appstore.model.PublishedApp;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
+import cloudos.appstore.model.support.AppStoreQuery;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
@@ -12,8 +12,7 @@ import cloudos.server.CloudOsConfiguration;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.dao.SearchResults;
-import org.cobbzilla.wizard.model.ResultPage;
-import org.cobbzilla.wizard.resources.ResourceUtil;
+import org.cobbzilla.wizard.model.SemanticVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
+import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
+import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,35 +44,36 @@ public class AppStoreResource {
      */
     @POST
     @ReturnType("org.cobbzilla.wizard.dao.SearchResults<cloudos.appstore.model.support.AppListing>")
-    public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, ResultPage query) {
+    public Response queryAppStore (@HeaderParam(H_API_KEY) String apiKey, AppStoreQuery query) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
+        if (admin == null) return notFound(apiKey);
 
         final AppStoreApiClient client = configuration.getAppStoreClient();
         final SearchResults<AppListing> results;
 
         try {
             results = client.searchAppStore(query);
+            if (empty(results)) return notFound();
 
         } catch (Exception e) {
             log.error("Error searching app store: "+e, e);
-            return Response.serverError().build();
+            return serverError();
         }
 
         for (AppListing listing : results.getResults()) {
-            final PublishedApp app = listing.getApp();
-            CloudOsApp found = appDAO.findInstalledByName(app.getAppName());
+            CloudOsApp found = appDAO.findInstalledByName(listing.getName());
+            final SemanticVersion semanticVersion = listing.getSemanticVersion();
             if (found != null) {
-                if (app.getSemanticVersion().compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                if (semanticVersion.compareTo(found.getMetadata().getSemanticVersion()) > 0) {
                     listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
                 } else {
                     listing.setInstallStatus(AppInstallStatus.installed);
                 }
             } else {
-                found = appDAO.findLatestVersionByName(app.getAppName());
+                found = appDAO.findLatestVersionByName(listing.getName());
                 if (found != null) {
-                    if (app.getSemanticVersion().compareTo(found.getManifest().getSemanticVersion()) > 0) {
+                    if (semanticVersion.compareTo(found.getManifest().getSemanticVersion()) > 0) {
                         listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
                     } else {
                         listing.setInstallStatus(AppInstallStatus.available_local);
@@ -82,7 +86,7 @@ public class AppStoreResource {
             // todo: check for apps that are actively installing, set status=installing
         }
 
-        return Response.ok(results).build();
+        return ok(results);
     }
 
 }

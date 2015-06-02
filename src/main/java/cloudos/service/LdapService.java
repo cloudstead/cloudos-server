@@ -9,7 +9,6 @@ import cloudos.server.CloudOsConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.cobbzilla.util.collection.ArrayUtil;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
@@ -32,16 +31,14 @@ public class LdapService {
     @Autowired private CloudOsConfiguration configuration;
     @Autowired private AccountGroupMemberDAO memberDAO;
 
-    private LdapConfiguration getLdap() { return configuration.getLdap(); }
-    private String password() { return getLdap().getPassword(); }
+    private LdapConfiguration ldap() { return configuration.getLdap(); }
 
-    public String accountDN(String accountName) { return "uid=" + accountName + ",ou=People," + getLdap().getBaseDN(); }
-    public String groupDN  (String groupName)   { return "cn="  + groupName   + ",ou=Groups," + getLdap().getBaseDN(); }
-    public String adminDN  ()                   { return "cn=admin,"                          + getLdap().getDomain(); }
+    private String password() { return ldap().getPassword(); }
+    public String accountDN(String accountName) { return ldap().userDN(accountName); }
+    public String groupDN  (String groupName)   { return ldap().groupDN(groupName); }
+    public String adminDN  ()                   { return ldap().getAdmin_dn(); }
 
-    public String ldapFilterGroup(String groupName) {
-        return empty(groupName) ? "(objectClass=groupOfUniqueNames)" : "(&(objectClass=groupOfUniqueNames)(cn="+groupName+"))";
-    }
+    public String ldapFilterGroup(String groupName) { return ldap().filterGroup(groupName); }
 
     public CommandResult createUser(AccountRequest request) {
         final String password = request.getPassword();  // this will die if there's no password in the request, but I
@@ -52,14 +49,14 @@ public class LdapService {
         final String accountName = request.getAccountName();
         final String accountDN = accountDN(accountName);
         String ldif = "dn: " + accountDN + "\n" +
-                "objectClass: inetOrgPerson\n" +
-                "uid: " + request.getName() + "\n" +
-                "sn: " + request.getLastName() + "\n" +
-                "givenName: " + request.getFirstName() + "\n" +
-                "cn: " + request.getFullName() + "\n" +
-                "displayName: " + request.getFullName() + "\n" +
-                "mail: " + request.getEmail() + "\n" +
-                "userPassword: " + password + "\n";
+                "objectClass: "+ ldap().getUser_class()+"\n" +
+                ldap().getUser_username()+": " + request.getName() + "\n" +
+                ldap().getUser_lastname()+": " + request.getLastName() + "\n" +
+                ldap().getUser_firstname()+": " + request.getFirstName() + "\n" +
+                ldap().getUser_username_rdn()+": " + request.getFullName() + "\n" +
+                ldap().getUser_displayname()+": " + request.getFullName() + "\n" +
+                ldap().getUser_email()+": " + request.getEmail() + "\n" +
+                ldap().getUser_password()+": " + password + "\n";
 
         CommandResult result = run_ldapadd(ldif);
 
@@ -97,10 +94,11 @@ public class LdapService {
     }
 
     public CommandResult addDnToGroup(String groupName, String dn) {
+        final String usernames = ldap().getGroup_usernames();
         final String ldif = "dn: " + groupDN(groupName) + "\n" +
                 "changeType: modify\n" +
-                "add: uniqueMember\n" +
-                "uniqueMember: " + dn + "\n";
+                "add: "+ usernames +"\n" +
+                usernames+": " + dn + "\n";
         return run_ldapmodify(ldif);
     }
 
@@ -123,10 +121,11 @@ public class LdapService {
     }
 
     private CommandResult removeDnFromGroup(String groupName, String dn) {
+        final String usernames = ldap().getGroup_usernames();
         final String ldif = "dn: " + groupDN(groupName) + "\n" +
                 "changeType: modify\n" +
-                "delete: uniqueMember\n" +
-                "uniqueMember: " + dn + "\n";
+                "delete: "+usernames+"\n" +
+                usernames+": " + dn + "\n";
         return run_ldapmodify(ldif);
     }
 
@@ -143,10 +142,10 @@ public class LdapService {
     public CommandResult createGroupWithFirstAccount(AccountGroup group, String accountName) {
         final String groupName = group.getName();
         final String ldif = "dn: " + groupDN(groupName) + "\n" +
-                "objectClass: groupOfUniqueNames\n" +
-                "cn: " + groupName + "\n" +
-                "description: " + group.getInfo().getDescription() + "\n" +
-                "uniqueMember: " + accountDN(accountName) + "\n";
+                "objectClass: "+ldap().getGroup_class()+"\n" +
+                ldap().getGroup_name()+": " + groupName + "\n" +
+                ldap().getGroup_description()+": " + group.getInfo().getDescription() + "\n" +
+                ldap().getGroup_usernames()+": " + accountDN(accountName) + "\n";
         return run_ldapadd(ldif);
     }
 
@@ -158,15 +157,16 @@ public class LdapService {
 
         final String groupName = group.getName();
         String ldif = "dn: " + groupDN(groupName) + "\n" +
-                "objectClass: groupOfUniqueNames\n" +
-                "cn: " + groupName + "\n" +
-                "description: " + group.getInfo().getDescription() + "\n";
+                "objectClass: "+ldap().getGroup_class()+"\n" +
+                ldap().getGroup_name()+": " + groupName + "\n" +
+                ldap().getGroup_description()+": " + group.getInfo().getDescription() + "\n";
 
+        final String usernames = ldap().getGroup_usernames();
         for (AccountGroupMember member: members) {
             if (member.isAccount()) {
-                ldif += "uniqueMember: " + accountDN(member.getMemberName()) + "\n";
+                ldif += usernames + ": " + accountDN(member.getMemberName()) + "\n";
             } else if (member.isGroup()) {
-                ldif += "uniqueMember: " + groupDN(member.getMemberName()) + "\n";
+                ldif += usernames + ": " + groupDN(member.getMemberName()) + "\n";
             } else {
                 throw new IllegalArgumentException("Invalid member (bad type: "+member.getType()+"): "+member);
             }
@@ -179,7 +179,7 @@ public class LdapService {
         String ldif = "dn: " + groupDN(groupName) + "\n" +
                 "changeType: modify\n" +
                 "replace: description\n" +
-                "description: " + group.getInfo().getDescription() + "\n";
+                ldap().getGroup_description()+": " + group.getInfo().getDescription() + "\n";
         CommandResult result = run_ldapmodify(ldif, false);
         if (result != null && !result.isZeroExitStatus() && result.getStderr().contains("ldap_modify: No such object")) {
             final AccountGroupMember[] members = mergeLists(group.getMembers(), group.getMirror());
@@ -296,7 +296,8 @@ public class LdapService {
     }
 
     // NB: this will also delete the kerberos principal for the account
-    public void deleteUser(String accountName) { deleteDN(accountDN(accountName)); }
+    public void deleteUser(String accountName) {
+        deleteDN(accountDN(accountName)); }
 
     public void deleteGroup(String groupName) { deleteDN(groupDN(groupName)); }
 
