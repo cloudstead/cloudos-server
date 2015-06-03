@@ -16,7 +16,6 @@ App.Router.map(function() {
 });
 
 App.ApplicationRoute = Ember.Route.extend({
-
 	model: function() {
 		return {
 			cloudos_session: CloudOsStorage.getItem('cloudos_session'),
@@ -26,19 +25,16 @@ App.ApplicationRoute = Ember.Route.extend({
 
 	setupController: function(controller, model) {
 		controller.set('message', getAlertMessage(NotificationStack.pop()));
-
 		// is HTML5 storage even supported?
 		if (typeof(Storage) == "undefined") {
 			alert('Your browser is not supported. Please use Firefox, Chrome, Safari 4+, or IE8+');
 			return;
 		}
-
 		// do we have an API token?
 		if (!model.cloudos_session) {
 			this.transitionTo('login');
 			return;
 		}
-
 		// is the token valid?
 		var account = Api.account_for_token(model.cloudos_session);
 		if (!account) {
@@ -64,15 +60,6 @@ App.ApplicationRoute = Ember.Route.extend({
 			});
 		},
 		showFlashMessage: function (message) {
-			console.log('MESSAGE');
-			// var cont = this.controllerFor('flashNotification').set('model',message);
-
-			// this.render('flashNotification', {
-			// 	into: 'application',
-			// 	outlet: 'notification'
-			// });
-			// alertify.set('notifier','position', 'bottom-right');
-			// alertify.error(message, 0);
 			$.notify(message, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 		},
 		hideFlashMessage: function () {
@@ -107,9 +94,6 @@ App.IndexRoute = Ember.Route.extend({
 	model: function() {
 		return Ember.isNone(CloudOs.account()) ? [] : CloudOs.account().availableApps;
 	},
-	// beforeModel: function() {
-	// 	this.transitionTo('app', 'roundcube');
-	// }
 });
 
 App.IndexController = Ember.ArrayController.extend({

@@ -90,32 +90,30 @@ App.IndexController = Ember.ObjectController.extend({
 				return false;
 			}
 
-			// this.set("setup_response", { restoreKey: "some uuid" });
-
-			// this.transitionToRoute('keys');
-
 			var auth_response = Api.setup(setupKey, name, initial_password, password, tzone, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName);
+
 			if (Ember.isNone(auth_response.statusCode)) {
 				CloudOs.login(auth_response);
 				this.set("setup_response", { restoreKey: auth_response.restoreKey });
 				this.transitionToRoute('keys');
-				// window.location.replace('/admin.html');
 			} else {
-				var errorMessage = Ember.isEmpty(auth_response.errorMessage) ? 'error, perhaps the key was not correct. check your email again.' : auth_response.errorMessage;
-				$.notify(errorMessage, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
+				this.handleError(auth_response, error_msg);
 			}
 		}
 	},
+
 	validateSetup: function(account_name, cs_password, password, confirm_password, mobilePhoneCountryCode, mobilePhone, email, firstName, lastName) {
-		var response = {"account_name":null,
-						"cs_password":null,
-						"password":null,
-						"confirm_password":null,
-						"mobilePhoneCountryCode":null,
-						"mobilePhone":null,
-						"email":null,
-						"firstName":null,
-						"lastName":null};
+		var response = {
+			"account_name":null,
+			"cs_password":null,
+			"password":null,
+			"confirm_password":null,
+			"mobilePhoneCountryCode":null,
+			"mobilePhone":null,
+			"email":null,
+			"firstName":null,
+			"lastName":null
+		};
 
 		var error_msg = locate(Em.I18n.translations, 'errors');
 		var pattern = /^[a-z][a-z0-9]+$/i;
@@ -156,5 +154,42 @@ App.IndexController = Ember.ObjectController.extend({
 		}
 
 		return response;
+	},
+
+	// IN CASE THAT ERROR IS CLOUDSTED PASSWORD, SHOW ERROR NEXT TO PASSWORD FIELD, OTHERWISE SHOW ERROR WITH NOTIFY
+	handleError: function(auth_response, error_msg){
+		var errorMessage = "";
+		if(auth_response.errorMessage === undefined || Ember.isEmpty(auth_response.errorMessage)){
+			errorMessage = 'Error, perhaps the key was not correct. check your email again.';
+		}
+		else{
+			if(auth_response.errorMessage.indexOf("setup.initialPassword.invalid") !=-1){
+				this.set('requestMessages',
+					App.RequestMessagesObject.create({
+						json: {
+							"status": 'error',
+							"api_token" : null,
+							"errors": {
+								"name": null,
+								"initialPassword": error_msg[auth_response.errorMessage],
+								"password": null,
+								"password2": null,
+								"mobilePhoneCountryCode": null,
+								"mobilePhone": null,
+								"email": null,
+								"firstName": null,
+								"lastName": null
+							}
+						}
+					})
+				);
+				return false;
+			}
+			else{
+				errorMessage = error_msg[auth_response.errorMessage];
+			}
+		}
+		errorMessage = errorMessage === undefined || Ember.isEmpty(errorMessage) ? "Internal server error" : errorMessage;
+		$.notify(errorMessage, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 	}
 });
