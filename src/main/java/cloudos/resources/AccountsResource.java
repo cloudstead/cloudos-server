@@ -52,8 +52,6 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         return new CloudOsAuthResponse(sessionId, account);
     }
 
-    private Response serverError() { return serverError(); }
-
     @Autowired private AccountDAO accountDAO;
     @Autowired private AppDAO appDAO;
     @Autowired private TemplatedMailService mailService;
