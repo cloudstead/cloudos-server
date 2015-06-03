@@ -5,7 +5,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.AppMetadata;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +32,8 @@ import static rooty.toots.chef.ChefSolo.SOLO_JSON;
 
 @Slf4j
 public class SyncAppRepositoryMain {
+
+    public static final ObjectMapper JSON = JsonUtil.FULL_MAPPER_ALLOW_COMMENTS;
 
     @Getter @Setter private SyncAppRepositoryOptions options = new SyncAppRepositoryOptions();
     private final CmdLineParser parser = new CmdLineParser(options);
@@ -84,10 +86,9 @@ public class SyncAppRepositoryMain {
         final File soloJsonFile = new File(chefDir, SOLO_JSON);
         if (!soloJsonFile.exists()) die("No solo.json file found: " + abs(soloJsonFile));
 
-        JsonUtil.FULL_MAPPER.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
         final ChefSolo chefSolo;
         try {
-            chefSolo = JsonUtil.fromJson(FileUtil.toString(soloJsonFile), ChefSolo.class);
+            chefSolo = JSON.readValue(FileUtil.toString(soloJsonFile), ChefSolo.class);
         } catch (Exception e) {
             die("Error reading "+abs(soloJsonFile)+": "+e); return;
         }
