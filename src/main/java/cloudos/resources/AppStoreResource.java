@@ -54,12 +54,12 @@ public class AppStoreResource {
 
         try {
             results = client.searchAppStore(query);
-            if (empty(results)) return notFound();
-
         } catch (Exception e) {
             log.error("Error searching app store: "+e, e);
             return serverError();
         }
+
+        if (empty(results) || !results.hasResults()) return notFound();
 
         for (AppListing listing : results.getResults()) {
             CloudOsApp found = appDAO.findInstalledByName(listing.getName());
