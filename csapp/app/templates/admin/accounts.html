@@ -25,14 +25,14 @@
 						<li><a class="button tiny alert">{{t sections.acct.users}}</a></li>
 						<li>
 							{{#link-to "groups" classNames="button tiny"}}
-								{{t sections.acct.groups}}
+							{{t sections.acct.groups}}
 							{{/link-to}}
 						</li>
 					</ul>
 					<ul class="inline-list accounts-list">
 						<li>
 							{{#link-to 'addAccount' data-dropdown="" data-options=""}}
-								<span class="icon-plus" title="Add User" ></span> <span class="show-for-xxlarge-up"></span>
+							<span class="icon-plus" title="Add User" ></span> <span class="show-for-xxlarge-up"></span>
 							{{/link-to}}
 						</li>
 						<li>
@@ -51,51 +51,56 @@
 							</a>
 						</li>
 					</ul>
-						{{partial "account-col-toggle"}}
+					{{partial "account-col-toggle"}}
 				</div>
 				<div class="large-12 columns no-padd bulk_action_list">
 					{{#if anySelected}}
-						{{render "bulk_actions"}}
+					{{render "bulk_actions"}}
 					{{/if}}
 				</div>
 				<div class="large-12 columns no-padd">
 					<table style="width: 100%">
 						<thead>
-							<th></th>
-							<th {{action 'sortBy' 'firstName'}}>
-								Full Name <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'lastLogin'}}>
-								Last Login <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'email'}}>
-								Recovery Email <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'mobilePhone'}}>
-								Mobile <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
-							<th {{action 'sortBy' 'status'}}>
-								Status <span class="icon-sort-down table-icon"></span>
-								<span class="icon-sort-up table-icon table-icon-upper"></span>
-							</th>
+						<th></th>
+						<th {{action 'sortBy' 'firstName'}}>
+						Full Name <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
+						<th {{action 'sortBy' 'accountName'}}>
+						Userame <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
+						<th {{action 'sortBy' 'lastLogin'}}>
+						Last Login <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
+						<th {{action 'sortBy' 'email'}}>
+						Recovery Email <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
+						<th {{action 'sortBy' 'mobilePhone'}}>
+						Mobile <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
+						<th {{action 'sortBy' 'status'}}>
+						Status <span class="icon-sort-down table-icon"></span>
+						<span class="icon-sort-up table-icon table-icon-upper"></span>
+						</th>
 						</thead>
 						<tbody>
-							{{#each}}
-								<tr>
-									<td>
-										{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}
-									</td>
-									<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
-									<td>{{lastLoginTime}}</td>
-									<td>{{email}}</td>
-									<td>{{mobilePhone}}</td>
-									<td>{{status}}</td>
-								</tr>
-							{{/each}}
+						{{#each}}
+						<tr>
+							<td>
+								{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}
+							</td>
+							<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
+							<td>{{accountName}}</td>
+							<td>{{lastLoginTime}}</td>
+							<td>{{email}}</td>
+							<td>{{mobilePhone}}</td>
+							<td>{{status}}</td>
+						</tr>
+						{{/each}}
 						</tbody>
 					</table>
 				</div>
