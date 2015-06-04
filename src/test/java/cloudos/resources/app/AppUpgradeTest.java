@@ -122,7 +122,7 @@ public class AppUpgradeTest extends AppTestBase {
         SearchResults<AppListing> results;
         AppListing appListing;
         results = queryAppStore();
-        assertEquals(1, results.size());
+        assertEquals(1, results.total());
         appListing = results.getResult(0);
         assertEquals(version.getApp(), appListing.getName());
         assertEquals(expectedVersion, appListing.getVersion());

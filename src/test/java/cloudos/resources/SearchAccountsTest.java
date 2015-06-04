@@ -34,12 +34,12 @@ public class SearchAccountsTest extends SearchTestBase {
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
         found = searchAccounts(page);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
 
         apiDocs.addNote("search invited accounts, should find the "+NUM_ACCOUNTS+" that were created/invited during test setup");
         page.setBound(Account.STATUS, Account.Status.invited.name());
         found = searchAccounts(page);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
 
         // activate some accounts
         final Set<String> activated = new TreeSet<>();
@@ -75,7 +75,7 @@ public class SearchAccountsTest extends SearchTestBase {
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
         page.unsetBound(Account.STATUS);
         found = searchAccounts(page);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SearchAccountsTest extends SearchTestBase {
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
         found = searchAccounts(page);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
 
         // login every account we created
         apiDocs.addNote("login all accounts, so that all accounts are active");
@@ -136,7 +136,7 @@ public class SearchAccountsTest extends SearchTestBase {
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
         found = searchAccounts(page);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
 
         apiDocs.addNote("search admin accounts, should not find any");
         page.setBound(Account.STATUS, Account.Status.admins.name());
@@ -182,7 +182,7 @@ public class SearchAccountsTest extends SearchTestBase {
                 "\nVerify that the results do not include uuids, recovery emails, or authids");
 
         final SearchResults<Account> found = searchAccounts(ResultPage.INFINITE_PAGE);
-        assertEquals(NUM_ACCOUNTS, found.size());
+        assertEquals(NUM_ACCOUNTS, found.total());
         assertEquals(NUM_ACCOUNTS, found.getResults().size());
 
         for (Account a : found.getResults()) {

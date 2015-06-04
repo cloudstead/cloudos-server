@@ -1,7 +1,13 @@
 package cloudos.resources;
 
+import cloudos.appstore.model.CloudAppStatus;
+import cloudos.appstore.model.CloudAppVersion;
+import cloudos.appstore.model.app.AppLevel;
+import cloudos.appstore.model.support.AppListing;
+import cloudos.appstore.test.AppStoreTestUtil;
 import cloudos.appstore.test.AssetWebServer;
 import cloudos.appstore.test.MockAppStoreApiClient;
+import cloudos.appstore.test.TestApp;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
@@ -21,6 +27,7 @@ import cloudos.service.MockLdapService;
 import cloudos.service.MockRootySender;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -39,6 +46,7 @@ import org.cobbzilla.wizard.server.RestServer;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
+import org.cobbzilla.wizardtest.TestNames;
 import org.cobbzilla.wizardtest.resources.ApiDocsResourceIT;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -365,4 +373,30 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         return response.json;
     }
 
+    protected QuickApp quickCloudApp(AppLevel level) {
+        try {
+            final TestApp app = webServer.buildSimpleApp(TestNames.safeName(), "0.1.0", level);
+            final String publisherName = appStoreClient.getConnectionInfo().getUser();
+            CloudAppVersion appVersion = AppStoreTestUtil.newCloudApp(appStoreClient, publisherName, app.getBundleUrl(), app.getBundleUrlSha());
+            appVersion = appStoreClient.updateAppStatus(publisherName, app.getName(), appVersion.getVersion(), CloudAppStatus.published);
+            return new QuickApp(app, appVersion);
+
+        } catch (Exception e) {
+            return die("quickCloudApp: Error publishing app: "+e, e);
+        }
+    }
+
+    @AllArgsConstructor
+    public static class QuickApp extends CloudAppVersion {
+        public TestApp app;
+        public CloudAppVersion appVersion;
+    }
+
+    protected SearchResults<AppListing> queryAppStore(ResultPage query) throws Exception {
+        return fromJson(post(ApiConstants.APPSTORE_ENDPOINT, toJson(query)).json, SearchResults.jsonType(AppListing.class));
+    }
+
+    protected RestResponse postQuery(ResultPage query) throws Exception {
+        return doPost(ApiConstants.APPSTORE_ENDPOINT, toJson(query));
+    }
 }

@@ -65,7 +65,7 @@ public class SearchTestBase extends ApiClientTestBase {
     }
 
     protected void expectResults(ResultPage page, int expectedTotalCount, List<String> expected, SearchResults<? extends NamedEntity> found) {
-        assertEquals(expectedTotalCount, found.size());
+        assertEquals(expectedTotalCount, found.total());
         final int limit = Math.min(expectedTotalCount, page.getPageSize());
         for (int i=0; i<limit; i++) {
             assertEquals(found.getResult(i).getName(), expected.get(i));
