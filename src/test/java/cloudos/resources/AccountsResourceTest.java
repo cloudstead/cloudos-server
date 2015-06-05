@@ -7,7 +7,6 @@ import cloudos.model.support.AccountRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.service.TemplatedMailService;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +16,9 @@ import java.util.regex.Pattern;
 
 import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
-import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.junit.Assert.*;
 
 @Slf4j

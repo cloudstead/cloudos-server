@@ -38,6 +38,10 @@ staticAssets:
     INDEX_ALIASES: /:/index.php
     LOCALIZE: /localize
 
+# proxy /appstore uris to appstore
+handlers:
+  - { uri: /appstore, bean: appStoreApiProxy }
+
 appStore:
   baseUri: {{APPSTORE_BASE_URI}}
   user: {{APPSTORE_USER}}

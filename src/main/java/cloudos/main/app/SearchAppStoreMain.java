@@ -20,11 +20,11 @@ public class SearchAppStoreMain extends CloudOsMainBase<SearchAppStoreOptions> {
 
         final RestResponse response;
         try {
-            response = api.post(APPSTORE_ENDPOINT, toJson(options.getPage()));
+            response = api.post(APPSTORE_ENDPOINT, toJson(options.getQuery()));
             if (response.status != 200) {
                 die("Error writing configuration. Response was: " + response);
             } else {
-                out("App Store query results:\n"+response.json+"\n");
+                out(response.json+"\n");
             }
         } catch (Exception e) {
             die("Error writing configuration: " + e, e);

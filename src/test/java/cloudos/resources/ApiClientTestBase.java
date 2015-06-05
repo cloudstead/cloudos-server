@@ -278,8 +278,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     protected boolean skipAdminCreation() { return false; }
 
-    @Before
-    public void createAdminUser () throws Exception {
+    @Before public void createAdminUser () throws Exception {
         if (skipAdminCreation()) return;
         doFirstTimeSetup();
     }
@@ -373,13 +372,12 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         return response.json;
     }
 
-    protected QuickApp quickCloudApp(AppLevel level) {
+    protected QuickApp quickCloudApp(String publisherName, AppLevel level) {
         try {
             final TestApp app = webServer.buildSimpleApp(TestNames.safeName(), "0.1.0", level);
-            final String publisherName = appStoreClient.getConnectionInfo().getUser();
             CloudAppVersion appVersion = AppStoreTestUtil.newCloudApp(appStoreClient, publisherName, app.getBundleUrl(), app.getBundleUrlSha());
             appVersion = appStoreClient.updateAppStatus(publisherName, app.getName(), appVersion.getVersion(), CloudAppStatus.published);
-            return new QuickApp(app, appVersion);
+            return new QuickApp(publisherName, app, appVersion);
 
         } catch (Exception e) {
             return die("quickCloudApp: Error publishing app: "+e, e);
@@ -388,6 +386,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     @AllArgsConstructor
     public static class QuickApp extends CloudAppVersion {
+        public String publisherName;
         public TestApp app;
         public CloudAppVersion appVersion;
     }

@@ -15,7 +15,7 @@ rsync -avzc ${BASE_DIR}/../utils/cobbzilla-wizard/wizard-server/src/main/* ${SRC
 rsync -avzc ${BASE_DIR}/../utils/rooty-tooty/src/main/* ${SRC_DIR}
 rsync -avzc ${BASE_DIR}/../utils/rooty-toots/src/main/* ${SRC_DIR}
 
-cp pom-apidocs.xml ${BUILD_DIR}/pom.xml
+cp ${BASE_DIR}/pom-apidocs.xml ${BUILD_DIR}/pom.xml
 
 cd ${BUILD_DIR}
 mvn test && rsync -avzc target/miredot .. # && cd ${BASE_DIR} && rm -rf ${BUILD_DIR}

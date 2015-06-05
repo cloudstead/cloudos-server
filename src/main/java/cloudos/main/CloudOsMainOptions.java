@@ -8,7 +8,7 @@ import org.kohsuke.args4j.Option;
 
 public class CloudOsMainOptions extends MainApiOptionsBase {
 
-    @Override protected String getDefaultApiBaseUri() { return "http://"+CommandShell.hostname()+"/api"; }
+    @Override protected String getDefaultApiBaseUri() { return "https://"+CommandShell.hostname()+"/api"; }
 
     public static final String PASSWORD_ENV_VAR = "CLOUDOS_PASS";
 

@@ -23,8 +23,13 @@ public class PagedCloudOsMainOptions extends CloudOsMainOptions {
     public static final String OPT_QUERY = "-q";
     public static final String LONGOPT_QUERY = "--query";
     @Option(name=OPT_QUERY, aliases=LONGOPT_QUERY, usage=USAGE_QUERY)
-    @Getter @Setter private String query;
+    @Getter @Setter private String filter;
 
-    public ResultPage getPage () { return new ResultPage(pagenum, pagesize, null, null, query, null); }
+    public ResultPage getPage () {
+        return new ResultPage()
+                .setPageNumber(pagenum)
+                .setPageSize(pagesize)
+                .setFilter(filter);
+    }
 
 }

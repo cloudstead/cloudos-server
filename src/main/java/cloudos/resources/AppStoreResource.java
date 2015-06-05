@@ -1,6 +1,7 @@
 package cloudos.resources;
 
 import cloudos.appstore.client.AppStoreApiClient;
+import cloudos.appstore.model.CloudApp;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.appstore.model.support.AppStoreQuery;
@@ -22,9 +23,7 @@ import javax.ws.rs.core.Response;
 
 import static cloudos.resources.ApiConstants.H_API_KEY;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
-import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
-import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
-import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -87,6 +86,28 @@ public class AppStoreResource {
         }
 
         return ok(results);
+    }
+
+    @POST
+    @Path("/apps/{publisher}/{app}")
+    @ReturnType("cloudos.appstore.model.CloudApp")
+    public Response viewAppDetails (@HeaderParam(H_API_KEY) String apiKey,
+                                    @PathParam("publisher") String publisher,
+                                    @PathParam("app") String app) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return notFound(apiKey);
+
+        final AppStoreApiClient client = configuration.getAppStoreClient();
+        final CloudApp cloudApp;
+        try {
+            cloudApp = client.findApp(publisher, app);
+        } catch (Exception e) {
+            log.error("viewAppDetails: client.findApp API call failed: "+e, e);
+            return serverError();
+        }
+
+        return ok(cloudApp);
     }
 
 }
