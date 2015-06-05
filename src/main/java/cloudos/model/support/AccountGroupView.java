@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
+
 @Accessors(chain=true) @NoArgsConstructor
 public class AccountGroupView implements NamedEntity {
 
@@ -29,7 +31,7 @@ public class AccountGroupView implements NamedEntity {
     @Getter @Setter private Set<AccountGroupMemberView> members = new HashSet<>();
     @Setter private Integer memberCount = null;
 
-    public AccountGroupView(AccountGroup group) { ReflectionUtil.copy(this, group); }
+    public AccountGroupView(AccountGroup group) { copy(this, group); }
 
     public int getMemberCount () { return memberCount != null ? memberCount : members.size(); }
 

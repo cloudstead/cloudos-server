@@ -12,13 +12,14 @@ import javax.validation.constraints.Size;
 import static cloudos.resources.MessageConstants.ERR_DESCRIPTION_LENGTH;
 import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_INVALID;
 import static cloudos.resources.MessageConstants.ERR_STORAGE_QUOTA_LENGTH;
+import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
 import static org.cobbzilla.util.string.StringUtil.BYTES_PATTERN;
 
 @Embeddable @EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor @AllArgsConstructor @Accessors(chain=true) @ToString
 public class AccountGroupInfo {
 
-    public AccountGroupInfo (AccountGroupInfo other) { ReflectionUtil.copy(this, other); }
+    public AccountGroupInfo (AccountGroupInfo other) { copy(this, other); }
 
     @Pattern(regexp=BYTES_PATTERN, message=ERR_STORAGE_QUOTA_INVALID)
     @Column(length=10) @Size(max=10, message=ERR_STORAGE_QUOTA_LENGTH)
