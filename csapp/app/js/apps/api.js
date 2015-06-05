@@ -13,7 +13,6 @@ function add_api_auth (xhr) {
 
 Api = {
 	API_TOKEN: 'x-cloudos-api-key',
-
 	_get: function (url) {
 		var results = null;
 		Ember.$.ajax({
@@ -23,6 +22,16 @@ Api = {
 			beforeSend: add_api_auth,
 			success: function (data, status, jqXHR) {
 				results = data;
+			},
+			error: function (jqXHR, status, error) {
+				console.log('setup error: status='+status+', error='+error+', url='+url);
+				$.notify(Em.I18n.translations['errors'].generalServerError, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
+				results = {
+					status: status,
+					statusCode: jqXHR.status,
+					jqXHR: jqXHR,
+					errorMessage: error
+				};
 			}
 		});
 		return results;
@@ -41,7 +50,8 @@ Api = {
 				result = response;
 			},
 			error: function (jqXHR, status, error) {
-				console.log('setup error: status='+status+', error='+error+', url='+url);
+				console.log('setup error: status='+status+', error='+error+', url='+url + "dddd => ");
+				$.notify(Em.I18n.translations['errors'].generalServerError, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 				result = {
 					status: status,
 					statusCode: jqXHR.status,
@@ -68,6 +78,7 @@ Api = {
 			},
 			'error': function (jqXHR, status, error) {
 				console.log('error deleting '+path+': '+error);
+				$.notify(Em.I18n.translations['errors'].generalServerError, { position: "bottom-right", autoHideDelay: 10000, className: 'error' });
 			}
 		});
 		return ok;
