@@ -23,6 +23,7 @@ public class AppDownloadMain extends CloudOsMainBase<AppDownloadOptions> {
 
         final AppDownloadRequest downloadRequest = new AppDownloadRequest()
                 .setUrl(options.getUrl())
+                .setSha(options.getSha())
                 .setToken(options.getToken())
                 .setAutoInstall(options.isInstall())
                 .setOverwrite(options.isOverwrite());

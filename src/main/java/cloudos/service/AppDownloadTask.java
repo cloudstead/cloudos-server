@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.Tarball;
+import org.cobbzilla.util.security.ShaUtil;
 
 import java.io.File;
 
@@ -63,6 +64,12 @@ public class AppDownloadTask extends TaskBase {
             HttpUtil.url2file(request.getDownloadUrl(), tarball);
         } catch (Exception e) {
             error("{appDownload.error.downloadingTarball", e);
+            return cleanup(tarball);
+        }
+
+        // check the SHA
+        if (request.hasSha() && !request.getSha().equals(ShaUtil.sha256_file(tarball))) {
+            error("{appDownload.error.shaCheckFailed}", new Exception("{appDownload.error.shaCheckFailed}"));
             return cleanup(tarball);
         }
 

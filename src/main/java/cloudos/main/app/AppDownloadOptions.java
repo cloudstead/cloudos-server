@@ -7,16 +7,22 @@ import org.kohsuke.args4j.Option;
 
 public class AppDownloadOptions extends CloudOsMainOptions {
 
-    public static final String USAGE_URL = "The url for the app. Required.";
+    public static final String USAGE_URL = "The url for the app bundle. Required.";
     public static final String OPT_URL = "-u";
     public static final String LONGOPT_URL = "--url";
     @Option(name=OPT_URL, aliases=LONGOPT_URL, usage=USAGE_URL, required=true)
     @Getter @Setter private String url;
 
+    public static final String USAGE_URL_SHA = "The SHA sum for the app bundle.";
+    public static final String OPT_URL_SHA = "-u";
+    public static final String LONGOPT_URL_SHA = "--url";
+    @Option(name=OPT_URL_SHA, aliases=LONGOPT_URL_SHA, usage=USAGE_URL_SHA)
+    @Getter @Setter private String sha;
+
     public static final String USAGE_TOKEN = "The token for the app. Required for paid apps.";
     public static final String OPT_TOKEN = "-t";
     public static final String LONGOPT_TOKEN = "--token";
-    @Option(name=OPT_TOKEN, aliases=LONGOPT_TOKEN, usage=USAGE_TOKEN, required=true)
+    @Option(name=OPT_TOKEN, aliases=LONGOPT_TOKEN, usage=USAGE_TOKEN)
     @Getter @Setter private String token;
 
     public static final String USAGE_INSTALL = "Automatically install the app if it does not require any additional configuration.";
