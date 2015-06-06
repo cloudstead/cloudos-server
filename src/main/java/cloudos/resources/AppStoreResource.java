@@ -1,7 +1,6 @@
 package cloudos.resources;
 
 import cloudos.appstore.client.AppStoreApiClient;
-import cloudos.appstore.model.CloudApp;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.appstore.model.support.AppStoreQuery;
@@ -60,37 +59,53 @@ public class AppStoreResource {
 
         if (empty(results) || !results.hasResults()) return notFound();
 
-        for (AppListing listing : results.getResults()) {
-            CloudOsApp found = appDAO.findInstalledByName(listing.getName());
-            final SemanticVersion semanticVersion = listing.getSemanticVersion();
-            if (found != null) {
-                if (semanticVersion.compareTo(found.getMetadata().getSemanticVersion()) > 0) {
-                    listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
-                } else {
-                    listing.setInstallStatus(AppInstallStatus.installed);
-                }
-            } else {
-                found = appDAO.findLatestVersionByName(listing.getName());
-                if (found != null) {
-                    if (semanticVersion.compareTo(found.getManifest().getSemanticVersion()) > 0) {
-                        listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
-                    } else {
-                        listing.setInstallStatus(AppInstallStatus.available_local);
-                    }
-                } else {
-                    // default -- app has not been downloaded to local app repo
-                    listing.setInstallStatus(AppInstallStatus.available_appstore);
-                }
-            }
-            // todo: check for apps that are actively installing, set status=installing
-        }
+        updateWithLocalInfo(results);
 
         return ok(results);
     }
 
-    @POST
-    @Path("/apps/{publisher}/{app}")
-    @ReturnType("cloudos.appstore.model.CloudApp")
+    protected void updateWithLocalInfo(SearchResults<AppListing> results) {
+        for (AppListing listing : results.getResults()) {
+            updateWithLocalInfo(listing);
+        }
+    }
+
+    private AppListing updateWithLocalInfo(AppListing listing) {
+        CloudOsApp found = appDAO.findInstalledByName(listing.getName());
+        final SemanticVersion semanticVersion = listing.getSemanticVersion();
+        if (found != null) {
+            if (semanticVersion.compareTo(found.getMetadata().getSemanticVersion()) > 0) {
+                listing.setInstallStatus(AppInstallStatus.upgrade_available_installed);
+            } else {
+                listing.setInstallStatus(AppInstallStatus.installed);
+            }
+        } else {
+            found = appDAO.findLatestVersionByName(listing.getName());
+            if (found != null) {
+                if (semanticVersion.compareTo(found.getManifest().getSemanticVersion()) > 0) {
+                    listing.setInstallStatus(AppInstallStatus.upgrade_available_not_installed);
+                } else {
+                    listing.setInstallStatus(AppInstallStatus.available_local);
+                }
+            } else {
+                // default -- app has not been downloaded to local app repo
+                listing.setInstallStatus(AppInstallStatus.available_appstore);
+            }
+        }
+        // todo: check for apps that are actively installing, set status=installing
+        return listing;
+    }
+
+    /**
+     * View details for an app
+     * @param apiKey The session ID
+     * @param publisher The name of the publisher
+     * @param app The name of the app
+     * @return The CloudApp object if found
+     */
+    @GET
+    @Path("/{publisher}/{app}")
+    @ReturnType("cloudos.appstore.model.support.AppListing")
     public Response viewAppDetails (@HeaderParam(H_API_KEY) String apiKey,
                                     @PathParam("publisher") String publisher,
                                     @PathParam("app") String app) {
@@ -99,15 +114,46 @@ public class AppStoreResource {
         if (admin == null) return notFound(apiKey);
 
         final AppStoreApiClient client = configuration.getAppStoreClient();
-        final CloudApp cloudApp;
+        final AppListing appListing;
         try {
-            cloudApp = client.findApp(publisher, app);
+            appListing = updateWithLocalInfo(client.findAppListing(publisher, app));
         } catch (Exception e) {
-            log.error("viewAppDetails: client.findApp API call failed: "+e, e);
+            log.error("viewAppDetails: client.findAppListing API call failed: "+e, e);
             return serverError();
         }
 
-        return ok(cloudApp);
+        return ok(appListing);
+    }
+
+    /**
+     * Find details about a particular app version
+     * @param apiKey The session ID
+     * @param publisher The name of the publisher
+     * @param app The name of the app
+     * @param version the version of the app
+     * @return a single AppListing, will also include the "availableVersions" field
+     */
+    @GET
+    @Path("/{publisher}/{app}/{version}")
+    @ReturnType("cloudos.appstore.model.support.AppListing")
+    public Response viewAppDetails (@HeaderParam(H_API_KEY) String apiKey,
+                                    @PathParam("publisher") String publisher,
+                                    @PathParam("app") String app,
+                                    @PathParam("version") String version) {
+
+        final Account admin = sessionDAO.find(apiKey);
+        if (admin == null) return notFound(apiKey);
+
+        final AppStoreApiClient client = configuration.getAppStoreClient();
+        final AppListing appListing;
+        try {
+            appListing = updateWithLocalInfo(client.findAppListing(publisher, app, version));
+        } catch (Exception e) {
+            log.error("viewAppDetails: client.findAppListing API call failed: "+e, e);
+            return serverError();
+        }
+
+        return ok(appListing);
     }
 
 }

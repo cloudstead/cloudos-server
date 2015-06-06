@@ -19,8 +19,18 @@ public class SearchAppStoreMain extends CloudOsMainBase<SearchAppStoreOptions> {
         final SearchAppStoreOptions options = getOptions();
 
         final RestResponse response;
+        String uri;
         try {
-            response = api.post(APPSTORE_ENDPOINT, toJson(options.getQuery()));
+            if (options.hasPublisher() && options.hasApp()) {
+                uri = APPSTORE_ENDPOINT + "/" + options.getPublisher() + "/" + options.getApp();
+                if (options.hasVersion()) {
+                    uri += "/" + options.getVersion();
+                }
+                response = api.get(uri);
+
+            } else {
+                response = api.post(APPSTORE_ENDPOINT, toJson(options.getQuery()));
+            }
             if (response.status != 200) {
                 die("Error writing configuration. Response was: " + response);
             } else {

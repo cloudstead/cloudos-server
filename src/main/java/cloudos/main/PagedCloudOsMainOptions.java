@@ -8,7 +8,7 @@ import org.kohsuke.args4j.Option;
 public class PagedCloudOsMainOptions extends CloudOsMainOptions {
 
     public static final String USAGE_PAGENUM = "The page number. Default is 1 (first page)";
-    public static final String OPT_PAGENUM = "-n";
+    public static final String OPT_PAGENUM = "-p";
     public static final String LONGOPT_PAGENUM = "--page-number";
     @Option(name=OPT_PAGENUM, aliases=LONGOPT_PAGENUM, usage=USAGE_PAGENUM)
     @Getter @Setter private int pagenum = 1;

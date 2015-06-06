@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.kohsuke.args4j.Option;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+
 public class SearchAppStoreOptions extends PagedCloudOsMainOptions {
 
     public static final String USAGE_LEVEL = "Only show apps at this level. Default is 'app'";
@@ -28,15 +30,32 @@ public class SearchAppStoreOptions extends PagedCloudOsMainOptions {
     @Option(name=OPT_LOCALE, aliases=LONGOPT_LOCALE, usage=USAGE_LOCALE)
     @Getter @Setter private String locale = null;
 
+    public static final String USAGE_PUBLISHER = "Find apps with this publisher";
+    public static final String OPT_PUBLISHER = "-P";
+    public static final String LONGOPT_PUBLISHER = "--publisher";
+    @Option(name=OPT_PUBLISHER, aliases=LONGOPT_PUBLISHER, usage=USAGE_PUBLISHER)
+    @Getter @Setter private String publisher = null;
+    public boolean hasPublisher () { return !empty(publisher); }
+
     public static final String USAGE_APPNAME = "Find only this app";
-    public static final String OPT_APPNAME = "-N";
-    public static final String LONGOPT_APPNAME = "--app-name";
+    public static final String OPT_APPNAME = "-n";
+    public static final String LONGOPT_APPNAME = "--app";
     @Option(name=OPT_APPNAME, aliases=LONGOPT_APPNAME, usage=USAGE_APPNAME)
-    @Getter @Setter private String appName = null;
+    @Getter @Setter private String app = null;
+    public boolean hasApp () { return !empty(app); }
+
+    public static final String USAGE_VERSION = "Find only this app version";
+    public static final String OPT_VERSION = "-r";
+    public static final String LONGOPT_VERSION = "--version";
+    @Option(name=OPT_VERSION, aliases=LONGOPT_VERSION, usage=USAGE_VERSION)
+    @Getter @Setter private String version = null;
+    public boolean hasVersion () { return !empty(version); }
 
     public AppStoreQuery getQuery () {
         return new AppStoreQuery(getPage())
-                .setAppName(appName)
+                .setPublisher(publisher)
+                .setApp(app)
+                .setVersion(version)
                 .setLocale(locale)
                 .setLevel(level)
                 .setType(type);
