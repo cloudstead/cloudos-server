@@ -14,8 +14,8 @@ public class AppDownloadOptions extends CloudOsMainOptions {
     @Getter @Setter private String url;
 
     public static final String USAGE_URL_SHA = "The SHA sum for the app bundle.";
-    public static final String OPT_URL_SHA = "-u";
-    public static final String LONGOPT_URL_SHA = "--url";
+    public static final String OPT_URL_SHA = "-S";
+    public static final String LONGOPT_URL_SHA = "--sha";
     @Option(name=OPT_URL_SHA, aliases=LONGOPT_URL_SHA, usage=USAGE_URL_SHA)
     @Getter @Setter private String sha;
 
