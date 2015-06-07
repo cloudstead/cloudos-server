@@ -108,10 +108,7 @@ public class AppInstallTask extends TaskBase {
             return null;
         }
         chefMessage.setChefDir(abs(chefDir));
-
-        for (String recipe : manifest.getChefInstallRunlist()) {
-            chefMessage.addRecipe(recipe.trim());
-        }
+        chefMessage.setCookbook(manifest.getName());
 
         // generate a new ports databag every time
         final PortsDatabag ports = PortsDatabag.pick();

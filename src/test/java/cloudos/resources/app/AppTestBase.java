@@ -59,8 +59,7 @@ public class AppTestBase extends ApiClientTestBase {
         // Ensure rooty message was sent
         final ChefMessage chefMessage = getRootySender().first(ChefMessage.class);
         assertNotNull(chefMessage);
-        assertEquals(1, chefMessage.getCookbooks().size());
-        assertEquals(manifest.getScrubbedName(), chefMessage.getCookbooks().get(0));
+        assertEquals(manifest.getScrubbedName(), chefMessage.getCookbook());
     }
 
     protected TaskResult getTaskResult(TaskId taskId) throws Exception {

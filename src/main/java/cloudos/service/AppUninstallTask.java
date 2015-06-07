@@ -62,9 +62,8 @@ public class AppUninstallTask extends TaskBase {
         addEvent("{appUninstall.notifyingChef}");
         final AppManifest manifest = AppManifest.load(appLayout.getManifest());
         final ChefMessage chefMessage = new ChefMessage(ChefOperation.REMOVE);
-        for (String recipe : manifest.getChefInstallRunlist()) {
-            chefMessage.addRecipe(recipe.trim());
-        }
+        chefMessage.setCookbook(manifest.getName());
+
         final RootyMessage status;
         try {
             result.setRootyUuid(chefMessage.initUuid());
