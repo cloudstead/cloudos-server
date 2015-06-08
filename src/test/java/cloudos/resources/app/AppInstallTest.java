@@ -5,16 +5,15 @@ import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.config.AppConfigMetadataDatabag;
 import cloudos.appstore.model.app.config.AppConfigTranslationCategory;
+import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.appstore.test.TestApp;
 import cloudos.model.Account;
-import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.service.task.TaskResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.http.HttpResponseBean;
 import org.cobbzilla.util.http.HttpUtil;
-import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -113,10 +112,10 @@ public class AppInstallTest extends AppTestBase {
 
         // Verify app was installed correctly
         final String appDatabagsDir = chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName();
-        final JsonNode initDatabag = fromJson(FileUtil.toString(appDatabagsDir + "/init.json"), JsonNode.class);
+        final JsonNode initDatabag = fromJson(new File(appDatabagsDir, "init.json"), JsonNode.class);
         assertEquals(rand, JsonUtil.nodeValue(initDatabag, "test.config1"));
 
-        final JsonNode customDatabag = fromJson(FileUtil.toString(chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName() + "/custom.json"), JsonNode.class);
+        final JsonNode customDatabag = fromJson(new File(chefHandler.getChefDir() + "/data_bags/" + manifest.getScrubbedName() + "/custom.json"), JsonNode.class);
         assertEquals("custom-"+rand, JsonUtil.nodeValue(customDatabag, "c2"));
 
         assertTrue(new File(appDatabagsDir+"/cloudos-manifest.json").exists());

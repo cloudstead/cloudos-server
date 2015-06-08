@@ -1,7 +1,6 @@
 package cloudos.resources;
 
 import cloudos.databag.CloudOsDatabag;
-import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Test;
 import rooty.RootyMessage;
@@ -65,7 +64,7 @@ public class ConfigurationsResourceTest extends ConfigurationTestBase {
         assertEquals(newKey, request.getValue());
 
         // verify the databag was updated
-        final CloudOsDatabag databag = fromJson(FileUtil.toString(cloudosInitDatabag), CloudOsDatabag.class);
+        final CloudOsDatabag databag = fromJson(cloudosInitDatabag, CloudOsDatabag.class);
         assertEquals(newKey, databag.getAuthy().getUser());
 
         apiDocs.addNote("re-read setting "+AUTHY_SETTING_PATH+", should see new value");
