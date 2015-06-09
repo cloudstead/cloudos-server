@@ -3,9 +3,9 @@ package cloudos.service;
 import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
-import cloudos.appstore.model.app.AppMetadata;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
+import cloudos.model.support.AppUninstallMode;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
@@ -15,7 +15,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.cobbzilla.wizard.model.SemanticVersion;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
@@ -43,19 +42,11 @@ public class AppUninstallTask extends TaskBase {
 
         // Find the app version to uninstall
         final String appName = request.getName();
-        final AppLayout appLayout = configuration.getAppLayout(appName, request.getVersion());
+        final AppLayout appLayout = configuration.getAppLayout(appName);
         final File appDir = appLayout.getAppDir();
         if (!appLayout.exists()) {
-            error("{appInstall.versionNotFound}", "not a directory");
+            error("{appUninstall.error.appNotFound}", "not a directory");
             return null;
-        }
-
-        // If this is the active version, rewrite the app metadata to remove it
-        addEvent("{appUninstall.updatingMetadata}");
-        final AppMetadata appMetadata = appLayout.getAppMetadata();
-        if (appMetadata != null && appMetadata.isVersion(request.getVersion())) {
-            appMetadata.setActive_version(null);
-            appMetadata.write(appDir);
         }
 
         // Send off a rooty task to remove app from run_list
@@ -73,24 +64,15 @@ public class AppUninstallTask extends TaskBase {
             return null;
         }
 
-        switch (request.getMode()) {
-            case delete_backups:
-                // Send off a rooty task to delete backups
-                // todo: need to implement this
-
-            case delete:
-                // Send off a rooty task to delete files
-                // todo: need to implement this
-        }
-
         if (status.isSuccess()) {
             addEvent("{appUninstall.removingFromAppRepository}");
-            FileUtils.deleteDirectory(appLayout.getVersionDir());
+            if (!FileUtils.deleteQuietly(appDir)) {
+                error("{appUninstall.error.removingFromAppRepository}", "error deleting the app repository dir: "+abs(appDir));
+            }
 
-            final File[] versionDirs = appDir.listFiles(SemanticVersion.DIR_FILTER);
-            if (versionDirs == null || versionDirs.length == 0) {
-                log.info("No versions remaining, deleting appDir: "+abs(appDir));
-                FileUtils.deleteDirectory(appDir);
+            if (request.getMode() == AppUninstallMode.delete_backups) {
+                // Send off a rooty task to delete backups
+                // todo: need to implement this
             }
 
             appDAO.resetApps();

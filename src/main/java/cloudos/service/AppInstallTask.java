@@ -5,10 +5,12 @@ import cloudos.appstore.model.app.AppConfigDef;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.config.AppConfiguration;
+import cloudos.appstore.model.support.AppListing;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.databag.PortsDatabag;
 import cloudos.appstore.model.app.AppMetadata;
+import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.TaskBase;
@@ -57,11 +59,53 @@ public class AppInstallTask extends TaskBase {
         description("{appInstall.installingApp}", request.toString());
 
         // Find the app version to install
-        final AppLayout appLayout = configuration.getAppLayout(request.getName(), request.getVersion());
-        final File appDir = appLayout.getAppDir();
-        if (!appLayout.exists()) {
-            error("{appInstall.versionNotFound}", "not a directory");
-            return null;
+        AppLayout appLayout = null;
+        if (request.hasVersion()) {
+            appLayout = configuration.getAppLayout(request.getName(), request.getVersion());
+        }
+        if (appLayout == null || !appLayout.exists()) {
+            // is it a public app?
+            try {
+                final AppListing listing;
+                if (request.hasVersion()) {
+                    listing = configuration.getAppStoreClient().findAppListing(request.getPublisher(), request.getName(), request.getVersion());
+                } else {
+                    // get latest published version
+                    listing = configuration.getAppStoreClient().findAppListing(request.getPublisher(), request.getName());
+                }
+                if (listing == null) {
+                    error("{appInstall.versionNotFound}", "not a directory and no public version found in app store");
+                    return null;
+                }
+
+                // download it but turn off auto-install... we're done
+                final TaskResult downloadResult = new AppDownloadTask()
+                        .setResolver(getResolver())
+                        .setAccount(getAccount())
+                        .setAppDAO(getAppDAO())
+                        .setConfiguration(getConfiguration())
+                        .setRootyService(getRootyService())
+                        .setRequest(new AppDownloadRequest()
+                                .setAutoInstall(false)
+                                .setOverwrite(request.isForce())
+                                .setUrl(listing.getBundleUrl())
+                                .setSha(listing.getBundleUrlSha()))
+                        .setTaskId(getTaskId())
+                        .call();
+
+                appLayout = configuration.getAppLayout(request.getName(), listing.getVersion());
+                if (downloadResult == null || !downloadResult.isSuccess() || !downloadResult.isComplete() || appLayout == null || !appLayout.exists()) {
+                    final String msg = "error installing from app store";
+                    error("{appInstall.error.installFromAppStoreFailed}", msg);
+                    log.error(msg+": "+downloadResult);
+                    return null;
+                }
+            } catch (Exception e) {
+                final String msg = "error installing from app store";
+                error("{appInstall.error.installFromAppStoreFailed}", msg);
+                log.error(msg+": "+e, e);
+                return null;
+            }
         }
 
         // Validate databags. If any violations are related to missing passwords, pick a random password
@@ -71,15 +115,15 @@ public class AppInstallTask extends TaskBase {
         final List<ConstraintViolationBean> validationErrors = appConfig.validate(resolver);
 
         if (!validationErrors.isEmpty()) {
-            error("err.validation", validationErrors);
+            error("appInstall.err.validation", validationErrors);
             return null;
         }
 
         // write manifest file to data_bags/app-name directory
         try {
-            FileUtil.toFile(appLayout.getDatabagFile("cloudos-manifest"), JsonUtil.toJson(manifest));
+            FileUtil.toFile(appLayout.getDatabagFile(AppManifest.CLOUDOS_MANIFEST), JsonUtil.toJson(manifest));
         } catch (Exception e) {
-            error("err.manifestDatabag", "Error creating cloudos-manifest.json databag");
+            error("{appInstall.err.manifestDatabag}", "Error creating "+AppManifest.CLOUDOS_MANIFEST_JSON+" databag");
             return null;
         }
 
@@ -127,7 +171,7 @@ public class AppInstallTask extends TaskBase {
             }
             CommandShell.chmod(configuration.getAppRepository(), "g+r", true);
         } catch (Exception e) {
-            error("{appInstall.error.perms", "Error setting ownership/permissions on "+abs(configuration.getAppRepository())+": "+e);
+            error("{appInstall.error.perms}", "Error setting ownership/permissions on "+abs(configuration.getAppRepository())+": "+e);
             return null;
         }
 
@@ -148,7 +192,7 @@ public class AppInstallTask extends TaskBase {
                     .setInstalled_by(account.getName())
                     .setActive_version(request.getVersion())
                     .setInteractive(manifest.isInteractive());
-            metadata.write(appDir);
+            metadata.write(appLayout.getAppDir());
             appDAO.resetApps();
             result.setSuccess(true);
 

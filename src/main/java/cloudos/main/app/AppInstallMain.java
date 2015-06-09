@@ -21,7 +21,8 @@ public class AppInstallMain extends CloudOsMainBase<AppInstallOptions> {
 
         final ApiClientBase api = getApiClient();
         final AppInstallOptions options = getOptions();
-        final String installUri = APPS_ENDPOINT + "/apps/"+options.getAppName()+"/versions/"+options.getAppVersion()+"/install"+ options.getForceParam();
+
+        final String installUri = APPS_ENDPOINT + "/apps/"+options.getAppName()+"/versions/"+options.getVersionName()+"/install"+ options.getForceParam();
 
         final TaskId taskId = fromJson(api.post(installUri, null).json, TaskId.class);
         TaskResult result = awaitTaskResult(taskId);

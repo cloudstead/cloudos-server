@@ -16,6 +16,8 @@ public class AppConfigMain extends CloudOsMainBase<AppConfigOptions> {
 
         final ApiClientBase api = getApiClient();
         final AppConfigOptions options = getOptions();
+
+        if (!options.hasVersion()) die(AppConfigOptions.OPT_VERSION+"/"+AppConfigOptions.LONGOPT_VERSION+" is required");
         final String configUri = APPS_ENDPOINT + "/apps/"+options.getAppName()+"/versions/"+options.getAppVersion()+"/config";
 
         if (options.hasConfig()) {

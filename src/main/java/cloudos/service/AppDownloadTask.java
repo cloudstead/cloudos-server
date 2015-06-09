@@ -63,7 +63,7 @@ public class AppDownloadTask extends TaskBase {
             tarball = File.createTempFile("app-tarball-", suffix);
             HttpUtil.url2file(request.getDownloadUrl(), tarball);
         } catch (Exception e) {
-            error("{appDownload.error.downloadingTarball", e);
+            error("{appDownload.error.downloadingTarball}", e);
             return cleanup(tarball);
         }
 

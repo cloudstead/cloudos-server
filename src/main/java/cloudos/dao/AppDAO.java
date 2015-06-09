@@ -150,7 +150,7 @@ public class AppDAO {
         return taskService.execute(task);
     }
 
-    public TaskId uninstall(Account admin, String app, String version, AppUninstallRequest request) {
+    public TaskId uninstall(Account admin, AppUninstallRequest request) {
         // start background job
         final AppUninstallTask task = new AppUninstallTask()
                 .setAccount(admin)

@@ -1,5 +1,6 @@
 package cloudos.resources;
 
+import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
@@ -196,7 +197,7 @@ public class AppsResource {
      * Install an application. Must already be downloaded and configured (if configuration is required).
      * @param apiKey The session ID
      * @param app The app name
-     * @param version The app version
+     * @param version The app version, or the special string 'latest' to use the latest version
      * @param force If true, force installation even if the same version is already installed
      * @statuscode 403 if caller is not an admin
      * @return a TaskId, can be used to check installation progress
@@ -215,6 +216,7 @@ public class AppsResource {
         // only admins can install apps
         if (!admin.isAdmin()) return ResourceUtil.forbidden();
 
+        if (version.equals(AppManifest.LATEST_VERSION)) version = null;
         final TaskId taskId = appDAO.install(admin, app, version, force == null ? false : force);
 
         return ok(taskId);
@@ -224,17 +226,15 @@ public class AppsResource {
      * Uninstall an application.
      * @param apiKey The session ID
      * @param app The app name
-     * @param version The app version
      * @param request Determines how much stuff to delete. @see cloudos.model.support.AppUninstallMode
      * @statuscode 403 if caller is not an admin
      * @return a TaskId, can be used to check uninstall progress
      */
     @POST
-    @Path("/apps/{app}/versions/{version}/uninstall")
+    @Path("/apps/{app}/uninstall")
     @ReturnType("cloudos.service.task.TaskId")
     public Response uninstallApp (@HeaderParam(H_API_KEY) String apiKey,
                                   @PathParam("app") String app,
-                                  @PathParam("version") String version,
                                   AppUninstallRequest request) {
 
         final Account admin = sessionDAO.find(apiKey);
@@ -245,9 +245,8 @@ public class AppsResource {
 
         // copy URL fields to request object
         request.setName(app);
-        request.setVersion(version);
 
-        final TaskId taskId = appDAO.uninstall(admin, app, version, request);
+        final TaskId taskId = appDAO.uninstall(admin, request);
 
         return ok(taskId);
     }

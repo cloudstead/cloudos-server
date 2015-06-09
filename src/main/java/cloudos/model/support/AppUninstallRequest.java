@@ -9,7 +9,6 @@ import lombok.Setter;
 public class AppUninstallRequest {
 
     @Getter @Setter private String name;
-    @Getter @Setter private String version;
     @Getter @Setter private AppUninstallMode mode;
 
     public AppUninstallRequest (AppUninstallMode mode) { setMode(mode); }
