@@ -112,6 +112,18 @@ public class AppInstallTask extends TaskBase {
         // and email it to the caller.
         final AppManifest manifest = AppManifest.load(appLayout.getVersionDir());
         final AppConfiguration appConfig = AppConfiguration.readAppConfiguration(manifest, appLayout.getDatabagsDir(), configuration.getSystemLocale());
+
+        final AppLayout currentLayout = configuration.getAppLayout(request.getName());
+        final File currentVersionDir = currentLayout.getAppActiveVersionDir();
+        if (currentVersionDir != null && currentVersionDir.exists()) {
+            // copy over settings from previous installation
+            final AppConfiguration currentConfig = AppConfiguration.readAppConfiguration(AppManifest.load(currentVersionDir), currentLayout.getDatabagsDir(), configuration.getSystemLocale());
+            if (currentConfig != null) {
+                appConfig.merge(currentConfig);
+                appConfig.writeAppConfiguration(manifest, appLayout.getDatabagDirForApp());
+            }
+        }
+
         final List<ConstraintViolationBean> validationErrors = appConfig.validate(resolver);
 
         if (!validationErrors.isEmpty()) {
