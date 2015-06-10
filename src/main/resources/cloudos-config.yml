@@ -12,6 +12,7 @@ kadminPassword: {{KADMIN_PASSWORD}}
 # A wide range of fields may be defined here, or defaults may be used. Pull it all in as JSON for flexibility.
 # See org.cobbzilla.wizard.server.config.LdapConfiguration
 ldap:
+  password: {{LDAP_PASSWORD}}
   json: '{{LDAP_CONFIG}}'
 
 database:
