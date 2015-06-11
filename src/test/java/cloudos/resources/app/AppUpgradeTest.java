@@ -85,7 +85,7 @@ public class AppUpgradeTest extends AppTestBase {
         expectVersionAndStatus(expectedVersion, AppInstallStatus.available_local);
 
         apiDocs.addNote("install the 'noconfig' app (does not require config)...");
-        AppManifest manifest = fromJson(result.getReturnValue(), AppManifest.class);
+        AppManifest manifest = AppManifest.fromJson(result.getReturnValue());
         installApp(manifest);
 
         apiDocs.addNote("query app store, should see app version "+ expectedVersion +" as installed");
@@ -111,7 +111,7 @@ public class AppUpgradeTest extends AppTestBase {
         expectVersionAndStatus(expectedVersion, AppInstallStatus.upgrade_available_installed);
 
         apiDocs.addNote("install the upgraded version of 'noconfig' app (does not require config)...");
-        manifest = fromJson(result.getReturnValue(), AppManifest.class);
+        manifest = AppManifest.fromJson(result.getReturnValue());
         installApp(manifest);
 
         apiDocs.addNote("query app store, should see app version "+ expectedVersion +" as installed");

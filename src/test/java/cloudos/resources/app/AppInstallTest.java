@@ -55,7 +55,7 @@ public class AppInstallTest extends AppTestBase {
         final File installedIcon = new File(new AppLayout(appRepository, "simple-webapp", "0.1.0").getChefFilesDir(), "taskbarIcon.png");
         assertTrue(installedIcon.exists());
 
-        final AppManifest manifest = fromJson(result.getReturnValue(), AppManifest.class);
+        final AppManifest manifest = AppManifest.fromJson(result.getReturnValue());
         final String configUri = APPS_ENDPOINT + "/apps/" + manifest.getScrubbedName() + "/versions/" + manifest.getScrubbedVersion() + "/config";
         AppConfiguration appConfig;
 
