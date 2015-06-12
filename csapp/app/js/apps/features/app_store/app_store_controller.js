@@ -4,6 +4,7 @@ App.AppstoreController = Ember.ArrayController.extend({
 	user_message: "Initializing download...",
 	user_message_priority: "",
 	isHidden: true,
+	search: "",
 
 	statusReportClass: function() {
 		console.log("hidden: ", this.get("isHidden"));
@@ -25,7 +26,7 @@ App.AppstoreController = Ember.ArrayController.extend({
 
 		loadNextPage: function () {
 			this.set('currentPage', this.get('currentPage') + 1);
-			this.set('content', App.CloudOsApp.loadNextPage(this.get('currentPage')));
+			this.set('content', App.CloudOsApp.loadNextPage(this.get('currentPage'), this.get('search')));
 		},
 
 		doOpenApp: function(app) {
@@ -63,11 +64,34 @@ App.AppstoreController = Ember.ArrayController.extend({
 				}
 
 			}, 5000);
+		},
+
+		search: function(e){
+			console.log("Term for search: ", e);
+			var paging = $.extend(true, {}, DefaultPagination, {filter: e});
+			this.set('content', App.CloudOsApp.findPaginated(paging));
 		}
 	},
 
 
 	morePagesAvailable: function() {
+		console.log("morePagesAvailable: ", App.CloudOsApp.totalCount > (this.get('currentPage') * DefaultPagination.pageSize), this.get('currentPage'), DefaultPagination.pageSize, App.CloudOsApp.totalCount);
 		return App.CloudOsApp.totalCount > (this.get('currentPage') * DefaultPagination.pageSize);
-	}.property('currentPage')
+	}.property('currentPage', 'content.@each'),
+
+	appTypes: [],
+	appLevels: [],
+
+	init: function () {
+		this._super();
+		this.appTypes.push(Em.I18n.translations.sections.appstr.types.all);
+		this.appTypes.push(Em.I18n.translations.sections.appstr.types.publishers);
+		this.appTypes.push(Em.I18n.translations.sections.appstr.types.authors);
+		this.appTypes.push(Em.I18n.translations.sections.appstr.types.apps);
+
+		this.appLevels.push(Em.I18n.translations.sections.appstr.levels.app);
+		this.appLevels.push(Em.I18n.translations.sections.appstr.levels.cloudos);
+		this.appLevels.push(Em.I18n.translations.sections.appstr.levels.init);
+		this.appLevels.push(Em.I18n.translations.sections.appstr.levels.system);
+	}
 });
