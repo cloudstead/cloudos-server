@@ -61,31 +61,31 @@
 				<div class="large-12 columns no-padd">
 					<table style="width: 100%">
 						<thead>
-						<th></th>
-						<th {{action 'sortBy' 'firstName'}}>
-						Full Name <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
-						<th {{action 'sortBy' 'accountName'}}>
-						Userame <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
-						<th {{action 'sortBy' 'lastLogin'}}>
-						Last Login <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
-						<th {{action 'sortBy' 'email'}}>
-						Recovery Email <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
-						<th {{action 'sortBy' 'mobilePhone'}}>
-						Mobile <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
-						<th {{action 'sortBy' 'status'}}>
-						Status <span class="icon-sort-down table-icon"></span>
-						<span class="icon-sort-up table-icon table-icon-upper"></span>
-						</th>
+							<th></th>
+							<th {{action 'sortBy' 'accountName'}}>
+								Userame <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'firstName'}}>
+								Full Name <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'lastLogin'}}>
+								Last Login <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'email'}}>
+								Recovery Email <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'mobilePhone'}}>
+								Mobile <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
+							<th {{action 'sortBy' 'status'}}>
+								Status <span class="icon-sort-down table-icon"></span>
+								<span class="icon-sort-up table-icon table-icon-upper"></span>
+							</th>
 						</thead>
 						<tbody>
 						{{#each}}
@@ -93,8 +93,8 @@
 							<td>
 								{{input type="checkbox" checked=isSelected change=changeCheckboxSelect}}
 							</td>
-							<td>{{#link-to 'manageAccount' name}}{{firstName}} {{lastName}}{{/link-to}}</td>
-							<td>{{accountName}}</td>
+							<td>{{#link-to 'manageAccount' name}}{{accountName}}{{/link-to}}</td>
+							<td>{{firstName}} {{lastName}}</td>
 							<td>{{lastLoginTime}}</td>
 							<td>{{email}}</td>
 							<td>{{mobilePhone}}</td>
