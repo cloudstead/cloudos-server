@@ -68,6 +68,7 @@ App.AppstoreController = Ember.ArrayController.extend({
 
 		search: function(e){
 			console.log("Term for search: ", e);
+			this.set("currentPage", 1);
 			var paging = $.extend(true, {}, DefaultPagination, {filter: e});
 			this.set('content', App.CloudOsApp.findPaginated(paging));
 		}
