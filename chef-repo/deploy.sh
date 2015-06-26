@@ -5,21 +5,25 @@
 # user@host: target to deploy. user must have password-less sudo privileges.
 # solo-json: path to a Chef run list (typically solo.json) to use. Otherwise a minimal one is generated based on defaults.
 #
-#
-# Required environment variables:
-#
-#   SSH_KEY    -- path to the private key to use when connecting
-#
-#   INIT_FILES -- a directory containing data bags and certs for the chef-run. See README.md
-#
-#
 # Optional environment variables:
 #
-#   JSON_EDIT   -- if set, a command to edit JSON documents, typically a path to "cos json" on a cloudos instance
-#                  if not set, script assumes dev env and loads JsonEditor directly from ../target/cloudos-server-*.jar
+#   INIT_FILES  -- if set, a directory containing data bags and certs for the chef-run.
+#                  if not set, script checks for a directory named "init_files" in the current directory
 #
-#   DISABLE_DNS -- if set, the cloudos-dns app will not be installed on the cloudstead
-#                  if not set, script will install cloudos-dns so owner can fine-tune how DNS is managed, separately from cloudos
+#   SSH_KEY     -- if set, the path to the private key to use when connecting
+#                  if not set, script checks for existence of ~/.ssh/id_dsa or ~/.ssh/id_rsa (in that order)
+#
+#   JSON_EDIT   -- if set, a command to edit JSON documents, typically a path to "cos json" on a cloudos instance
+#                  if not set and the "cos" command is on the PATH, then "cos json" is used.
+#                  if not set and the "cos" command is not found, the script assumes a development environment nd
+#                     loads JsonEditor directly from the first "target/cloudos-server-*.jar" it finds under
+#                     the directory of this script
+#
+#   DISABLE_DNS -- if set, the cloudos-dns app will not be installed on the cloudstead. This is the case
+#                     for cloudsteads launched from cloudstead.io, because they use the cloudos-dns server
+#                     that runs there.
+#                  if not set, script will install cloudos-dns so owner can fine-tune how DNS is managed,
+#                     separately from cloudos
 #
 
 function die {
@@ -32,7 +36,12 @@ cd ${BASE}
 CLOUDOS_BASE=$(cd ${BASE}/../.. && pwd)
 
 if [ -z "${JSON_EDIT}" ] ; then
-  JSON_EDIT="java -cp ${BASE}/../target/cloudos-server-*.jar org.cobbzilla.util.json.main.JsonEditor"
+  COS="$(which cos)"
+  if [ ! -z "${COS}" ] ; then
+    JSON_EDIT="${COS} json"
+  else
+    JSON_EDIT="java -cp $(find $(find ${BASE} -type d -name target) -type f -name "cloudos-server-*.jar") | head -1) org.cobbzilla.util.json.main.JsonEditor"
+  fi
 fi
 
 DEPLOYER=${BASE}/deploy_lib.sh
@@ -46,8 +55,25 @@ fi
 host="${1:?no user@host specified}"
 SOLO_JSON="${2}"
 
+# SSH key
+DEFAULT_DSA_KEY="${HOME}/.ssh/id_dsa"
+DEFAULT_RSA_KEY="${HOME}/.ssh/id_rsa"
 if [ -z ${SSH_KEY} ] ; then
-  die "SSH_KEY is not defined in the environment."
+  SSH_KEY="${DEFAULT_DSA_KEY}"
+  if [ ! -f "${SSH_KEY}" ] ; then
+    SSH_KEY="${DEFAULT_RSA_KEY}"
+    if [ ! -f "${SSH_KEY}" ] ; then
+      die "SSH_KEY environment variable was not defined and neither ${DEFAULT_DSA_KEY} nor ${DEFAULT_RSA_KEY} exists"
+    fi
+  fi
+fi
+
+# init files
+if [ -z "${INIT_FILES}" ] ; then
+  INIT_FILES="${BASE}/init_files"
+fi
+if [ ! -d "${INIT_FILES}" ] ; then
+  die "No init_files configuration found in ${INIT_FILES}"
 fi
 
 function append_recipe () {

@@ -4,10 +4,11 @@
         "name": "cloudos-dns-admin",
         "password": "bcrypted-password"
     },
-    "dyndns": {
+    "dyndns": {    // omit if using djbdns
         "account": "your-dyndns-account",
         "user": "a-dyndns-user-account",
         "password": "password",
         "zone": "example.com"
-    }
+    },
+    "djbdns": true // omit if using dyndns
 }

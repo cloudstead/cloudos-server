@@ -16,7 +16,7 @@ echo "{ \"run_list\": [ " >> ${temp}
 added=0
 for app in ${apps} ; do
     if [ -f ${THISDIR}/cookbooks/${app}/recipes/lib.rb ] ; then
-        if [ $added -ne 0 ] ; then echo ", " >> ${temp} ; fi
+        if [ ${added} -ne 0 ] ; then echo ", " >> ${temp} ; fi
         echo -n "\"recipe[${app}::lib]\"" >> ${temp}
         added=1
     fi
@@ -24,7 +24,7 @@ done
 
 for app in ${apps} ; do
     if [ -f ${THISDIR}/cookbooks/${app}/recipes/default.rb ] ; then
-        if [ $added -ne 0 ] ; then echo ", " >> ${temp} ; fi
+        if [ ${added} -ne 0 ] ; then echo ", " >> ${temp} ; fi
         echo -n "\"recipe[${app}]\"" >> ${temp}
         added=1
     else
@@ -36,7 +36,7 @@ done
 
 for app in ${apps} ; do
     if [ -f ${THISDIR}/cookbooks/${app}/recipes/validate.rb ] ; then
-        if [ $added -ne 0 ] ; then echo ", " >> ${temp} ; fi
+        if [ ${added} -ne 0 ] ; then echo ", " >> ${temp} ; fi
         echo -n "\"recipe[${app}::validate]\"" >> ${temp}
         added=1
     fi

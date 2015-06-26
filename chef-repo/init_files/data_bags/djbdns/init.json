@@ -1,0 +1,4 @@
+{
+  "id": "init",
+  "allow_axfr": [ "192.168.1.24", "10.0.4.13", "some other IP address to allow zone transfers from" ]
+}

@@ -24,7 +24,7 @@
     "dns": {
         "base_uri": "https://localhost/dns/api (if using Dyn, remove this field, or make its value empty)",
         "user": "cloudos-dns-admin (if using Dyn, put dyn username here)",
-        "password": "user password goes here. (if using cloudos-dns, put the bcrypted value in: ../cloudos-dns/init.json, admin.password)",
+        "password": "user password goes here. (if using cloudos-dns, also copy the value in: ../cloudos-dns/init.json, admin.password field)",
         "account": "if using Dyn, put main dyn account here. omit if using cloudos-dns",
         "zone": "if using Dyn, put zone name here. omit if using cloudos-dns"
     }
