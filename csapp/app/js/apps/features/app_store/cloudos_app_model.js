@@ -3,23 +3,7 @@
 App.CloudOsApp = Ember.Object.extend({
 
 	version: function() {
-		return this.get("appVersion.version");
-	}.property("appVersion.version"),
-
-	openAppUri: function() {
-		return "/#/app/" + this.get("name");
-	}.property(),
-
-	description: function() {
-		return this.get('appVersion').data.description;
-	}.property(),
-
-	smallIcon: function() {
-		return this.get('appVersion').data.smallIconUrl
-	}.property(),
-
-	largeIcon: function() {
-		return this.get('appVersion').data.largeIconUrl
+		return this.get("version");
 	}.property(),
 
 	statusCaption: function() {
@@ -31,7 +15,11 @@ App.CloudOsApp = Ember.Object.extend({
 	}.property(),
 
 	isInteractive: function() {
-		return this.get('isInstalled') && this.get('appVersion').interactive;
+		return this.get('isInstalled') && this.get('interactive');
+	}.property(),
+
+	smallIcon: function() {
+		return this.get('assets').smallIconUrl || "/images/default_app.png";
 	}.property(),
 
 	isUnavailable: function() {
@@ -75,8 +63,8 @@ App.CloudOsApp.reopenClass({
 		return App.CloudOsApp.all;
 	},
 
-	loadNextPage: function(page) {
-		var paging = $.extend(true, {}, DefaultPagination, { pageNumber: page });
+	loadNextPage: function(page, filter) {
+		var paging = $.extend(true, {}, DefaultPagination, { pageNumber: page, filter: filter});
 
 		App.CloudOsApp._fetchApps(paging);
 
@@ -85,7 +73,6 @@ App.CloudOsApp.reopenClass({
 
 	_fetchApps: function(paging){
 		var data = Api.find_apps(paging);
-
 		App.CloudOsApp.totalCount = data.totalCount;
 		var apps = data.results;
 
