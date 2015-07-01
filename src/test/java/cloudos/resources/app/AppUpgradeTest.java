@@ -38,7 +38,7 @@ public class AppUpgradeTest extends AppTestBase {
 
     @BeforeClass
     public static void setupTestWebApp() throws Exception {
-        testApp = webServer.buildAppTarball(MANIFEST_RESOURCE_PATH, null, TEST_ICON);
+        testApp = webServer.buildAppBundle(MANIFEST_RESOURCE_PATH, null, TEST_ICON);
     }
 
     @Override public void onStart(RestServer<CloudOsConfiguration> server) {
@@ -93,7 +93,7 @@ public class AppUpgradeTest extends AppTestBase {
 
         // update app in app store to new version
         apiDocs.addNote("...behind the scenes, update app store with new version, and publish the new version...");
-        upgradedApp = webServer.buildAppTarball(UPGRADED_MANIFEST_RESOURCE_PATH, null, TEST_ICON);
+        upgradedApp = webServer.buildAppBundle(UPGRADED_MANIFEST_RESOURCE_PATH, null, TEST_ICON);
 
         // as the publisher, create an app and an active appVersion
         upgradedVersion = AppStoreTestUtil.newCloudApp(appStoreClient, publisher.getName(), upgradedApp.getBundleUrl(), upgradedApp.getBundleUrlSha());

@@ -39,7 +39,7 @@ public class AppInstallTest extends AppTestBase {
     private static TestApp testApp;
 
     @BeforeClass public static void setupTestWebApp() throws Exception {
-        testApp = webServer.buildAppTarball(TEST_MANIFEST, TEST_CONFIG_MANIFEST, TEST_ICON);
+        testApp = webServer.buildAppBundle(TEST_MANIFEST, TEST_CONFIG_MANIFEST, TEST_ICON);
     }
 
     @Test public void testInstallApp () throws Exception {
@@ -75,7 +75,7 @@ public class AppInstallTest extends AppTestBase {
         final AppConfigMetadataDatabag initConfig = appConfig.getMetadata().getCategories().get("init");
         assertFalse(initConfig.isAdvanced());
         for (String choice : initConfig.getFields().get("test.loc1").getChoices()) {
-            assertNotNull(init.get("test.loc1.choice."+choice));
+            assertTrue(init.get("test.loc1").hasChoice(choice));
         }
 
         assertTrue(appConfig.getTranslations().getCategories().containsKey("custom"));
@@ -83,7 +83,7 @@ public class AppInstallTest extends AppTestBase {
         final AppConfigMetadataDatabag customConfig = appConfig.getMetadata().getCategories().get("custom");
         assertTrue(customConfig.isAdvanced());
         for (String choice : customConfig.getFields().get("loc2").getChoices()) {
-            assertNotNull(custom.get("loc2.choice."+choice));
+            assertTrue(custom.get("loc2").hasChoice(choice));
         }
 
         final String rand = RandomStringUtils.randomAlphanumeric(10);

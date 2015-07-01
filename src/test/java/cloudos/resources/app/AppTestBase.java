@@ -28,7 +28,7 @@ public class AppTestBase extends ApiClientTestBase {
     protected static final long TIMEOUT = TimeUnit.SECONDS.toMillis(1000);
 
     public SearchResults<AppListing> queryAppStore() throws Exception {
-        return JsonUtil.fromJson(post(ApiConstants.APPSTORE_ENDPOINT, toJson(ResultPage.DEFAULT_PAGE)).json, SearchResults.jsonType(AppListing.class));
+        return JsonUtil.fromJson(post(APPSTORE_ENDPOINT, toJson(ResultPage.DEFAULT_PAGE)).json, SearchResults.jsonType(AppListing.class));
     }
 
     protected TaskResult downloadApp(String url) throws Exception {
