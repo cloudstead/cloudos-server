@@ -19,11 +19,7 @@ App.ManageAccountController = App.BaseAccountController.extend({
 			}
 		},
 		cancelCreate: function() {
-			if (confirm("Cancel changes ?") == true) {
-				this.transitionToAccounts();
-			} else {
-				// nada
-			}
+			this.transitionToAccounts();
 		},
 		openChangePassword: function() {
 			this.transitionToRoute("manageAccount.adminChangePassword");
