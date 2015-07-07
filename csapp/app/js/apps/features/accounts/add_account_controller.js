@@ -20,11 +20,7 @@ App.AddAccountController = App.BaseAccountController.extend({
 			}
 		},
 		cancelCreate: function() {
-			if (window.confirm(Em.I18n.translations.sections.acct.cancel_create_account) == true) {
-				this.transitionToAccounts();
-			} else {
-				// nada
-			}
+			this.transitionToAccounts();
 		}
 	},
 

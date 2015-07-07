@@ -76,6 +76,8 @@ App.CloudOsApp.reopenClass({
 		App.CloudOsApp.totalCount = data.totalCount;
 		var apps = data.results;
 
+		if(Ember.isNone(apps)){ return; }
+
 		apps.forEach(function(app) {
 			App.CloudOsApp.all.pushObject(App.CloudOsApp.create(app));
 		});
