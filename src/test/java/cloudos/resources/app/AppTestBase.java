@@ -4,6 +4,7 @@ import cloudos.appstore.model.app.AppManifest;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.resources.ApiClientTestBase;
+import cloudos.service.task.CloudOsTaskResult;
 import org.cobbzilla.wizard.task.TaskId;
 import org.cobbzilla.wizard.task.TaskResult;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class AppTestBase extends ApiClientTestBase {
 
     protected void installApp(AppManifest manifest) throws Exception {
         TaskId taskId;
-        TaskResult result;// Install the app
+        CloudOsTaskResult result;// Install the app
         apiDocs.addNote("initiate the install request to install from app-repository to main chef-solo");
         final String installUri = APPS_ENDPOINT + "/apps/"+manifest.getScrubbedName()+"/versions/"+manifest.getScrubbedVersion()+"/install";
         final String json = doPost(installUri, null).json;
@@ -61,14 +62,14 @@ public class AppTestBase extends ApiClientTestBase {
         assertEquals(manifest.getScrubbedName(), chefMessage.getCookbook());
     }
 
-    protected TaskResult getTaskResult(TaskId taskId) throws Exception {
+    protected CloudOsTaskResult getTaskResult(TaskId taskId) throws Exception {
         long start = System.currentTimeMillis();
-        TaskResult result = null;
+        CloudOsTaskResult result = null;
         while (System.currentTimeMillis() - start < TIMEOUT) {
             sleep(1000, "getTaskResult");
             apiDocs.addNote("check status of task " + taskId.getUuid());
             final String json = doGet(TASKS_ENDPOINT + "/" + taskId.getUuid()).json;
-            result = fromJson(json, TaskResult.class);
+            result = fromJson(json, CloudOsTaskResult.class);
             if (result.isSuccess()) break;
         }
         log.info("getTaskResult: " + result);
