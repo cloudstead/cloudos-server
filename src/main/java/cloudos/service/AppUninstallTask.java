@@ -8,13 +8,13 @@ import cloudos.dao.SessionDAO;
 import cloudos.model.support.AppUninstallMode;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.task.TaskBase;
-import cloudos.service.task.TaskResult;
+import cloudos.service.task.CloudOsTaskResult;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.cobbzilla.wizard.task.TaskBase;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
 import rooty.toots.chef.ChefOperation;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.cobbzilla.util.io.FileUtil.abs;
 
 @Accessors(chain=true) @Slf4j
-public class AppUninstallTask extends TaskBase {
+public class AppUninstallTask extends TaskBase<CloudOsTaskResult> {
 
     private static final long UNINSTALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
@@ -36,7 +36,7 @@ public class AppUninstallTask extends TaskBase {
     @Getter @Setter private SessionDAO sessionDAO;
     @Getter @Setter private CloudOsConfiguration configuration;
 
-    @Override public TaskResult call() throws Exception {
+    @Override public CloudOsTaskResult call() throws Exception {
 
         description("{appUninstall.uninstallingApp}", request.toString());
 

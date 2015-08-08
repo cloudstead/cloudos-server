@@ -11,7 +11,7 @@ import cloudos.resources.ApiConstants;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.RestoreTask;
 import cloudos.service.RootyService;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import cloudos.service.task.TaskService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;

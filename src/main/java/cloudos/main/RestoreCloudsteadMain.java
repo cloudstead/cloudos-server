@@ -2,7 +2,7 @@ package cloudos.main;
 
 import cloudos.model.support.RestoreRequest;
 import cloudos.resources.setup.SetupSettings;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.client.ApiClientBase;

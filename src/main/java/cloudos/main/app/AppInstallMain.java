@@ -1,8 +1,8 @@
 package cloudos.main.app;
 
 import cloudos.main.CloudOsMainBase;
-import cloudos.service.task.TaskId;
-import cloudos.service.task.TaskResult;
+import org.cobbzilla.wizard.task.TaskId;
+import org.cobbzilla.wizard.task.TaskResult;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.client.ApiClientBase;
 

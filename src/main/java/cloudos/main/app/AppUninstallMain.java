@@ -3,7 +3,7 @@ package cloudos.main.app;
 import cloudos.main.CloudOsMainBase;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.resources.ApiConstants;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.client.ApiClientBase;
 import org.cobbzilla.wizard.util.RestResponse;

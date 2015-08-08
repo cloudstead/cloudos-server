@@ -8,8 +8,9 @@ import cloudos.dao.AppDAO;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.task.TaskBase;
-import cloudos.service.task.TaskResult;
+import cloudos.service.task.CloudOsTaskResult;
+import org.cobbzilla.wizard.task.TaskBase;
+import org.cobbzilla.wizard.task.TaskResult;
 import cloudos.service.task.TaskService;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +40,7 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
  * You cannot download over an existing name+version unless the overwrite flag is set on the AppDownloadRequest object
  */
 @Accessors(chain=true) @Slf4j
-public class AppDownloadTask extends TaskBase {
+public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
 
     @Getter @Setter private AppDownloadRequest request;
     @Getter @Setter private CloudOsConfiguration configuration;
@@ -50,7 +51,7 @@ public class AppDownloadTask extends TaskBase {
     @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
 
     @Override
-    public TaskResult call() throws Exception {
+    public CloudOsTaskResult call() throws Exception {
 
         // initial description of task (we'll refine this when we know what is being installed)
         description("{appDownload.starting}", request.getUrl());
@@ -167,7 +168,7 @@ public class AppDownloadTask extends TaskBase {
         return result;
     }
 
-    private TaskResult cleanup(File... files) {
+    private CloudOsTaskResult cleanup(File... files) {
         for (File f : files) if (f != null && f.exists() && !FileUtils.deleteQuietly(f)) log.warn("Error deleting: "+abs(f));
         return null;
     }

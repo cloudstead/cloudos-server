@@ -8,7 +8,7 @@ import cloudos.appstore.model.app.config.AppConfigTranslationCategory;
 import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.appstore.test.TestApp;
 import cloudos.model.Account;
-import cloudos.service.task.TaskResult;
+import org.cobbzilla.wizard.task.TaskResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;

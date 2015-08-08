@@ -1,10 +1,10 @@
 package cloudos.resources;
 
 import cloudos.service.RootyService;
+import cloudos.service.task.CloudOsTaskResult;
+import cloudos.service.task.TaskService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import cloudos.service.task.TaskResult;
-import cloudos.service.task.TaskService;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class TasksResource {
     @ReturnType("cloudos.service.task.TaskResult")
     public Response getHistory (@PathParam("uuid") String uuid) {
 
-        final TaskResult result = taskService.getResult(uuid);
+        final CloudOsTaskResult result = taskService.getResult(uuid);
 
         if (result == null) return ResourceUtil.notFound(uuid);
 

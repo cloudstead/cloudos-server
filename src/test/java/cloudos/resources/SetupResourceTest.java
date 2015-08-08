@@ -2,7 +2,7 @@ package cloudos.resources;
 
 import cloudos.model.support.RestoreRequest;
 import cloudos.resources.setup.MockSetupSettingsSource;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Test;
 

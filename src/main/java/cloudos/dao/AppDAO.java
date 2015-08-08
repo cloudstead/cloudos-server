@@ -15,7 +15,7 @@ import cloudos.model.support.AppInstallRequest;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.*;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import cloudos.service.task.TaskService;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;

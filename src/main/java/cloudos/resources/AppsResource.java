@@ -10,7 +10,7 @@ import cloudos.model.app.CloudOsApp;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppUninstallRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.task.TaskId;
+import org.cobbzilla.wizard.task.TaskId;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.resources.ResourceUtil;

@@ -4,17 +4,16 @@ import cloudos.appstore.model.CloudOsAccount;
 import cloudos.appstore.model.app.AppConfigDef;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.appstore.model.app.AppMetadata;
 import cloudos.appstore.model.app.config.AppConfiguration;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.dao.AppDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.databag.PortsDatabag;
-import cloudos.appstore.model.app.AppMetadata;
 import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
-import cloudos.service.task.TaskBase;
-import cloudos.service.task.TaskResult;
+import cloudos.service.task.CloudOsTaskResult;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -24,6 +23,8 @@ import org.cobbzilla.util.dns.DnsType;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.system.CommandShell;
+import org.cobbzilla.wizard.task.TaskBase;
+import org.cobbzilla.wizard.task.TaskResult;
 import org.cobbzilla.wizard.validation.ConstraintViolationBean;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
@@ -39,7 +40,7 @@ import static org.cobbzilla.util.io.FileUtil.abs;
  * Installs an application from your cloudstead's app library onto your cloudos.
  */
 @Accessors(chain=true) @Slf4j
-public class AppInstallTask extends TaskBase {
+public class AppInstallTask extends TaskBase<CloudOsTaskResult> {
 
     private static final int DEFAULT_TTL = 3600;
 
@@ -54,7 +55,7 @@ public class AppInstallTask extends TaskBase {
     @Getter @Setter private CloudOsConfiguration configuration;
 
     @Override
-    public TaskResult call() {
+    public CloudOsTaskResult call() {
 
         description("{appInstall.installingApp}", request.toString());
 
@@ -79,7 +80,7 @@ public class AppInstallTask extends TaskBase {
                 }
 
                 // download it but turn off auto-install... we're done
-                final TaskResult downloadResult = new AppDownloadTask()
+                final CloudOsTaskResult downloadResult = new AppDownloadTask()
                         .setResolver(getResolver())
                         .setAccount(getAccount())
                         .setAppDAO(getAppDAO())
