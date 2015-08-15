@@ -26,7 +26,7 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends Ma
         return new LoginRequest().setName(options.getAccount()).setPassword(options.getPassword());
     }
 
-    @Override protected String getLoginUri() { return ACCOUNTS_ENDPOINT; }
+    @Override protected String getLoginUri(String account) { return ACCOUNTS_ENDPOINT; }
 
     @Override protected String getSessionId(RestResponse response) throws Exception {
         return fromJson(response.json, CloudOsAuthResponse.class).getSessionId();

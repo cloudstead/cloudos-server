@@ -14,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.cobbzilla.wizard.resources.ResourceUtil.notFound;
 import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
 
 @Consumes(MediaType.APPLICATION_JSON)
@@ -37,7 +38,7 @@ public class TasksResource {
 
         final CloudOsTaskResult result = taskService.getResult(uuid);
 
-        if (result == null) return ResourceUtil.notFound(uuid);
+        if (result == null) return notFound(uuid);
 
         if (result.hasRootyUuid()) {
             final RootyMessage status = rootyService.getStatusManager().getStatus(result.getRootyUuid());
