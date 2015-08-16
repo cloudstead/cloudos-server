@@ -84,6 +84,7 @@ dns:
   account: {{CLOUDOS_DNS_ACCOUNT}}
   zone: {{CLOUDOS_DNS_ZONE}}
   baseUri: {{CLOUDOS_DNS_URI}}
+  enabled: {{CLOUDOS_DNS_ENABLED}}
 
 rooty:
   queueName: {{ROOTY_QUEUE_NAME}} # matches where rooty reads from, defined in /etc/rooty/*.yml (from cloudos chef recipe)

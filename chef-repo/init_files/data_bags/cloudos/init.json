@@ -12,7 +12,6 @@
     "backup_cron_schedule": "30 4  * * *",
 
     "appstore": {
-        "user": "dummy-user (set to your appstore account name)",
         "base_uri": "https://cloudstead.io/appstore"
     },
 
@@ -24,7 +23,7 @@
     "dns": {
         "base_uri": "https://localhost/dns/api (if using Dyn, remove this field, or make its value empty)",
         "user": "cloudos-dns-admin (if using Dyn, put dyn username here)",
-        "password": "user password goes here. (if using cloudos-dns, also copy the value in: ../cloudos-dns/init.json, admin.password field)",
+        "password": "user password goes here. (if using cloudos-dns, use this value: ../cloudos-dns/init.json, admin.password field)",
         "account": "if using Dyn, put main dyn account here. omit if using cloudos-dns",
         "zone": "if using Dyn, put zone name here. omit if using cloudos-dns"
     }

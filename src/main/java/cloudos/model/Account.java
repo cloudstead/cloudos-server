@@ -41,7 +41,7 @@ public class Account extends AccountBase implements CloudOsAccount, Scrubbable {
     public static final String STATUS = "status";
     public static enum Status { active, invited, suspended, admins, non_admins }
 
-    @Override @JsonIgnore public ScrubbableField[] getFieldsToScrub() { return SCRUBBABLE; }
+    @Override @JsonIgnore public ScrubbableField[] fieldsToScrub() { return SCRUBBABLE; }
 
     public static final Comparator<Account> SORT_ACCOUNT_NAME = new Comparator<Account>() {
         @Override public int compare(Account a1, Account a2) {
