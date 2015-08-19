@@ -89,7 +89,6 @@ dns:
 rooty:
   queueName: {{ROOTY_QUEUE_NAME}} # matches where rooty reads from, defined in /etc/rooty/*.yml (from cloudos chef recipe)
   secret: {{ROOTY_SECRET}}        # used to generate hashes in request filenames
-  memcachedKey: {{CLOUD_STORAGE_DATA_KEY}}
   handlers:
     rooty.toots.postfix.PostfixHandler:
     rooty.toots.ssl.SslCertHandler:
