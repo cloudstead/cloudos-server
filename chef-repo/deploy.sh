@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# Usage: ./deploy.sh user@host [solo-json]
+# Usage: ./deploy.sh user@host [solo-json] [tempdir|inline]
 #
 # user@host: target to deploy. user must have password-less sudo privileges.
 # solo-json: path to a Chef run list (typically solo.json) to use. Otherwise a minimal one is generated based on defaults.
+# mode: default is 'tempdir' which will create a new temp dir with init files added. 'inline' will copy init files into this chef repo.
 #
 # Optional environment variables:
 #
@@ -24,6 +25,10 @@
 #                     that runs there.
 #                  if not set, script will install cloudos-dns so owner can fine-tune how DNS is managed,
 #                     separately from cloudos
+#
+#   REQUIRED    -- space-separated list of required files, typically databags and certificates
+#
+#   COOKBOOK_SOURCES -- dirs to look for cookbooks in
 #
 
 function die {
@@ -53,7 +58,8 @@ if [ ! -x ${DEPLOYER} ] ; then
 fi
 
 host="${1:?no user@host specified}"
-SOLO_JSON="${2}"
+SOLO_JSON="${2:-solo.json}"
+MODE="${3:-tempdir}"
 
 # SSH key
 DEFAULT_DSA_KEY="${HOME}/.ssh/id_dsa"
@@ -84,7 +90,8 @@ function append_recipe () {
   echo ${TMP}
 }
 
-REQUIRED=" \
+if [ -z "${REQUIRED}" ] ; then
+  REQUIRED=" \
 data_bags/cloudos/base.json \
 data_bags/cloudos/init.json \
 data_bags/cloudos/ports.json \
@@ -92,11 +99,14 @@ data_bags/email/init.json \
 certs/cloudos/ssl-https.key \
 certs/cloudos/ssl-https.pem \
 "
+fi
 
-COOKBOOK_SOURCES=" \
+if [ -z "${COOKBOOK_SOURCES}" ] ; then
+  COOKBOOK_SOURCES=" \
 ${CLOUDOS_BASE}/cloudos-lib/chef-repo/cookbooks \
 $(find ${CLOUDOS_BASE}/cloudos-apps/apps -type d -name cookbooks) \
 "
+fi
 
 if [ -z "${SOLO_JSON}" ] ; then
   SOLO_JSON="${BASE}/solo-base.json"
@@ -125,4 +135,4 @@ if [ -z "${SOLO_JSON}" ] ; then
   SOLO_JSON="$(append_recipe ${SOLO_JSON} "recipe[cloudos::validate]")"
 fi
 
-${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}" ${SOLO_JSON}
+${DEPLOYER} ${host} ${INIT_FILES} "${REQUIRED}" "${COOKBOOK_SOURCES}" ${SOLO_JSON} ${MODE}
