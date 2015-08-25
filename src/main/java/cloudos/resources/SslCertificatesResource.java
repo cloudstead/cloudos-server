@@ -8,8 +8,6 @@ import cloudos.model.support.SslCertificateRequest;
 import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.openssl.PEMParser;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +18,12 @@ import rooty.toots.ssl.RemoveSslCertMessage;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.system.CommandShell.hostname;
+import static org.cobbzilla.wizard.resources.ResourceUtil.invalid;
 import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
-import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,8 +32,6 @@ import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
 public class SslCertificatesResource {
 
     public static final long SSL_CERT_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
-
-    public static final String CN_PREFIX = "CN=";
 
     @Autowired private SslCertificateDAO certificateDAO;
     @Autowired private SessionDAO sessionDAO;
@@ -115,34 +110,22 @@ public class SslCertificatesResource {
             log.warn("certificate will be overwritten: "+name);
         }
 
-        // validate PEM
-        String commonName = "";
-        final PEMParser pemParser = new PEMParser(new StringReader(request.getPem()));
+        final SslCertificate cert;
         try {
-            Object thing;
-            while ((thing = pemParser.readObject()) != null) {
-                if (thing instanceof X509CertificateHolder) {
-                    final String subject = ((X509CertificateHolder) thing).getSubject().toString();
-                    if (subject != null && subject.startsWith(CN_PREFIX) && subject.length() > CN_PREFIX.length()) {
-                        commonName = subject.substring(CN_PREFIX.length());
-                    }
-                }
-            }
-
+            cert = (SslCertificate) new SslCertificate()
+                    .setDescription(request.getDescription())
+                    .setPem(request.getPem())
+                    .setKey(request.getKey())
+                    .setName(name);
         } catch (Exception e) {
             log.warn("Error parsing PEM: "+e);
-            return serverError();
-        }
-        if (empty(commonName)) {
-            log.warn("{err.cert.pem.invalid}", "The PEM data did not contain a valid Common Name");
+            return invalid("{err.cert.pem.invalid}", "The PEM data did not contain a valid Common Name");
         }
 
-        final SslCertificate cert = (SslCertificate) new SslCertificate()
-                .setCommonName(commonName)
-                .setDescription(request.getDescription())
-                .setPem(request.getPem())
-                .setKey(request.getKey())
-                .setName(name);
+        if (!cert.isValidForHostname(hostname())) {
+            log.warn("{err.cert.pem.wrongName}", "The PEM data did not contain a valid Common Name");
+        }
+
         final SslCertificate dbCert;
         if (found == null) {
             dbCert = certificateDAO.create(cert);

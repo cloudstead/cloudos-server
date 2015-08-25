@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
+import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.io.TempDir;
@@ -146,8 +147,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     @Override protected Class<CloudOsServer> getRestServerClass() { return CloudOsServer.class; }
 
-    public static final String TEST_KEY = "ssl-https.key";
-    public static final String TEST_PEM = "ssl-https.pem";
+    public static final String TEST_KEY = HttpUtil.DEFAULT_CERT_NAME + ".key";
+    public static final String TEST_PEM = HttpUtil.DEFAULT_CERT_NAME + ".pem";
     public static final String DUMMY_KEY = "dummy.key";
     public static final String DUMMY_PEM = "dummy.pem";
 
@@ -268,7 +269,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
                 .setKeyMd5(DEFAULT_KEY_MD5)
                 .setPemSha(DEFAULT_PEM_SHA)
                 .setPemMd5(DEFAULT_PEM_MD5)
-                .setName(ApiConstants.DEFAULT_CERT_NAME));
+                .setName(HttpUtil.DEFAULT_CERT_NAME));
     }
 
     protected String adminToken;

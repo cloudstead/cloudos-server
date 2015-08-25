@@ -11,6 +11,7 @@ import org.cobbzilla.wizard.util.RestResponse;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.http.HttpUtil.DEFAULT_CERT_NAME;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class UnlockMain extends CloudOsMainBase<UnlockMainOptions> {
         final SslCertificateRequest request = new SslCertificateRequest()
                 .setPem(FileUtil.toString(options.getPem()))
                 .setKey(FileUtil.toString(options.getKey()))
-                .setName("ssl-https");
+                .setName(DEFAULT_CERT_NAME);
 
         final Map<String, String> settings = new HashMap<>();
         settings.put("init/authy.user", options.getAuthy());

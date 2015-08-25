@@ -3,8 +3,8 @@ package cloudos.resources;
 import cloudos.model.ServiceKey;
 import cloudos.model.support.SslCertificateRequest;
 import cloudos.model.support.UnlockRequest;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.HttpStatusCodes;
+import org.cobbzilla.util.http.HttpUtil;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.wizard.util.RestResponse;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.*;
@@ -79,7 +79,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
         final SslCertificateRequest request = new SslCertificateRequest()
                 .setPem(getDummyPem())
                 .setKey(getDummyKey())
-                .setName("ssl-https");
+                .setName(HttpUtil.DEFAULT_CERT_NAME);
 
         final Map<String, String> settings = new HashMap<>();
         settings.put(ConfigurationsResourceTest.AUTHY_SETTING_PATH, randomAlphanumeric(20));

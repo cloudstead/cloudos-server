@@ -34,7 +34,6 @@ public class ApiConstants {
     public static final String TASKS_ENDPOINT = "/tasks";
 
     public static final String APPSTORE_ENDPOINT = "/appstore";
-    public static final String DEFAULT_CERT_NAME = "ssl-https";
 
     public static String randomPassword() {
         return RandomStringUtils.randomAlphabetic(2).toLowerCase() + RandomStringUtils.randomNumeric(2)
