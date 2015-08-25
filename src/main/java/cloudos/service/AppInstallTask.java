@@ -23,8 +23,6 @@ import org.cobbzilla.util.dns.DnsType;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.system.CommandShell;
-import org.cobbzilla.wizard.task.TaskBase;
-import org.cobbzilla.wizard.task.TaskResult;
 import org.cobbzilla.wizard.validation.ConstraintViolationBean;
 import rooty.RootyMessage;
 import rooty.toots.chef.ChefMessage;
@@ -40,7 +38,7 @@ import static org.cobbzilla.util.io.FileUtil.abs;
  * Installs an application from your cloudstead's app library onto your cloudos.
  */
 @Accessors(chain=true) @Slf4j
-public class AppInstallTask extends TaskBase<CloudOsTaskResult> {
+public class AppInstallTask extends CloudOsTaskBase {
 
     private static final int DEFAULT_TTL = 3600;
 
@@ -54,8 +52,7 @@ public class AppInstallTask extends TaskBase<CloudOsTaskResult> {
     @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
     @Getter @Setter private CloudOsConfiguration configuration;
 
-    @Override
-    public CloudOsTaskResult call() {
+    @Override public CloudOsTaskResult execute() {
 
         description("{appInstall.installingApp}", request.toString());
 

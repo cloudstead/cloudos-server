@@ -4,8 +4,8 @@ import cloudos.dao.AccountGroupDAO;
 import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.model.AccountGroup;
 import cloudos.model.AccountGroupMember;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class SearchAccountGroupsTest extends SearchTestBase {
             groups.add(groupDAO.create(group));
 
             for (int j=0; j<NUM_ACCOUNTS/2; j++) {
-                final AccountGroupMember member = new AccountGroupMember(group, accounts.get(RandomUtils.nextInt(NUM_ACCOUNTS)));
+                final AccountGroupMember member = new AccountGroupMember(group, accounts.get(RandomUtils.nextInt(0, NUM_ACCOUNTS+1)));
                 try {
                     group.addMember(memberDAO.create(member));
                 } catch (DataIntegrityViolationException dive) {

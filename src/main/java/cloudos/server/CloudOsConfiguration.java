@@ -4,7 +4,6 @@ import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.dns.DnsClient;
-import cloudos.dns.config.DynDnsConfiguration;
 import cloudos.dns.service.DynDnsManager;
 import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
@@ -84,7 +83,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
 
     @Getter @Setter private String rootyGroup = "rooty";
 
-    @Getter @Setter private DynDnsConfiguration dns;
+    @Getter @Setter private DnsConfiguration dns;
     @Setter private DnsManager dnsManager;
     public DnsManager getDnsManager() {
         if (dnsManager == null) {

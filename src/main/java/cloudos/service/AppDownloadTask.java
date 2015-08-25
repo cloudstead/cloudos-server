@@ -9,8 +9,6 @@ import cloudos.model.support.AppDownloadRequest;
 import cloudos.model.support.AppInstallRequest;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.service.task.CloudOsTaskResult;
-import org.cobbzilla.wizard.task.TaskBase;
-import org.cobbzilla.wizard.task.TaskResult;
 import cloudos.service.task.TaskService;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +23,7 @@ import java.io.File;
 
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.ensureDirExists;
-import static org.cobbzilla.util.json.JsonUtil.toJson;
+import static org.cobbzilla.util.json.JsonUtil.toJsonOrDie;
 
 /**
  * Download an application and add it to your cloudstead's application library
@@ -40,7 +38,7 @@ import static org.cobbzilla.util.json.JsonUtil.toJson;
  * You cannot download over an existing name+version unless the overwrite flag is set on the AppDownloadRequest object
  */
 @Accessors(chain=true) @Slf4j
-public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
+public class AppDownloadTask extends CloudOsTaskBase {
 
     @Getter @Setter private AppDownloadRequest request;
     @Getter @Setter private CloudOsConfiguration configuration;
@@ -50,8 +48,7 @@ public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
     @Getter @Setter private CloudOsAccount account;
     @Getter @Setter private CloudOsAppConfigValidationResolver resolver;
 
-    @Override
-    public CloudOsTaskResult call() throws Exception {
+    @Override public CloudOsTaskResult execute() {
 
         // initial description of task (we'll refine this when we know what is being installed)
         description("{appDownload.starting}", request.getUrl());
@@ -132,7 +129,10 @@ public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
                     return cleanup(tarball, tempDir);
                 } else {
                     if (dest.isDirectory()) {
-                        FileUtils.deleteDirectory(dest);
+                        if (!FileUtils.deleteQuietly(dest)) {
+                            error("{appDownload.error.deleting}", new Exception("could not delete: "+abs(dest)));
+                            return cleanup(tarball, tempDir);
+                        }
                     } else {
                         if (!dest.delete()) {
                             error("{appDownload.error.overwriting}", new Exception("could not overwrite: "+abs(dest)));
@@ -148,7 +148,12 @@ public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
         }
 
         // If assets are defined, ensure they will be accessible via https from local cloudstead
-        AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase()+manifest.getScrubbedName()+"/");
+        try {
+            AppMutableData.downloadAssetsAndUpdateManifest(manifest, layout, configuration.getAssetUrlBase()+manifest.getScrubbedName()+"/");
+        } catch (Exception e) {
+            error("{appDownload.error.downloadingAssets}", e);
+            return cleanup(tarball, tempDir);
+        }
 
         if (request.isAutoInstall() && !manifest.hasConfig()) {
             // submit another job to do the install
@@ -160,10 +165,10 @@ public class AppDownloadTask extends TaskBase<CloudOsTaskResult> {
                     .setRootyService(rootyService)
                     .setResolver(resolver)
                     .setResult(result);
-            return installTask.call();
+            return installTask.execute();
         }
 
-        result.setReturnValue(toJson(manifest));
+        result.setReturnValue(toJsonOrDie(manifest));
         result.setSuccess(true);
         return result;
     }

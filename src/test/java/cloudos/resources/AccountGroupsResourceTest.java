@@ -8,7 +8,7 @@ import cloudos.model.support.AccountGroupMemberView;
 import cloudos.model.support.AccountGroupRequest;
 import cloudos.model.support.AccountGroupView;
 import cloudos.model.support.AccountRequest;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.cobbzilla.util.http.HttpStatusCodes;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.cobbzilla.wizard.util.RestResponse;
@@ -75,7 +75,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
                 .setName(randomAlphanumeric(10).toLowerCase())
                 .setInfo(new AccountGroupInfo()
                         .setDescription(randomAlphanumeric(100))
-                        .setStorageQuota((10 + RandomUtils.nextInt(20)) + "gb"));
+                        .setStorageQuota((10 + RandomUtils.nextInt(0, 21)) + "gb"));
         apiDocs.addNote("create a group with 2 users, a random description and a storage quota of "+group1.getInfo().getStorageQuota());
         response = put(GROUPS_ENDPOINT +"/"+group1.getName(), toJson(group1));
         assertEquals(HttpStatusCodes.OK, response.status);

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.cobbzilla.util.io.FileUtil.abs;
 
 @Accessors(chain=true) @Slf4j
-public class AppUninstallTask extends TaskBase<CloudOsTaskResult> {
+public class AppUninstallTask extends CloudOsTaskBase {
 
     private static final long UNINSTALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
@@ -36,7 +36,7 @@ public class AppUninstallTask extends TaskBase<CloudOsTaskResult> {
     @Getter @Setter private SessionDAO sessionDAO;
     @Getter @Setter private CloudOsConfiguration configuration;
 
-    @Override public CloudOsTaskResult call() throws Exception {
+    @Override public CloudOsTaskResult execute() {
 
         description("{appUninstall.uninstallingApp}", request.toString());
 
