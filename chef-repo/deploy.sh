@@ -43,9 +43,15 @@ CLOUDOS_BASE=$(cd ${BASE}/../.. && pwd)
 if [ -z "${JSON_EDIT}" ] ; then
   COS="$(which cos)"
   if [ ! -z "${COS}" ] ; then
+    # run from an instance (cos is on the path)
     JSON_EDIT="${COS} json"
+
+  elif [ ! -z "$(find ${BASE} -type d -name target)" ] ; then
+    # run from source tree
+    JSON_EDIT="java -cp $(find $(find ${BASE} -type d -name target) -type f -name "cloudos-*.jar") | head -1) org.cobbzilla.util.json.main.JsonEditor"
+
   else
-    JSON_EDIT="java -cp $(find $(find ${BASE} -type d -name target) -type f -name "cloudos-server-*.jar") | head -1) org.cobbzilla.util.json.main.JsonEditor"
+    echo "WARN: JSON_EDIT undefined and JsonEditor could not be located"
   fi
 fi
 
