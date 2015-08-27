@@ -35,6 +35,9 @@ public class ApiConstants {
 
     public static final String APPSTORE_ENDPOINT = "/appstore";
 
+    // apps endpoints
+    public static final String EP_REFRESH = "/refresh";
+
     public static String randomPassword() {
         return RandomStringUtils.randomAlphabetic(2).toLowerCase() + RandomStringUtils.randomNumeric(2)
                 + RandomStringUtils.randomAlphabetic(2).toLowerCase() + RandomStringUtils.randomNumeric(2);

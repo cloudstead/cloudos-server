@@ -1,8 +1,10 @@
 package cloudos.main.app;
 
 import cloudos.main.CloudOsMainBase;
-import cloudos.resources.ApiConstants;
 import org.cobbzilla.wizard.client.ApiClientBase;
+
+import static cloudos.resources.ApiConstants.APPS_ENDPOINT;
+import static cloudos.resources.ApiConstants.EP_REFRESH;
 
 public class RefreshAppsMain extends CloudOsMainBase<RefreshAppsMainOptions>{
 
@@ -12,7 +14,7 @@ public class RefreshAppsMain extends CloudOsMainBase<RefreshAppsMainOptions>{
 
         final RefreshAppsMainOptions options = getOptions();
         final ApiClientBase api = getApiClient();
-        String uri = ApiConstants.APPS_ENDPOINT+"/refresh";
+        String uri = APPS_ENDPOINT + EP_REFRESH;
 
         if (options.hasRefreshKey()) {
             uri += "?refreshKey=" + options.getRefreshKey();

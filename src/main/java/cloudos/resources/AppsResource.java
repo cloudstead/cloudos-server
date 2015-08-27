@@ -96,7 +96,7 @@ public class AppsResource {
      * @statuscode 403 if caller is not an admin or key is wrong
      */
     @GET
-    @Path("/refresh")
+    @Path(ApiConstants.EP_REFRESH)
     @ReturnType("java.lang.Void")
     public Response refresh (@HeaderParam(H_API_KEY) String apiKey,
                              @QueryParam("refreshKey") String refreshKey) {
