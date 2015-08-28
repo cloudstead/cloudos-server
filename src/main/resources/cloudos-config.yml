@@ -78,6 +78,8 @@ authy:
   user: {{AUTHY_KEY}}
   baseUri: {{AUTHY_URI}}
 
+dnsMode: {{CLOUDOS_DNS_MODE}}
+
 dns:
   user: {{CLOUDOS_DNS_USER}}
   password: {{CLOUDOS_DNS_PASSWORD}}

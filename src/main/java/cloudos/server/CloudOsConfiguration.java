@@ -3,6 +3,7 @@ package cloudos.server;
 import cloudos.appstore.client.AppStoreApiClient;
 import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
+import cloudos.databag.DnsMode;
 import cloudos.dns.DnsClient;
 import cloudos.dns.service.DynDnsManager;
 import cloudos.dns.service.mock.MockDnsManager;
@@ -83,13 +84,18 @@ public class CloudOsConfiguration extends RestServerConfiguration
 
     @Getter @Setter private String rootyGroup = "rooty";
 
+    @Getter @Setter private DnsMode dnsMode;
+
     @Getter @Setter private DnsConfiguration dns;
-    @Setter private DnsManager dnsManager;
-    public DnsManager getDnsManager() {
-        if (dnsManager == null) {
-            dnsManager = !dns.isEnabled() ? new MockDnsManager() : dns.isDynDns() ? new DynDnsManager(dns) : new DnsClient(dns);
+
+    @Getter(lazy=true) private final DnsManager dnsManager = initDnsManager();
+    public DnsManager initDnsManager() {
+        if (!dns.isEnabled()) return new MockDnsManager();
+        switch (dnsMode) {
+            case dyn: return new DynDnsManager(dns);
+            case internal: case cdns: return new DnsClient(dns);
+            default: return die("initDnsManager: invalid mode: "+dnsMode);
         }
-        return dnsManager;
     }
 
     @Getter(lazy=true) private final String hostname = initHostname();

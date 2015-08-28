@@ -1,14 +1,19 @@
 {
     "id": "init",
+
     "admin": {
         "name": "cloudos-dns-admin",
         "password": "bcrypted-password"
     },
-    "dyndns": {    // omit if using djbdns
+
+    "server_type": "some-type",  // use 'djbdns' or 'dyn'
+
+    "dyn": {    // omit if using djbdns
         "account": "your-dyndns-account",
         "user": "a-dyndns-user-account",
         "password": "password",
         "zone": "example.com"
     },
+
     "djbdns": true // omit if using dyndns
 }

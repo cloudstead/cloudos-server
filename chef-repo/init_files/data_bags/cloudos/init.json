@@ -21,6 +21,7 @@
     },
 
     "dns": {
+        "mode": "some-mode", // use 'cdns', 'dyn', or 'internal'
         "base_uri": "https://localhost/dns/api (if using Dyn, remove this field, or make its value empty)",
         "user": "cloudos-dns-admin (if using Dyn, put dyn username here)",
         "password": "user password goes here. (if using cloudos-dns, use this value: ../cloudos-dns/init.json, admin.password field)",

@@ -76,6 +76,8 @@ authy:
   user: {{AUTHY_KEY}}
   baseUri: http://sandbox-api.authy.com
 
+dnsMode: {{CLOUDOS_DNS_MODE}}
+
 dns:
   user: dummy
   password: dummy
