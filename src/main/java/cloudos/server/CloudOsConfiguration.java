@@ -90,7 +90,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
 
     @Getter(lazy=true) private final DnsManager dnsManager = initDnsManager();
     public DnsManager initDnsManager() {
-        if (!dns.isEnabled()) return new MockDnsManager();
+        if (dns == null || !dns.isEnabled()) return new MockDnsManager();
         switch (dnsMode) {
             case dyn: return new DynDnsManager(dns);
             case internal: case cdns: return new DnsClient(dns);

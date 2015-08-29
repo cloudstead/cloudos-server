@@ -22,6 +22,7 @@ import cloudos.model.support.SetupResponse;
 import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
+import cloudos.server.MockCloudOsConfiguration;
 import cloudos.service.MockKerberosService;
 import cloudos.service.MockLdapService;
 import cloudos.service.MockRootySender;
@@ -77,7 +78,8 @@ import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.string.StringUtil.urlEncode;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static rooty.toots.chef.ChefSolo.SOLO_JSON;
 
 @Slf4j
@@ -90,8 +92,12 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     public static final String CHEF_USER = System.getProperty("user.name");
 
-    private MockDnsManager dnsManager = new MockDnsManager();
     protected MockAppStoreApiClient appStoreClient;
+
+    @Override public CloudOsConfiguration filterConfiguration(CloudOsConfiguration configuration) {
+        // overrides getDnsManager
+        return new MockCloudOsConfiguration(configuration);
+    }
 
     protected static AssetWebServer webServer = new AssetWebServer();
     @BeforeClass public static void startTestWebserver() throws Exception { webServer.start(); }
@@ -251,7 +257,6 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // mock app store and DNS manager
         appStoreClient = new MockAppStoreApiClient(webServer, getConfiguration().getAppStore());
         configuration.setAppStoreClient(appStoreClient);
-        configuration.setDnsManager(dnsManager);
 
         // use scratch dir for app repository, set rooty group to null (skip chgrp)
         appRepository = new TempDir();
