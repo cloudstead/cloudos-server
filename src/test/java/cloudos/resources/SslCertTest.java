@@ -24,8 +24,7 @@ public class SslCertTest extends ApiClientTestBase {
 
     public static final String DOC_TARGET = "SSL Certificate Management";
 
-    @Test
-    public void testInstallSslCert () throws Exception {
+    @Test public void testInstallSslCert () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "install an SSL cert");
 
         final String sslKey = getTestKey();
