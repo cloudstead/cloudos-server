@@ -43,7 +43,7 @@ public class SearchAccountGroupsTest extends SearchTestBase {
             groups.add(groupDAO.create(group));
 
             for (int j=0; j<NUM_ACCOUNTS/2; j++) {
-                final AccountGroupMember member = new AccountGroupMember(group, accounts.get(RandomUtils.nextInt(0, NUM_ACCOUNTS+1)));
+                final AccountGroupMember member = new AccountGroupMember(group, accounts.get(RandomUtils.nextInt(0, NUM_ACCOUNTS)));
                 try {
                     group.addMember(memberDAO.create(member));
                 } catch (DataIntegrityViolationException dive) {

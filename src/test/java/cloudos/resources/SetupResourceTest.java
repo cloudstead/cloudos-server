@@ -19,8 +19,7 @@ public class SetupResourceTest extends ApiClientTestBase {
 
     @Override protected boolean skipAdminCreation() { return true; }
 
-    @Test
-    public void testFirstTimeSetup () throws Exception {
+    @Test public void testFirstTimeSetup () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "First-time setup of a new cloudstead");
 
         apiDocs.addNote("Check to see if first-time setup can be done, should return true");
@@ -34,8 +33,7 @@ public class SetupResourceTest extends ApiClientTestBase {
         assertFalse(Boolean.valueOf(get(ApiConstants.SETUP_ENDPOINT).json));
     }
 
-    @Test
-    public void testRestoreFromBackup () throws Exception {
+    @Test public void testRestoreFromBackup () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "Restore a cloudstead from a backup");
         final MockSetupSettingsSource setupSource  = server.getApplicationContext().getBean(MockSetupSettingsSource.class);
 
