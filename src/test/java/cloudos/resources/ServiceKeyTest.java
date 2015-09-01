@@ -30,8 +30,7 @@ public class ServiceKeyTest extends ConfigurationTestBase {
 
     public static final String DOC_TARGET = "Service Key Generation";
 
-    @Test
-    public void testServiceKeyCrud() throws Exception {
+    @Test public void testServiceKeyCrud() throws Exception {
         apiDocs.startRecording(DOC_TARGET, "generate a service key, overwrite default SSL cert, generate a key visible to end-user");
 
         // Check "allowssh" config value -- should be false
