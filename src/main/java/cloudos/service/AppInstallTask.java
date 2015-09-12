@@ -137,22 +137,6 @@ public class AppInstallTask extends CloudOsTaskBase {
             return null;
         }
 
-        // does it want its own hostname?
-        if (manifest.hasHostname()) {
-            addEvent("{appInstall.creatingHostname}");
-            try {
-                final String hostname = manifest.getHostname();
-                if (hostname != null && !hostname.equals(AppManifest.ROOT_HOSTNAME)) {
-                    createDnsRecord(DnsType.A, hostname + "-" + configuration.getHostname(), configuration.getPublicIp());
-                    createDnsRecord(DnsType.A, hostname + "." + configuration.getHostname(), configuration.getPublicIp());
-                }
-
-            } catch (Exception e) {
-                error("{appInstall.error.creatingHostname}", e);
-                return null;
-            }
-        }
-
         // collect cookbooks and recipes, build chef
         addEvent("{appInstall.verifyingChefCookbooks}");
         final ChefMessage chefMessage = new ChefMessage(ChefOperation.ADD).setForceApply(request.isForce());
