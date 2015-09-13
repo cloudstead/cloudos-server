@@ -98,7 +98,7 @@ function append_recipe () {
 
 if [ -z "${REQUIRED}" ] ; then
   REQUIRED=" \
-data_bags/cloudos/base.json \
+data_bags/base/base.json \
 data_bags/cloudos/init.json \
 data_bags/cloudos/ports.json \
 data_bags/email/init.json \
