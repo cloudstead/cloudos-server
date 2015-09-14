@@ -5,7 +5,7 @@ import cloudos.appstore.model.app.AppLayout;
 import cloudos.appstore.model.app.AppManifest;
 import cloudos.databag.DnsMode;
 import cloudos.dns.DnsClient;
-import cloudos.dns.service.DynDnsManager;
+import cloudos.dns.service.dyn.DynDnsManager;
 import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
 import cloudos.service.TwoFactorAuthService;
