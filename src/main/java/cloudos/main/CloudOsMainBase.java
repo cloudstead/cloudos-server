@@ -3,11 +3,11 @@ package cloudos.main;
 import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
 import cloudos.resources.ApiConstants;
-import org.cobbzilla.wizard.task.TaskId;
-import org.cobbzilla.wizard.task.TaskResult;
+import cloudos.service.task.CloudOsTaskResult;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.wizard.client.ApiClientBase;
 import org.cobbzilla.wizard.main.MainApiBase;
+import org.cobbzilla.wizard.task.TaskId;
 import org.cobbzilla.wizard.util.RestResponse;
 import rooty.toots.vendor.VendorSettingDisplayValue;
 
@@ -39,19 +39,19 @@ public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends Ma
     public static final long TIMEOUT = TimeUnit.MINUTES.toMillis(20);
     protected long getTimeout() { return TIMEOUT; }
 
-    protected TaskResult awaitTaskResult(TaskId taskId) throws Exception {
+    protected CloudOsTaskResult awaitTaskResult(TaskId taskId) throws Exception {
 
         final ApiClientBase api = getApiClient();
         final long start = System.currentTimeMillis();
         final long pollInterval = 1000 * getOptions().getPollInterval();
         final String taskStatusUri = TASKS_ENDPOINT + "/" + taskId.getUuid();
 
-        TaskResult result = fromJson(api.get(taskStatusUri).json, TaskResult.class);
+        CloudOsTaskResult result = fromJson(api.get(taskStatusUri).json, CloudOsTaskResult.class);
 
         while (!result.isComplete() && System.currentTimeMillis() - start < getTimeout()) {
             sleep(pollInterval, "waiting for task (" + taskId + ") to complete");
             final String json = api.get(taskStatusUri).json;
-            result = fromJson(json, TaskResult.class);
+            result = fromJson(json, CloudOsTaskResult.class);
             out(result.toString());
         }
 
