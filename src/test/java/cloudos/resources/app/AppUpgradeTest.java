@@ -3,7 +3,7 @@ package cloudos.resources.app;
 import cloudos.appstore.model.AppStoreAccount;
 import cloudos.appstore.model.CloudAppStatus;
 import cloudos.appstore.model.app.AppManifest;
-import cloudos.model.auth.ApiToken;
+import org.cobbzilla.wizard.model.ApiToken;
 import cloudos.appstore.model.support.AppInstallStatus;
 import cloudos.appstore.model.support.AppListing;
 import cloudos.appstore.model.CloudAppVersion;
