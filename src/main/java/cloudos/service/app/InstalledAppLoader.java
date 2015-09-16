@@ -7,7 +7,6 @@ import cloudos.server.CloudOsConfiguration;
 import cloudos.service.RootyService;
 import com.sun.jersey.api.core.HttpContext;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.http.CookieJar;
 import org.cobbzilla.util.http.HttpMethods;
 import org.cobbzilla.util.http.HttpRequestBean;
@@ -27,10 +26,9 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
-import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.wizard.util.ProxyUtil.proxyResponse;
 
 @Service @Slf4j
@@ -118,6 +116,10 @@ public class InstalledAppLoader {
         log.info("loadApp: attempting login for " + appPath + " account " + account.getName());
         int numCookies = cookieJar.size();
         final HttpRequestBean<String> authRequest = app.buildLoginRequest(account, response, context, appPath);
+        if (authRequest == null) {
+            log.warn("loadApp: app.buildLoginRequest returned null, sending to main app page");
+            return sendToApp(pctx);
+        }
         response = proxyResponse(authRequest, context, appPath, cookieJar);
         log.debug("loadApp: authentication request=\n"+authRequest+"\n\nresponse=\n"+response);
 
