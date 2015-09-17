@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 
+import static org.cobbzilla.wizard.resources.ResourceUtil.streamFile;
+
 @Consumes(MediaType.WILDCARD)
 @Produces(MediaType.WILDCARD)
 @Path(ApiConstants.APP_ASSETS_ENDPOINT)
@@ -40,7 +42,7 @@ public class AppAssetsResource {
         final File assetFile = layout.findLocalAsset(asset);
         if (assetFile == null || !assetFile.exists()) return ResourceUtil.notFound(asset);
 
-        return ResourceUtil.streamFile(assetFile);
+        return streamFile(assetFile);
     }
 
 }
