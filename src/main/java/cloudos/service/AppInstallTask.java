@@ -60,6 +60,8 @@ public class AppInstallTask extends CloudOsTaskBase {
         AppLayout appLayout = null;
         if (request.hasVersion()) {
             appLayout = configuration.getAppLayout(request.getName(), request.getVersion());
+        } else {
+            appLayout = configuration.getAppLayoutForLatestVersion(request.getName());
         }
         if (appLayout == null || !appLayout.exists()) {
             // is it a public app?

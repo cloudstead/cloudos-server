@@ -51,6 +51,7 @@ public class CloudOsConfiguration extends RestServerConfiguration
     public AppLayout getAppLayout(String name) { return new AppLayout(getAppRepository(), name); }
     public AppLayout getAppLayout(String name, String version) { return new AppLayout(getAppRepository(), name, version); }
     public AppLayout getAppLayout(AppManifest manifest) { return new AppLayout(getAppRepository(), manifest); }
+    public AppLayout getAppLayoutForLatestVersion(String name) { return new AppLayout(getAppRepository(), name, AppLayout.LATEST_VERSION); }
 
     @Getter @Setter private String appRefreshKey;
 
