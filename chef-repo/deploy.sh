@@ -108,10 +108,7 @@ certs/cloudos/ssl-https.pem \
 fi
 
 if [ -z "${COOKBOOK_SOURCES}" ] ; then
-  COOKBOOK_SOURCES=" \
-${CLOUDOS_BASE}/cloudos-lib/chef-repo/cookbooks \
-$(find ${CLOUDOS_BASE}/cloudos-apps/apps -type d -name cookbooks) \
-"
+  COOKBOOK_SOURCES="$(find ${CLOUDOS_BASE}/cloudos-apps/apps -type d -name cookbooks)"
 fi
 
 if [ -z "${SOLO_JSON}" ] ; then
