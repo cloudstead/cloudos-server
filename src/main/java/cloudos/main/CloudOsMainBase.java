@@ -4,9 +4,12 @@ import cloudos.model.auth.CloudOsAuthResponse;
 import cloudos.model.auth.LoginRequest;
 import cloudos.resources.ApiConstants;
 import cloudos.service.task.CloudOsTaskResult;
+import com.fasterxml.jackson.databind.InjectableValues;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.wizard.client.ApiClientBase;
 import org.cobbzilla.wizard.main.MainApiBase;
+import org.cobbzilla.wizard.model.ldap.LdapEntity;
 import org.cobbzilla.wizard.task.TaskId;
 import org.cobbzilla.wizard.util.RestResponse;
 import rooty.toots.vendor.VendorSettingDisplayValue;
@@ -19,6 +22,15 @@ import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
 public abstract class CloudOsMainBase<OPT extends CloudOsMainOptions> extends MainApiBase<OPT> {
+
+    public CloudOsMainBase () {
+        JsonUtil.NOTNULL_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getOptions().getLdap()));
+        JsonUtil.FULL_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getOptions().getLdap()));
+        JsonUtil.PUBLIC_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getOptions().getLdap()));
+    }
 
     @Override protected String getApiHeaderTokenName() { return H_API_KEY; }
 

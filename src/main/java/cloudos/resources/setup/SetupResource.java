@@ -85,7 +85,7 @@ public class SetupResource {
             return invalid("{err.setup.adminsExist}");
         }
 
-        // create admin account in kerberos and cloud storage
+        // create admin account in LDAP and CloudOs
         request.setAdmin(true);
         final Account account;
         try {
@@ -98,10 +98,13 @@ public class SetupResource {
         // initial account does not require email validation
         account.setEmailVerified(true);
         account.setLastLogin();
+        account.setPassword(request.getPassword()); // keep the password in the session
+
         try {
             accountDAO.update(account);
         } catch (Exception e) {
             log.error("Error activating admin account: "+e, e);
+            accountDAO.delete(account.getName());
             return serverError();
         }
 
@@ -110,7 +113,6 @@ public class SetupResource {
             rootyService.getSender().write(new SystemSetTimezoneMessage(timezone.getLinuxName()));
         }
 
-        account.setPassword(request.getPassword()); // keep the password in the session
         final String sessionId = sessionDAO.create(account);
 
         setupSettingsSource.firstTimeSetupCompleted();
@@ -157,9 +159,10 @@ public class SetupResource {
     public Response restore (@Valid RestoreRequest restoreRequest) throws Exception {
 
         // only proceed if the setup key file is present and matches the request's setupKey
-        final SetupRequest setup = new SetupRequest()
+        final SetupRequest setup = (SetupRequest) new SetupRequest()
                 .setSetupKey(restoreRequest.getSetupKey())
-                .setInitialPassword(restoreRequest.getInitialPassword());
+                .setInitialPassword(restoreRequest.getInitialPassword())
+                .setLdapContext(configuration.getLdap());
         setupSettingsSource.validateFirstTimeSetup(setup);
 
         final RestoreTask restoreTask = new RestoreTask()

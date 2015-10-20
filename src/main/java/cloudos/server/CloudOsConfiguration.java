@@ -75,7 +75,6 @@ public class CloudOsConfiguration extends RestServerConfiguration
         return twoFactorAuthService;
     }
 
-    @Getter @Setter private String kadminPassword;
     @Getter @Setter private LdapConfiguration ldap = new LdapConfiguration();
     @Getter @Setter private String defaultAdmin = DEFAULT_ADMIN;
 

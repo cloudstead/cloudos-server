@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonUtil;
 import org.cobbzilla.util.security.bcrypt.BCrypt;
-import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.toStringOrDie;
+import static org.cobbzilla.wizard.resources.ResourceUtil.invalidEx;
 
 @Service @Slf4j
 public class SetupSettingsSource {
@@ -27,19 +27,19 @@ public class SetupSettingsSource {
     }
 
     public String validateFirstTimeSetup(SetupRequest request) {
-        if (!canSetup()) throw new SimpleViolationException("{err.setup.alreadySetup}");
+        if (!canSetup()) throw invalidEx("{err.setup.alreadySetup}");
         final SetupSettings settings = getSettings();
-        if (settings == null) throw new SimpleViolationException("{err.setup.alreadySetup}");
+        if (settings == null) throw invalidEx("{err.setup.alreadySetup}");
         validateSecrets(request, settings);
         return settings.getBackupKey();
     }
 
     protected void validateSecrets(SetupRequest request, SetupSettings settings) {
-        if (!settings.getSecret().equals(request.getSetupKey())) throw new SimpleViolationException("{err.setup.key.invalid}");
+        if (!settings.getSecret().equals(request.getSetupKey())) throw invalidEx("{err.setup.key.invalid}");
 
         // compare password...
         if (!BCrypt.checkpw(request.getInitialPassword(), settings.getPasswordHash())) {
-            throw new SimpleViolationException("{err.setup.initialPassword.invalid}");
+            throw invalidEx("{err.setup.initialPassword.invalid}");
         }
     }
 

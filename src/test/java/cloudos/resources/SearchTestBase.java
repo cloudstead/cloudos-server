@@ -3,6 +3,7 @@ package cloudos.resources;
 import cloudos.dao.AccountDAO;
 import cloudos.model.Account;
 import cloudos.model.support.AccountRequest;
+import cloudos.service.MockLdapService;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.NamedEntity;
 import org.cobbzilla.wizard.model.ResultPage;
@@ -26,8 +27,7 @@ public class SearchTestBase extends ApiClientTestBase {
     protected static final List<Account> accountsByName = new ArrayList<>();
     protected static final List<String> accountNames = new ArrayList<>();
 
-    @Before
-    public void seedAccounts () throws Exception {
+    @Before public void seedAccounts () throws Exception {
 
         resetAccounts();
 
@@ -36,7 +36,7 @@ public class SearchTestBase extends ApiClientTestBase {
         for (int i=0; i<NUM_ACCOUNTS; i++) {
             final String accountName = accountNameBase + "_" + i;
             final String password = randomAlphanumeric(10);
-            final AccountRequest request = newAccountRequest(accountName, password, false);
+            final AccountRequest request = newAccountRequest(ldap(), accountName, password, false);
             accounts.add(accountDAO.create(request));
             accountRequests.put(accountName, request);
         }
@@ -58,6 +58,7 @@ public class SearchTestBase extends ApiClientTestBase {
         accounts.clear();
         accountsByName.clear();
         accountNames.clear();
+        getBean(MockLdapService.class).reset();
     }
 
     protected void expectResults(ResultPage page, int expectedTotalCount, List<String> expected) throws Exception {
@@ -65,7 +66,11 @@ public class SearchTestBase extends ApiClientTestBase {
     }
 
     protected void expectResults(ResultPage page, int expectedTotalCount, List<String> expected, SearchResults<? extends NamedEntity> found) {
-        assertEquals(expectedTotalCount, found.total());
+        if (found.hasTotalCount()) {
+            assertEquals(expectedTotalCount, found.total());
+        } else {
+            assertEquals(expectedTotalCount, 0);
+        }
         final int limit = Math.min(expectedTotalCount, page.getPageSize());
         for (int i=0; i<limit; i++) {
             assertEquals(found.getResult(i).getName(), expected.get(i));

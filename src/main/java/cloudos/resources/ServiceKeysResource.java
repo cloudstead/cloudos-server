@@ -7,8 +7,6 @@ import cloudos.model.ServiceKey;
 import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.wizard.resources.ResourceUtil;
-import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rooty.toots.service.ServiceKeyRequest;
@@ -20,8 +18,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.cobbzilla.wizard.resources.ResourceUtil.ok;
-import static org.cobbzilla.wizard.resources.ResourceUtil.serverError;
+import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 import static rooty.toots.service.ServiceKeyRequest.Operation.DESTROY;
 import static rooty.toots.service.ServiceKeyRequest.Operation.GENERATE;
 import static rooty.toots.service.ServiceKeyRequest.Recipient.CUSTOMER;
@@ -47,8 +44,8 @@ public class ServiceKeysResource {
     public Response findServiceKeys (@HeaderParam(ApiConstants.H_API_KEY) String apiKey) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         final List<ServiceKey> keys = serviceKeyDAO.findAll();
         return ok(keys);
@@ -68,11 +65,11 @@ public class ServiceKeysResource {
                                      @PathParam("name") String name) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         ServiceKey found = serviceKeyDAO.findByName(name);
-        if (found == null) return ResourceUtil.notFound(name);
+        if (found == null) return notFound(name);
 
         return ok(found);
     }
@@ -95,13 +92,13 @@ public class ServiceKeysResource {
                                 ServiceKeyRequest request) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
-        if (!name.equals(request.getName())) return ResourceUtil.invalid();
+        if (!name.equals(request.getName())) return invalid();
 
         final ServiceKey found = serviceKeyDAO.findByName(name);
-        if (found != null) throw new SimpleViolationException("{err.serviceKey.exists}", "a key with that name already exists");
+        if (found != null) throw invalidEx("{err.serviceKey.exists}", "a key with that name already exists");
 
         ServiceKeyRequest message = new ServiceKeyRequest()
                 .setName(name)
@@ -120,7 +117,10 @@ public class ServiceKeysResource {
             } else {
                 // key request failed -- perhaps because cloudstead is still locked
                 log.error("Error generating service key: "+message.getResults());
-                return ResourceUtil.invalid(message.getResults());
+                if (message.getResults().matches("^\\{?err\\..+}")) {
+                    return invalid(message.getResults());
+                }
+                return invalid("err.serviceKey.failed");
             }
         }
 
@@ -141,11 +141,11 @@ public class ServiceKeysResource {
                                @PathParam("name") String name) {
 
         final Account admin = sessionDAO.find(apiKey);
-        if (admin == null) return ResourceUtil.notFound(apiKey);
-        if (!admin.isAdmin()) return ResourceUtil.forbidden();
+        if (admin == null) return notFound(apiKey);
+        if (!admin.isAdmin()) return forbidden();
 
         final ServiceKey found = serviceKeyDAO.findByName(name);
-        if (found == null) return ResourceUtil.notFound(name);
+        if (found == null) return notFound(name);
 
         try {
             rooty.request(new ServiceKeyRequest().setName(name).setOperation(DESTROY));

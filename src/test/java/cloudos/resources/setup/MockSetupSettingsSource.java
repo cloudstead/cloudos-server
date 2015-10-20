@@ -7,6 +7,7 @@ import org.cobbzilla.util.security.bcrypt.BCryptUtil;
 import org.cobbzilla.wizard.validation.SimpleViolationException;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.cobbzilla.wizard.resources.ResourceUtil.invalidEx;
 import static org.cobbzilla.wizardtest.RandomUtil.randomEmail;
 
 @Slf4j
@@ -24,7 +25,7 @@ public class MockSetupSettingsSource extends SetupSettingsSource {
 
     @Override
     public String validateFirstTimeSetup(SetupRequest request) {
-        if (!canSetup()) throw new SimpleViolationException("{error.setup.alreadySetup}");
+        if (!canSetup()) throw invalidEx("{error.setup.alreadySetup}");
         validateSecrets(request, mockSettings);
         return MOCK_BACKUP_KEY;
     }

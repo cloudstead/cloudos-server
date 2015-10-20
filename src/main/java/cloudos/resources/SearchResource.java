@@ -3,7 +3,6 @@ package cloudos.resources;
 import au.com.bytecode.opencsv.CSVWriter;
 import cloudos.dao.AccountDAO;
 import cloudos.dao.AccountGroupDAO;
-import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.AccountGroup;
@@ -12,6 +11,7 @@ import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
+import org.cobbzilla.wizard.ldap.LdapService;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.cobbzilla.wizard.resources.ResourceUtil;
 import org.joda.time.format.DateTimeFormat;
@@ -52,7 +52,6 @@ public class SearchResource {
     @Autowired private SessionDAO sessionDAO;
     @Autowired private AccountDAO accountDAO;
     @Autowired private AccountGroupDAO groupDAO;
-    @Autowired private AccountGroupMemberDAO memberDAO;
 
     public enum Type {accounts, groups}
 
@@ -121,9 +120,11 @@ public class SearchResource {
         final SearchResults results;
         switch (Type.valueOf(type)) {
             case accounts:
+                if (!page.hasBound(LdapService.BOUND_BASE)) page.setBound(LdapService.BOUND_BASE, accountDAO.parentDN());
                 results = accountDAO.search(page);
                 break;
             case groups:
+                if (!page.hasBound(LdapService.BOUND_BASE)) page.setBound(LdapService.BOUND_BASE, groupDAO.parentDN());
                 results = toGroupViews(groupDAO.search(page));
                 break;
             default:
@@ -136,7 +137,7 @@ public class SearchResource {
         SearchResults<AccountGroupView> rval = new SearchResults<>();
         rval.setTotalCount(groups.getTotalCount());
         for (AccountGroup group : groups.getResults()) {
-            rval.addResult(buildAccountGroupView(memberDAO, group, null));
+            rval.addResult(buildAccountGroupView(groupDAO, group, null));
         }
         return rval;
     }

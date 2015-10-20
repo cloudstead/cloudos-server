@@ -1,10 +1,8 @@
 package cloudos.main;
 
 import cloudos.dao.AccountGroupDAO;
-import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.main.account.CloudOsGroupMainOptions;
 import cloudos.model.AccountGroup;
-import cloudos.model.AccountGroupMember;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import org.cobbzilla.util.collection.ArrayUtil;
@@ -90,7 +88,6 @@ public class CloudOsServerMain {
                 parser.parseArgument(args);
 
                 final AccountGroupDAO groupDAO = applicationContext.getBean(AccountGroupDAO.class);
-                final AccountGroupMemberDAO memberDAO = applicationContext.getBean(AccountGroupMemberDAO.class);
                 final String name = options.getName();
                 AccountGroup group = groupDAO.findByName(name);
 
@@ -112,10 +109,6 @@ public class CloudOsServerMain {
 
                     case delete:
                         if (group == null) die("No group found: "+name);
-                        for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
-                            memberDAO.delete(m.getUuid());
-                        }
-                        // delete group
                         groupDAO.delete(group.getUuid());
                         System.out.println("Deleted group: "+group);
                         break;

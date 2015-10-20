@@ -3,7 +3,6 @@ package cloudos.resources;
 import cloudos.dao.AccountGroupMemberType;
 import cloudos.model.Account;
 import cloudos.model.AccountGroup;
-import cloudos.model.AccountGroupInfo;
 import cloudos.model.support.AccountGroupMemberView;
 import cloudos.model.support.AccountGroupRequest;
 import cloudos.model.support.AccountGroupView;
@@ -41,7 +40,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         // create some users
         for (int i=0; i<NUM_ACCOUNTS; i++) {
             final String accountName = randomAlphanumeric(10);
-            final AccountRequest request = newAccountRequest(accountName);
+            final AccountRequest request = newAccountRequest(ldap(), accountName);
             apiDocs.addNote("create user #"+i);
             response = put(ApiConstants.ACCOUNTS_ENDPOINT + "/" + accountName, toJson(request));
             assertEquals(200, response.status);
@@ -73,10 +72,9 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
                 .addRecipient(testAccounts.get(0).getName())
                 .addRecipient(testAccounts.get(1).getName())
                 .setName(randomAlphanumeric(10).toLowerCase())
-                .setInfo(new AccountGroupInfo()
-                        .setDescription(randomAlphanumeric(100))
-                        .setStorageQuota((10 + RandomUtils.nextInt(0, 21)) + "gb"));
-        apiDocs.addNote("create a group with 2 users, a random description and a storage quota of "+group1.getInfo().getStorageQuota());
+                .setDescription(randomAlphanumeric(100))
+                .setStorageQuota((10 + RandomUtils.nextInt(0, 21)) + "gb");
+        apiDocs.addNote("create a group with 2 users, a random description and a storage quota of "+group1.getStorageQuota());
         response = put(GROUPS_ENDPOINT +"/"+group1.getName(), toJson(group1));
         assertEquals(HttpStatusCodes.OK, response.status);
 
@@ -177,7 +175,7 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
 
         apiDocs.addNote("create a mirror");
         final AccountGroupRequest mirrorGroupRequest = new AccountGroupRequest()
-                .setMirror(sourceName)
+                .setMirrors(sourceName)
                 .setName(mirrorName);
         response = put(GROUPS_ENDPOINT +"/"+mirrorName, toJson(mirrorGroupRequest));
         assertEquals(HttpStatusCodes.OK, response.status);
@@ -190,6 +188,10 @@ public class AccountGroupsResourceTest extends ApiClientTestBase {
         sourceGroupRequest.addRecipient(testAccounts.get(3).getName());
         assertEquals(4, sourceGroupRequest.getRecipients().size());
         AccountGroupView sourceGroup = updateGroup(sourceGroupRequest);
+        assertEquals(sourceGroupRequest.getRecipients().size(), sourceGroup.getMemberCount());
+
+        apiDocs.addNote("verify source group now has one more member");
+        sourceGroup = fetchGroupView(sourceName);
         assertEquals(sourceGroupRequest.getRecipients().size(), sourceGroup.getMemberCount());
 
         apiDocs.addNote("verify mirror contains new account");

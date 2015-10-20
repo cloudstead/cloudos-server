@@ -1,10 +1,8 @@
 package cloudos.resources;
 
 import cloudos.dao.AccountGroupDAO;
-import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.model.AccountGroup;
-import cloudos.model.AccountGroupMember;
-import org.apache.commons.lang3.RandomStringUtils;
+import cloudos.model.support.AccountRequest;
 import org.apache.commons.lang3.RandomUtils;
 import org.cobbzilla.wizard.model.ResultPage;
 import org.junit.Before;
@@ -13,6 +11,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.*;
 
+import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -33,19 +34,17 @@ public class SearchAccountGroupsTest extends SearchTestBase {
         resetGroups();
         super.seedAccounts();
 
-        final AccountGroupMemberDAO memberDAO = getBean(AccountGroupMemberDAO.class);
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
 
-        final String groupNameBase = "aaa"+RandomStringUtils.randomAlphanumeric(10).toLowerCase();
+        final String groupNameBase = "aaa"+ randomAlphanumeric(10).toLowerCase();
         for (int i=0; i<NUM_GROUPS; i++) {
             final String groupName = groupNameBase + "_" + i;
-            final AccountGroup group = (AccountGroup) new AccountGroup().setName(groupName);
+            final AccountGroup group = (AccountGroup) new AccountGroup().setLdapContext(ldap()).setName(groupName);
             groups.add(groupDAO.create(group));
 
             for (int j=0; j<NUM_ACCOUNTS/2; j++) {
-                final AccountGroupMember member = new AccountGroupMember(group, accounts.get(RandomUtils.nextInt(0, NUM_ACCOUNTS)));
                 try {
-                    group.addMember(memberDAO.create(member));
+                    group.addMember(accounts.get(RandomUtils.nextInt(0, NUM_ACCOUNTS)).getDn());
                 } catch (DataIntegrityViolationException dive) {
                     // this can happen if the random roller above tries to add the same account to a group a second time
                     // just ignore it, the group will have one less member than it otherwise would.
@@ -61,10 +60,8 @@ public class SearchAccountGroupsTest extends SearchTestBase {
 
     public void resetGroups () {
 
-        final AccountGroupMemberDAO memberDAO = getBean(AccountGroupMemberDAO.class);
         final AccountGroupDAO groupDAO = getBean(AccountGroupDAO.class);
 
-        for (AccountGroupMember m : memberDAO.findAll()) memberDAO.delete(m.getUuid());
         for (AccountGroup g : groupDAO.findAll()) {
             if (!AccountGroupDAO.isDefaultGroup(g.getName())) groupDAO.delete(g.getUuid());
         }
@@ -77,6 +74,11 @@ public class SearchAccountGroupsTest extends SearchTestBase {
 
     @Test public void testSearchGroupsByName() throws Exception {
         apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 account groups by name (plus the 2 default groups)");
+
+        apiDocs.addNote("Create an admin user to ensure both built-in groups exist");
+        final AccountRequest request = newAccountRequest(ldap(), randomAlphanumeric(10), randomAlphanumeric(10), true);
+        put(ACCOUNTS_ENDPOINT + "/" + request.getName(), toJson(request));
+
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
                 .setSortField("name").setSortOrder(ResultPage.ASC);

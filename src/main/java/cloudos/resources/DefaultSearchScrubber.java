@@ -2,7 +2,6 @@ package cloudos.resources;
 
 import cloudos.model.Account;
 import cloudos.model.AccountGroup;
-import cloudos.model.AccountGroupMember;
 import org.cobbzilla.wizard.model.SearchScrubber;
 
 import java.util.List;
@@ -19,31 +18,31 @@ public class DefaultSearchScrubber implements SearchScrubber {
                 scrubAccount((Account) o);
 
             } else if (o instanceof AccountGroup) {
-                scrubGroup((AccountGroup) o);
+//                scrubGroup((AccountGroup) o);
             }
         }
         return results;
     }
 
     private void scrubAccount(Account a) {
-        a.setUuid(null);
-        a.setAuthId(null);
-        a.setLastLogin(null);
-        a.setPassword(null);
-        a.setEmail(null);
-        a.setTwoFactor(false);
-        a.setAdmin(false);
+        a.remove(a.ldap().getExternal_id());
+        a.remove(a.ldap().getUser_twoFactorAuthId());
+        a.remove(a.ldap().getUser_lastLogin());
+        a.remove(a.ldap().getUser_password());
+        a.remove(a.ldap().getUser_email());
+        a.remove(a.ldap().getUser_twoFactor());
+        a.remove(a.ldap().getUser_admin());
     }
 
-    private void scrubGroup(AccountGroup group) {
-        group.setUuid(null);
-        if (group.hasMembers()) {
-            for (AccountGroupMember m : group.getMembers()) {
-                m.setUuid(null);
-                m.setMemberUuid(null);
-                m.setGroupUuid(null);
-            }
-        }
-    }
+//    private void scrubGroup(AccountGroup group) {
+//        group.setUuid(null);
+//        if (group.hasMembers()) {
+//            for (AccountGroupMember m : group.getMembers()) {
+//                m.setD(null);
+//                m.setMemberUuid(null);
+//                m.setGroupUuid(null);
+//            }
+//        }
+//    }
 
 }

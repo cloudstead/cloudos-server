@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
+import static org.cobbzilla.wizard.resources.ResourceUtil.invalidEx;
 
 @Repository @Slf4j
 public class AppDAO {
@@ -357,11 +358,11 @@ public class AppDAO {
             pluginClass = (Class<AppRuntime>) loader.loadClass(pluginClassName);
 
         } catch (Exception e) {
-            throw new SimpleViolationException("{error.installApp.pluginClass.errorLoading}", "The sso class specified in the cloudos-manifest.json file could not be loaded", pluginClassName);
+            throw invalidEx("{error.installApp.pluginClass.errorLoading}", "The sso class specified in the cloudos-manifest.json file could not be loaded", pluginClassName);
         }
 
         if (!AppRuntime.class.isAssignableFrom(pluginClass)) {
-            throw new SimpleViolationException("{error.installApp.pluginClass.doesNotImplementInstalledApp}", "The sso class specified in the cloudos-manifest.json file does not implement the AppRuntime interface", pluginClass.getName());
+            throw invalidEx("{error.installApp.pluginClass.doesNotImplementInstalledApp}", "The sso class specified in the cloudos-manifest.json file does not implement the AppRuntime interface", pluginClass.getName());
         }
         return pluginClass;
     }

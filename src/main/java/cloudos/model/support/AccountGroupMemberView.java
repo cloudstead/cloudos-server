@@ -17,7 +17,7 @@ public class AccountGroupMemberView {
     @Getter @Setter private AccountGroupMemberType type;
 
     public AccountGroupMemberView(Account account) {
-        this.name = account.getAccountName();
+        this.name = account.getName();
         this.type = AccountGroupMemberType.account;
     }
 

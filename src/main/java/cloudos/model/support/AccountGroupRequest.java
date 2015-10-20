@@ -1,12 +1,11 @@
 package cloudos.model.support;
 
-import cloudos.model.AccountGroupInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.daemon.ZillaRuntime;
+import org.cobbzilla.util.string.StringUtil;
 
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -22,15 +21,15 @@ public class AccountGroupRequest {
 
     public AccountGroupRequest(String groupName, String description) {
         setName(groupName);
-        setInfo(new AccountGroupInfo().setDescription(description));
+        setDescription(description);
     }
 
     public String getName () { return name == null ? null : name.toLowerCase(); }
 
-    // name of a group to mirror members from
-    @Size(min=2, max=100, message="err.mirror.length")
-    @Getter @Setter private String mirror;
-    public boolean hasMirror() { return !empty(mirror); }
+    // comma or space separated list of groups to mirror members from
+    @Getter @Setter private String mirrors;
+    public boolean hasMirror() { return !empty(mirrors); }
+    public List<String> getMirrorList () { return empty(mirrors) ? new ArrayList<String>() : StringUtil.split(mirrors, " ,"); }
 
     @Getter @Setter private List<String> recipients = new ArrayList<>();
     public AccountGroupRequest addRecipient (String r) { recipients.add(r.toLowerCase()); return this; }
@@ -41,7 +40,8 @@ public class AccountGroupRequest {
         return list;
     }
 
-    @Getter @Setter private AccountGroupInfo info;
-    public boolean hasInfo () { return info != null; }
+    @Getter @Setter private String description;
+    @Getter @Setter private String storageQuota;
+
 
 }

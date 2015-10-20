@@ -6,13 +6,11 @@ import cloudos.model.auth.AuthenticationException;
 import cloudos.model.auth.LoginRequest;
 import cloudos.model.support.AccountRequest;
 import cloudos.resources.ApiConstants;
-import cloudos.service.KerberosService;
-import cloudos.service.LdapService;
+import cloudos.service.CloudOsLdapService;
 import cloudos.service.RootyService;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.cobbzilla.util.system.CommandResult;
-import org.cobbzilla.wizard.model.HashedPassword;
+import org.cobbzilla.wizard.dao.AbstractLdapDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import rooty.events.account.AccountEvent;
@@ -22,28 +20,32 @@ import rooty.toots.app.AppScriptMessage;
 import rooty.toots.app.AppScriptMessageType;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.notSupported;
 
 @Repository  @Slf4j
-public class AccountDAO extends AccountBaseDAO<Account> {
+public class AccountDAO extends AbstractLdapDAO<Account> implements BasicAccountDAO<Account> {
 
-    @Autowired private LdapService ldap;
-    @Autowired private KerberosService kerberos;
     @Autowired private RootyService rooty;
     @Autowired private AppDAO appDAO;
     @Autowired private AccountGroupDAO groupDAO;
-    @Autowired private AccountGroupMemberDAO memberDAO;
+    @Getter @Autowired private CloudOsLdapService ldapService;
 
-    @Override public Account authenticate(LoginRequest loginRequest) throws AuthenticationException {
+    public Account authenticate(LoginRequest loginRequest) throws AuthenticationException {
 
         final String accountName = loginRequest.getName();
         final String password = loginRequest.getPassword();
 
-        kerberos.authenticate(accountName, password);
+        try {
+            authenticate(accountName, password);
+        } catch (Exception e) {
+            log.error("authenticate: "+e, e);
+            throw new AuthenticationException(AuthenticationException.Problem.INVALID);
+        }
 
         final Account account = findByName(accountName);
         if (account == null) throw new AuthenticationException(AuthenticationException.Problem.NOT_FOUND);
@@ -53,10 +55,7 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
     public void changePassword(Account account, String oldPassword, String newPassword) throws AuthenticationException {
         checkAuth(account, oldPassword);
-        ldap.changePassword(account.getAccountName(), oldPassword, newPassword);
-        kerberos.changePassword(account.getAccountName(), oldPassword, newPassword);
-        account.getHashedPassword().setResetToken(null);
-        update(account);
+        ldapService.changePassword(account.getName(), oldPassword, newPassword);
 
         // Tell the rooty subsystems we've changed the password
         broadcastPasswordChange(account, newPassword);
@@ -64,35 +63,25 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
     public void checkAuth(Account account, String oldPassword) throws AuthenticationException {
         try {
-            kerberos.authenticate(account.getName(), oldPassword);
-        } catch (AuthenticationException e) {
-            throw e;
+            authenticate(account.getName(), oldPassword);
         } catch (Exception e) {
             final String message = "changePassword: Error authenticating with current password: " + e;
             log.error(message, e);
-            die(message, e);
+            throw new AuthenticationException(AuthenticationException.Problem.INVALID);
         }
     }
 
-    @Override
     public void setPassword(Account account, String newPassword) {
-        ldap.adminChangePassword(account.getAccountName(), newPassword);
-        kerberos.adminChangePassword(account.getAccountName(), newPassword);
-        account.getHashedPassword().setResetToken(null);
+        ldapService.adminChangePassword(account.getName(), newPassword);
+        account.clearResetPasswordToken();
+        account.setPassword(null);
         update(account);
 
         // Tell the rooty subsystems we've changed the password
         broadcastPasswordChange(account, newPassword);
     }
 
-    public List<Account> findAccounts() {
-        final List<Account> accounts = findAll();
-        Collections.sort(accounts, Account.SORT_ACCOUNT_NAME);
-        return accounts;
-    }
-
-    @Override
-    public Account postCreate(Account account, Object context) {
+    @Override public Account postCreate(Account account, Object context) {
         groupDAO.addToDefaultGroup(account);
         if (account.isAdmin()) groupDAO.addToAdminGroup(account);
         return super.postCreate(account, context);
@@ -102,22 +91,16 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
         if (!request.hasPassword()) request.setPassword(ApiConstants.randomPassword());
 
-        final Account account = new Account().populate(request);
-
-        // ignored for cloudos since kerberos is used, but must not be null
-        account.setHashedPassword(new HashedPassword(RandomStringUtils.randomAlphanumeric(20)));
+        final Account account = (Account) new Account(config()).merge(request).clean();
 
         // generate an email verification code for new accounts
         account.initEmailVerificationCode();
 
-        final CommandResult ldapResult = ldap.createUser(request);
-        final CommandResult kerberosResult = kerberos.createPrincipal(request);
-
-        // Create account in DB
+        // Create account in LDAP
         try {
             super.create(account);
         } catch (Exception e) {
-            final String message = "create: account created in ldap / kerberos but account not persisted to DB! " + e;
+            final String message = "create: error creating account in LDAP: " + e;
             log.error(message, e);
             die(message, e);
         }
@@ -130,32 +113,26 @@ public class AccountDAO extends AccountBaseDAO<Account> {
 
         broadcastNewAccount(account);
 
-        log.info("create: ldap result="+ldapResult);
-        log.info("create: krb result="+kerberosResult);
         return account;
     }
 
-    @Override
-    public Account update(@Valid Account account) {
+    @Override public Account update(@Valid Account account) {
 
-        final Account existing = findByName(account.getName());
+        final Account existing = findByDn(account.getDn());
+        if (existing == null) die("Cannot update non-existent account: "+account.getDn());
+
         boolean isSuspending = !existing.isSuspended() && account.isSuspended();
-        existing.populate(account);
+        existing.merge(account);
         if (isSuspending) {
-            ldap.adminChangePassword(account.getName(), RandomStringUtils.randomAlphanumeric(20));
-            kerberos.adminChangePassword(account.getName(), RandomStringUtils.randomAlphanumeric(20));
+            final String newPassword = randomAlphanumeric(20);
+            existing.setPassword(newPassword);
+            ldapService.adminChangePassword(account.getName(), newPassword);
         }
 
         return super.update(existing);
     }
 
     public void delete(String accountName) {
-
-        try {
-            ldap.deleteUser(accountName);
-        } catch (Exception e) {
-            log.warn("delete: Error calling ldap.deleteUser("+accountName+"): "+e, e);
-        }
 
         final Account account = findByName(accountName);
         if (account == null) {
@@ -164,9 +141,9 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         }
 
         try {
-            super.delete(account.getUuid());
+            super.delete(account.getName());
         } catch (Exception e) {
-            final String message = "delete: account deleted in ldap / kerberos but account not deleted in storageEngine! " + e;
+            final String message = "delete: account deleted in LDAP but account not deleted in storageEngine! " + e;
             log.error(message, e);
             die(message, e);
         }
@@ -178,28 +155,6 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         rooty.getSender().write(event);
 
         broadcastDeleteAccount(account);
-    }
-
-    @Override
-    protected String formatBound(String entityAlias, String bound, String value) {
-        return "("+innerBound(entityAlias, bound, value)+")";
-    }
-
-    protected String innerBound(String entityAlias, String bound, String value) {
-        switch (bound) {
-            case Account.STATUS:
-                switch (Account.Status.valueOf(value)) {
-                    case active: return entityAlias+".lastLogin IS NOT NULL AND "+entityAlias+".suspended = false";
-                    case invited: return entityAlias+".lastLogin IS NULL AND "+entityAlias+".suspended = false";
-                    case suspended: return entityAlias+".suspended = true";
-                    case admins: return entityAlias+".admin = true AND "+entityAlias+".suspended = false";
-                    case non_admins: return entityAlias+".admin = false";
-                    default: throw new IllegalArgumentException("Invalid status bound: "+value);
-                }
-
-            default:
-                throw new IllegalArgumentException("Invalid bound: "+bound);
-        }
     }
 
     private void broadcastNewAccount (Account account) {
@@ -248,4 +203,35 @@ public class AccountDAO extends AccountBaseDAO<Account> {
         }
     }
 
+    public List<Account> findAdmins() { return findByField(Account.STATUS, Account.Status.admins.name()); }
+
+    @Override public Account findByActivationKey(String key) {
+        return findByUniqueField(Account.EMAIL_VERIFICATION_CODE, key);
+    }
+
+    @Override public Account findByResetPasswordToken(String token) {
+        return findByUniqueField(Account.RESET_PASSWORD_TOKEN, token);
+    }
+
+    @Override protected String formatBound(String bound, String value) {
+        if (bound.equals(Account.STATUS)) {
+            switch (Account.Status.valueOf(value)) {
+                case active: return "(&("+config().getUser_lastLogin()+"=*)("+config().getUser_suspended()+"=false))";
+                case invited: return "(&(!("+config().getUser_lastLogin()+"=*))("+config().getUser_suspended()+"=false))";
+                case suspended: return "("+config().getUser_suspended()+"=true)";
+                case admins: return "(&("+config().getUser_admin()+"=true)("+config().getUser_suspended()+"=false))";
+                case non_admins: return "("+config().getUser_admin()+"=false)";
+                default: return die("formatBound: invalid bound=value (" + bound + "=" + value + ")");
+            }
+
+        } else if (bound.equals(idField())) {
+            return "(" + idField() + "=" + value + ")";
+
+        } else if (bound.equals("resetPasswordToken")) {
+            return "("+bound+"="+value+")";
+
+        } else {
+            return notSupported("formatBound: " + bound);
+        }
+    }
 }

@@ -41,11 +41,11 @@ public class CloudOsGroupMainOptions extends CloudOsMainOptions {
     @Option(name=OPT_MEMBERS, aliases=LONGOPT_MEMBERS, usage=USAGE_MEMBERS)
     @Getter @Setter private String members;
 
-    public static final String USAGE_MIRROR = "Mirror another group";
+    public static final String USAGE_MIRROR = "Mirror other groups";
     public static final String OPT_MIRROR = "-M";
-    public static final String LONGOPT_MIRROR = "--mirror";
+    public static final String LONGOPT_MIRROR = "--mirrors";
     @Option(name=OPT_MIRROR, aliases=LONGOPT_MIRROR, usage=USAGE_MIRROR)
-    @Getter @Setter private String mirror;
+    @Getter @Setter private String mirrors;
 
     public static final String USAGE_OPERATION = "The operation to perform";
     public static final String OPT_OPERATION = "-o";
@@ -62,8 +62,8 @@ public class CloudOsGroupMainOptions extends CloudOsMainOptions {
     public AccountGroupRequest getGroupRequest() {
         return new AccountGroupRequest()
                 .setName(getName())
-                .setInfo(getInfo())
-                .setMirror(getMirror())
+                .setDescription(getDescription())
+                .setMirrors(getMirrors())
                 .setRecipients(getRecipients());
     }
 

@@ -3,7 +3,6 @@ package cloudos.resources;
 import cloudos.dao.AccountDAO;
 import cloudos.dao.AppDAO;
 import cloudos.model.Account;
-import cloudos.model.AccountBase;
 import cloudos.model.auth.AuthenticationException;
 import cloudos.model.auth.ChangePasswordRequest;
 import cloudos.model.auth.CloudOsAuthResponse;
@@ -129,6 +128,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
                 .setParameter(TemplatedMailService.PARAM_PASSWORD, password);
         try {
             mailService.getMailSender().deliverMessage(mail);
+
         } catch (Exception e) {
             log.error("addAccount: error sending welcome email: "+e, e);
         }
@@ -166,7 +166,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             return invalid("err.admin.cannotSuspendSelf");
         }
 
-        final Account found = accountDAO.findByName(name);
+        Account found = accountDAO.findByName(name);
         if (found == null) return notFound(name);
 
         if (!request.isTwoFactor() && found.isTwoFactor()) {
@@ -181,17 +181,15 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
             set2factor(request);
         }
 
-        Account toUpdate = new Account(request);
-        toUpdate.setName(name); // force account name that was in path
         try {
-            toUpdate = accountDAO.update(toUpdate);
+            found = accountDAO.update(request);
         } catch (Exception e) {
             log.error("Error calling AccountDAO.save: "+e, e);
             return serverError();
         }
 
         if (request.isSuspended()) {
-            sessionDAO.invalidateAllSessions(toUpdate.getUuid());
+            sessionDAO.invalidateAllSessions(found.getUuid());
         } else {
             sessionDAO.update(apiKey, account);
         }
@@ -199,13 +197,11 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         return ok(account);
     }
 
-    private AccountBase set2factor(AccountRequest request) {
+    private Account set2factor(AccountRequest request) {
         return request.setAuthIdInt(getTwoFactorAuthService().addUser(request.getEmail(), request.getMobilePhone(), request.getMobilePhoneCountryCodeString()));
     }
 
-    private void remove2factor(Account account) {
-        getTwoFactorAuthService().deleteUser(account.getAuthIdInt());
-    }
+    private void remove2factor(Account account) { getTwoFactorAuthService().deleteUser(account.getAuthIdInt()); }
 
     /**
      * Change account password. Caller can only change their own password unless they are an admin.
@@ -271,7 +267,7 @@ public class AccountsResource extends AccountsResourceBase<Account, CloudOsAuthR
         if (account == null) return notFound(apiKey);
 
         // non-admins are only allowed to lookup their own account
-        if (!account.isAdmin() && !account.getName().equals(name)) return forbidden();
+        if (!account.isAdmin() && !account.getName().equalsIgnoreCase(name)) return forbidden();
 
         try {
             final Account found = accountDAO.findByName(name);

@@ -15,8 +15,7 @@ public class SearchAccountsTest extends SearchTestBase {
 
     private static final String DOC_TARGET = "Search: Accounts";
 
-    @Test
-    public void testSearchAccountsByName() throws Exception {
+    @Test public void testSearchAccountsByName() throws Exception {
         apiDocs.startRecording(DOC_TARGET, "basic name-sorted default search. should return the first 10 accounts by name");
         final ResultPage page = new ResultPage()
                 .setPageNumber(0).setPageSize(10)
@@ -24,8 +23,7 @@ public class SearchAccountsTest extends SearchTestBase {
         expectResults(page, NUM_ACCOUNTS, accountNames);
     }
 
-    @Test
-    public void testSearchActiveAccounts() throws Exception {
+    @Test public void testSearchActiveAccounts() throws Exception {
 
         apiDocs.startRecording(DOC_TARGET, "search accounts in various ways");
 
@@ -78,12 +76,11 @@ public class SearchAccountsTest extends SearchTestBase {
         assertEquals(NUM_ACCOUNTS, found.total());
     }
 
-    @Test
-    public void testSearchSuspendedAccounts () throws Exception {
+    @Test public void testSearchSuspendedAccounts () throws Exception {
 
         apiDocs.startRecording(DOC_TARGET, "suspend some accounts and verify searches return correctly");
 
-        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);;
+        final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);
         SearchResults<Account> found;
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup");
@@ -93,7 +90,7 @@ public class SearchAccountsTest extends SearchTestBase {
         // login every account we created
         apiDocs.addNote("login all accounts, so that all accounts are active");
         for (AccountRequest request : accountRequests.values()) {
-            login(new LoginRequest().setName(request.getAccountName()).setPassword(request.getPassword()));
+            login(new LoginRequest().setName(request.getName()).setPassword(request.getPassword()));
         }
         flushTokens(); pushToken(adminToken);
 
@@ -127,8 +124,7 @@ public class SearchAccountsTest extends SearchTestBase {
         expectResults(page, NUM_ACCOUNTS - numSuspended, expected);
     }
 
-    @Test
-    public void testSearchAdminsAndNonAdmins () throws Exception {
+    @Test public void testSearchAdminsAndNonAdmins () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "update some accounts and make them admins, verify searches return correctly");
 
         final ResultPage page = new ResultPage().setPageNumber(0).setPageSize(10).setSortField("name").setSortOrder(ResultPage.ASC);;
@@ -139,7 +135,8 @@ public class SearchAccountsTest extends SearchTestBase {
         assertEquals(NUM_ACCOUNTS, found.total());
 
         apiDocs.addNote("search admin accounts, should not find any");
-        page.setBound(Account.STATUS, Account.Status.admins.name());
+        final String adminBound = Account.Status.admins.name();
+        page.setBound(Account.STATUS, adminBound);
         expectResults(page, 0, Collections.EMPTY_LIST);
 
         // make some accounts admins
@@ -160,7 +157,7 @@ public class SearchAccountsTest extends SearchTestBase {
         expected = new ArrayList<>(admins);
 
         apiDocs.addNote("search admin accounts, should find the " + numAdmins + " that were just made admins");
-        page.setBound(Account.STATUS, Account.Status.admins.name());
+        page.setBound(Account.STATUS, adminBound);
         expectResults(page, numAdmins, expected);
 
         apiDocs.addNote("search non-admin accounts, should find the " + (NUM_ACCOUNTS - numAdmins) + " that are not admins");
@@ -169,8 +166,7 @@ public class SearchAccountsTest extends SearchTestBase {
         expectResults(page, NUM_ACCOUNTS - numAdmins, expected);
     }
 
-    @Test
-    public void testSearchAsNonAdminAccount () throws Exception {
+    @Test public void testSearchAsNonAdminAccount () throws Exception {
 
         apiDocs.startRecording(DOC_TARGET, "as a non-admin, search accounts. sensitive fields should be hidden.");
 
@@ -179,7 +175,7 @@ public class SearchAccountsTest extends SearchTestBase {
         login(new LoginRequest().setName(accountName).setPassword(accountRequests.get(accountName).getPassword()));
 
         apiDocs.addNote("search all accounts, should find the " + NUM_ACCOUNTS + " that were created/invited during test setup. " +
-                "\nVerify that the results do not include uuids, recovery emails, or authids");
+                "\nVerify that the results do not include uuids or authids");
 
         final SearchResults<Account> found = searchAccounts(ResultPage.INFINITE_PAGE);
         assertEquals(NUM_ACCOUNTS, found.total());
@@ -194,8 +190,7 @@ public class SearchAccountsTest extends SearchTestBase {
         }
     }
 
-    @Test
-    public void testDownloadCsv () throws Exception {
+    @Test public void testDownloadCsv () throws Exception {
         apiDocs.startRecording(DOC_TARGET, "download a CSV of the results of a search");
         apiDocs.addNote("download all accounts as a CSV");
         final String csv = downloadAccounts(ResultPage.INFINITE_PAGE);

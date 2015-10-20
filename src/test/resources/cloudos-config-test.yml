@@ -7,9 +7,6 @@ serverName: cloudos-api
 #publicUriBase: http://127.0.0.1
 #publicUriBase: {{PUBLIC_BASE_URI}}
 
-# Kerberos admin password. For creating and listing accounts with kadmin program.
-kadminPassword: {{KADMIN_PASS}}
-
 # Name of the default admin account. The API assumes this is the organization to auth against (we expect this
 defaultAdmin: admin
 
@@ -94,3 +91,6 @@ dns:
 #    rooty.toots.service.ServiceKeyHandler:
 #    rooty.toots.vendor.VendorSettingHandler:
 #    rooty.toots.chef.ChefHandler:
+ldap:
+  password: caaca5f4dbd0ca84c6ae7ef27b78f443e7a16cc74dd4013b066a6e1439fffb71
+  json: '{"server": "ldap://127.0.0.1:3890", "domain":"kolab.cloudstead.io"}'

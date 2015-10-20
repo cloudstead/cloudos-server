@@ -1,6 +1,6 @@
 package cloudos.resources;
 
-import cloudos.dao.AccountBaseDAO;
+import cloudos.dao.AccountDAO;
 import cloudos.model.Account;
 import cloudos.server.CloudOsConfiguration;
 import lombok.AccessLevel;
@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 @Service @Slf4j
 public class AuthResource extends AuthResourceBase<Account> {
 
-    @Autowired @Getter(value=AccessLevel.PROTECTED) protected AccountBaseDAO<Account> accountBaseDAO;
+    @Autowired @Getter(value=AccessLevel.PROTECTED) protected AccountDAO accountDAO;
     @Autowired @Getter(value=AccessLevel.PROTECTED) protected TemplatedMailService templatedMailService;
 
     @Autowired private CloudOsConfiguration configuration;

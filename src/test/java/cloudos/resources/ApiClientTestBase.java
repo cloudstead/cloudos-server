@@ -8,6 +8,7 @@ import cloudos.appstore.test.AppStoreTestUtil;
 import cloudos.appstore.test.AssetWebServer;
 import cloudos.appstore.test.MockAppStoreApiClient;
 import cloudos.appstore.test.TestApp;
+import cloudos.cslib.ssh.CsKeyPair;
 import cloudos.dao.SslCertificateDAO;
 import cloudos.dns.service.mock.MockDnsManager;
 import cloudos.model.Account;
@@ -23,19 +24,18 @@ import cloudos.resources.setup.MockSetupSettingsSource;
 import cloudos.server.CloudOsConfiguration;
 import cloudos.server.CloudOsServer;
 import cloudos.server.MockCloudOsConfiguration;
-import cloudos.service.MockKerberosService;
 import cloudos.service.MockLdapService;
 import cloudos.service.MockRootySender;
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.io.Files;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailSender;
 import org.cobbzilla.mail.sender.mock.MockTemplatedMailService;
+import org.cobbzilla.util.collection.SingletonList;
 import org.cobbzilla.util.http.HttpUtil;
-import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.io.TempDir;
 import org.cobbzilla.util.json.JsonUtil;
@@ -44,7 +44,10 @@ import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.ResultPage;
+import org.cobbzilla.wizard.model.ldap.LdapContext;
+import org.cobbzilla.wizard.model.ldap.LdapEntity;
 import org.cobbzilla.wizard.server.RestServer;
+import org.cobbzilla.wizard.server.config.LdapConfiguration;
 import org.cobbzilla.wizard.server.config.factory.ConfigurationSource;
 import org.cobbzilla.wizard.server.config.factory.StreamConfigurationSource;
 import org.cobbzilla.wizard.util.RestResponse;
@@ -64,16 +67,15 @@ import rooty.toots.vendor.VendorSettingHandler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static cloudos.resources.ApiConstants.ACCOUNTS_ENDPOINT;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-import static org.cobbzilla.util.io.FileUtil.abs;
-import static org.cobbzilla.util.io.FileUtil.mkdirOrDie;
+import static org.cobbzilla.util.io.FileUtil.*;
 import static org.cobbzilla.util.json.JsonUtil.fromJson;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.cobbzilla.util.string.StringUtil.urlEncode;
@@ -99,6 +101,8 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         return new MockCloudOsConfiguration(configuration);
     }
 
+    protected LdapConfiguration ldap() { return getConfiguration().getLdap(); }
+
     protected static AssetWebServer webServer = new AssetWebServer();
     @BeforeClass public static void startTestWebserver() throws Exception { webServer.start(); }
     @AfterClass public static void stopTestWebserver() throws Exception { webServer.stop(); }
@@ -107,21 +111,21 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
 
     public void flushTokens() { tokenStack.clear(); setToken(null); }
 
-    public static AccountRequest newAccountRequest(String accountName) {
-        return newAccountRequest(accountName, null, false);
+    public static AccountRequest newAccountRequest(LdapContext context, String accountName) {
+        return newAccountRequest(context, accountName, null, false);
     }
 
-    public static AccountRequest newAccountRequest(String accountName, String password, boolean isAdmin) {
+    public static AccountRequest newAccountRequest(LdapContext context, String accountName, String password, boolean isAdmin) {
         // pop-quiz, java stupidity 101: why is this cast necessary?
-        return (AccountRequest) new AccountRequest()
+        return (AccountRequest) new AccountRequest(context)
                 .setPassword(password)
-                .setAccountName(accountName)
                 .setMobilePhone(randomNumeric(10))
                 .setMobilePhoneCountryCode(1)
                 .setEmail(randomEmail())
                 .setFirstName(randomAlphanumeric(10))
                 .setLastName(randomAlphanumeric(10))
-                .setAdmin(isAdmin);
+                .setAdmin(isAdmin)
+                .setName(accountName);
     }
 
     protected String getTestConfig() { return "cloudos-config-test.yml"; }
@@ -129,7 +133,6 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     public MockTemplatedMailService getTemplatedMailService() { return getBean(MockTemplatedMailService.class); }
     public MockTemplatedMailSender getTemplatedMailSender() { return (MockTemplatedMailSender) getTemplatedMailService().getMailSender(); }
 
-    public MockKerberosService getKerberos() { return getBean(MockKerberosService.class); }
     public MockLdapService getLdap () { return getBean(MockLdapService.class); }
 
     public CloudOsConfiguration getConfiguration() { return (CloudOsConfiguration) server.getConfiguration(); }
@@ -144,14 +147,9 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         return env;
     }
 
-    @Override
-    protected List<ConfigurationSource> getConfigurations() {
-        final List<ConfigurationSource> sources = new ArrayList<>();
-        sources.add(new StreamConfigurationSource(getClass().getClassLoader().getResourceAsStream(getTestConfig())));
-        return sources;
+    @Override protected List<ConfigurationSource> getConfigurations() {
+        return new SingletonList<ConfigurationSource>(new StreamConfigurationSource(getTestConfig()));
     }
-
-    @Override protected Class<CloudOsServer> getRestServerClass() { return CloudOsServer.class; }
 
     public static final String TEST_KEY = HttpUtil.DEFAULT_CERT_NAME + ".key";
     public static final String TEST_PEM = HttpUtil.DEFAULT_CERT_NAME + ".pem";
@@ -194,12 +192,12 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         final File pemFile = new File(sslKeysDir, TEST_PEM);
         final File keyFile = new File(sslKeysDir, TEST_KEY);
 
-        FileUtil.toFile(pemFile, getTestPem());
-        FileUtil.toFile(keyFile, getTestKey());
+        toFile(pemFile, getTestPem());
+        toFile(keyFile, getTestKey());
 
         // Create dummy cacerts file. DB record is created later (see below)
         final File cacertsFile = File.createTempFile("cacerts", ".keystore");
-        final String keystorePassword = RandomStringUtils.randomAlphanumeric(10);
+        final String keystorePassword = randomAlphanumeric(10);
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         try (FileOutputStream out = new FileOutputStream(cacertsFile)) {
             ks.load(null, keystorePassword.toCharArray());
@@ -221,6 +219,19 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
             @Override public String getChefDir() { return abs(chefHome); }
             @Override protected String initChefUser() { return CHEF_USER; }
             @Override protected String getVendorKeyRootPaths() { return getChefUserHome(); }
+
+            protected String key(String keyname) { return getServiceDir() + "/" + keyname; }
+            @Override public void generateKey(String keyname) {
+                try {
+                    final CsKeyPair pair = CsKeyPair.createKeyPair();
+                    toFile(key(keyname), pair.getPrivateKey());
+                    toFile(key(keyname + ".pub"), pair.getPublicKey());
+                } catch (Exception e) { die("generateKey: "+e, e); }
+            }
+            @Override public void destroyKey(String keyname) {
+                deleteQuietly(new File(key(keyname)));
+                deleteQuietly(new File(key(keyname+".pub")));
+            }
         };
         mkdirOrDie(new File(chefHome, ".ssh"));
         serviceKeyHandler.setDefaultSslFile(abs(keyFile));
@@ -244,7 +255,7 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // write a simple solo.json file
         final ChefSolo chefSolo = new ChefSolo();
         chefSolo.setRun_list(new String[] {"recipe[test]", "recipe[test-foo]"});
-        FileUtil.toFile(new File(chefHome, SOLO_JSON), JsonUtil.toJson(chefSolo));
+        toFile(new File(chefHome, SOLO_JSON), toJson(chefSolo));
 
         // register mocks with rooty
         final CloudOsConfiguration configuration = (CloudOsConfiguration) serverHarness.getConfiguration();
@@ -257,6 +268,18 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         // mock app store and DNS manager
         appStoreClient = new MockAppStoreApiClient(webServer, getConfiguration().getAppStore());
         configuration.setAppStoreClient(appStoreClient);
+
+        // for testing against a remote LDAP server. must be "empty" to start
+//        configuration.getLdap().getConfig().put("server", "ldaps://kolab.cloudstead.io:6360");
+//        CommandShell.execScript("ssh ubuntu@104.130.226.77 \"sudo bash -c 'service dirsrv stop && chef/cookbooks/kolab/files/default/restore.sh ~ubuntu && service dirsrv start'\"");
+
+        // allow Json mapper to attach LdapContext for proper field resolution
+        JsonUtil.FULL_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getConfiguration().getLdap()));
+        JsonUtil.NOTNULL_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getConfiguration().getLdap()));
+        JsonUtil.PUBLIC_MAPPER.setInjectableValues(new InjectableValues.Std()
+                .addValue(LdapEntity.LDAP_CONTEXT, getConfiguration().getLdap()));
 
         // use scratch dir for app repository, set rooty group to null (skip chgrp)
         appRepository = new TempDir();
@@ -297,25 +320,22 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
         final int timezoneId = 4;
         final String accountName = randomAlphanumeric(10);
         final String password = randomAlphanumeric(10);
-        final SetupRequest request = (SetupRequest) new SetupRequest()
+        final SetupRequest request = (SetupRequest) new SetupRequest(ldap())
                 .setSetupKey(setupSource.getMockSettings().getSecret())
                 .setSystemTimeZone(timezoneId)
                 .setInitialPassword(setupSource.getPassword())
                 .setPassword(password)
-                .setAccountName(accountName)
                 .setMobilePhone(randomNumeric(10))
                 .setMobilePhoneCountryCode(1)
                 .setEmail(randomEmail())
                 .setFirstName(randomAlphanumeric(10))
                 .setLastName(randomAlphanumeric(10))
-                .setAdmin(true);
+                .setAdmin(true)
+                .setName(accountName);
 
         // Do first-time setup, create cloudOs admin
         final RestResponse response = post(ApiConstants.SETUP_ENDPOINT, toJson(request));
         final AuthResponse authResponse = fromJson(response.json, SetupResponse.class);
-
-        // ensure kerberos got the message
-        assertEquals(request.getPassword(), getKerberos().getPassword(request.getAccountName()));
 
         // ensure system timezone setter was done
         final SystemSetTimezoneMessage tzMessage = getRootySender().first(SystemSetTimezoneMessage.class);
@@ -338,14 +358,14 @@ public class ApiClientTestBase extends ApiDocsResourceIT<CloudOsConfiguration, C
     }
 
     public void suspend(AccountRequest request) throws Exception {
-        apiDocs.addNote("suspending account: "+request.getAccountName());
+        apiDocs.addNote("suspending account: "+request.getName());
         request.setSuspended(true);
         update(request);
     }
 
     public void update(AccountRequest request) throws Exception {
         pushToken(adminToken);
-        RestResponse response = post(ACCOUNTS_ENDPOINT + "/" + request.getAccountName(), toJson(request));
+        RestResponse response = post(ACCOUNTS_ENDPOINT + "/" + request.getName(), toJson(request));
         assertEquals(200, response.status);
         popToken();
     }

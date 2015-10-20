@@ -4,7 +4,6 @@ import cloudos.main.CloudOsMainOptions;
 import cloudos.model.support.AccountRequest;
 import lombok.Getter;
 import lombok.Setter;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.wizard.api.CrudOperation;
 import org.kohsuke.args4j.Option;
 
@@ -88,7 +87,7 @@ public class CloudOsAccountMainOptions extends CloudOsMainOptions {
     public AccountRequest getAccountRequest() {
         return (AccountRequest) new AccountRequest()
                 .setPassword(getAccountPassword())
-                .setStorageQuota(getQuota())
+                .setStorageQuotaString(getQuota())
                 .setAdmin(isAdmin())
                 .setEmail(getEmail())
                 .setFirstName(getFirstname())
@@ -97,6 +96,7 @@ public class CloudOsAccountMainOptions extends CloudOsMainOptions {
                 .setMobilePhone(getMobilephone())
                 .setSuspended(isSuspended())
                 .setTwoFactor(isTwofactor())
+                .setLdapContext(getLdap())
                 .setName(getName());
     }
 }

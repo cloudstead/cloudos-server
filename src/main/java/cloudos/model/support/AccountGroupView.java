@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.wizard.dao.SearchResults;
 import org.cobbzilla.wizard.model.NamedEntity;
 
@@ -26,7 +25,7 @@ public class AccountGroupView implements NamedEntity {
     public static final JavaType searchResultType = SearchResults.jsonType(AccountGroupView.class);
 
     @Getter @Setter private String name;
-    @Getter @Setter private String mirror;
+    @Getter @Setter private List<String> mirrors;
     @Getter @Setter private AccountGroupInfo info;
     @Getter @Setter private Set<AccountGroupMemberView> members = new HashSet<>();
     @Setter private Integer memberCount = null;
@@ -51,11 +50,12 @@ public class AccountGroupView implements NamedEntity {
         for (AccountGroupMember m : new ArrayList<>(groupMembers)) {
             members.add(new AccountGroupMemberView(m));
         }
+        memberCount = null;
         return this;
     }
 
-    public void addMember(AccountGroupMember m) { members.add(new AccountGroupMemberView(m)); }
+    public void addMember(AccountGroupMember m) { members.add(new AccountGroupMemberView(m)); memberCount = null; }
 
-    public void resetMembers() { members = new HashSet<>(); }
+    public void resetMembers() { members = new HashSet<>(); memberCount = null; }
 
 }

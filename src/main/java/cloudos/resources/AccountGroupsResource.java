@@ -1,7 +1,6 @@
 package cloudos.resources;
 
 import cloudos.dao.AccountGroupDAO;
-import cloudos.dao.AccountGroupMemberDAO;
 import cloudos.dao.SessionDAO;
 import cloudos.model.Account;
 import cloudos.model.AccountGroup;
@@ -11,7 +10,6 @@ import cloudos.model.support.AccountGroupView;
 import cloudos.service.RootyService;
 import com.qmino.miredot.annotations.ReturnType;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.wizard.validation.SimpleViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rooty.events.email.EmailAliasEvent;
@@ -24,7 +22,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.wizard.resources.ResourceUtil.*;
@@ -36,7 +33,6 @@ import static org.cobbzilla.wizard.resources.ResourceUtil.*;
 public class AccountGroupsResource {
 
     @Autowired private AccountGroupDAO groupDAO;
-    @Autowired private AccountGroupMemberDAO memberDAO;
     @Autowired private SessionDAO sessionDAO;
     @Autowired private RootyService rooty;
 
@@ -56,7 +52,7 @@ public class AccountGroupsResource {
 
         final List<AccountGroup> groups = groupDAO.findAll();
         final List<AccountGroupView> views = new ArrayList<>();
-        for (AccountGroup g : groups) views.add(buildAccountGroupView(memberDAO, g, null));
+        for (AccountGroup g : groups) views.add(buildAccountGroupView(groupDAO, g, null));
         Collections.sort(groups);
         return ok(groups);
     }
@@ -91,14 +87,14 @@ public class AccountGroupsResource {
         }
 
         if (!groupName.equalsIgnoreCase(groupRequest.getName())) {
-            throw new SimpleViolationException("{err.name.mismatch}", "group name in json was different from uri");
+            throw invalidEx("{err.name.mismatch}", "group name in json was different from uri");
         }
 
         final AccountGroup created = groupDAO.create(groupRequest, recipients);
         if (created == null) die("create: createAccountGroup returned null!"); //should never happen
 
         // build view
-        final AccountGroupView view = buildAccountGroupView(memberDAO, created, created.getMembers());
+        final AccountGroupView view = buildAccountGroupView(groupDAO, created, created.getMembers());
 
         // tell rooty. this will create email mailbox and other per-user stuffs. apps can listen on this MQ as well.
         announce(groupName, recipients);
@@ -130,13 +126,13 @@ public class AccountGroupsResource {
         groupName = groupName.toLowerCase();
 
         if (!groupName.equalsIgnoreCase(groupRequest.getName())) {
-            throw new SimpleViolationException("{err.name.mismatch}", "group name in json was different from uri");
+            throw invalidEx("{err.name.mismatch}", "group name in json was different from uri");
         }
 
-        final AccountGroup group = groupDAO.findByName(groupName.toLowerCase());
+        AccountGroup group = groupDAO.findByName(groupName.toLowerCase());
         if (group == null) return notFound(groupName);
 
-        groupDAO.update(groupRequest);
+        group = groupDAO.update(groupRequest);
 
         announce(groupName, groupRequest.getRecipients());
         return ok(group);
@@ -149,16 +145,15 @@ public class AccountGroupsResource {
      *                their account or accountGroup property is set.
      * @return The view of the group
      */
-    public static AccountGroupView buildAccountGroupView(AccountGroupMemberDAO memberDAO, AccountGroup group, List<AccountGroupMember> members) {
-
-        final Map<String, Integer> counts = memberDAO.findAllMembershipCounts();
+    public static AccountGroupView buildAccountGroupView(AccountGroupDAO groupDAO, AccountGroup group, List<String> members) {
 
         final AccountGroupView view = new AccountGroupView(group);
         view.resetMembers();
-        if (members != null) view.addMembers(members);
-
-        view.setMemberCount(counts.get(group.getUuid()));
-
+        if (members != null) {
+            for (String dn : members) {
+                view.addMember(new AccountGroupMember(group.getDn(), dn, groupDAO.config()));
+            }
+        }
         return view;
     }
 
@@ -185,8 +180,8 @@ public class AccountGroupsResource {
         final AccountGroup group = groupDAO.findByName(groupName);
         if (group == null) return notFound(groupName);
 
-        final List<AccountGroupMember> members = groupDAO.buildGroupMemberList(group);
-        final AccountGroupView view = buildAccountGroupView(memberDAO, group, members);
+        final List<String> members = groupDAO.buildGroupMemberList(group);
+        final AccountGroupView view = buildAccountGroupView(groupDAO, group, members);
 
         return ok(view);
     }
@@ -212,12 +207,7 @@ public class AccountGroupsResource {
         final AccountGroup group = groupDAO.findByName(groupName);
         if (group == null) return notFound(groupName);
 
-        // delete members
-        for (AccountGroupMember m : memberDAO.findByGroup(group.getUuid())) {
-            memberDAO.delete(m.getUuid());
-        }
-        // delete group
-        groupDAO.delete(group.getUuid());
+        groupDAO.delete(group.getName());
 
         // Announce removed alias on the event bus
         announce(new RemoveEmailAliasEvent(groupName));
