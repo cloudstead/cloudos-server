@@ -3,12 +3,9 @@
         // the very basics
         "recipe[base]",
 
-        // cloudOS core services (search engine will also go here)
-        "recipe[auth]",
-
         // software shared by multiple apps (switching to docker may change this)
         "recipe[apache]", "recipe[postgresql]", "recipe[mysql]",
-        "recipe[java]", "recipe[git]", "recipe[email]",
+        "recipe[java]", "recipe[git]", "recipe[kolab]",
 
         // message queue for rooty-tooty
         "recipe[kestrel]",
@@ -16,8 +13,8 @@
         // the cloudOS webapp
         "recipe[cloudos]",
 
-        // the built-in apps
-        "recipe[roundcube]", "recipe[roundcube-calendar]", "recipe[roundcube-addressbook]", "recipe[owncloud]",
+        // the built-in apps -- todo: add roundcube email/calendar as sub-apps of kolab
+        "recipe[owncloud]",
 
         // run this last
         "recipe[cloudos::validate]"
